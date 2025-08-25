@@ -233,6 +233,7 @@
     <script>
         // Store the parsed data globally within the script's scope
         let parsedData = null;
+        let plainTextForCopy = ''; // Store a clean text version for copying
 
         // --- Main Parsing Logic ---
         document.getElementById('parseButton').addEventListener('click', () => {
@@ -424,6 +425,7 @@
         function displayCompactedOutput(data) {
             const outputElement = document.getElementById('compactedOutput');
             let html = '';
+            plainTextForCopy = ''; // Reset plain text version
 
             if (data.SUMMARY) {
                 const summaryParts = [];
@@ -434,7 +436,9 @@
                 if (data.SUMMARY.DETACHMENT) summaryParts.push(`${data.SUMMARY.DETACHMENT}`);
                 if (data.SUMMARY.TOTAL_ARMY_POINTS) summaryParts.push(`${data.SUMMARY.TOTAL_ARMY_POINTS}`);
                 if (summaryParts.length > 0) {
-                    html += `<div style="padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-border);"><p style="font-size: 0.75rem; margin-bottom: 0.25rem; color: var(--color-text-secondary); font-weight: 600;">${summaryParts.join(' | ')}</p></div>`;
+                    const summaryText = summaryParts.join(' | ');
+                    html += `<div style="padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-border);"><p style="font-size: 0.75rem; margin-bottom: 0.25rem; color: var(--color-text-secondary); font-weight: 600;">${summaryText}</p></div>`;
+                    plainTextForCopy += summaryText + '\n-------------------------------------\n';
                 }
             }
 
@@ -444,22 +448,30 @@
                     data[section].forEach(unit => {
                         const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
                         const quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
-                        html += `<div style="margin-bottom: 0.5rem;"><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem;">${quantityDisplay}${unit.name} ${unit.points}</p>`;
+                        const unitText = `${quantityDisplay}${unit.name} ${unit.points}`;
+                        html += `<div style="margin-bottom: 0.5rem;"><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitText}</p>`;
+                        plainTextForCopy += `* ${unitText}\n`;
+
                         if (unit.items && unit.items.length > 0) {
                             html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
                             unit.items.forEach(item => {
                                 const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                                 const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                                const itemText = `${itemQtyDisplay}${item.name}`;
                                 if (item.items && item.items.length > 0) {
-                                    html += `<p style="font-weight: 500; color: var(--color-text-primary);">${itemQtyDisplay}${item.name}</p><div style="padding-left: 1rem;">`;
+                                    html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemText}</p><div style="padding-left: 1rem;">`;
+                                    plainTextForCopy += `  + ${itemText}\n`;
                                     item.items.forEach(subItem => {
                                         const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
                                         const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
-                                        html += `<p>${subItemQtyDisplay}${subItem.name}</p>`;
+                                        const subItemText = `${subItemQtyDisplay}${subItem.name}`;
+                                        html += `<p style="margin: 0;">${subItemText}</p>`;
+                                        plainTextForCopy += `    - ${subItemText}\n`;
                                     });
                                     html += `</div>`;
                                 } else {
-                                    html += `<p>${itemQtyDisplay}${item.name}</p>`;
+                                    html += `<p style="margin: 0;">${itemText}</p>`;
+                                    plainTextForCopy += `  - ${itemText}\n`;
                                 }
                             });
                             html += `</div>`;
@@ -473,7 +485,7 @@
             
             const charCountElement = document.getElementById('charCount');
             const originalSize = document.getElementById('inputText').value.length;
-            const compactedSize = outputElement.innerText.length;
+            const compactedSize = plainTextForCopy.trim().length;
             const difference = originalSize - compactedSize;
             const savings = originalSize > 0 ? ((difference / originalSize) * 100).toFixed(1) : 0;
             
@@ -545,8 +557,10 @@
             const listener = (e) => {
                 if (isRichText) {
                     e.clipboardData.setData('text/html', text);
+                    e.clipboardData.setData('text/plain', plainTextForCopy.trim()); // Use the clean plain text version
+                } else {
+                    e.clipboardData.setData('text/plain', text);
                 }
-                e.clipboardData.setData('text/plain', isRichText ? new DOMParser().parseFromString(text, 'text/html').body.innerText : text);
                 e.preventDefault();
             };
 
