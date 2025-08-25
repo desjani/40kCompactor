@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warhammer List Compactor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple scrollbar styling for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2d3748; /* gray-800 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #718096; /* gray-500 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0; /* gray-400 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
+            <header class="mb-6 text-center">
+                <h1 class="text-3xl sm:text-4xl font-bold text-white">Warhammer List Compactor</h1>
+                <p class="text-gray-400 mt-2">Paste your formatted text below to generate a compacted summary and see the raw JSON data.</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Input Text Area -->
+                <div>
+                    <label for="inputText" class="text-lg font-semibold text-gray-400 mb-2 block">Input Text</label>
+                    <textarea id="inputText" rows="20" class="w-full h-[485px] p-4 bg-gray-900 border border-gray-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 resize-none"></textarea>
+                </div>
+
+                <!-- JSON Output Area -->
+                <div>
+                    <label for="outputText" class="text-lg font-semibold text-gray-400 mb-2 block">Parsed JavaScript Object</label>
+                    <pre id="outputText" class="w-full h-[485px] p-4 border bg-gray-900 border-gray-600 rounded-lg overflow-auto text-sm text-gray-300"></pre>
+                </div>
+
+                <!-- Compacted Output Area -->
+                <div>
+                    <label for="compactedOutput" class="text-lg font-semibold text-gray-400 mb-2 block">Compacted Output</label>
+                    <div id="compactedOutput" class="w-full h-[450px] p-4 border bg-gray-900 border-gray-600 rounded-lg overflow-auto text-sm"></div>
+                    <div class="flex justify-between items-center mt-2">
+                        <div id="charCount" class="text-xs text-gray-500 pr-1"></div>
+                        <div class="flex gap-2">
+                             <button id="copyDiscordButton" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-200 text-sm">
+                                Copy for Discord
+                            </button>
+                             <button id="copyButton" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition-all duration-200 text-sm">
+                                Copy Text
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="mt-6 text-center">
+                <button id="parseButton" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-transform transform hover:scale-105 duration-200">
+                    Parse Text
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store the parsed data globally within the script's scope
+        let parsedData = null;
+
+        // --- Main Parsing Logic ---
+        document.getElementById('parseButton').addEventListener('click', () => {
+            const text = document.getElementById('inputText').value;
+            const lines = text.split('\n');
+            const result = {};
+            let currentSection = null;
+            let currentUnit = null;
+            let currentSubUnit = null;
+
+            // --- Helper function to add/consolidate items ---
+            const addItemToTarget = (target, itemString) => {
+                if (!target || !itemString) return;
+                
+                const withMatch = itemString.match(/(\d+)\s+with\s+(.*)/);
+                if (withMatch) {
+                    const quantity = parseInt(withMatch[1]);
+                    const items = withMatch[2].split(',').map(s => s.trim());
+                    items.forEach(itemName => {
+                        const { quantity: innerQuantity, name } = parseItemString(itemName);
+                        const numericInnerQuantity = parseInt(innerQuantity.replace('x', ''), 10);
+                        const totalQuantity = quantity * numericInnerQuantity;
+                        const existingItem = target.items.find(item => item.name === name);
+                        if (existingItem) {
+                            const existingQty = parseInt(existingItem.quantity.replace('x', ''));
+                            existingItem.quantity = `${existingQty + totalQuantity}x`;
+                        } else {
+                            target.items.push({ quantity: `${totalQuantity}x`, name, items: [] });
+                        }
+                    });
+                    return;
+                }
+
+                const { quantity, name } = parseItemString(itemString);
+                const numericQuantity = parseInt(quantity.replace('x', ''), 10);
+                const existingItem = target.items.find(item => item.name === name);
+
+                if (existingItem) {
+                    const existingQty = parseInt(existingItem.quantity.replace('x', ''));
+                    existingItem.quantity = `${existingQty + numericQuantity}x`;
+                } else {
+                    target.items.push({ quantity, name, items: [] });
+                }
+            };
+
+            // --- Regex patterns for different line formats ---
+            const sectionHeaderRegex = /^[A-Z\s]+$/;
+            const unitRegex = /^(\d+x?\s+)(.*?)(\s*\((\d+)\s*pts\))?$/;
+            const summaryRegex = /^\+\s*([^:]+):\s*(.*)$/;
+            const enhancementRegex = /^&\s*(.*)$/;
+            const charLineRegex = /^(Char\d+):\s*(.*)/;
+            const enhancementLineRegex = /^Enhancement:\s*(.*)/;
+            const bulletItemRegex = /^\s*•\s*(.*)/;
+            const indentedWithRegex = /^\s+(\d+)\s+with\s+(.*)/;
+            const indentedBulletRegex = /^\s{2,}•\s*(.*)/;
+            const simpleWithRegex = /^\d+\s+with\s+.*/;
+
+
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                if (!trimmedLine) return;
+
+                // --- Summary Parsing ---
+                if (trimmedLine.startsWith('+') || trimmedLine.startsWith('&')) {
+                    const summaryMatch = trimmedLine.match(summaryRegex);
+                    const enhancementMatch = trimmedLine.match(enhancementRegex);
+                    result.SUMMARY = result.SUMMARY || {};
+                    result.SUMMARY.ENHANCEMENT = result.SUMMARY.ENHANCEMENT || [];
+
+                    if (summaryMatch) {
+                        const key = summaryMatch[1].trim().replace(/\s+/g, '_');
+                        const value = summaryMatch[2].trim();
+                        if (key === 'ENHANCEMENT') {
+                            result.SUMMARY.ENHANCEMENT.push(value);
+                        } else {
+                            result.SUMMARY[key] = value;
+                        }
+                    } else if (enhancementMatch) {
+                        result.SUMMARY.ENHANCEMENT.push(enhancementMatch[1].trim());
+                    }
+                    return;
+                }
+                
+                // --- Indented Bullet (e.g., Warlord, Icon of Khorne) ---
+                const indentedBulletMatch = line.match(indentedBulletRegex);
+                if (indentedBulletMatch) {
+                    const target = currentSubUnit || currentUnit;
+                    addItemToTarget(target, indentedBulletMatch[1].trim());
+                    return;
+                }
+
+                // --- Indented "with" items ---
+                if (indentedWithRegex.test(line) && currentSubUnit) {
+                    addItemToTarget(currentSubUnit, trimmedLine);
+                    return;
+                }
+                
+                // --- Section Header Parsing ---
+                if (sectionHeaderRegex.test(trimmedLine) && !unitRegex.test(trimmedLine) && !charLineRegex.test(trimmedLine)) {
+                    currentSection = trimmedLine;
+                    result[currentSection] = result[currentSection] || [];
+                    currentUnit = null;
+                    currentSubUnit = null;
+                    return;
+                }
+
+                // --- Char lines ---
+                const charMatch = trimmedLine.match(charLineRegex);
+                if (charMatch) {
+                    currentSection = "CHARACTER";
+                    result[currentSection] = result[currentSection] || [];
+                    const unitMatch = charMatch[2].match(unitRegex);
+                    if (unitMatch) {
+                        currentUnit = {
+                            quantity: unitMatch[1] ? unitMatch[1].trim() : '1x',
+                            name: unitMatch[2].trim(),
+                            points: unitMatch[4] ? parseInt(unitMatch[4], 10) : 0,
+                            items: []
+                        };
+                        result[currentSection].push(currentUnit);
+                        currentSubUnit = null;
+                    }
+                    return;
+                }
+                
+                // --- Standalone Enhancement lines ---
+                if (enhancementLineRegex.test(trimmedLine) && currentUnit) {
+                    addItemToTarget(currentUnit, trimmedLine.match(enhancementLineRegex)[1].trim());
+                    return;
+                }
+
+                // --- Bullet Point Items (Sub-units) ---
+                const bulletMatch = trimmedLine.match(bulletItemRegex);
+                if (bulletMatch) {
+                    const itemContent = bulletMatch[1];
+                    const subUnitMatch = itemContent.match(unitRegex);
+                    if (subUnitMatch && currentUnit) {
+                        currentSubUnit = {
+                            quantity: subUnitMatch[1] ? subUnitMatch[1].trim() : '1x',
+                            name: subUnitMatch[2].trim(),
+                            points: 0,
+                            items: []
+                        };
+                        currentUnit.items.push(currentSubUnit);
+                    }
+                    return;
+                }
+
+                // --- Simple "with" line (belongs to unit/sub-unit above it) ---
+                if (simpleWithRegex.test(trimmedLine)) {
+                    const target = currentSubUnit || currentUnit;
+                    addItemToTarget(target, trimmedLine);
+                    return;
+                }
+
+                // --- Standard Unit lines ---
+                const standardUnitMatch = trimmedLine.match(unitRegex);
+                if (standardUnitMatch) {
+                    if (!currentSection) {
+                        currentSection = "OTHER DATASHEETS";
+                        result[currentSection] = result[currentSection] || [];
+                    }
+                    currentUnit = {
+                        quantity: standardUnitMatch[1] ? standardUnitMatch[1].trim() : '1x',
+                        name: standardUnitMatch[2].trim(),
+                        points: standardUnitMatch[4] ? parseInt(standardUnitMatch[4], 10) : 0,
+                        items: []
+                    };
+                    result[currentSection].push(currentUnit);
+                    currentSubUnit = null;
+                }
+            });
+
+            parsedData = result;
+            document.getElementById('outputText').textContent = JSON.stringify(result, null, 2);
+            displayCompactedOutput(result);
+        });
+
+        function parseItemString(itemString) {
+            const match = itemString.match(/^(\d+x?\s+)?(.*)$/);
+            if (match) {
+                const quantity = match[1] ? match[1].trim() : '1x';
+                const name = match[2].trim();
+                return { quantity, name };
+            }
+            return { quantity: '1x', name: itemString };
+        }
+
+        function displayCompactedOutput(data) {
+            const outputElement = document.getElementById('compactedOutput');
+            let html = '';
+
+            if (data.SUMMARY) {
+                const summaryParts = [];
+                if (data.SUMMARY.FACTION_KEYWORD) summaryParts.push(`${data.SUMMARY.FACTION_KEYWORD}`);
+                if (data.SUMMARY.DETACHMENT) summaryParts.push(`${data.SUMMARY.DETACHMENT}`);
+                if (data.SUMMARY.TOTAL_ARMY_POINTS) summaryParts.push(`${data.SUMMARY.TOTAL_ARMY_POINTS}`);
+                if (summaryParts.length > 0) {
+                    html += `<div class="pb-2 border-b border-gray-700"><p class="text-xs mb-1 text-gray-400 font-semibold">${summaryParts.join(' | ')}</p></div>`;
+                }
+            }
+
+            html += `<div class="mt-2">`;
+            for (const section in data) {
+                if (section !== 'SUMMARY' && Array.isArray(data[section])) {
+                    data[section].forEach(unit => {
+                        const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
+                        const quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
+                        html += `<div class="mb-2"><p class="text-gray-200 font-semibold text-sm">${quantityDisplay}${unit.name} ${unit.points}</p>`;
+                        if (unit.items && unit.items.length > 0) {
+                            html += `<div class="pl-4 text-xs text-gray-400 font-normal">`;
+                            unit.items.forEach(item => {
+                                const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                                const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                                if (item.items && item.items.length > 0) {
+                                    html += `<p class="font-medium text-gray-300">${itemQtyDisplay}${item.name}</p><div class="pl-4">`;
+                                    item.items.forEach(subItem => {
+                                        const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
+                                        const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
+                                        html += `<p>${subItemQtyDisplay}${subItem.name}</p>`;
+                                    });
+                                    html += `</div>`;
+                                } else {
+                                    html += `<p>${itemQtyDisplay}${item.name}</p>`;
+                                }
+                            });
+                            html += `</div>`;
+                        }
+                        html += `</div>`;
+                    });
+                }
+            }
+            html += `</div>`;
+            outputElement.innerHTML = html;
+            
+            const charCountElement = document.getElementById('charCount');
+            const originalSize = document.getElementById('inputText').value.length;
+            const compactedSize = outputElement.innerText.length;
+            const difference = originalSize - compactedSize;
+            const savings = originalSize > 0 ? ((difference / originalSize) * 100).toFixed(1) : 0;
+            
+            if (originalSize > 0) {
+                 charCountElement.innerHTML = `Original: ${originalSize} | Compacted: ${compactedSize} | Savings: ${difference} (${savings}%)`;
+            } else {
+                charCountElement.innerHTML = '';
+            }
+        }
+
+        function generateDiscordText(data) {
+            let text = '```ansi\n';
+            if (data.SUMMARY) {
+                const summaryParts = [];
+                if (data.SUMMARY.FACTION_KEYWORD) summaryParts.push(data.SUMMARY.FACTION_KEYWORD);
+                if (data.SUMMARY.DETACHMENT) summaryParts.push(data.SUMMARY.DETACHMENT);
+                if (data.SUMMARY.TOTAL_ARMY_POINTS) summaryParts.push(data.SUMMARY.TOTAL_ARMY_POINTS);
+                if (summaryParts.length > 0) {
+                    const header = summaryParts.join(' | ');
+                    text += `\u001b[1;33m${header}\u001b[0m\n`; // Bold Yellow Header
+                    text += '\n'; // Add empty line after header
+                }
+            }
+
+            let firstUnitOverall = true;
+            for (const section in data) {
+                if (section === 'SUMMARY' || !Array.isArray(data[section])) continue;
+                
+                data[section].forEach(unit => {
+                    if (!firstUnitOverall) {
+                        text += '\n'; 
+                    }
+                    const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
+                    const quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
+                    const unitName = `${quantityDisplay}${unit.name}`;
+                    const points = `${unit.points}`;
+                    
+                    text += `\u001b[0;31m* ${unitName}\u001b[0m [\u001b[0;33m${points}\u001b[0m]\n`;
+                    
+                    if (unit.items && unit.items.length > 0) {
+                        unit.items.forEach(item => {
+                            const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                            const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                            if (item.items && item.items.length > 0) {
+                                text += `  \u001b[1;36m+ ${itemQtyDisplay}${item.name}\u001b[0m\n`; // Cyan
+                                item.items.forEach(subItem => {
+                                    const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
+                                    const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
+                                    text += `    - ${subItemQtyDisplay}${subItem.name}\n`;
+                                });
+                            } else {
+                                text += `  - ${itemQtyDisplay}${item.name}\n`;
+                            }
+                        });
+                    }
+                    firstUnitOverall = false;
+                });
+            }
+            text += '```';
+            return text;
+        }
+
+        function copyTextToClipboard(text, button, isRichText = false) {
+            if (!text) return;
+
+            const listener = (e) => {
+                if (isRichText) {
+                    e.clipboardData.setData('text/html', text);
+                }
+                e.clipboardData.setData('text/plain', isRichText ? new DOMParser().parseFromString(text, 'text/html').body.innerText : text);
+                e.preventDefault();
+            };
+
+            document.addEventListener('copy', listener);
+            document.execCommand('copy');
+            document.removeEventListener('copy', listener);
+
+            const originalText = button.textContent;
+            const originalClasses = [...button.classList];
+            button.textContent = 'Copied!';
+            button.className = 'bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 text-sm';
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.className = originalClasses.join(' ');
+            }, 2000);
+        }
+
+        document.getElementById('copyButton').addEventListener('click', () => {
+            const htmlToCopy = document.getElementById('compactedOutput').innerHTML;
+            copyTextToClipboard(htmlToCopy, document.getElementById('copyButton'), true);
+        });
+
+        document.getElementById('copyDiscordButton').addEventListener('click', () => {
+            if (parsedData) {
+                const textToCopy = generateDiscordText(parsedData);
+                copyTextToClipboard(textToCopy, document.getElementById('copyDiscordButton'), false);
+            }
+        });
+
+        // Auto-parse on load for the new example
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('parseButton').click();
+        });
+    </script>
+
+</body>
+</html>
