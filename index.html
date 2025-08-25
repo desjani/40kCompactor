@@ -176,6 +176,24 @@
         .btn-copied {
             background-color: var(--color-text-muted);
         }
+
+        /* --- App Footer --- */
+        .app-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--color-border);
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+        }
+        .app-footer a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .app-footer a:hover {
+            text-decoration: underline;
+        }
         
         /* --- Media Queries for Responsive Layout --- */
         @media (min-width: 640px) {
@@ -193,7 +211,7 @@
         <div class="card">
             <header class="header">
                 <h1>Warhammer List Compactor</h1>
-                <p>Paste your formatted text below to generate a compacted summary and see the raw JSON data.</p>
+                <p>Paste your list below in "WTC" format to generate a compacted summary. Click "Copy Text" for plain text output, or "Copy for Discord" for a discord friendly code block!</p>
             </header>
 
             <div class="grid-container">
@@ -227,6 +245,11 @@
             <div style="margin-top: 1.5rem; text-align: center;">
                 <button id="parseButton" class="btn btn-primary">Parse Text</button>
             </div>
+            
+            <!-- App Footer with Contact Info -->
+            <footer class="app-footer">
+                <p>For feedback or questions, reach out to <a href="https://discord.com/users/Desjani" target="_blank">@Desjani</a> on Discord.</p>
+            </footer>
         </div>
     </div>
 
@@ -443,13 +466,18 @@
             }
 
             html += `<div style="margin-top: 0.5rem;">`;
+            let firstUnitOverall = true;
             for (const section in data) {
                 if (section !== 'SUMMARY' && Array.isArray(data[section])) {
                     data[section].forEach(unit => {
+                        if (!firstUnitOverall) {
+                            html += '<div style="height: 0.5rem;"></div>';
+                            plainTextForCopy += '\n';
+                        }
                         const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
                         const quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
                         const unitText = `${quantityDisplay}${unit.name} ${unit.points}`;
-                        html += `<div style="margin-bottom: 0.5rem;"><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitText}</p>`;
+                        html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitText}</p>`;
                         plainTextForCopy += `* ${unitText}\n`;
 
                         if (unit.items && unit.items.length > 0) {
@@ -477,6 +505,7 @@
                             html += `</div>`;
                         }
                         html += `</div>`;
+                        firstUnitOverall = false;
                     });
                 }
             }
