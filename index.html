@@ -4,74 +4,222 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warhammer List Compactor</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
+        /* --- General Styles & Resets --- */
+        :root {
+            --color-bg: #111827; /* gray-900 */
+            --color-surface: #1f2937; /* gray-800 */
+            --color-primary: #4f46e5; /* indigo-600 */
+            --color-primary-hover: #4338ca; /* indigo-700 */
+            --color-secondary: #16a34a; /* green-600 */
+            --color-secondary-hover: #15803d; /* green-700 */
+            --color-action: #2563eb; /* blue-600 */
+            --color-action-hover: #1d4ed8; /* blue-700 */
+            --color-text-primary: #d1d5db; /* gray-300 */
+            --color-text-secondary: #9ca3af; /* gray-400 */
+            --color-text-muted: #6b7280; /* gray-500 */
+            --color-border: #4b5563; /* gray-600 */
         }
-        /* Simple scrollbar styling for dark mode */
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text-primary);
+            margin: 0;
+            padding: 1rem;
+        }
+
+        /* --- Scrollbar Styling --- */
         ::-webkit-scrollbar {
             width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #2d3748; /* gray-800 */
+            background: var(--color-surface);
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb {
-            background: #718096; /* gray-500 */
+            background: var(--color-text-muted);
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #a0aec0; /* gray-400 */
+            background: var(--color-text-secondary);
+        }
+
+        /* --- Layout & Container --- */
+        .container {
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .card {
+            background-color: var(--color-surface);
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        /* --- Header --- */
+        .header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .header p {
+            color: var(--color-text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* --- Input/Output Boxes --- */
+        .io-label {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .io-box {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: 0.5rem;
+            color: var(--color-text-primary);
+            font-size: 0.875rem;
+            overflow: auto;
+            transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #inputText {
+            height: 485px;
+            resize: none;
+        }
+        #inputText:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--color-action);
+            border-color: var(--color-action);
+        }
+        #outputText {
+            height: 485px;
+        }
+        #compactedOutput {
+            height: 450px;
+        }
+
+        /* --- Footer (Char Count & Buttons) --- */
+        .output-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        #charCount {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            padding-right: 0.25rem;
+        }
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            color: #fff;
+            font-weight: 700;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 200ms;
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+        }
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5); /* blue-300 equivalent */
+        }
+        .btn-primary {
+            background-color: var(--color-action);
+            padding: 0.75rem 2rem;
+        }
+        .btn-primary:hover {
+            background-color: var(--color-action-hover);
+            transform: scale(1.05);
+        }
+        .btn-discord {
+            background-color: var(--color-primary);
+        }
+        .btn-discord:hover {
+            background-color: var(--color-primary-hover);
+        }
+        .btn-copy {
+            background-color: var(--color-secondary);
+        }
+        .btn-copy:hover {
+            background-color: var(--color-secondary-hover);
+        }
+        .btn-copied {
+            background-color: var(--color-text-muted);
+        }
+        
+        /* --- Media Queries for Responsive Layout --- */
+        @media (min-width: 640px) {
+            .card { padding: 2rem; }
+            .header h1 { font-size: 2.25rem; }
+        }
+        @media (min-width: 768px) {
+            .grid-container { grid-template-columns: repeat(3, 1fr); }
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200">
+<body>
 
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <div class="bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
-            <header class="mb-6 text-center">
-                <h1 class="text-3xl sm:text-4xl font-bold text-white">Warhammer List Compactor</h1>
-                <p class="text-gray-400 mt-2">Paste your formatted text below to generate a compacted summary and see the raw JSON data.</p>
+    <div class="container">
+        <div class="card">
+            <header class="header">
+                <h1>Warhammer List Compactor</h1>
+                <p>Paste your formatted text below to generate a compacted summary and see the raw JSON data.</p>
             </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid-container">
                 <!-- Input Text Area -->
                 <div>
-                    <label for="inputText" class="text-lg font-semibold text-gray-400 mb-2 block">Input Text</label>
-                    <textarea id="inputText" rows="20" class="w-full h-[485px] p-4 bg-gray-900 border border-gray-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 resize-none"></textarea>
+                    <label for="inputText" class="io-label">Input Text</label>
+                    <textarea id="inputText" class="io-box"></textarea>
                 </div>
 
                 <!-- JSON Output Area -->
                 <div>
-                    <label for="outputText" class="text-lg font-semibold text-gray-400 mb-2 block">Parsed JavaScript Object</label>
-                    <pre id="outputText" class="w-full h-[485px] p-4 border bg-gray-900 border-gray-600 rounded-lg overflow-auto text-sm text-gray-300"></pre>
+                    <label for="outputText" class="io-label">Parsed JavaScript Object</label>
+                    <pre id="outputText" class="io-box"></pre>
                 </div>
 
                 <!-- Compacted Output Area -->
                 <div>
-                    <label for="compactedOutput" class="text-lg font-semibold text-gray-400 mb-2 block">Compacted Output</label>
-                    <div id="compactedOutput" class="w-full h-[450px] p-4 border bg-gray-900 border-gray-600 rounded-lg overflow-auto text-sm"></div>
-                    <div class="flex justify-between items-center mt-2">
-                        <div id="charCount" class="text-xs text-gray-500 pr-1"></div>
-                        <div class="flex gap-2">
-                             <button id="copyDiscordButton" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-200 text-sm">
-                                Copy for Discord
-                            </button>
-                             <button id="copyButton" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition-all duration-200 text-sm">
-                                Copy Text
-                            </button>
+                    <label for="compactedOutput" class="io-label">Compacted Output</label>
+                    <div id="compactedOutput" class="io-box"></div>
+                    <div class="output-footer">
+                        <div id="charCount"></div>
+                        <div class="button-group">
+                             <button id="copyDiscordButton" class="btn btn-discord">Copy for Discord</button>
+                             <button id="copyButton" class="btn btn-copy">Copy Text</button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Action Button -->
-            <div class="mt-6 text-center">
-                <button id="parseButton" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-transform transform hover:scale-105 duration-200">
-                    Parse Text
-                </button>
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <button id="parseButton" class="btn btn-primary">Parse Text</button>
             </div>
         </div>
     </div>
@@ -277,24 +425,24 @@
                 if (data.SUMMARY.DETACHMENT) summaryParts.push(`${data.SUMMARY.DETACHMENT}`);
                 if (data.SUMMARY.TOTAL_ARMY_POINTS) summaryParts.push(`${data.SUMMARY.TOTAL_ARMY_POINTS}`);
                 if (summaryParts.length > 0) {
-                    html += `<div class="pb-2 border-b border-gray-700"><p class="text-xs mb-1 text-gray-400 font-semibold">${summaryParts.join(' | ')}</p></div>`;
+                    html += `<div style="padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-border);"><p style="font-size: 0.75rem; margin-bottom: 0.25rem; color: var(--color-text-secondary); font-weight: 600;">${summaryParts.join(' | ')}</p></div>`;
                 }
             }
 
-            html += `<div class="mt-2">`;
+            html += `<div style="margin-top: 0.5rem;">`;
             for (const section in data) {
                 if (section !== 'SUMMARY' && Array.isArray(data[section])) {
                     data[section].forEach(unit => {
                         const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
                         const quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
-                        html += `<div class="mb-2"><p class="text-gray-200 font-semibold text-sm">${quantityDisplay}${unit.name} ${unit.points}</p>`;
+                        html += `<div style="margin-bottom: 0.5rem;"><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem;">${quantityDisplay}${unit.name} ${unit.points}</p>`;
                         if (unit.items && unit.items.length > 0) {
-                            html += `<div class="pl-4 text-xs text-gray-400 font-normal">`;
+                            html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
                             unit.items.forEach(item => {
                                 const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                                 const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
                                 if (item.items && item.items.length > 0) {
-                                    html += `<p class="font-medium text-gray-300">${itemQtyDisplay}${item.name}</p><div class="pl-4">`;
+                                    html += `<p style="font-weight: 500; color: var(--color-text-primary);">${itemQtyDisplay}${item.name}</p><div style="padding-left: 1rem;">`;
                                     item.items.forEach(subItem => {
                                         const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
                                         const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
@@ -395,12 +543,11 @@
             document.removeEventListener('copy', listener);
 
             const originalText = button.textContent;
-            const originalClasses = [...button.classList];
             button.textContent = 'Copied!';
-            button.className = 'bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 text-sm';
+            button.classList.add('btn-copied');
             setTimeout(() => {
                 button.textContent = originalText;
-                button.className = originalClasses.join(' ');
+                button.classList.remove('btn-copied');
             }, 2000);
         }
 
