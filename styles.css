@@ -1,17 +1,17 @@
         /* --- General Styles & Resets --- */
         :root {
-            --color-bg: #1f2937; /* gray-800 */
-            --color-surface: #374151; /* gray-700 */
-            --color-primary: #4b5563; /* gray-600 */
-            --color-primary-hover: #6b7280; /* gray-500 */
-            --color-secondary: #16a34a; /* green-600 */
-            --color-secondary-hover: #15803d; /* green-700 */
-            --color-action: #4b5563; /* gray-600 */
-            --color-action-hover: #6b7280; /* gray-500 */
-            --color-text-primary: #d1d5db; /* gray-300 */
-            --color-text-secondary: #9ca3af; /* gray-400 */
-            --color-text-muted: #6b7280; /* gray-500 */
-            --color-border: #4b5563; /* gray-600 */
+            --color-bg: #18181b; /* zinc-900 */
+            --color-surface: #27272a; /* zinc-800 */
+            --color-primary: #52525b; /* zinc-600 */
+            --color-primary-hover: #71717a; /* zinc-500 */
+            --color-secondary: #3b82f6; /* blue-500 */
+            --color-secondary-hover: #2563eb; /* blue-600 */
+            --color-action: #52525b; /* zinc-600 */
+            --color-action-hover: #71717a; /* zinc-500 */
+            --color-text-primary: #f4f4f5; /* zinc-100 */
+            --color-text-secondary: #a1a1aa; /* zinc-400 */
+            --color-text-muted: #71717a; /* zinc-500 */
+            --color-border: #3f3f46; /* zinc-700 */
         }
 
         body {
