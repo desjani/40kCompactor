@@ -90,6 +90,14 @@
                 });
         })
 
+        function normalizeForComparison(name) {
+            // Lowercase, trim, and handle common character variations like typographic apostrophes
+            // to ensure reliable string comparisons.
+            return name.toLowerCase()
+                       .replace(/’/g, "'") 
+                       .trim();
+        }
+
         function flexibleItemMatch(rule, itemName) {
             const ruleItemLower = rule.item.toLowerCase();
             const itemNameLower = itemName.toLowerCase();
@@ -294,7 +302,12 @@
 
                         // Ignore noise lines that just repeat a unit name
                         const cleanItemContent = itemContent.replace(/^\d+x?\s*/, '').trim();
-                        if (cleanItemContent.toLowerCase() === currentUnit.name.toLowerCase() || (currentSubUnit && cleanItemContent.toLowerCase() === currentSubUnit.name.toLowerCase())) {
+                        
+                        const normalizedItemName = normalizeForComparison(cleanItemContent);
+                        const normalizedUnitName = normalizeForComparison(currentUnit.name);
+                        const normalizedSubUnitName = currentSubUnit ? normalizeForComparison(currentSubUnit.name) : '';
+
+                        if (normalizedItemName === normalizedUnitName || (currentSubUnit && normalizedItemName === normalizedSubUnitName)) {
                             continue;
                         }
 
