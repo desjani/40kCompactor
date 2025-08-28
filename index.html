@@ -12,13 +12,13 @@
         <div class="card">
             <header class="header">
                 <h1>Warhammer List Compactor</h1>
-                <p>Paste your list below in "WTC" format to generate a compacted summary. Click "Copy Extended Version" for plain text output, or "Copy for Discord (Fancy)" for a colored Discord-friendly code block!</p>
+                <p>Paste your list below in "GW" or "WTC" format to generate a compacted summary. Click "Copy Extended Version" for plain text output, or "Copy for Discord (Fancy)" for a colored Discord-friendly code block!</p>
             </header>
 
             <div class="grid-container">
                 <!-- Input Column -->
                 <div>
-                    <label for="inputText" class="io-label">WTC Formatted List</label>
+                    <label for="inputText" class="io-label">Paste List here (GW or WTC Format)</label>
                     <textarea id="inputText" class="io-box"></textarea>
                     <div class="column-footer">
                         <div id="inputCharCount" class="char-count"></div>
@@ -62,44 +62,6 @@
         let parsedData = null;
         let extendedPlainText = '';
         let compactPlainText = '';
-
-        // --- Faction Themes ---
-        const factionThemes = {
-            "Chaos Daemons": { "--color-bg": "#4c1d4c", "--color-surface": "#6d286d", "--color-action": "#a855f7", "--color-action-hover": "#9333ea" },
-            "Chaos Knights": { "--color-bg": "#262626", "--color-surface": "#404040", "--color-action": "#a1a1aa", "--color-action-hover": "#71717a" },
-            "Chaos Space Marines": { "--color-bg": "#171717", "--color-surface": "#262626", "--color-action": "#ca8a04", "--color-action-hover": "#a16207" },
-            "Death Guard": { "--color-bg": "#365314", "--color-surface": "#4d7c0f", "--color-action": "#84cc16", "--color-action-hover": "#65a30d" },
-            "Emperor's Children": { "--color-bg": "#701a75", "--color-surface": "#86198f", "--color-action": "#d946ef", "--color-action-hover": "#c026d3" },
-            "Thousand Sons": { "--color-bg": "#1e3a8a", "--color-surface": "#1e40af", "--color-action": "#3b82f6", "--color-action-hover": "#2563eb" },
-            "World Eaters": { "--color-bg": "#4c1d1d", "--color-surface": "#7f1d1d", "--color-action": "#dc2626", "--color-action-hover": "#b91c1c" },
-            "Adepta Sororitas": { "--color-bg": "#171717", "--color-surface": "#262626", "--color-action": "#dc2626", "--color-action-hover": "#b91c1c" },
-            "Adeptus Custodes": { "--color-bg": "#78350f", "--color-surface": "#92400e", "--color-action": "#f59e0b", "--color-action-hover": "#d97706" },
-            "Adeptus Mechanicus": { "--color-bg": "#7f1d1d", "--color-surface": "#991b1b", "--color-action": "#ef4444", "--color-action-hover": "#dc2626" },
-            "Agents of the Imperium": { "--color-bg": "#262626", "--color-surface": "#404040", "--color-action": "#a1a1aa", "--color-action-hover": "#71717a" },
-            "Astra Militarum": { "--color-bg": "#3f6212", "--color-surface": "#4d7c0f", "--color-action": "#84cc16", "--color-action-hover": "#65a30d" },
-            "Grey Knights": { "--color-bg": "#374151", "--color-surface": "#4b5563", "--color-action": "#9ca3af", "--color-action-hover": "#6b7280" },
-            "Imperial Knights": { "--color-bg": "#1e3a8a", "--color-surface": "#1e40af", "--color-action": "#f59e0b", "--color-action-hover": "#d97706" },
-            "Black Templars": { "--color-bg": "#171717", "--color-surface": "#262626", "--color-action": "#e5e5e5", "--color-action-hover": "#a3a3a3" },
-            "Blood Angels": { "--color-bg": "#7f1d1d", "--color-surface": "#991b1b", "--color-action": "#ef4444", "--color-action-hover": "#dc2626" },
-            "Dark Angels": { "--color-bg": "#0f5132", "--color-surface": "#14532d", "--color-action": "#22c55e", "--color-action-hover": "#16a34a" },
-            "Deathwatch": { "--color-bg": "#171717", "--color-surface": "#262626", "--color-action": "#9ca3af", "--color-action-hover": "#6b7280" },
-            "Imperial Fists": { "--color-bg": "#854d0e", "--color-surface": "#a16207", "--color-action": "#facc15", "--color-action-hover": "#eab308" },
-            "Iron Hands": { "--color-bg": "#171717", "--color-surface": "#262626", "--color-action": "#e5e5e5", "--color-action-hover": "#a3a3a3" },
-            "Raven Guard": { "--color-bg": "#171717", "--color-surface": "#262626", "--color-action": "#e5e5e5", "--color-action-hover": "#a3a3a3" },
-            "Salamanders": { "--color-bg": "#14532d", "--color-surface": "#166534", "--color-action": "#f59e0b", "--color-action-hover": "#d97706" },
-            "Space Marines": { "--color-bg": "#1e3a8a", "--color-surface": "#1e40af", "--color-action": "#2563eb", "--color-action-hover": "#1d4ed8" },
-            "Space Wolves": { "--color-bg": "#374151", "--color-surface": "#4b5563", "--color-action": "#facc15", "--color-action-hover": "#eab308" },
-            "Ultramarines": { "--color-bg": "#1e3a8a", "--color-surface": "#1e40af", "--color-action": "#2563eb", "--color-action-hover": "#1d4ed8" },
-            "White Scars": { "--color-bg": "#f9fafb", "--color-surface": "#f3f4f6", "--color-action": "#dc2626", "--color-action-hover": "#b91c1c" },
-            "Aeldari": { "--color-bg": "#171717", "--color-surface": "#262626", "--color-action": "#fde047", "--color-action-hover": "#facc15" },
-            "Drukhari": { "--color-bg": "#0f5132", "--color-surface": "#14532d", "--color-action": "#dc2626", "--color-action-hover": "#b91c1c" },
-            "Genestealer Cults": { "--color-bg": "#4c1d4c", "--color-surface": "#6d286d", "--color-action": "#a855f7", "--color-action-hover": "#9333ea" },
-            "Leagues of Votann": { "--color-bg": "#0e7490", "--color-surface": "#155e75", "--color-action": "#f97316", "--color-action-hover": "#ea580c" },
-            "Necrons": { "--color-bg": "#262626", "--color-surface": "#404040", "--color-action": "#4ade80", "--color-action-hover": "#22c55e" },
-            "Orks": { "--color-bg": "#14532d", "--color-surface": "#166534", "--color-action": "#22c55e", "--color-action-hover": "#16a34a" },
-            "T'au Empire": { "--color-bg": "#854d0e", "--color-surface": "#a16207", "--color-action": "#f97316", "--color-action-hover": "#ea580c" },
-            "Tyranids": { "--color-bg": "#4c1d4c", "--color-surface": "#6d286d", "--color-action": "#f472b6", "--color-action-hover": "#ec4899" }
-        };
 
         // --- Abbreviation Database ---
         let factionAbbreviationDBs = {}; // Use let to allow reassignment
@@ -384,7 +346,6 @@
             document.getElementById('compactedOutput').innerHTML = compactOutput.html;
             compactPlainText = compactOutput.plainText;
             updateCharCounts();
-            applyTheme(factionKeyword);
         });
 
         function parseItemString(itemString) {
@@ -604,22 +565,6 @@
             return text;
         }
         
-        function applyTheme(factionKeyword) {
-            const root = document.documentElement;
-            const mainFaction = factionKeyword ? (factionKeyword.split(' - ').pop() || factionKeyword) : null;
-            const theme = factionThemes[mainFaction];
-            const defaultTheme = {
-                "--color-bg": "#1f2937",
-                "--color-surface": "#374151",
-                "--color-action": "#4b5563",
-                "--color-action-hover": "#6b7280"
-            };
-            const colorsToSet = theme || defaultTheme;
-            for (const [key, value] of Object.entries(colorsToSet)) {
-                root.style.setProperty(key, value);
-            }
-        }
-
         async function copyTextToClipboard(text, button) {
             if (!text) return;
             if (!navigator.clipboard) {
