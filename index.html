@@ -130,7 +130,7 @@
 
         function abbreviate(itemName, unitName, fullFactionKeyword) {
             const searchOrder = [];
-            const mainFaction = fullFactionKeyword ? fullFactionKeyword.replace(/^(Chaos|Xenos|Imperium)\s*-\s*/, '') : null;
+            const mainFaction = fullFactionKeyword ? (fullFactionKeyword.split(' - ').pop() || fullFactionKeyword) : null;
             // Prioritize the specific faction if available
             if (mainFaction) {
                 searchOrder.push(mainFaction);
@@ -187,7 +187,6 @@
             // If no abbreviation is found after checking all relevant factions, return the original item name
             return itemName;
         }
-    }
         document.getElementById('parseButton').addEventListener('click', () => {
             const text = document.getElementById('inputText').value;
             const lines = text.split('\n');
@@ -358,7 +357,7 @@
         function generateOutput(data, useAbbreviations) {
             let html = '', plainText = '';
             const factionKeyword = data.SUMMARY?.FACTION_KEYWORD || '';
-            const faction = factionKeyword.replace(/^(Chaos|Xenos|Imperium)\s*-\s*/, '');
+            const faction = (factionKeyword.split(' - ').pop() || factionKeyword);
             if (data.SUMMARY) {
                 const summaryParts = [];
                 if (faction) summaryParts.push(faction);
@@ -447,7 +446,7 @@
             if (data.SUMMARY) {
                 const summaryParts = [];
                 if (data.SUMMARY.FACTION_KEYWORD) {
-                    let faction = data.SUMMARY.FACTION_KEYWORD.replace("Chaos - ", "").replace("Xenos - ", "").replace("Imperium - ", "");
+                    const faction = (data.SUMMARY.FACTION_KEYWORD.split(' - ').pop() || data.SUMMARY.FACTION_KEYWORD);
                     summaryParts.push(faction);
                 }
                 if (data.SUMMARY.DETACHMENT) summaryParts.push(data.SUMMARY.DETACHMENT);
@@ -494,7 +493,7 @@
         
         function applyTheme(factionKeyword) {
             const root = document.documentElement;
-            const mainFaction = factionKeyword ? factionKeyword.replace(/^(Chaos|Xenos|Imperium)\s*-\s*/, '') : null;
+            const mainFaction = factionKeyword ? (factionKeyword.split(' - ').pop() || factionKeyword) : null;
             const theme = factionThemes[mainFaction];
             const defaultTheme = {
                 "--color-bg": "#1f2937",
@@ -508,22 +507,24 @@
             }
         }
 
-        function copyTextToClipboard(text, button) {
+        async function copyTextToClipboard(text, button) {
             if (!text) return;
-            const listener = (e) => {
-                e.clipboardData.setData('text/plain', text);
-                e.preventDefault();
-            };
-            document.addEventListener('copy', listener);
-            document.execCommand('copy');
-            document.removeEventListener('copy', listener);
-            const originalText = button.textContent;
-            button.textContent = 'Copied!';
-            button.classList.add('btn-copied');
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.classList.remove('btn-copied');
-            }, 2000);
+            if (!navigator.clipboard) {
+                console.error('Clipboard API not available');
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(text);
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('btn-copied');
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('btn-copied');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
         }
 
         document.getElementById('copyExtendedButton').addEventListener('click', () => {
