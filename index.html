@@ -246,7 +246,8 @@
             const indentedBulletRegex = /^\s{2,}•\s*(.*)/;
             const simpleWithRegex = /^\d+\s+with\s+.*/;
 
-            lines.forEach((line, index) => {
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
                 const trimmedLine = line.trim();
                 if (!trimmedLine) return;
 
@@ -266,42 +267,64 @@
                     if (!factionKeyword && result.SUMMARY.FACTION_KEYWORD) {
                         factionKeyword = result.SUMMARY.FACTION_KEYWORD;
                     }
-                    return;
+                    continue;
                 }
                 if (sectionHeaderRegex.test(trimmedLine) && !unitRegex.test(trimmedLine) && !charLineRegex.test(trimmedLine)) {
                     currentSection = trimmedLine;
                     result[currentSection] = result[currentSection] || [];
                     currentUnit = null;
                     currentSubUnit = null;
-                    return;
-                }
-                if (enhancementLineRegex.test(trimmedLine) && currentUnit) {
-                    addItemToTarget(currentUnit, trimmedLine.match(enhancementLineRegex)[1].trim(), currentUnit.name);
-                    return;
+                    continue;
                 }
 
-                // --- Handle all bulleted items (subunits and wargear) ---
-                const bulletMatch = line.match(bulletItemRegex); // Match on original line to check indentation
-                if (bulletMatch) {
-                    const itemContent = bulletMatch[1].trim();
+                // --- Handle unit lines (Character or standard) ---
+                const charMatch = trimmedLine.match(charLineRegex);
+                const standardUnitMatch = trimmedLine.match(unitRegex);
+                // A main unit line is not indented and usually has points, or is a character line.
+                const isMainUnitLine = charMatch || (standardUnitMatch && !line.startsWith(' ') && !line.startsWith('\t') && /\(\d+\s*pts\)/.test(line));
+
+                if (isMainUnitLine) {
+                    currentSection = "CHARACTER";
+                    if (!charMatch) {
+                        currentSection = currentSection || "OTHER DATASHEETS";
+                    }
+                    result[currentSection] = result[currentSection] || [];
+                    const unitContent = charMatch ? charMatch[2] : trimmedLine;
+                    const finalUnitMatch = unitContent.match(unitRegex);
+
+                    if (finalUnitMatch) {
+                        currentUnit = {
+                            quantity: finalUnitMatch[1] ? finalUnitMatch[1].trim() : '1x',
+                            name: finalUnitMatch[2].trim(),
+                            points: finalUnitMatch[4] ? parseInt(finalUnitMatch[4], 10) : 0,
+                            items: []
+                        };
+                        result[currentSection].push(currentUnit);
+                        currentSubUnit = null;
+                    }
+                    continue;
+                }
+
+                // --- Handle items within a unit (wargear, subunits, etc.) ---
+                if (currentUnit) {
+                    const bulletMatch = trimmedLine.match(bulletItemRegex);
                     const isIndented = line.startsWith(' ') || line.startsWith('\t');
 
-                    if (isIndented) {
-                        // Indented bullet: must be wargear for the current context (subunit or unit)
-                        const target = currentSubUnit || currentUnit;
-                        if (target) {
-                            const unitContextName = currentSubUnit ? currentSubUnit.name : currentUnit.name;
-                            addItemToTarget(target, itemContent, unitContextName);
-                        }
-                    } else {
-                        // Non-indented bullet: could be a subunit header or wargear for the main unit.
-                        const nextLine = (index + 1 < lines.length) ? lines[index + 1] : '';
-                        const isSubUnitHeader = indentedBulletRegex.test(nextLine) || indentedWithRegex.test(nextLine);
+                    if (bulletMatch) {
+                        const itemContent = bulletMatch[1].trim();
 
-                        if (isSubUnitHeader) {
-                            // This is a subunit header.
+                        // Ignore noise lines that just repeat a unit name
+                        if (itemContent === currentUnit.name || (currentSubUnit && itemContent === currentSubUnit.name)) {
+                            continue;
+                        }
+
+                        const nextLine = (i + 1 < lines.length) ? lines[i + 1] : '';
+                        const nextLineIsIndented = nextLine.trim() !== '' && (nextLine.startsWith(' ') || nextLine.startsWith('\t'));
+
+                        if (!isIndented && nextLineIsIndented) {
+                            // This is a non-indented bullet followed by an indented line, so it's a subunit header.
                             const subUnitMatch = itemContent.match(unitRegex);
-                            if (subUnitMatch && currentUnit) {
+                            if (subUnitMatch) {
                                 currentSubUnit = {
                                     quantity: subUnitMatch[1] ? subUnitMatch[1].trim() : '1x',
                                     name: subUnitMatch[2].trim(),
@@ -310,73 +333,26 @@
                                 };
                                 currentUnit.items.push(currentSubUnit);
                             } else {
-                                // It's a bulleted line that looks like a subunit header but doesn't parse as a unit.
-                                // Treat it as wargear for the main unit.
-                                if (currentUnit) {
-                                    addItemToTarget(currentUnit, itemContent, currentUnit.name);
-                                }
+                                // It's wargear for the main unit that happens to be followed by an indented line.
                                 currentSubUnit = null;
-                            }
-                        } else {
-                            // This is a wargear item for the main unit.
-                            if (currentUnit) {
                                 addItemToTarget(currentUnit, itemContent, currentUnit.name);
                             }
-                            currentSubUnit = null;
+                        } else {
+                            // This is an indented bullet or a bullet not followed by an indented line, so it's wargear.
+                            const target = currentSubUnit || currentUnit;
+                            const contextName = currentSubUnit ? currentSubUnit.name : currentUnit.name;
+                            addItemToTarget(target, itemContent, contextName);
                         }
+                    } else if (isIndented) {
+                        // This is an indented line without a bullet (e.g., a "with" line). It's wargear for the current context.
+                        const target = currentSubUnit || currentUnit;
+                        const contextName = currentSubUnit ? currentSubUnit.name : currentUnit.name;
+                        addItemToTarget(target, trimmedLine, contextName);
+                    } else if (enhancementLineRegex.test(trimmedLine)) {
+                        addItemToTarget(currentUnit, trimmedLine.match(enhancementLineRegex)[1].trim(), currentUnit.name);
                     }
-                    return;
                 }
-
-                // --- Handle "with" lines that are not bullets ---
-                if (indentedWithRegex.test(line) && (currentSubUnit || currentUnit)) {
-                    const target = currentSubUnit || currentUnit;
-                    const unitContextName = currentSubUnit ? currentSubUnit.name : currentUnit.name;
-                    addItemToTarget(target, trimmedLine, unitContextName);
-                    return;
-                }
-                if (simpleWithRegex.test(trimmedLine) && (currentSubUnit || currentUnit)) {
-                    const target = currentSubUnit || currentUnit;
-                    const unitContextName = currentSubUnit ? currentSubUnit.name : currentUnit.name;
-                    addItemToTarget(target, trimmedLine, unitContextName);
-                    return;
-                }
-
-                // --- Handle unit lines (Character or standard) ---
-                const charMatch = trimmedLine.match(charLineRegex);
-                if (charMatch) {
-                    currentSection = "CHARACTER";
-                    result[currentSection] = result[currentSection] || [];
-                    const unitMatch = charMatch[2].match(unitRegex);
-                    if (unitMatch) {
-                        currentUnit = {
-                            quantity: unitMatch[1] ? unitMatch[1].trim() : '1x',
-                            name: unitMatch[2].trim(),
-                            points: unitMatch[4] ? parseInt(unitMatch[4], 10) : 0,
-                            items: []
-                        };
-                        result[currentSection].push(currentUnit);
-                        currentSubUnit = null;
-                    }
-                    return;
-                }
-
-                const standardUnitMatch = trimmedLine.match(unitRegex);
-                if (standardUnitMatch) {
-                    if (!currentSection) {
-                        currentSection = "OTHER DATASHEETS";
-                        result[currentSection] = result[currentSection] || [];
-                    }
-                    currentUnit = {
-                        quantity: standardUnitMatch[1] ? standardUnitMatch[1].trim() : '1x',
-                        name: standardUnitMatch[2].trim(),
-                        points: standardUnitMatch[4] ? parseInt(standardUnitMatch[4], 10) : 0,
-                        items: []
-                    };
-                    result[currentSection].push(currentUnit);
-                    currentSubUnit = null;
-                }
-            });
+            }
             parsedData = result;
             const extendedOutput = generateOutput(result, false);
             document.getElementById('unabbreviatedOutput').innerHTML = extendedOutput.html;
