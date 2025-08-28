@@ -401,10 +401,6 @@
             for (const section in data) {
                 if (section !== 'SUMMARY' && Array.isArray(data[section])) {
                     data[section].forEach(unit => {
-                        if (!firstUnitOverall) {
-                            html += '<div style="height: 0.5rem;"></div>';
-                            plainText += '\n';
-                        }
                         const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
                         const quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
                         const unitText = `${quantityDisplay}${unit.name} ${unit.points}`;
@@ -420,46 +416,58 @@
 
                             if (hasVisibleItems) {
                                 html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
-                                const sortedItems = [...unit.items].sort((a, b) => {
-                                    const isASubUnit = a.points !== undefined;
-                                    const isBSubUnit = b.points !== undefined;
+                                const allItems = [...unit.items];
+                                const wargearItems = allItems.filter(item => item.points === undefined && (!useAbbreviations || item.nameshort !== "NULL"));
+                                const subunitItems = allItems.filter(item => item.points !== undefined).sort((a, b) => parseInt(a.quantity.replace('x', ''), 10) - parseInt(b.quantity.replace('x', ''), 10));
 
-                                    if (isASubUnit && isBSubUnit) {
-                                        const qtyA = parseInt(a.quantity.replace('x', ''), 10);
-                                        const qtyB = parseInt(b.quantity.replace('x', ''), 10);
-                                        return qtyA - qtyB;
+                                if (wargearItems.length > 0) {
+                                    wargearItems.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
+                                    const wargearStrings = wargearItems.map(item => {
+                                        const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                                        const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                                        const itemName = useAbbreviations ? item.nameshort : item.name;
+                                        return `${itemQtyDisplay}${itemName}`;
+                                    });
+                                    if (useAbbreviations) {
+                                        html += `<p style="margin: 0;">${wargearStrings.join(', ')}</p>`;
+                                        plainText += `  - ${wargearStrings.join(', ')}\n`;
+                                    } else {
+                                        wargearStrings.forEach(str => {
+                                            html += `<p style="margin: 0;">${str}</p>`;
+                                            plainText += `  - ${str}\n`;
+                                        });
                                     }
-                                    if (isASubUnit) return -1;
-                                    if (isBSubUnit) return 1;
-                                    return 0;
-                                });
-                                sortedItems.forEach(item => {
-                                    const isSubUnit = item.points !== undefined;
-                                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
-                                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                                }
 
-                                    if (isSubUnit) {
-                                        const subUnitHasVisibleItems = !useAbbreviations || (item.items && item.items.some(subItem => subItem.nameshort !== "NULL"));
-                                        if (subUnitHasVisibleItems) {
-                                            const itemText = `${itemQtyDisplay}${item.name}`; // Subunits are not abbreviated
-                                            html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemText}</p><div style="padding-left: 1rem;">`;
-                                            plainText += `  + ${itemText}\n`;
-                                            item.items.forEach(subItem => {
-                                                if (useAbbreviations && subItem.nameshort === "NULL") return;
+                                subunitItems.forEach(item => {
+                                    const subUnitHasVisibleItems = !useAbbreviations || (item.items && item.items.some(subItem => subItem.nameshort !== "NULL"));
+                                    if (subUnitHasVisibleItems) {
+                                        const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                                        const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                                        const itemText = `${itemQtyDisplay}${item.name}`;
+                                        html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemText}</p>`;
+                                        plainText += `  + ${itemText}\n`;
+
+                                        const subunitWargear = item.items.filter(subItem => !useAbbreviations || subItem.nameshort !== "NULL");
+                                        if (subunitWargear.length > 0) {
+                                            subunitWargear.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
+                                            const wargearStrings = subunitWargear.map(subItem => {
                                                 const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
                                                 const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
                                                 const subItemText = `${subItemQtyDisplay}${useAbbreviations ? subItem.nameshort : subItem.name}`;
-                                                html += `<p style="margin: 0;">${subItemText}</p>`;
-                                                plainText += `    - ${subItemText}\n`;
+                                                return subItemText;
                                             });
+                                            html += `<div style="padding-left: 1rem;">`;
+                                            if (useAbbreviations) {
+                                                html += `<p style="margin: 0;">${wargearStrings.join(', ')}</p>`;
+                                                plainText += `    - ${wargearStrings.join(', ')}\n`;
+                                            } else {
+                                                wargearStrings.forEach(str => {
+                                                    html += `<p style="margin: 0;">${str}</p>`;
+                                                    plainText += `    - ${str}\n`;
+                                                });
+                                            }
                                             html += `</div>`;
-                                        }
-                                    } else {
-                                        if (!useAbbreviations || item.nameshort !== "NULL") {
-                                            const itemName = useAbbreviations ? item.nameshort : item.name;
-                                            const itemText = `${itemQtyDisplay}${itemName}`;
-                                            html += `<p style="margin: 0;">${itemText}</p>`;
-                                            plainText += `  - ${itemText}\n`;
                                         }
                                     }
                                 });
@@ -516,7 +524,6 @@
             for (const section in data) {
                 if (section === 'SUMMARY' || !Array.isArray(data[section])) continue;
                 data[section].forEach(unit => {
-                    if (!firstUnitOverall) text += '\n'; 
                     const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
                     const quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
                     const unitName = `${quantityDisplay}${unit.name}`;
@@ -531,39 +538,38 @@
                         });
 
                         if (hasVisibleItems) {
-                            const sortedItems = [...unit.items].sort((a, b) => {
-                                const isASubUnit = a.points !== undefined;
-                                const isBSubUnit = b.points !== undefined;
+                            const allItems = [...unit.items];
+                            const wargearItems = allItems.filter(item => item.points === undefined && item.nameshort !== "NULL");
+                            const subunitItems = allItems.filter(item => item.points !== undefined).sort((a, b) => parseInt(a.quantity.replace('x', ''), 10) - parseInt(b.quantity.replace('x', ''), 10));
 
-                                if (isASubUnit && isBSubUnit) {
-                                    const qtyA = parseInt(a.quantity.replace('x', ''), 10);
-                                    const qtyB = parseInt(b.quantity.replace('x', ''), 10);
-                                    return qtyA - qtyB;
-                                }
-                                if (isASubUnit) return -1;
-                                if (isBSubUnit) return 1;
-                                return 0;
-                            });
-                            sortedItems.forEach(item => {
-                                const isSubUnit = item.points !== undefined;
-                                const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
-                                const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                            if (wargearItems.length > 0) {
+                                wargearItems.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
+                                const wargearStrings = wargearItems.map(item => {
+                                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                                    return `${itemQtyDisplay}${item.nameshort}`;
+                                });
+                                text += `  - ${wargearStrings.join(', ')}\n`;
+                            }
 
-                                if (isSubUnit) {
-                                    const subUnitHasVisibleItems = plain || (item.items && item.items.some(subItem => subItem.nameshort !== "NULL"));
-                                    if (subUnitHasVisibleItems) {
-                                        const subunitName = item.name; // Subunits are not abbreviated
-                                        text += plain ? `  + ${itemQtyDisplay}${subunitName}\n` : `  \u001b[1;36m+ ${itemQtyDisplay}${subunitName}\u001b[0m\n`;
-                                        item.items.forEach(subItem => {
-                                            if (subItem.nameshort === "NULL") return;
+                            subunitItems.forEach(item => {
+                                const subUnitHasVisibleItems = plain || (item.items && item.items.some(subItem => subItem.nameshort !== "NULL"));
+                                if (subUnitHasVisibleItems) {
+                                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                                    const subunitName = item.name;
+                                    text += plain ? `  + ${itemQtyDisplay}${subunitName}\n` : `  \u001b[1;36m+ ${itemQtyDisplay}${subunitName}\u001b[0m\n`;
+
+                                    const subunitWargear = item.items.filter(subItem => subItem.nameshort !== "NULL");
+                                    if (subunitWargear.length > 0) {
+                                        subunitWargear.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
+                                        const wargearStrings = subunitWargear.map(subItem => {
                                             const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
                                             const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
-                                            text += `    - ${subItemQtyDisplay}${subItem.nameshort}\n`;
+                                            return `${subItemQtyDisplay}${subItem.nameshort}`;
                                         });
+                                        text += `    - ${wargearStrings.join(', ')}\n`;
                                     }
-                                } else { // It's a wargear item
-                                    if (item.nameshort === "NULL") return;
-                                    text += `  - ${itemQtyDisplay}${item.nameshort}\n`;
                                 }
                             });
                         }
