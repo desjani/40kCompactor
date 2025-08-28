@@ -280,8 +280,8 @@
                 // --- Handle unit lines (Character or standard) ---
                 const charMatch = trimmedLine.match(charLineRegex);
                 const standardUnitMatch = trimmedLine.match(unitRegex);
-                // A main unit line is not indented and usually has points, or is a character line.
-                const isMainUnitLine = charMatch || (standardUnitMatch && !line.startsWith(' ') && !line.startsWith('\t') && /\(\d+\s*pts\)/.test(line));
+                // A main unit is a character line, or any non-indented, non-bullet line that looks like a unit.
+                const isMainUnitLine = charMatch || (standardUnitMatch && !line.startsWith(' ') && !line.startsWith('\t') && !trimmedLine.startsWith('•'));
 
                 if (isMainUnitLine) {
                     currentSection = "CHARACTER";
