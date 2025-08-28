@@ -242,6 +242,25 @@
                 }
             };
 
+            const parseAndAddEnhancement = (enhancementContent, targetUnit) => {
+                if (!targetUnit) return;
+                const pointsRegex = /\s*\((.*?)\)$/;
+                const pointsMatch = enhancementContent.match(pointsRegex);
+                
+                let enhancementName = enhancementContent;
+                let enhancementPoints = '';
+
+                if (pointsMatch) {
+                    enhancementName = enhancementContent.replace(pointsRegex, '').trim();
+                    const pointsText = pointsMatch[1].replace(/\s*pts/i, '');
+                    enhancementPoints = `(${pointsText})`;
+                }
+
+                const abbreviation = enhancementName.split(/[\s-]+/).map(word => word.charAt(0)).join('').toUpperCase();
+                const shortText = `E: ${abbreviation} ${enhancementPoints}`.trim();
+                targetUnit.items.push({ quantity: '1x', name: `Enhancement: ${enhancementContent}`, nameshort: shortText, items: [], type: 'special' });
+            };
+
             const sectionHeaderRegex = /^[A-Z\s]+$/;
             const unitRegex = /^(\d+x?\s+)(.*?)(\s*\((\d+)\s*pts\))?$/;
             const summaryRegex = /^\+\s*([^:]+):\s*(.*)$/;
@@ -320,8 +339,16 @@
                     if (bulletMatch) {
                         const itemContent = bulletMatch[1].trim();
 
+                        // Handle GW-style enhancements, which are bulleted items with (+XX pts)
+                        const gwEnhancementRegex = /^(.*?)\s*\(\+\d+.*?\)$/;
+                        if (gwEnhancementRegex.test(itemContent)) {
+                            parseAndAddEnhancement(itemContent, currentUnit);
+                            continue;
+                        }
+
                         // Ignore noise lines that just repeat a unit name
-                        if (itemContent.toLowerCase() === currentUnit.name.toLowerCase() || (currentSubUnit && itemContent.toLowerCase() === currentSubUnit.name.toLowerCase())) {
+                        const cleanItemContent = itemContent.replace(/^\d+x?\s*/, '').trim();
+                        if (cleanItemContent.toLowerCase() === currentUnit.name.toLowerCase() || (currentSubUnit && cleanItemContent.toLowerCase() === currentSubUnit.name.toLowerCase())) {
                             continue;
                         }
 
@@ -354,24 +381,7 @@
                         const target = currentSubUnit || currentUnit;
                         addItemToTarget(target, trimmedLine, currentUnit.name);
                     } else if (enhancementLineRegex.test(trimmedLine)) {
-                        if (currentUnit) {
-                            const enhancementContent = trimmedLine.match(enhancementLineRegex)[1].trim();
-                            const pointsRegex = /\s*\((.*?)\)$/;
-                            const pointsMatch = enhancementContent.match(pointsRegex);
-                            
-                            let enhancementName = enhancementContent;
-                            let enhancementPoints = '';
-
-                            if (pointsMatch) {
-                                enhancementName = enhancementContent.replace(pointsRegex, '').trim();
-                                const pointsText = pointsMatch[1].replace(/\s*pts/i, '');
-                                enhancementPoints = `(${pointsText})`;
-                            }
-
-                            const abbreviation = enhancementName.split(/[\s-]+/).map(word => word.charAt(0)).join('').toUpperCase();
-                            const shortText = `E: ${abbreviation} ${enhancementPoints}`.trim();
-                            currentUnit.items.push({ quantity: '1x', name: `Enhancement: ${enhancementContent}`, nameshort: shortText, items: [], type: 'special' });
-                        }
+                        parseAndAddEnhancement(trimmedLine.match(enhancementLineRegex)[1].trim(), currentUnit);
                     } else if (simpleWithRegex.test(trimmedLine)) {
                         // This is a non-indented "with" line, treat as wargear for the current context.
                         const target = currentSubUnit || currentUnit;
