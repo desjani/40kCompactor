@@ -364,7 +364,8 @@
 
                             if (pointsMatch) {
                                 enhancementName = enhancementContent.replace(pointsRegex, '').trim();
-                                enhancementPoints = `(${pointsMatch[1]})`;
+                                const pointsText = pointsMatch[1].replace(/\s*pts/i, '');
+                                enhancementPoints = `(${pointsText})`;
                             }
 
                             const abbreviation = enhancementName.split(/[\s-]+/).map(word => word.charAt(0)).join('').toUpperCase();

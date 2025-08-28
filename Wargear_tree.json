@@ -15591,6 +15591,10 @@
                 "item": "Icon of Khorne",
                 "abbr": "Icon"
             },
+                        {
+                "item": "Khorne Berzerker",
+                "abbr": "NULL"
+            },
             {
                 "item": "Chainblade",
                 "abbr": "NULL"
