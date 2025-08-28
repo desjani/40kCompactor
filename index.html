@@ -209,7 +209,7 @@
             const result = {};
             let currentSection = null, currentUnit = null, currentSubUnit = null, factionKeyword = null;
 
-            const addItemToTarget = (target, itemString, unitContextName) => {
+            const addItemToTarget = (target, itemString, unitContextName, itemType = 'wargear') => {
                 if (!target || !itemString) return;
                 const withMatch = itemString.match(/(\d+)\s+with\s+(.*)/);
                 if (withMatch) {
@@ -225,7 +225,7 @@
                             const existingQty = parseInt(existingItem.quantity.replace('x', ''));
                             existingItem.quantity = `${existingQty + totalQuantity}x`;
                         } else {
-                            target.items.push({ quantity: `${totalQuantity}x`, name, nameshort, items: [] });
+                            target.items.push({ quantity: `${totalQuantity}x`, name, nameshort, items: [], type: itemType });
                         }
                     });
                     return;
@@ -238,7 +238,7 @@
                     const existingQty = parseInt(existingItem.quantity.replace('x', ''));
                     existingItem.quantity = `${existingQty + numericQuantity}x`;
                 } else {
-                    target.items.push({ quantity, name, nameshort, items: [] });
+                    target.items.push({ quantity, name, nameshort, items: [], type: itemType });
                 }
             };
 
@@ -344,7 +344,8 @@
                             } else {
                                 // It's wargear for the main unit. Reset subunit context.
                                 currentSubUnit = null;
-                                addItemToTarget(currentUnit, itemContent, currentUnit.name);
+                                const itemType = itemContent.toLowerCase() === 'warlord' ? 'special' : 'wargear';
+                                addItemToTarget(currentUnit, itemContent, currentUnit.name, itemType);
                             }
                         }
                     } else if (isIndented) { // This handles indented lines without bullets
@@ -352,7 +353,8 @@
                         const target = currentSubUnit || currentUnit;
                         addItemToTarget(target, trimmedLine, currentUnit.name);
                     } else if (enhancementLineRegex.test(trimmedLine)) {
-                        addItemToTarget(currentUnit, trimmedLine.match(enhancementLineRegex)[1].trim(), currentUnit.name);
+                        const enhancementText = `Enhancement: ${trimmedLine.match(enhancementLineRegex)[1].trim()}`;
+                        addItemToTarget(currentUnit, enhancementText, currentUnit.name, 'special');
                     } else if (simpleWithRegex.test(trimmedLine)) {
                         // This is a non-indented "with" line, treat as wargear for the current context.
                         const target = currentSubUnit || currentUnit;
@@ -379,6 +381,40 @@
                 return { quantity, name };
             }
             return { quantity: '1x', name: itemString };
+        }
+
+        function renderUnitItems(items, useAbbreviations, plainTextPrefix) {
+            let html = '', plainText = '';
+            const specialItems = items.filter(item => item.type === 'special');
+            const wargearItems = items.filter(item => item.type !== 'special' && (!useAbbreviations || item.nameshort !== "NULL"));
+
+            if (wargearItems.length > 0) {
+                wargearItems.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
+                const wargearStrings = wargearItems.map(item => {
+                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                    const itemName = useAbbreviations ? item.nameshort : item.name;
+                    return `${itemQtyDisplay}${itemName}`;
+                });
+                if (useAbbreviations) {
+                    html += `<p style="margin: 0;">${wargearStrings.join(', ')}</p>`;
+                    plainText += `${plainTextPrefix}${wargearStrings.join(', ')}\n`;
+                } else {
+                    wargearStrings.forEach(str => {
+                        html += `<p style="margin: 0;">${str}</p>`;
+                        plainText += `${plainTextPrefix}${str}\n`;
+                    });
+                }
+            }
+
+            if (specialItems.length > 0) {
+                specialItems.forEach(item => {
+                    const itemName = item.name; // Always use full name
+                    html += `<p style="margin: 0;">${itemName}</p>`;
+                    plainText += `${plainTextPrefix}${itemName}\n`;
+                });
+            }
+            return { html, plainText };
         }
 
         function generateOutput(data, useAbbreviations) {
@@ -408,39 +444,24 @@
                         plainText += `* ${unitText}\n`;
                         if (unit.items && unit.items.length > 0) {
                             const hasVisibleItems = !useAbbreviations || unit.items.some(item => {
-                                if (item.points !== undefined) { // isSubUnit
-                                    return item.items && item.items.some(subItem => subItem.nameshort !== "NULL");
+                                if (item.points !== undefined) { 
+                                    return item.items && item.items.some(subItem => subItem.nameshort !== "NULL" || subItem.type === 'special');
                                 }
-                                return item.nameshort !== "NULL"; // is wargear
+                                return item.nameshort !== "NULL" || item.type === 'special';
                             });
 
                             if (hasVisibleItems) {
                                 html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
                                 const allItems = [...unit.items];
-                                const wargearItems = allItems.filter(item => item.points === undefined && (!useAbbreviations || item.nameshort !== "NULL"));
+                                const topLevelItems = allItems.filter(item => item.points === undefined);
                                 const subunitItems = allItems.filter(item => item.points !== undefined).sort((a, b) => parseInt(a.quantity.replace('x', ''), 10) - parseInt(b.quantity.replace('x', ''), 10));
 
-                                if (wargearItems.length > 0) {
-                                    wargearItems.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
-                                    const wargearStrings = wargearItems.map(item => {
-                                        const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
-                                        const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-                                        const itemName = useAbbreviations ? item.nameshort : item.name;
-                                        return `${itemQtyDisplay}${itemName}`;
-                                    });
-                                    if (useAbbreviations) {
-                                        html += `<p style="margin: 0;">${wargearStrings.join(', ')}</p>`;
-                                        plainText += `  - ${wargearStrings.join(', ')}\n`;
-                                    } else {
-                                        wargearStrings.forEach(str => {
-                                            html += `<p style="margin: 0;">${str}</p>`;
-                                            plainText += `  - ${str}\n`;
-                                        });
-                                    }
-                                }
+                                const topLevelRender = renderUnitItems(topLevelItems, useAbbreviations, '  - ');
+                                html += topLevelRender.html;
+                                plainText += topLevelRender.plainText;
 
                                 subunitItems.forEach(item => {
-                                    const subUnitHasVisibleItems = !useAbbreviations || (item.items && item.items.some(subItem => subItem.nameshort !== "NULL"));
+                                    const subUnitHasVisibleItems = !useAbbreviations || (item.items && item.items.some(subItem => subItem.nameshort !== "NULL" || subItem.type === 'special'));
                                     if (subUnitHasVisibleItems) {
                                         const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                                         const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
@@ -448,27 +469,9 @@
                                         html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemText}</p>`;
                                         plainText += `  + ${itemText}\n`;
 
-                                        const subunitWargear = item.items.filter(subItem => !useAbbreviations || subItem.nameshort !== "NULL");
-                                        if (subunitWargear.length > 0) {
-                                            subunitWargear.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
-                                            const wargearStrings = subunitWargear.map(subItem => {
-                                                const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
-                                                const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
-                                                const subItemText = `${subItemQtyDisplay}${useAbbreviations ? subItem.nameshort : subItem.name}`;
-                                                return subItemText;
-                                            });
-                                            html += `<div style="padding-left: 1rem;">`;
-                                            if (useAbbreviations) {
-                                                html += `<p style="margin: 0;">${wargearStrings.join(', ')}</p>`;
-                                                plainText += `    - ${wargearStrings.join(', ')}\n`;
-                                            } else {
-                                                wargearStrings.forEach(str => {
-                                                    html += `<p style="margin: 0;">${str}</p>`;
-                                                    plainText += `    - ${str}\n`;
-                                                });
-                                            }
-                                            html += `</div>`;
-                                        }
+                                        const subunitRender = renderUnitItems(item.items, useAbbreviations, '    - ');
+                                        html += `<div style="padding-left: 1rem;">${subunitRender.html}</div>`;
+                                        plainText += subunitRender.plainText;
                                     }
                                 });
                                 html += `</div>`;
@@ -503,6 +506,30 @@
             }
         }
 
+        function renderDiscordItems(items, plain, prefix) {
+            let text = '';
+            const specialItems = items.filter(item => item.type === 'special');
+            const wargearItems = items.filter(item => item.type !== 'special' && item.nameshort !== "NULL");
+
+            if (wargearItems.length > 0) {
+                wargearItems.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
+                const wargearStrings = wargearItems.map(item => {
+                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                    return `${itemQtyDisplay}${item.nameshort}`;
+                });
+                text += `${prefix}${wargearStrings.join(', ')}\n`;
+            }
+
+            if (specialItems.length > 0) {
+                specialItems.forEach(item => {
+                    // For discord, special items might still be long, but we show them fully.
+                    text += `${prefix}${item.name}\n`;
+                });
+            }
+            return text;
+        }
+
         function generateDiscordText(data, plain) {
             const factionKeyword = data.SUMMARY?.FACTION_KEYWORD || '';
             let text = plain ? '' : '```ansi\n';
@@ -531,45 +558,28 @@
                     text += plain ? `* ${unitName} [${points}]\n` : `\u001b[0;31m* ${unitName}\u001b[0m [\u001b[0;33m${points}\u001b[0m]\n`;
                     if (unit.items && unit.items.length > 0) {
                         const hasVisibleItems = plain || unit.items.some(item => {
-                            if (item.points !== undefined) { // isSubUnit
-                                return item.items && item.items.some(subItem => subItem.nameshort !== "NULL");
+                            if (item.points !== undefined) {
+                                return item.items && item.items.some(subItem => subItem.nameshort !== "NULL" || subItem.type === 'special');
                             }
-                            return item.nameshort !== "NULL"; // is wargear
+                            return item.nameshort !== "NULL" || item.type === 'special';
                         });
 
                         if (hasVisibleItems) {
                             const allItems = [...unit.items];
-                            const wargearItems = allItems.filter(item => item.points === undefined && item.nameshort !== "NULL");
+                            const topLevelItems = allItems.filter(item => item.points === undefined);
                             const subunitItems = allItems.filter(item => item.points !== undefined).sort((a, b) => parseInt(a.quantity.replace('x', ''), 10) - parseInt(b.quantity.replace('x', ''), 10));
 
-                            if (wargearItems.length > 0) {
-                                wargearItems.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
-                                const wargearStrings = wargearItems.map(item => {
-                                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
-                                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-                                    return `${itemQtyDisplay}${item.nameshort}`;
-                                });
-                                text += `  - ${wargearStrings.join(', ')}\n`;
-                            }
+                            text += renderDiscordItems(topLevelItems, plain, '  - ');
 
                             subunitItems.forEach(item => {
-                                const subUnitHasVisibleItems = plain || (item.items && item.items.some(subItem => subItem.nameshort !== "NULL"));
+                                const subUnitHasVisibleItems = plain || (item.items && item.items.some(subItem => subItem.nameshort !== "NULL" || subItem.type === 'special'));
                                 if (subUnitHasVisibleItems) {
                                     const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                                     const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
                                     const subunitName = item.name;
                                     text += plain ? `  + ${itemQtyDisplay}${subunitName}\n` : `  \u001b[1;36m+ ${itemQtyDisplay}${subunitName}\u001b[0m\n`;
 
-                                    const subunitWargear = item.items.filter(subItem => subItem.nameshort !== "NULL");
-                                    if (subunitWargear.length > 0) {
-                                        subunitWargear.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
-                                        const wargearStrings = subunitWargear.map(subItem => {
-                                            const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
-                                            const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
-                                            return `${subItemQtyDisplay}${subItem.nameshort}`;
-                                        });
-                                        text += `    - ${wargearStrings.join(', ')}\n`;
-                                    }
+                                    text += renderDiscordItems(item.items, plain, '    - ');
                                 }
                             });
                         }
