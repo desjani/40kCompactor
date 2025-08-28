@@ -131,29 +131,40 @@
         function abbreviate(itemName, unitName, fullFactionKeyword) {
             const searchOrder = [];
             const mainFaction = fullFactionKeyword ? (fullFactionKeyword.split(' - ').pop() || fullFactionKeyword) : null;
-            // Prioritize the specific faction if available
-            if (mainFaction) {
-                searchOrder.push(mainFaction);
+            let factionsToSearch = [];
+
+            // First, check if the unit exists in the most specific faction. If so, we will ONLY search there.
+            if (mainFaction && factionAbbreviationDBs[mainFaction]) {
+                const mainFactionRules = factionAbbreviationDBs[mainFaction];
+                const unitRulesKey = Object.keys(mainFactionRules).find(key => key.toLowerCase() === unitName.toLowerCase());
+                if (unitRulesKey) {
+                    factionsToSearch = [mainFaction];
+                }
             }
-            // Add broader categories for cross-faction rules, if applicable.
-            // These are specific general factions that might contain universal rules for their sub-factions.
-            if (fullFactionKeyword.includes("Chaos")) {
-                searchOrder.push("Chaos Space Marines", "Chaos Knights", "Chaos Daemons");
+
+            // If the unit wasn't in the specific faction DB, build the full search order.
+            if (factionsToSearch.length === 0) {
+                if (mainFaction) {
+                    searchOrder.push(mainFaction);
+                }
+                // Add broader categories for cross-faction rules.
+                if (fullFactionKeyword.includes("Chaos")) {
+                    searchOrder.push("Chaos Space Marines", "Chaos Knights", "Chaos Daemons");
+                }
+                if (fullFactionKeyword.includes("Imperium")) {
+                    searchOrder.push("Imperial Knights", "Agents of the Imperium");
+                }
+                if (fullFactionKeyword.includes("Adeptus Astartes")) {
+                    searchOrder.push("Space Marines");
+                }
+                if (fullFactionKeyword.includes("Genestealer Cults") || fullFactionKeyword.includes("Tyranids")) {
+                    searchOrder.push("Genestealer Cults", "Tyranids");
+                }
+                factionsToSearch = [...new Set(searchOrder)];
             }
-            if (fullFactionKeyword.includes("Imperium")) {
-                searchOrder.push("Imperial Knights", "Agents of the Imperium");
-            }
-            if (fullFactionKeyword.includes("Adeptus Astartes")) {
-                searchOrder.push("Space Marines");
-            }
-            // Special handling for Genestealer Cults and Tyranids due to their symbiotic relationship
-            if (fullFactionKeyword.includes("Genestealer Cults") || fullFactionKeyword.includes("Tyranids")) {
-                searchOrder.push("Genestealer Cults", "Tyranids");
-            }
-            const uniqueSearchOrder = [...new Set(searchOrder)];
 
             // --- First Pass: Prioritize specific unit matches across all relevant factions ---
-            for (const faction of uniqueSearchOrder) {
+            for (const faction of factionsToSearch) {
                 const rules = factionAbbreviationDBs[faction];
                 if (!rules) continue;
 
@@ -176,7 +187,7 @@
             }
 
             // --- Second Pass: Check for wildcard unit matches if no specific unit match was found ---
-            for (const faction of uniqueSearchOrder) {
+            for (const faction of factionsToSearch) {
                 const rules = factionAbbreviationDBs[faction];
                 if (!rules || !rules["*"]) continue;
 
@@ -314,17 +325,20 @@
                         const itemContent = bulletMatch[1].trim();
 
                         // Ignore noise lines that just repeat a unit name
-                        if (itemContent === currentUnit.name || (currentSubUnit && itemContent === currentSubUnit.name)) {
+                        if (itemContent.toLowerCase() === currentUnit.name.toLowerCase() || (currentSubUnit && itemContent.toLowerCase() === currentSubUnit.name.toLowerCase())) {
                             continue;
                         }
 
-                        const nextLine = (i + 1 < lines.length) ? lines[i + 1] : '';
-                        const nextLineIsIndented = nextLine.trim() !== '' && (nextLine.startsWith(' ') || nextLine.startsWith('\t'));
-
-                        if (!isIndented && nextLineIsIndented) {
-                            // This is a non-indented bullet followed by an indented line, so it's a subunit header.
+                        if (isIndented) {
+                            // Indented bullet is always wargear for the current context.
+                            const target = currentSubUnit || currentUnit;
+                            const contextName = currentSubUnit ? currentSubUnit.name : currentUnit.name;
+                            addItemToTarget(target, itemContent, contextName);
+                        } else {
+                            // Non-indented bullet. Could be a subunit or wargear for the main unit.
                             const subUnitMatch = itemContent.match(unitRegex);
                             if (subUnitMatch) {
+                                // It looks like a subunit. Create it.
                                 currentSubUnit = {
                                     quantity: subUnitMatch[1] ? subUnitMatch[1].trim() : '1x',
                                     name: subUnitMatch[2].trim(),
@@ -333,17 +347,12 @@
                                 };
                                 currentUnit.items.push(currentSubUnit);
                             } else {
-                                // It's wargear for the main unit that happens to be followed by an indented line.
+                                // It's wargear for the main unit. Reset subunit context.
                                 currentSubUnit = null;
                                 addItemToTarget(currentUnit, itemContent, currentUnit.name);
                             }
-                        } else {
-                            // This is an indented bullet or a bullet not followed by an indented line, so it's wargear.
-                            const target = currentSubUnit || currentUnit;
-                            const contextName = currentSubUnit ? currentSubUnit.name : currentUnit.name;
-                            addItemToTarget(target, itemContent, contextName);
                         }
-                    } else if (isIndented) {
+                    } else if (isIndented) { // This handles indented lines without bullets
                         // This is an indented line without a bullet (e.g., a "with" line). It's wargear for the current context.
                         const target = currentSubUnit || currentUnit;
                         const contextName = currentSubUnit ? currentSubUnit.name : currentUnit.name;
