@@ -13996,6 +13996,18 @@
                 "abbr": "NULL"
             },
             {
+                "item": "Pathfinder Shas'ui, Recon drone",
+                "abbr": "Recon"
+            },
+            {
+                "item": "Pathfinder Shas'ui, Pulse Accelerator drone",
+                "abbr": "PAD"
+            },
+            {
+                "item": "Pathfinder Shas'ui, Grav-inhibitr Drone",
+                "abbr": "Grav"
+            },
+            {
                 "item": "Semi-Automatic Grenade Launcher",
                 "abbr": "SAGL"
             }
@@ -14087,7 +14099,7 @@
             },
             {
                 "item": "Stealth Shas'vre (Shield Drone)",
-                "abbr": "NULL"
+                "abbr": "SD"
             },
             {
                 "item": "Battlesuit support system",
