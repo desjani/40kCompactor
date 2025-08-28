@@ -249,7 +249,7 @@
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
                 const trimmedLine = line.trim();
-                if (!trimmedLine) return;
+                if (!trimmedLine) continue;
 
                 // --- Handle non-unit lines first ---
                 if (trimmedLine.startsWith('+') || trimmedLine.startsWith('&')) {
