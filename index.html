@@ -411,6 +411,23 @@
                         html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitText}</p>`;
                         plainText += `* ${unitText}\n`;
                         if (unit.items && unit.items.length > 0) {
+                            let unitHasVisibleCompactItems = false;
+                            if (useAbbreviations) {
+                                for (const item of unit.items) {
+                                    const isSubUnit = item.points !== undefined;
+                                    if (isSubUnit) {
+                                        if (item.items && item.items.some(subItem => subItem.nameshort !== "NULL")) {
+                                            unitHasVisibleCompactItems = true;
+                                            break;
+                                        }
+                                    } else {
+                                        if (item.nameshort !== "NULL") {
+                                            unitHasVisibleCompactItems = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                             html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
                             const sortedItems = [...unit.items].sort((a, b) => {
                                 const isASubUnit = a.points !== undefined;
@@ -431,6 +448,8 @@
                                 const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
 
                                 if (isSubUnit) {
+                                    // If compacting and the parent unit has no visible items, don't render the subunit header.
+                                    if (useAbbreviations && !unitHasVisibleCompactItems) continue;
                                     const itemText = `${itemQtyDisplay}${item.name}`; // Subunits are not abbreviated
                                     html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemText}</p><div style="padding-left: 1rem;">`;
                                     plainText += `  + ${itemText}\n`;
@@ -510,6 +529,24 @@
                     const points = `${unit.points}`;
                     text += plain ? `* ${unitName} [${points}]\n` : `\u001b[0;31m* ${unitName}\u001b[0m [\u001b[0;33m${points}\u001b[0m]\n`;
                     if (unit.items && unit.items.length > 0) {
+                        let unitHasVisibleCompactItems = false;
+                        // This check is only for the fancy discord output, not the plain one.
+                        if (!plain) {
+                            for (const item of unit.items) {
+                                const isSubUnit = item.points !== undefined;
+                                if (isSubUnit) {
+                                    if (item.items && item.items.some(subItem => subItem.nameshort !== "NULL")) {
+                                        unitHasVisibleCompactItems = true;
+                                        break;
+                                    }
+                                } else {
+                                    if (item.nameshort !== "NULL") {
+                                        unitHasVisibleCompactItems = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                         const sortedItems = [...unit.items].sort((a, b) => {
                             const isASubUnit = a.points !== undefined;
                             const isBSubUnit = b.points !== undefined;
@@ -529,6 +566,8 @@
                             const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
 
                             if (isSubUnit) {
+                                // If compacting and the parent unit has no visible items, don't render the subunit header.
+                                if (!plain && !unitHasVisibleCompactItems) continue;
                                 const subunitName = item.name; // Subunits are not abbreviated
                                 text += plain ? `  + ${itemQtyDisplay}${subunitName}\n` : `  \u001b[1;36m+ ${itemQtyDisplay}${subunitName}\u001b[0m\n`;
                                 item.items.forEach(subItem => {
