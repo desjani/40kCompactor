@@ -246,7 +246,7 @@
             const indentedBulletRegex = /^\s{2,}•\s*(.*)/;
             const simpleWithRegex = /^\d+\s+with\s+.*/;
 
-            lines.forEach(line => {
+            lines.forEach((line, index) => {
                 const trimmedLine = line.trim();
                 if (!trimmedLine) return;
                 if (trimmedLine.startsWith('+') || trimmedLine.startsWith('&')) {
@@ -307,16 +307,28 @@
                 }
                 const bulletMatch = trimmedLine.match(bulletItemRegex);
                 if (bulletMatch) {
-                    const itemContent = bulletMatch[1];
-                    const subUnitMatch = itemContent.match(unitRegex);
-                    if (subUnitMatch && currentUnit) {
-                        currentSubUnit = {
-                            quantity: subUnitMatch[1] ? subUnitMatch[1].trim() : '1x',
-                            name: subUnitMatch[2].trim(),
-                            points: 0,
-                            items: []
-                        };
-                        currentUnit.items.push(currentSubUnit);
+                    const itemContent = bulletMatch[1].trim();
+                    const nextLine = (index + 1 < lines.length) ? lines[index + 1].trim() : '';
+                    const isSubUnitHeader = indentedBulletRegex.test(nextLine) || indentedWithRegex.test(nextLine);
+
+                    if (isSubUnitHeader) {
+                        // This is a subunit header
+                        const subUnitMatch = itemContent.match(unitRegex);
+                        if (subUnitMatch && currentUnit) {
+                            currentSubUnit = {
+                                quantity: subUnitMatch[1] ? subUnitMatch[1].trim() : '1x',
+                                name: subUnitMatch[2].trim(),
+                                points: 0, // Subunits in this format don't have points listed
+                                items: []
+                            };
+                            currentUnit.items.push(currentSubUnit);
+                        }
+                    } else {
+                        // This is a wargear item for the current unit
+                        if (currentUnit) {
+                            addItemToTarget(currentUnit, itemContent, currentUnit.name);
+                        }
+                        currentSubUnit = null;
                     }
                     return;
                 }
@@ -395,12 +407,12 @@
                         if (unit.items && unit.items.length > 0) {
                             html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
                             unit.items.forEach(item => {
-                                if (useAbbreviations && item.nameshort === "NULL") return;
+                                const isSubUnit = item.points !== undefined;
                                 const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                                 const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-                                const itemName = useAbbreviations ? item.nameshort : item.name;
-                                const itemText = `${itemQtyDisplay}${itemName}`;
-                                if (item.items && item.items.length > 0) {
+
+                                if (isSubUnit) {
+                                    const itemText = `${itemQtyDisplay}${item.name}`; // Subunits are not abbreviated
                                     html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemText}</p><div style="padding-left: 1rem;">`;
                                     plainText += `  + ${itemText}\n`;
                                     item.items.forEach(subItem => {
@@ -413,6 +425,9 @@
                                     });
                                     html += `</div>`;
                                 } else {
+                                    if (useAbbreviations && item.nameshort === "NULL") return;
+                                    const itemName = useAbbreviations ? item.nameshort : item.name;
+                                    const itemText = `${itemQtyDisplay}${itemName}`;
                                     html += `<p style="margin: 0;">${itemText}</p>`;
                                     plainText += `  - ${itemText}\n`;
                                 }
@@ -477,18 +492,21 @@
                     text += plain ? `* ${unitName} [${points}]\n` : `\u001b[0;31m* ${unitName}\u001b[0m [\u001b[0;33m${points}\u001b[0m]\n`;
                     if (unit.items && unit.items.length > 0) {
                         unit.items.forEach(item => {
-                            if (item.nameshort === "NULL") return;
+                            const isSubUnit = item.points !== undefined;
                             const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                             const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-                            if (item.items && item.items.length > 0) {
-                                text += plain ? `  + ${itemQtyDisplay}${item.nameshort}\n` : `  \u001b[1;36m+ ${itemQtyDisplay}${item.nameshort}\u001b[0m\n`;
+
+                            if (isSubUnit) {
+                                const subunitName = item.name; // Subunits are not abbreviated
+                                text += plain ? `  + ${itemQtyDisplay}${subunitName}\n` : `  \u001b[1;36m+ ${itemQtyDisplay}${subunitName}\u001b[0m\n`;
                                 item.items.forEach(subItem => {
-                                     if (subItem.nameshort === "NULL") return;
+                                    if (subItem.nameshort === "NULL") return;
                                     const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
                                     const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
                                     text += `    - ${subItemQtyDisplay}${subItem.nameshort}\n`;
                                 });
-                            } else {
+                            } else { // It's a wargear item
+                                if (item.nameshort === "NULL") return;
                                 text += `  - ${itemQtyDisplay}${item.nameshort}\n`;
                             }
                         });
