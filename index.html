@@ -131,37 +131,24 @@
         function abbreviate(itemName, unitName, fullFactionKeyword) {
             const searchOrder = [];
             const mainFaction = fullFactionKeyword ? (fullFactionKeyword.split(' - ').pop() || fullFactionKeyword) : null;
-            let factionsToSearch = [];
-
-            // First, check if the unit exists in the most specific faction. If so, we will ONLY search there.
-            if (mainFaction && factionAbbreviationDBs[mainFaction]) {
-                const mainFactionRules = factionAbbreviationDBs[mainFaction];
-                const unitRulesKey = Object.keys(mainFactionRules).find(key => key.toLowerCase() === unitName.toLowerCase());
-                if (unitRulesKey) {
-                    factionsToSearch = [mainFaction];
-                }
+            
+            if (mainFaction) {
+                searchOrder.push(mainFaction);
             }
-
-            // If the unit wasn't in the specific faction DB, build the full search order.
-            if (factionsToSearch.length === 0) {
-                if (mainFaction) {
-                    searchOrder.push(mainFaction);
-                }
-                // Add broader categories for cross-faction rules.
-                if (fullFactionKeyword.includes("Chaos")) {
-                    searchOrder.push("Chaos Space Marines", "Chaos Knights", "Chaos Daemons");
-                }
-                if (fullFactionKeyword.includes("Imperium")) {
-                    searchOrder.push("Imperial Knights", "Agents of the Imperium");
-                }
-                if (fullFactionKeyword.includes("Adeptus Astartes")) {
-                    searchOrder.push("Space Marines");
-                }
-                if (fullFactionKeyword.includes("Genestealer Cults") || fullFactionKeyword.includes("Tyranids")) {
-                    searchOrder.push("Genestealer Cults", "Tyranids");
-                }
-                factionsToSearch = [...new Set(searchOrder)];
+            // Add broader categories for cross-faction rules.
+            if (fullFactionKeyword.includes("Chaos")) {
+                searchOrder.push("Chaos Space Marines", "Chaos Knights", "Chaos Daemons");
             }
+            if (fullFactionKeyword.includes("Imperium")) {
+                searchOrder.push("Imperial Knights", "Agents of the Imperium");
+            }
+            if (fullFactionKeyword.includes("Adeptus Astartes")) {
+                searchOrder.push("Space Marines");
+            }
+            if (fullFactionKeyword.includes("Genestealer Cults") || fullFactionKeyword.includes("Tyranids")) {
+                searchOrder.push("Genestealer Cults", "Tyranids");
+            }
+            const factionsToSearch = [...new Set(searchOrder)];
 
             // --- First Pass: Prioritize specific unit matches across all relevant factions ---
             for (const faction of factionsToSearch) {
