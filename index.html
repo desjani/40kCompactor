@@ -152,38 +152,41 @@
             }
             const uniqueSearchOrder = [...new Set(searchOrder)];
 
+            // --- First Pass: Prioritize specific unit matches across all relevant factions ---
             for (const faction of uniqueSearchOrder) {
                 const rules = factionAbbreviationDBs[faction];
-                if (!rules) continue;
+                if (!rules || !rules[unitName]) continue;
 
-                // Search priority within a faction's rules:
                 // 1. Specific unit name, specific item name
-                let foundRule = null;
-                if (rules[unitName]) {
-                    foundRule = rules[unitName].find(rule => rule.item === itemName);
-                    if (foundRule) {
-                        return foundRule.abbr;
-                    }
-                    // 2. Specific unit name, wildcard item ("*")
-                    foundRule = rules[unitName].find(rule => rule.item === "*");
-                    if (foundRule) {
-                        return foundRule.abbr;
-                    }
+                let foundRule = rules[unitName].find(rule => rule.item === itemName);
+                if (foundRule) {
+                    return foundRule.abbr;
                 }
-
-                // 3. Wildcard unit ("*"), specific item name
-                if (rules["*"]) {
-                    foundRule = rules["*"].find(rule => rule.item === itemName);
-                    if (foundRule) {
-                        return foundRule.abbr;
-                    }
-                    // 4. Wildcard unit ("*"), wildcard item ("*")
-                    foundRule = rules["*"].find(rule => rule.item === "*");
-                    if (foundRule) {
-                        return foundRule.abbr;
-                    }
+                // 2. Specific unit name, wildcard item ("*")
+                foundRule = rules[unitName].find(rule => rule.item === "*");
+                if (foundRule) {
+                    return foundRule.abbr;
                 }
             }
+
+            // --- Second Pass: Check for wildcard unit matches if no specific unit match was found ---
+            for (const faction of uniqueSearchOrder) {
+                const rules = factionAbbreviationDBs[faction];
+                if (!rules || !rules["*"]) continue;
+
+                let foundRule = null;
+                // 3. Wildcard unit ("*"), specific item name
+                foundRule = rules["*"].find(rule => rule.item === itemName);
+                if (foundRule) {
+                    return foundRule.abbr;
+                }
+                // 4. Wildcard unit ("*"), wildcard item ("*")
+                foundRule = rules["*"].find(rule => rule.item === "*");
+                if (foundRule) {
+                    return foundRule.abbr;
+                }
+            }
+
             // If no abbreviation is found after checking all relevant factions, return the original item name
             return itemName;
         }
