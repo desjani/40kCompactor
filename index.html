@@ -281,7 +281,7 @@
                 const charMatch = trimmedLine.match(charLineRegex);
                 const standardUnitMatch = trimmedLine.match(unitRegex);
                 // A main unit is a character line, or any non-indented, non-bullet line that looks like a unit.
-                const isMainUnitLine = charMatch || (standardUnitMatch && !line.startsWith(' ') && !line.startsWith('\t') && !trimmedLine.startsWith('•'));
+                const isMainUnitLine = (charMatch || (standardUnitMatch && !line.startsWith(' ') && !line.startsWith('\t') && !trimmedLine.startsWith('•'))) && !simpleWithRegex.test(trimmedLine);
 
                 if (isMainUnitLine) {
                     currentSection = "CHARACTER";
@@ -350,6 +350,11 @@
                         addItemToTarget(target, trimmedLine, contextName);
                     } else if (enhancementLineRegex.test(trimmedLine)) {
                         addItemToTarget(currentUnit, trimmedLine.match(enhancementLineRegex)[1].trim(), currentUnit.name);
+                    } else if (simpleWithRegex.test(trimmedLine)) {
+                        // This is a non-indented "with" line, treat as wargear for the current context.
+                        const target = currentSubUnit || currentUnit;
+                        const contextName = currentSubUnit ? currentSubUnit.name : currentUnit.name;
+                        addItemToTarget(target, trimmedLine, contextName);
                     }
                 }
             }
