@@ -155,15 +155,21 @@
             // --- First Pass: Prioritize specific unit matches across all relevant factions ---
             for (const faction of uniqueSearchOrder) {
                 const rules = factionAbbreviationDBs[faction];
-                if (!rules || !rules[unitName]) continue;
+                if (!rules) continue;
+
+                // Find the unit rules with a case-insensitive key match
+                const unitRulesKey = Object.keys(rules).find(key => key.toLowerCase() === unitName.toLowerCase());
+                const unitRules = unitRulesKey ? rules[unitRulesKey] : null;
+
+                if (!unitRules) continue;
 
                 // 1. Specific unit name, specific item name
-                let foundRule = rules[unitName].find(rule => rule.item === itemName);
+                let foundRule = unitRules.find(rule => rule.item === itemName);
                 if (foundRule) {
                     return foundRule.abbr;
                 }
                 // 2. Specific unit name, wildcard item ("*")
-                foundRule = rules[unitName].find(rule => rule.item === "*");
+                foundRule = unitRules.find(rule => rule.item === "*");
                 if (foundRule) {
                     return foundRule.abbr;
                 }
