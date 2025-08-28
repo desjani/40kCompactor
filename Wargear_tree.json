@@ -13584,7 +13584,7 @@
                 "abbr": "TF"
             },
             {
-                "item": "Battlesuit Support System",
+                "item": "Battlesuit support system",
                 "abbr": "BSS"
             },
             {
@@ -13598,6 +13598,10 @@
             {
                 "item": "Smart Missile System",
                 "abbr": "SMS"
+            },
+            {
+                "item": "Twin Pulse Carbine",
+                "abbr": "TPC"
             },
             {
                 "item": "Seeker Missile",
@@ -13670,7 +13674,7 @@
                 "abbr": "CIB"
             },
             {
-                "item": "Airbursting Fragmentation projector",
+                "item": "Airbursting fragmentation projector",
                 "abbr": "AFP"
             },
             {
@@ -13692,7 +13696,7 @@
         ],
         "Commander in Coldstar Battlesuit": [
             {
-                "item": "Cyclic Ion Blaster",
+                "item": "Cyclic ion blaster",
                 "abbr": "CIB"
             },
             {
@@ -13704,13 +13708,21 @@
                 "abbr": "HOBC"
             },
             {
-                "item": "Battlesuit Fists",
+                "item": "Battlesuit fists",
                 "abbr": "NULL"
             }
         ],
         "Crisis Fireknife Battlesuits": [
             {
                 "item": "Battlesuit Fists",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Shield Drone, Crisis Fireknife Shas’ui (Shield Drone)",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Shield Drone, Crisis Fireknife Shas’vre (Shield Drone)",
                 "abbr": "NULL"
             }
         ],
@@ -13968,6 +13980,18 @@
                 "abbr": "Rail"
             },
             {
+                "item": "Twin pulse carbine",
+                "abbr": "TPC"
+            },
+            {
+                "item": "Drone Burst Cannon",
+                "abbr": "DBC"
+            },
+            {
+                "item": "Recon droneDrone burst cannon",
+                "abbr": "NULL"
+            },
+            {
                 "item": "Semi-Automatic Grenade Launcher",
                 "abbr": "SAGL"
             }
@@ -14058,7 +14082,15 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Homing Beacon",
+                "item": "Stealth Shas'vre (Shield Drone)",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Battlesuit support system",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Homing beacon",
                 "abbr": "NULL"
             }
         ],
