@@ -353,8 +353,23 @@
                         const target = currentSubUnit || currentUnit;
                         addItemToTarget(target, trimmedLine, currentUnit.name);
                     } else if (enhancementLineRegex.test(trimmedLine)) {
-                        const enhancementText = `Enhancement: ${trimmedLine.match(enhancementLineRegex)[1].trim()}`;
-                        addItemToTarget(currentUnit, enhancementText, currentUnit.name, 'special');
+                        if (currentUnit) {
+                            const enhancementContent = trimmedLine.match(enhancementLineRegex)[1].trim();
+                            const pointsRegex = /\s*\((.*?)\)$/;
+                            const pointsMatch = enhancementContent.match(pointsRegex);
+                            
+                            let enhancementName = enhancementContent;
+                            let enhancementPoints = '';
+
+                            if (pointsMatch) {
+                                enhancementName = enhancementContent.replace(pointsRegex, '').trim();
+                                enhancementPoints = `(${pointsMatch[1]})`;
+                            }
+
+                            const abbreviation = enhancementName.split(/[\s-]+/).map(word => word.charAt(0)).join('').toUpperCase();
+                            const shortText = `${abbreviation} ${enhancementPoints}`.trim();
+                            currentUnit.items.push({ quantity: '1x', name: `Enhancement: ${enhancementContent}`, nameshort: shortText, items: [], type: 'special' });
+                        }
                     } else if (simpleWithRegex.test(trimmedLine)) {
                         // This is a non-indented "with" line, treat as wargear for the current context.
                         const target = currentSubUnit || currentUnit;
@@ -409,7 +424,7 @@
 
             if (specialItems.length > 0) {
                 specialItems.forEach(item => {
-                    const itemName = item.name; // Always use full name
+                    const itemName = useAbbreviations ? item.nameshort : item.name;
                     html += `<p style="margin: 0;">${itemName}</p>`;
                     plainText += `${plainTextPrefix}${itemName}\n`;
                 });
@@ -523,8 +538,7 @@
 
             if (specialItems.length > 0) {
                 specialItems.forEach(item => {
-                    // For discord, special items might still be long, but we show them fully.
-                    text += `${prefix}${item.name}\n`;
+                    text += `${prefix}${item.nameshort}\n`;
                 });
             }
             return text;
