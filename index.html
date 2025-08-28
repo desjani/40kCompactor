@@ -231,7 +231,7 @@
                     return;
                 }
                 const { quantity, name } = parseItemString(itemString);
-                const nameshort = abbreviate(name, unitContextName, factionKeyword);
+                const nameshort = itemType === 'special' ? name : abbreviate(name, unitContextName, factionKeyword);
                 const numericQuantity = parseInt(quantity.replace('x', ''), 10);
                 const existingItem = target.items.find(item => item.name === name);
                 if (existingItem) {
@@ -369,7 +369,7 @@
                             }
 
                             const abbreviation = enhancementName.split(/[\s-]+/).map(word => word.charAt(0)).join('').toUpperCase();
-                            const shortText = `${abbreviation} ${enhancementPoints}`.trim();
+                            const shortText = `E: ${abbreviation} ${enhancementPoints}`.trim();
                             currentUnit.items.push({ quantity: '1x', name: `Enhancement: ${enhancementContent}`, nameshort: shortText, items: [], type: 'special' });
                         }
                     } else if (simpleWithRegex.test(trimmedLine)) {
