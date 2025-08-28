@@ -138,70 +138,54 @@
         }
 
         function abbreviate(itemName, unitName, fullFactionKeyword) {
-            const searchOrder = [];
-            const mainFaction = fullFactionKeyword ? (fullFactionKeyword.split(' - ').pop() || fullFactionKeyword) : null;
-            
-            if (mainFaction) {
-                searchOrder.push(mainFaction);
-            }
-            // Add broader categories for cross-faction rules.
-            if (fullFactionKeyword.includes("Chaos")) {
-                searchOrder.push("Chaos Space Marines", "Chaos Knights", "Chaos Daemons");
-            }
-            if (fullFactionKeyword.includes("Imperium")) {
-                searchOrder.push("Imperial Knights", "Agents of the Imperium");
-            }
-            if (fullFactionKeyword.includes("Adeptus Astartes")) {
-                searchOrder.push("Space Marines");
-            }
-            if (fullFactionKeyword.includes("Genestealer Cults") || fullFactionKeyword.includes("Tyranids")) {
-                searchOrder.push("Genestealer Cults", "Tyranids");
-            }
-            const factionsToSearch = [...new Set(searchOrder)];
+             const searchOrder = [];
+             const mainFaction = fullFactionKeyword ? (fullFactionKeyword.split(' - ').pop() || fullFactionKeyword) : null;
 
-            // --- First Pass: Prioritize specific unit matches across all relevant factions ---
-            for (const faction of factionsToSearch) {
-                const rules = factionAbbreviationDBs[faction];
-                if (!rules) continue;
+             if (mainFaction) {
+                 searchOrder.push(mainFaction);
+             }
+             // Add broader categories for cross-faction rules.
+             if (fullFactionKeyword.includes("Chaos")) {
+                 searchOrder.push("Chaos Space Marines", "Chaos Knights", "Chaos Daemons");
+             }
+             if (fullFactionKeyword.includes("Imperium")) {
+                 searchOrder.push("Imperial Knights", "Agents of the Imperium");
+             }
+             if (fullFactionKeyword.includes("Adeptus Astartes")) {
+                 searchOrder.push("Space Marines");
+             }
+             if (fullFactionKeyword.includes("Genestealer Cults") || fullFactionKeyword.includes("Tyranids")) {
+                 searchOrder.push("Genestealer Cults", "Tyranids");
+             }
+             const factionsToSearch = [...new Set(searchOrder)];
 
-                // Find the unit rules with a case-insensitive key match
-                const unitRulesKey = Object.keys(rules).find(key => key.toLowerCase() === unitName.toLowerCase());
-                const unitRules = unitRulesKey ? rules[unitRulesKey] : null;
+             const findRule = () => {
+                 // --- First Pass: Prioritize specific unit matches across all relevant factions ---
+                 for (const faction of factionsToSearch) {
+                     const rules = factionAbbreviationDBs[faction];
+                     if (!rules) continue;
+                     const unitRulesKey = Object.keys(rules).find(key => key.toLowerCase() === unitName.toLowerCase());
+                     const unitRules = unitRulesKey ? rules[unitRulesKey] : null;
+                     if (!unitRules) continue;
+                     let foundRule = unitRules.find(rule => flexibleItemMatch(rule, itemName));
+                     if (foundRule) return foundRule;
+                     foundRule = unitRules.find(rule => rule.item === "*");
+                     if (foundRule) return foundRule;
+                 }
+                 // --- Second Pass: Check for wildcard unit matches if no specific unit match was found ---
+                 for (const faction of factionsToSearch) {
+                     const rules = factionAbbreviationDBs[faction];
+                     if (!rules || !rules["*"]) continue;
+                     let foundRule = rules["*"].find(rule => flexibleItemMatch(rule, itemName));
+                     if (foundRule) return foundRule;
+                     foundRule = rules["*"].find(rule => rule.item === "*");
+                     if (foundRule) return foundRule;
+                 }
+                 return null;
+             };
 
-                if (!unitRules) continue;
-
-                // 1. Specific unit name, specific item name
-                let foundRule = unitRules.find(rule => flexibleItemMatch(rule, itemName));
-                if (foundRule) {
-                    return foundRule.abbr;
-                }
-                // 2. Specific unit name, wildcard item ("*")
-                foundRule = unitRules.find(rule => rule.item === "*");
-                if (foundRule) {
-                    return foundRule.abbr;
-                }
-            }
-
-            // --- Second Pass: Check for wildcard unit matches if no specific unit match was found ---
-            for (const faction of factionsToSearch) {
-                const rules = factionAbbreviationDBs[faction];
-                if (!rules || !rules["*"]) continue;
-
-                let foundRule = null;
-                // 3. Wildcard unit ("*"), specific item name
-                foundRule = rules["*"].find(rule => flexibleItemMatch(rule, itemName));
-                if (foundRule) {
-                    return foundRule.abbr;
-                }
-                // 4. Wildcard unit ("*"), wildcard item ("*")
-                foundRule = rules["*"].find(rule => rule.item === "*");
-                if (foundRule) {
-                    return foundRule.abbr;
-                }
-            }
-
-            // If no abbreviation is found after checking all relevant factions, return the original item name
-            return itemName;
+             const rule = findRule();
+             return rule ? rule.abbr : itemName;
         }
         document.getElementById('parseButton').addEventListener('click', () => {
             const text = document.getElementById('inputText').value;
