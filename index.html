@@ -128,6 +128,15 @@
                 });
         })
 
+        function flexibleItemMatch(rule, itemName) {
+            const ruleItemLower = rule.item.toLowerCase();
+            const itemNameLower = itemName.toLowerCase();
+            if (ruleItemLower === itemNameLower) return true; // Exact match
+            if (ruleItemLower === itemNameLower + 's') return true; // input: cutter, rule: cutters
+            if (itemNameLower.endsWith('s') && ruleItemLower === itemNameLower.slice(0, -1)) return true; // input: cutters, rule: cutter
+            return false;
+        }
+
         function abbreviate(itemName, unitName, fullFactionKeyword) {
             const searchOrder = [];
             const mainFaction = fullFactionKeyword ? (fullFactionKeyword.split(' - ').pop() || fullFactionKeyword) : null;
@@ -162,7 +171,7 @@
                 if (!unitRules) continue;
 
                 // 1. Specific unit name, specific item name
-                let foundRule = unitRules.find(rule => rule.item.toLowerCase() === itemName.toLowerCase());
+                let foundRule = unitRules.find(rule => flexibleItemMatch(rule, itemName));
                 if (foundRule) {
                     return foundRule.abbr;
                 }
@@ -180,7 +189,7 @@
 
                 let foundRule = null;
                 // 3. Wildcard unit ("*"), specific item name
-                foundRule = rules["*"].find(rule => rule.item.toLowerCase() === itemName.toLowerCase());
+                foundRule = rules["*"].find(rule => flexibleItemMatch(rule, itemName));
                 if (foundRule) {
                     return foundRule.abbr;
                 }
@@ -319,8 +328,7 @@
                         if (isIndented) {
                             // Indented bullet is always wargear for the current context.
                             const target = currentSubUnit || currentUnit;
-                            const contextName = currentSubUnit ? currentSubUnit.name : currentUnit.name;
-                            addItemToTarget(target, itemContent, contextName);
+                            addItemToTarget(target, itemContent, currentUnit.name);
                         } else {
                             // Non-indented bullet. Could be a subunit or wargear for the main unit.
                             const subUnitMatch = itemContent.match(unitRegex);
@@ -342,15 +350,13 @@
                     } else if (isIndented) { // This handles indented lines without bullets
                         // This is an indented line without a bullet (e.g., a "with" line). It's wargear for the current context.
                         const target = currentSubUnit || currentUnit;
-                        const contextName = currentSubUnit ? currentSubUnit.name : currentUnit.name;
-                        addItemToTarget(target, trimmedLine, contextName);
+                        addItemToTarget(target, trimmedLine, currentUnit.name);
                     } else if (enhancementLineRegex.test(trimmedLine)) {
                         addItemToTarget(currentUnit, trimmedLine.match(enhancementLineRegex)[1].trim(), currentUnit.name);
                     } else if (simpleWithRegex.test(trimmedLine)) {
                         // This is a non-indented "with" line, treat as wargear for the current context.
                         const target = currentSubUnit || currentUnit;
-                        const contextName = currentSubUnit ? currentSubUnit.name : currentUnit.name;
-                        addItemToTarget(target, trimmedLine, contextName);
+                        addItemToTarget(target, trimmedLine, currentUnit.name);
                     }
                 }
             }
