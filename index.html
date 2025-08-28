@@ -138,10 +138,10 @@
             // Add broader categories for cross-faction rules, if applicable.
             // These are specific general factions that might contain universal rules for their sub-factions.
             if (fullFactionKeyword.includes("Chaos")) {
-                searchOrder.push("Chaos Knights", "Chaos Daemons");
+                searchOrder.push("Chaos Space Marines", "Chaos Knights", "Chaos Daemons");
             }
             if (fullFactionKeyword.includes("Imperium")) {
-                searchOrder.push("Imperial Knights", "Imperial Agents");
+                searchOrder.push("Imperial Knights", "Agents of the Imperium");
             }
             if (fullFactionKeyword.includes("Adeptus Astartes")) {
                 searchOrder.push("Space Marines");
@@ -164,7 +164,7 @@
                 if (!unitRules) continue;
 
                 // 1. Specific unit name, specific item name
-                let foundRule = unitRules.find(rule => rule.item === itemName);
+                let foundRule = unitRules.find(rule => rule.item.toLowerCase() === itemName.toLowerCase());
                 if (foundRule) {
                     return foundRule.abbr;
                 }
@@ -182,7 +182,7 @@
 
                 let foundRule = null;
                 // 3. Wildcard unit ("*"), specific item name
-                foundRule = rules["*"].find(rule => rule.item === itemName);
+                foundRule = rules["*"].find(rule => rule.item.toLowerCase() === itemName.toLowerCase());
                 if (foundRule) {
                     return foundRule.abbr;
                 }
