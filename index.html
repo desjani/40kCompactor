@@ -138,34 +138,36 @@
             // Add broader categories for cross-faction rules, if applicable.
             // These are specific general factions that might contain universal rules for their sub-factions.
             if (fullFactionKeyword.includes("Chaos")) {
-                    searchOrder.push("Chaos Knights", "Chaos Daemons");
-                }
-                if (fullFactionKeyword.includes("Imperium")) {
-                    searchOrder.push("Imperial Knights", "Imperial Agents");
-                }
-                if (fullFactionKeyword.includes("Adeptus Astartes")) {
-                    searchOrder.push("Space Marines");
-                }
-                // Special handling for Genestealer Cults and Tyranids due to their symbiotic relationship
-                if (fullFactionKeyword.includes("Genestealer Cults") || fullFactionKeyword.includes("Tyranids")) {
-                    searchOrder.push("Genestealer Cults", "Tyranids");
-                }
+                searchOrder.push("Chaos Knights", "Chaos Daemons");
+            }
+            if (fullFactionKeyword.includes("Imperium")) {
+                searchOrder.push("Imperial Knights", "Imperial Agents");
+            }
+            if (fullFactionKeyword.includes("Adeptus Astartes")) {
+                searchOrder.push("Space Marines");
+            }
+            // Special handling for Genestealer Cults and Tyranids due to their symbiotic relationship
+            if (fullFactionKeyword.includes("Genestealer Cults") || fullFactionKeyword.includes("Tyranids")) {
+                searchOrder.push("Genestealer Cults", "Tyranids");
+            }
             const uniqueSearchOrder = [...new Set(searchOrder)];
+
             for (const faction of uniqueSearchOrder) {
                 const rules = factionAbbreviationDBs[faction];
                 if (!rules) continue;
+
                 // Search priority within a faction's rules:
                 // 1. Specific unit name, specific item name
                 let foundRule = null;
                 if (rules[unitName]) {
                     foundRule = rules[unitName].find(rule => rule.item === itemName);
                     if (foundRule) {
-                        return foundRule.abbr; // Return directly, as "NULL" string is handled by JSON
+                        return foundRule.abbr;
                     }
                     // 2. Specific unit name, wildcard item ("*")
                     foundRule = rules[unitName].find(rule => rule.item === "*");
                     if (foundRule) {
-                        return foundRule.abbr; // Return directly
+                        return foundRule.abbr;
                     }
                 }
 
@@ -173,14 +175,16 @@
                 if (rules["*"]) {
                     foundRule = rules["*"].find(rule => rule.item === itemName);
                     if (foundRule) {
-                        return foundRule.abbr; // Return directly
+                        return foundRule.abbr;
                     }
                     // 4. Wildcard unit ("*"), wildcard item ("*")
                     foundRule = rules["*"].find(rule => rule.item === "*");
                     if (foundRule) {
-                        return foundRule.abbr; // Return directly
+                        return foundRule.abbr;
                     }
                 }
+            }
+            // If no abbreviation is found after checking all relevant factions, return the original item name
             return itemName;
         }
     }
