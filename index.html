@@ -340,7 +340,7 @@
                         const itemContent = bulletMatch[1].trim();
 
                         // Handle GW-style enhancements, which are bulleted items with (+XX pts)
-                        const gwEnhancementRegex = /^(.*?)\s*\(\+\d+.*?\)$/;
+                        const gwEnhancementRegex = /\(\s*\+\d+.*?\)$/;
                         if (gwEnhancementRegex.test(itemContent)) {
                             parseAndAddEnhancement(itemContent, currentUnit);
                             continue;
@@ -358,10 +358,13 @@
                             const itemType = itemContent.toLowerCase() === 'warlord' ? 'special' : 'wargear';
                             addItemToTarget(target, itemContent, currentUnit.name, itemType);
                         } else {
-                            // Non-indented bullet. Could be a subunit or wargear for the main unit.
+                            // Non-indented bullet. Could be a subunit header or wargear for the main unit.
+                            const nextLine = (i + 1 < lines.length) ? lines[i + 1] : '';
+                            const nextLineIsIndented = nextLine.trim() !== '' && (nextLine.startsWith(' ') || nextLine.startsWith('\t'));
                             const subUnitMatch = itemContent.match(unitRegex);
-                            if (subUnitMatch) {
-                                // It looks like a subunit. Create it.
+
+                            if (subUnitMatch && nextLineIsIndented) {
+                                // It's a subunit header because it's followed by indented items.
                                 currentSubUnit = {
                                     quantity: subUnitMatch[1] ? subUnitMatch[1].trim() : '1x',
                                     name: subUnitMatch[2].trim(),
@@ -370,10 +373,10 @@
                                 };
                                 currentUnit.items.push(currentSubUnit);
                             } else {
-                                // It's wargear for the main unit. Reset subunit context.
-                                currentSubUnit = null;
+                                // It's wargear for the main unit.
                                 const itemType = itemContent.toLowerCase() === 'warlord' ? 'special' : 'wargear';
                                 addItemToTarget(currentUnit, itemContent, currentUnit.name, itemType);
+                                currentSubUnit = null; // Reset subunit context after adding item to main unit
                             }
                         }
                     } else if (isIndented) { // This handles indented lines without bullets
