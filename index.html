@@ -411,66 +411,60 @@
                         html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitText}</p>`;
                         plainText += `* ${unitText}\n`;
                         if (unit.items && unit.items.length > 0) {
-                            let unitHasVisibleCompactItems = false;
-                            if (useAbbreviations) {
-                                for (const item of unit.items) {
+                            const hasVisibleItems = !useAbbreviations || unit.items.some(item => {
+                                if (item.points !== undefined) { // isSubUnit
+                                    return item.items && item.items.some(subItem => subItem.nameshort !== "NULL");
+                                }
+                                return item.nameshort !== "NULL"; // is wargear
+                            });
+
+                            if (hasVisibleItems) {
+                                html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
+                                const sortedItems = [...unit.items].sort((a, b) => {
+                                    const isASubUnit = a.points !== undefined;
+                                    const isBSubUnit = b.points !== undefined;
+
+                                    if (isASubUnit && isBSubUnit) {
+                                        const qtyA = parseInt(a.quantity.replace('x', ''), 10);
+                                        const qtyB = parseInt(b.quantity.replace('x', ''), 10);
+                                        return qtyA - qtyB;
+                                    }
+                                    if (isASubUnit) return -1;
+                                    if (isBSubUnit) return 1;
+                                    return 0;
+                                });
+                                sortedItems.forEach(item => {
                                     const isSubUnit = item.points !== undefined;
+                                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+
                                     if (isSubUnit) {
-                                        if (item.items && item.items.some(subItem => subItem.nameshort !== "NULL")) {
-                                            unitHasVisibleCompactItems = true;
-                                            break;
+                                        const subUnitHasVisibleItems = !useAbbreviations || (item.items && item.items.some(subItem => subItem.nameshort !== "NULL"));
+                                        if (subUnitHasVisibleItems) {
+                                            const itemText = `${itemQtyDisplay}${item.name}`; // Subunits are not abbreviated
+                                            html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemText}</p><div style="padding-left: 1rem;">`;
+                                            plainText += `  + ${itemText}\n`;
+                                            item.items.forEach(subItem => {
+                                                if (useAbbreviations && subItem.nameshort === "NULL") return;
+                                                const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
+                                                const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
+                                                const subItemText = `${subItemQtyDisplay}${useAbbreviations ? subItem.nameshort : subItem.name}`;
+                                                html += `<p style="margin: 0;">${subItemText}</p>`;
+                                                plainText += `    - ${subItemText}\n`;
+                                            });
+                                            html += `</div>`;
                                         }
                                     } else {
-                                        if (item.nameshort !== "NULL") {
-                                            unitHasVisibleCompactItems = true;
-                                            break;
+                                        if (!useAbbreviations || item.nameshort !== "NULL") {
+                                            const itemName = useAbbreviations ? item.nameshort : item.name;
+                                            const itemText = `${itemQtyDisplay}${itemName}`;
+                                            html += `<p style="margin: 0;">${itemText}</p>`;
+                                            plainText += `  - ${itemText}\n`;
                                         }
                                     }
-                                }
+                                });
+                                html += `</div>`;
                             }
-                            html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
-                            const sortedItems = [...unit.items].sort((a, b) => {
-                                const isASubUnit = a.points !== undefined;
-                                const isBSubUnit = b.points !== undefined;
-
-                                if (isASubUnit && isBSubUnit) {
-                                    const qtyA = parseInt(a.quantity.replace('x', ''), 10);
-                                    const qtyB = parseInt(b.quantity.replace('x', ''), 10);
-                                    return qtyA - qtyB;
-                                }
-                                if (isASubUnit) return -1;
-                                if (isBSubUnit) return 1;
-                                return 0;
-                            });
-                            sortedItems.forEach(item => {
-                                const isSubUnit = item.points !== undefined;
-                                const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
-                                const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-
-                                if (isSubUnit) {
-                                    // If compacting and the parent unit has no visible items, don't render the subunit header.
-                                    if (useAbbreviations && !unitHasVisibleCompactItems) continue;
-                                    const itemText = `${itemQtyDisplay}${item.name}`; // Subunits are not abbreviated
-                                    html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemText}</p><div style="padding-left: 1rem;">`;
-                                    plainText += `  + ${itemText}\n`;
-                                    item.items.forEach(subItem => {
-                                        if (useAbbreviations && subItem.nameshort === "NULL") return;
-                                        const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
-                                        const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
-                                        const subItemText = `${subItemQtyDisplay}${useAbbreviations ? subItem.nameshort : subItem.name}`;
-                                        html += `<p style="margin: 0;">${subItemText}</p>`;
-                                        plainText += `    - ${subItemText}\n`;
-                                    });
-                                    html += `</div>`;
-                                } else {
-                                    if (useAbbreviations && item.nameshort === "NULL") return;
-                                    const itemName = useAbbreviations ? item.nameshort : item.name;
-                                    const itemText = `${itemQtyDisplay}${itemName}`;
-                                    html += `<p style="margin: 0;">${itemText}</p>`;
-                                    plainText += `  - ${itemText}\n`;
-                                }
-                            });
-                            html += `</div>`;
                         }
                         html += `</div>`;
                         firstUnitOverall = false;
@@ -510,7 +504,7 @@
                 if (data.SUMMARY.FACTION_KEYWORD) {
                     const faction = (data.SUMMARY.FACTION_KEYWORD.split(' - ').pop() || data.SUMMARY.FACTION_KEYWORD);
                     summaryParts.push(faction);
-                }
+                                }
                 if (data.SUMMARY.DETACHMENT) summaryParts.push(data.SUMMARY.DETACHMENT);
                 if (data.SUMMARY.TOTAL_ARMY_POINTS) summaryParts.push(data.SUMMARY.TOTAL_ARMY_POINTS);
                 if (summaryParts.length > 0) {
@@ -529,58 +523,50 @@
                     const points = `${unit.points}`;
                     text += plain ? `* ${unitName} [${points}]\n` : `\u001b[0;31m* ${unitName}\u001b[0m [\u001b[0;33m${points}\u001b[0m]\n`;
                     if (unit.items && unit.items.length > 0) {
-                        let unitHasVisibleCompactItems = false;
-                        // This check is only for the fancy discord output, not the plain one.
-                        if (!plain) {
-                            for (const item of unit.items) {
-                                const isSubUnit = item.points !== undefined;
-                                if (isSubUnit) {
-                                    if (item.items && item.items.some(subItem => subItem.nameshort !== "NULL")) {
-                                        unitHasVisibleCompactItems = true;
-                                        break;
-                                    }
-                                } else {
-                                    if (item.nameshort !== "NULL") {
-                                        unitHasVisibleCompactItems = true;
-                                        break;
-                                    }
+                        const hasVisibleItems = plain || unit.items.some(item => {
+                            if (item.points !== undefined) { // isSubUnit
+                                return item.items && item.items.some(subItem => subItem.nameshort !== "NULL");
+                            }
+                            return item.nameshort !== "NULL"; // is wargear
+                        });
+
+                        if (hasVisibleItems) {
+                            const sortedItems = [...unit.items].sort((a, b) => {
+                                const isASubUnit = a.points !== undefined;
+                                const isBSubUnit = b.points !== undefined;
+
+                                if (isASubUnit && isBSubUnit) {
+                                    const qtyA = parseInt(a.quantity.replace('x', ''), 10);
+                                    const qtyB = parseInt(b.quantity.replace('x', ''), 10);
+                                    return qtyA - qtyB;
                                 }
-                            }
+                                if (isASubUnit) return -1;
+                                if (isBSubUnit) return 1;
+                                return 0;
+                            });
+                            sortedItems.forEach(item => {
+                                const isSubUnit = item.points !== undefined;
+                                const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                                const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+
+                                if (isSubUnit) {
+                                    const subUnitHasVisibleItems = plain || (item.items && item.items.some(subItem => subItem.nameshort !== "NULL"));
+                                    if (subUnitHasVisibleItems) {
+                                        const subunitName = item.name; // Subunits are not abbreviated
+                                        text += plain ? `  + ${itemQtyDisplay}${subunitName}\n` : `  \u001b[1;36m+ ${itemQtyDisplay}${subunitName}\u001b[0m\n`;
+                                        item.items.forEach(subItem => {
+                                            if (subItem.nameshort === "NULL") return;
+                                            const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
+                                            const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
+                                            text += `    - ${subItemQtyDisplay}${subItem.nameshort}\n`;
+                                        });
+                                    }
+                                } else { // It's a wargear item
+                                    if (item.nameshort === "NULL") return;
+                                    text += `  - ${itemQtyDisplay}${item.nameshort}\n`;
+                                }
+                            });
                         }
-                        const sortedItems = [...unit.items].sort((a, b) => {
-                            const isASubUnit = a.points !== undefined;
-                            const isBSubUnit = b.points !== undefined;
-
-                            if (isASubUnit && isBSubUnit) {
-                                const qtyA = parseInt(a.quantity.replace('x', ''), 10);
-                                const qtyB = parseInt(b.quantity.replace('x', ''), 10);
-                                return qtyA - qtyB;
-                            }
-                            if (isASubUnit) return -1;
-                            if (isBSubUnit) return 1;
-                            return 0;
-                        });
-                        sortedItems.forEach(item => {
-                            const isSubUnit = item.points !== undefined;
-                            const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
-                            const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-
-                            if (isSubUnit) {
-                                // If compacting and the parent unit has no visible items, don't render the subunit header.
-                                if (!plain && !unitHasVisibleCompactItems) continue;
-                                const subunitName = item.name; // Subunits are not abbreviated
-                                text += plain ? `  + ${itemQtyDisplay}${subunitName}\n` : `  \u001b[1;36m+ ${itemQtyDisplay}${subunitName}\u001b[0m\n`;
-                                item.items.forEach(subItem => {
-                                    if (subItem.nameshort === "NULL") return;
-                                    const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
-                                    const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
-                                    text += `    - ${subItemQtyDisplay}${subItem.nameshort}\n`;
-                                });
-                            } else { // It's a wargear item
-                                if (item.nameshort === "NULL") return;
-                                text += `  - ${itemQtyDisplay}${item.nameshort}\n`;
-                            }
-                        });
                     }
                     firstUnitOverall = false;
                 });
