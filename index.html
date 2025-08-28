@@ -328,7 +328,8 @@
                         if (isIndented) {
                             // Indented bullet is always wargear for the current context.
                             const target = currentSubUnit || currentUnit;
-                            addItemToTarget(target, itemContent, currentUnit.name);
+                            const itemType = itemContent.toLowerCase() === 'warlord' ? 'special' : 'wargear';
+                            addItemToTarget(target, itemContent, currentUnit.name, itemType);
                         } else {
                             // Non-indented bullet. Could be a subunit or wargear for the main unit.
                             const subUnitMatch = itemContent.match(unitRegex);
