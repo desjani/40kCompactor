@@ -1,0 +1,52 @@
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Imperium - Adeptus Astartes - Blood Angels
++ DETACHMENT: Angelic Inheritors
++ TOTAL ARMY POINTS: 1995pts
++
++ WARLORD: Char1: Commander Dante
++ ENHANCEMENT: 
++ NUMBER OF UNITS: 17
++ SECONDARY: - Bring It Down: (4x2) - Assassination: 6 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Char1: 1x Commander Dante (120 pts): Warlord, Perdition, The Axe Mortalis
+Char2: 1x The Sanguinor (140 pts): Encarmine Broadsword
+Char3: 1x Captain with Jump Pack (75 pts): Power Fist, Plasma Pistol
+Char4: 1x Captain with Jump Pack (75 pts): Power Fist, Plasma Pistol
+Char5: 1x Lieutenant with Combi-weapon (70 pts): Combi-weapon, Paired Combat Blades
+Char6: 1x Techmarine (55 pts): Forge Bolter, Grav-pistol, Omnissian Power Axe, Servo-arm
+
+5x Intercessor Squad (80 pts)
+• 1x Intercessor Sergeant: Bolt Pistol, Bolt Rifle, Close Combat Weapon
+• 4x Intercessor: 4 with Bolt Pistol, Bolt Rifle, Close Combat Weapon
+
+5x Assault Intercessors with Jump Packs (90 pts)
+• 4x Assault Intercessors with Jump Pack
+    3 with Assault Intercessors with Jump Packs, Astartes Chainsword, Heavy Bolt Pistol
+    1 with Assault Intercessors with Jump Packs, Astartes Chainsword, Plasma Pistol
+• 1x Assault Intercessor Sergeant with Jump Pack: Plasma Pistol, Power Fist
+6x Inceptor Squad (240 pts)
+• 5x Inceptor: 5 with Close Combat Weapon, Plasma Exterminators
+• 1x Inceptor Sergeant: Close Combat Weapon, Plasma Exterminators
+5x Infiltrator Squad (100 pts)
+• 4x Infiltrator
+    2 with Infiltrator Squad, Bolt Pistol, Close Combat Weapon, Marksman Bolt Carbine
+    1 with Infiltrator Comms Array, Infiltrator Squad, Bolt Pistol, Close Combat Weapon, Marksman Bolt Carbine
+    1 with Helix Gauntlet, Infiltrator Squad, Bolt Pistol, Close Combat Weapon, Marksman Bolt Carbine
+• 1x Infiltrator Sergeant: Bolt Pistol, Close Combat Weapon, Marksman Bolt Carbine
+3x Sanguinary Guard (110 pts)
+  1 with Sanguinary Guard, Encarmine Blade, Inferno Pistol
+  1 with Sanguinary Guard, Encarmine Blade, Angelus Boltgun
+  1 with Sanguinary Banner, Sanguinary Guard, Encarmine Blade, Angelus Boltgun
+3x Sanguinary Guard (110 pts)
+  1 with Sanguinary Guard, Encarmine Blade, Inferno Pistol
+  1 with Sanguinary Guard, Encarmine Blade, Angelus Boltgun
+  1 with Sanguinary Banner, Sanguinary Guard, Encarmine Blade, Angelus Boltgun
+3x Sanguinary Guard (110 pts)
+  1 with Sanguinary Guard, Encarmine Blade, Inferno Pistol
+  1 with Sanguinary Guard, Encarmine Blade, Angelus Boltgun
+  1 with Sanguinary Banner, Sanguinary Guard, Encarmine Blade, Angelus Boltgun
+1x Baal Predator (125 pts): Armoured Tracks, Hunter Killer Missile, Storm Bolter, 2x Heavy Flamers, Baal Flamestorm Cannon
+1x Baal Predator (125 pts): Armoured Tracks, Hunter Killer Missile, Storm Bolter, 2x Heavy Flamers, Baal Flamestorm Cannon
+1x Vindicator (185 pts): Armoured Tracks, Demolisher Cannon, Hunter Killer Missile, Storm Bolter
+1x Vindicator (185 pts): Armoured Tracks, Demolisher Cannon, Hunter Killer Missile, Storm Bolter
