@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warhammer 40k List Compactor</title>
-    <link rel="stylesheet" href="styles.css?v=0.0.2">
+    <link rel="stylesheet" href="styles.css?v=0.0.3">
 </head>
 <body>
 
@@ -52,7 +52,8 @@
                         <div id="compactCharCount" class="char-count"></div>
                         <div class="button-group">
                              <button id="copyCompactButton" class="btn btn-discord">Copy for Discord (Fancy)</button>
-                             <button id="copyPlainDiscordButton" class="btn btn-danger">Copy for Discord (Plain)</button>
+                         <button id="copyExtendedDiscordButton" class="btn btn-secondary" style="background-color: #4a56c4; border-color: #4a56c4;">Copy for Discord (Extended)</button>
+                         <button id="copyPlainDiscordButton" class="btn btn-secondary" style="background-color: #495057; border-color: #495057;">Copy for Discord (Plain)</button>
                         </div>
                     </div>
                 </div>
@@ -71,6 +72,10 @@
                 </div>
                 <div class="changelog-entry">
                     <h4>Changelog</h4>
+                    <div class="changelog-version-entry">
+                        <h5>Version 0.0.3: Fixes, Formatting, and more!</h5>
+                        <p>Implemented a new inline compact format for easier reading. Added more 'Copy for Discord' options for greater flexibility. Numerous parser fixes for both GW App and WTC-Compact formats to improve reliability.</p>
+                    </div>
                     <div class="changelog-version-entry">
                         <h5>Version 0.0.2: Support for GW App and WTC-Compact formats</h5>
                         <p>The parser now supports both major list formats, with improved reliability for complex nested units and wargear. Abbreviation logic is now consistent across both formats.</p>
@@ -111,7 +116,7 @@
             parseButton.disabled = true;
             parseButton.textContent = 'Loading DB...';
 
-            fetch('./Wargear_tree.json?v=0.0.2')
+            fetch('./Wargear_tree.json?v=0.0.3')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
@@ -215,8 +220,10 @@
                  let bestUnitRules = null;
                  // --- First Pass: Find the most specific unit entry across all relevant factions ---
                  for (const faction of factionsToSearch) {
-                    const rules = factionAbbreviationDBs[faction];
-                    if (!rules) continue;
+                    const dbFactionKey = Object.keys(factionAbbreviationDBs).find(key => normalizeForComparison(key) === normalizeForComparison(faction));
+                    if (!dbFactionKey) continue;
+                    const rules = factionAbbreviationDBs[dbFactionKey];
+
                     const unitRulesKey = Object.keys(rules).find(key => normalizeForComparison(key) === normalizeForComparison(unitName));
                     if (unitRulesKey) {
                         bestUnitRules = rules[unitRulesKey];
@@ -234,7 +241,10 @@
 
                  // --- Third Pass: If no unit-specific rule was found, check for global item matches ---
                  for (const faction of factionsToSearch) {
-                     const rules = factionAbbreviationDBs[faction];
+                     const dbFactionKey = Object.keys(factionAbbreviationDBs).find(key => normalizeForComparison(key) === normalizeForComparison(faction));
+                     if (!dbFactionKey) continue;
+                     const rules = factionAbbreviationDBs[dbFactionKey];
+
                      if (!rules || !rules["*"]) continue;
                      let foundRule = rules["*"].find(rule => flexibleItemMatch(rule, itemName));
                      if (foundRule) return foundRule;
@@ -360,7 +370,7 @@
             }
         };
 
-        function parseAndAddEnhancement(enhancementContent, targetUnit) {
+        function parseAndAddEnhancement(enhancementContent, targetUnit, factionKeyword) {
             if (!targetUnit) return;
             const pointsRegex = /\s*\((.*?)\)$/;
             const pointsMatch = enhancementContent.match(pointsRegex);
@@ -385,6 +395,7 @@
 
             const abbreviation = enhancementName.split(/[\s-]+/).map(word => word.charAt(0)).join('').toUpperCase();
             const shortText = `E: ${abbreviation} ${enhancementPoints}`.trim();
+            
             targetUnit.items.push({ quantity: '1x', name: `Enhancement: ${enhancementContent}`, nameshort: shortText, items: [], type: 'special' });
         };
 
@@ -448,23 +459,31 @@
             const gwUnitRegex = /^(.*?)\s+\((\d+)\s+(?:pts|points)\)$/;
             const bulletItemRegex = /^\s*•\s*(.*)/;
 
+            let listParsingStarted = false;
+
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
                 const trimmedLine = line.trim();
                 if (!trimmedLine || trimmedLine.startsWith('Exported with')) continue;
 
+                // Section headers are the trigger to start parsing the list content.
+                if (sectionHeaderRegex.test(trimmedLine.toUpperCase())) {
+                    listParsingStarted = true;
+                    currentSection = trimmedLine.toUpperCase().replace('CHARACTER', 'CHARACTERS').replace('DEDICATED TRANSPORTS', 'OTHER DATASHEETS');
+                    contextStack.length = 0;
+                    continue;
+                }
+
+                if (!listParsingStarted) {
+                    continue; // Ignore everything before the first section header.
+                }
+
+                // --- From here on, we are parsing the actual list ---
                 const indent = getIndent(line);
                 while (contextStack.length > 0 && indent <= contextStack[contextStack.length - 1].indent) {
                     contextStack.pop();
                 }
                 const parentContext = contextStack.length > 0 ? contextStack[contextStack.length - 1] : null;
-
-                // Section Headers - these reset the context
-                if (sectionHeaderRegex.test(trimmedLine.toUpperCase())) {
-                    currentSection = trimmedLine.toUpperCase().replace('CHARACTER', 'CHARACTERS').replace('DEDICATED TRANSPORTS', 'OTHER DATASHEETS');
-                    contextStack.length = 0;
-                    continue;
-                }
 
                 // Unit Detection (must not be indented)
                 if (indent === 0) {
@@ -473,8 +492,11 @@
                         const unitName = gwMatch[1].trim();
                         const unitPoints = parseInt(gwMatch[2]);
                         const newUnit = { quantity: '1x', name: unitName, points: unitPoints, items: [] };
-                        result[currentSection] = result[currentSection] || [];
-                        result[currentSection].push(newUnit);
+                        
+                        const sectionKey = currentSection || 'OTHER DATASHEETS';
+                        result[sectionKey] = result[sectionKey] || [];
+                        result[sectionKey].push(newUnit);
+
                         contextStack.push({ indent, node: newUnit });
                         continue;
                     }
@@ -488,7 +510,7 @@
                         const topLevelUnitName = contextStack[0].node.name;
                         
                         if (itemContent.startsWith('Enhancement:')) {
-                            parseAndAddEnhancement(itemContent.replace('Enhancement:', '').trim(), contextStack[0].node);
+                            parseAndAddEnhancement(itemContent.replace('Enhancement:', '').trim(), contextStack[0].node, factionKeyword);
                             continue;
                         }
 
@@ -496,20 +518,50 @@
                         const subUnitMatch = itemContent.match(subUnitRegex);
                         const nextLine = (i + 1 < lines.length) ? lines[i + 1] : '';
                         const nextLineIsMoreIndented = nextLine.trim() !== '' && getIndent(nextLine) > getIndent(line);
+                        const nextLineIsBulleted = nextLine.trim().startsWith('•');
 
-                        if (subUnitMatch && nextLineIsMoreIndented) {
-                                const newSubUnit = {
+                        // A bulleted line is a subunit only if it's followed by a MORE indented AND bulleted line.
+                        // This is a more reliable heuristic for the GW App format.
+                        if (subUnitMatch && nextLineIsMoreIndented && nextLineIsBulleted) {
+                            const newSubUnit = {
                                 quantity: subUnitMatch[1].trim(),
                                 name: subUnitMatch[2].trim(),
                                     points: 0,
                                     items: []
                                 };
-                                parentContext.node.items.push(newSubUnit);
-                                contextStack.push({ indent, node: newSubUnit });
+                            parentContext.node.items.push(newSubUnit);
+                            contextStack.push({ indent, node: newSubUnit });
                         } else {
                             addItemToTarget(parentContext.node, itemContent, topLevelUnitName, factionKeyword);
                         }
+                    } else if (indent > 0) { // It's an indented, non-bulleted line (wargear)
+                        const topLevelUnitName = contextStack[0].node.name;
+                        addItemToTarget(parentContext.node, trimmedLine, topLevelUnitName, factionKeyword);
                     }
+                }
+            }
+
+            // --- Post-processing: Calculate total quantities for units with subunits ---
+            for (const section in result) {
+                if (Array.isArray(result[section])) {
+                    result[section].forEach(unit => {
+                        // We only want to sum quantities for units that have subunits.
+                        const hasSubunits = unit.items && unit.items.some(item => item.points !== undefined);
+
+                        if (hasSubunits) {
+                            let totalQuantity = 0;
+                            unit.items.forEach(item => {
+                                // A subunit is an item that has a 'points' property. Wargear does not.
+                                if (item.points !== undefined) {
+                                    totalQuantity += parseInt(item.quantity.replace('x', ''), 10) || 0;
+                                }
+                            });
+
+                            if (totalQuantity > 1) {
+                                unit.quantity = `${totalQuantity}x`;
+                            }
+                        }
+                    });
                 }
             }
             return result;
@@ -659,7 +711,7 @@
                 const enhancementMatch = trimmedLine.match(enhancementLineRegex);
                 if (enhancementMatch && !parentContext) {
                     if (lastUnitProcessed) {
-                        parseAndAddEnhancement(enhancementMatch[1].trim(), lastUnitProcessed);
+                        parseAndAddEnhancement(enhancementMatch[1].trim(), lastUnitProcessed, factionKeyword);
                     }
                     continue;
                 }
@@ -697,7 +749,7 @@
                         continue; // The bulleted line is processed.
                     } else if (trimmedLine.match(enhancementLineRegex)) { // Enhancement for the top-level unit
                         const enhContent = trimmedLine.match(enhancementLineRegex)[1].trim();
-                        parseAndAddEnhancement(enhContent, contextStack[0].node);
+                        parseAndAddEnhancement(enhContent, contextStack[0].node, factionKeyword);
                     } else { // Wargear for the current context (the last thing on the stack)
                         addItemToTarget(parentContext.node, trimmedLine, topLevelUnitName, factionKeyword);
                     }
@@ -710,7 +762,7 @@
                 const allUnits = [...(result.CHARACTER || []), ...(result['OTHER DATASHEETS'] || [])];
                 const targetUnit = allUnits.find(u => normalizeForComparison(u.name) === normalizeForComparison(targetName));
                 if (targetUnit) {
-                    parseAndAddEnhancement(enhName, targetUnit);
+                    parseAndAddEnhancement(enhName, targetUnit, factionKeyword);
                 }
             });
 
@@ -727,38 +779,36 @@
             return { quantity: '1x', name: itemString };
         }
 
-        function renderUnitItems(items, useAbbreviations, plainTextPrefix) {
-            let html = '', plainText = '';
-            const specialItems = items.filter(item => item.type === 'special');
-            const wargearItems = items.filter(item => item.type !== 'special' && (!useAbbreviations || item.nameshort !== "NULL"));
+        function getInlineItemsString(items, useAbbreviations = true) {
+            if (!items || items.length === 0) return '';
+            
+            const specialItems = items.filter(item => item.type === 'special' && item.nameshort !== "NULL");
+            const wargearItems = items.filter(item => item.type === 'wargear' && item.nameshort !== "NULL");
 
-            if (wargearItems.length > 0) {
-                wargearItems.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
-                const wargearStrings = wargearItems.map(item => {
-                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
-                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-                    const itemName = useAbbreviations ? item.nameshort : item.name;
-                    return `${itemQtyDisplay}${itemName}`;
-                });
+            if (specialItems.length === 0 && wargearItems.length === 0) return '';
+
+            wargearItems.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
+            
+            const specialStrings = specialItems.map(item => {
                 if (useAbbreviations) {
-                    html += `<p style="margin: 0;">${wargearStrings.join(', ')}</p>`;
-                    plainText += `${plainTextPrefix}${wargearStrings.join(', ')}\n`;
-                } else {
-                    wargearStrings.forEach(str => {
-                        html += `<p style="margin: 0;">${str}</p>`;
-                        plainText += `${plainTextPrefix}${str}\n`;
-                    });
+                    return item.nameshort;
                 }
-            }
+                // For extended discord format, show the full name but clean it up.
+                if (item.name.startsWith('Enhancement: ')) {
+                    return item.name.substring('Enhancement: '.length);
+                }
+                return item.name;
+            });
+            const wargearStrings = wargearItems.map(item => {
+                const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                const itemName = useAbbreviations ? item.nameshort : item.name;
+                return `${itemQtyDisplay}${itemName}`;
+            });
 
-            if (specialItems.length > 0) {
-                specialItems.forEach(item => {
-                    const itemName = useAbbreviations ? item.nameshort : item.name;
-                    html += `<p style="margin: 0;">${itemName}</p>`;
-                    plainText += `${plainTextPrefix}${itemName}\n`;
-                });
-            }
-            return { html, plainText };
+            const allStrings = [...specialStrings, ...wargearStrings];
+            
+            return ` (${allStrings.join(', ')})`;
         }
 
         function generateOutput(data, useAbbreviations) {
@@ -777,9 +827,8 @@
                 }
             }
             html += `<div style="margin-top: 0.5rem;">`;
-            let firstUnitOverall = true;
             for (const section in data) {
-                if (section !== 'SUMMARY' && Array.isArray(data[section])) {
+                if (section !== 'SUMMARY' && Array.isArray(data[section]) && data[section].length > 0) {
                     data[section].forEach(unit => {
                         const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
                         let quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
@@ -787,46 +836,70 @@
                         if (unit.isComplex) {
                             quantityDisplay = '';
                         }
-                        const unitText = `${quantityDisplay}${unit.name} ${unit.points}`;
-                        html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitText}</p>`;
-                        plainText += `* ${unitText}\n`;
-                        if (unit.items && unit.items.length > 0) {
-                            const hasVisibleItems = !useAbbreviations || unit.items.some(item => {
-                                if (item.points !== undefined) { 
-                                    return item.items && item.items.some(subItem => subItem.nameshort !== "NULL" || subItem.type === 'special');
-                                }
-                                return item.nameshort !== "NULL" || item.type === 'special';
-                            });
 
-                            if (hasVisibleItems) {
+                        if (useAbbreviations) {
+                            const topLevelItems = unit.items.filter(item => item.points === undefined);
+                            const itemsString = getInlineItemsString(topLevelItems);
+                            const unitText = `${quantityDisplay}${unit.name}${itemsString} [${unit.points}]`;
+                            html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitText}</p>`;
+                            plainText += `* ${unitText}\n`;
+
+                            const subunitItems = unit.items.filter(item => item.points !== undefined);
+                            if (subunitItems.length > 0) {
                                 html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
-                                const allItems = [...unit.items];
-                                const topLevelItems = allItems.filter(item => item.points === undefined);
-                                const subunitItems = allItems.filter(item => item.points !== undefined).sort((a, b) => parseInt(a.quantity.replace('x', ''), 10) - parseInt(b.quantity.replace('x', ''), 10));
-
-                                const topLevelRender = renderUnitItems(topLevelItems, useAbbreviations, '  - ');
-                                html += topLevelRender.html;
-                                plainText += topLevelRender.plainText;
-
                                 subunitItems.forEach(item => {
-                                    const subUnitHasVisibleItems = !useAbbreviations || (item.items && item.items.some(subItem => subItem.nameshort !== "NULL" || subItem.type === 'special'));
+                                    const subUnitHasVisibleItems = item.items && item.items.some(subItem => subItem.nameshort !== "NULL" || subItem.type === 'special');
                                     if (subUnitHasVisibleItems) {
                                         const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                                         const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-                                        const itemText = `${itemQtyDisplay}${item.name}`;
+                                        const subunitItemsString = getInlineItemsString(item.items);
+                                        const itemText = `${itemQtyDisplay}${item.name}${subunitItemsString}`;
                                         html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemText}</p>`;
                                         plainText += `  + ${itemText}\n`;
-
-                                        const subunitRender = renderUnitItems(item.items, useAbbreviations, '    - ');
-                                        html += `<div style="padding-left: 1rem;">${subunitRender.html}</div>`;
-                                        plainText += subunitRender.plainText;
                                     }
                                 });
                                 html += `</div>`;
                             }
+                            html += `</div>`;
+                        } else {
+                            // Extended List (original logic)
+                            const unitText = `${quantityDisplay}${unit.name} ${unit.points}`;
+                            html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitText}</p>`;
+                            plainText += `* ${unitText}\n`;
+                            if (unit.items && unit.items.length > 0) {
+                                html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
+                                const topLevelItems = unit.items.filter(item => item.points === undefined);
+                                const subunitItems = unit.items.filter(item => item.points !== undefined).sort((a, b) => parseInt(a.quantity.replace('x', ''), 10) - parseInt(b.quantity.replace('x', ''), 10));
+
+                                topLevelItems.forEach(item => {
+                                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                                    html += `<p style="margin: 0;">${itemQtyDisplay}${item.name}</p>`;
+                                    plainText += `  - ${itemQtyDisplay}${item.name}\n`;
+                                });
+
+                                subunitItems.forEach(item => {
+                                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                                    const itemText = `${itemQtyDisplay}${item.name}`;
+                                    html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0.5rem 0 0 0;">${itemText}</p>`;
+                                    plainText += `  + ${itemText}\n`;
+
+                                    if (item.items && item.items.length > 0) {
+                                        html += `<div style="padding-left: 1rem;">`;
+                                        item.items.forEach(subItem => {
+                                            const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
+                                            const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
+                                            html += `<p style="margin: 0;">${subItemQtyDisplay}${subItem.name}</p>`;
+                                            plainText += `    - ${subItemQtyDisplay}${subItem.name}\n`;
+                                        });
+                                        html += `</div>`;
+                                    }
+                                });
+                                html += `</div>`;
+                            }
+                            html += `</div>`;
                         }
-                        html += `</div>`;
-                        firstUnitOverall = false;
                     });
                 }
             }
@@ -834,51 +907,27 @@
             return { html, plainText };
         }    
     function updateCharCounts() {
-            const originalSize = document.getElementById('inputText').value.length;
-            const extendedSize = extendedPlainText.trim().length;
-            const compactSize = compactPlainText.trim().length;
-            
-            document.getElementById('inputCharCount').textContent = `Characters: ${originalSize}`;
+        const originalSize = document.getElementById('inputText').value.length;
+        const extendedSize = extendedPlainText.trim().length;
+        const compactSize = compactPlainText.trim().length;
+        
+        document.getElementById('inputCharCount').textContent = `Characters: ${originalSize}`;
 
-            if (originalSize > 0) {
-                const extendedSavings = originalSize - extendedSize;
-                const extendedSavingsPercent = ((extendedSavings / originalSize) * 100).toFixed(1);
-                document.getElementById('extendedCharCount').innerHTML = `Characters: ${extendedSize} | Savings: ${extendedSavings} (${extendedSavingsPercent}%)`;
+        if (originalSize > 0) {
+            const extendedSavings = originalSize - extendedSize;
+            const extendedSavingsPercent = ((extendedSavings / originalSize) * 100).toFixed(1);
+            document.getElementById('extendedCharCount').innerHTML = `Characters: ${extendedSize} | Savings: ${extendedSavings} (${extendedSavingsPercent}%)`;
 
-                const compactSavings = originalSize - compactSize;
-                const compactSavingsPercent = ((compactSavings / originalSize) * 100).toFixed(1);
-                document.getElementById('compactCharCount').innerHTML = `Characters: ${compactSize} | Savings: ${compactSavings} (${compactSavingsPercent}%)`;
-            } else {
-                document.getElementById('extendedCharCount').innerHTML = '';
-                document.getElementById('compactCharCount').innerHTML = '';
-            }
+            const compactSavings = originalSize - compactSize;
+            const compactSavingsPercent = ((compactSavings / originalSize) * 100).toFixed(1);
+            document.getElementById('compactCharCount').innerHTML = `Characters: ${compactSize} | Savings: ${compactSavings} (${compactSavingsPercent}%)`;
+        } else {
+            document.getElementById('extendedCharCount').innerHTML = '';
+            document.getElementById('compactCharCount').innerHTML = '';
         }
+    }
 
-        function renderDiscordItems(items, plain, prefix) {
-            let text = '';
-            const specialItems = items.filter(item => item.type === 'special');
-            const wargearItems = items.filter(item => item.type !== 'special' && item.nameshort !== "NULL");
-
-            if (wargearItems.length > 0) {
-                wargearItems.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
-                const wargearStrings = wargearItems.map(item => {
-                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
-                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-                    return `${itemQtyDisplay}${item.nameshort}`;
-                });
-                text += `${prefix}${wargearStrings.join(', ')}\n`;
-            }
-
-            if (specialItems.length > 0) {
-                specialItems.forEach(item => {
-                    text += `${prefix}${item.nameshort}\n`;
-                });
-            }
-            return text;
-        }
-
-        function generateDiscordText(data, plain) {
-            const factionKeyword = data.SUMMARY?.FACTION_KEYWORD || '';
+        function generateDiscordText(data, plain, useAbbreviations = true) {
             let text = plain ? '' : '```ansi\n';
 
             if (data.SUMMARY) {
@@ -886,7 +935,7 @@
                 if (data.SUMMARY.FACTION_KEYWORD) {
                     const displayFaction = data.SUMMARY?.DISPLAY_FACTION || (data.SUMMARY.FACTION_KEYWORD.split(' - ').pop() || data.SUMMARY.FACTION_KEYWORD);
                     summaryParts.push(displayFaction);
-                                }
+                }
                 if (data.SUMMARY.DETACHMENT) summaryParts.push(data.SUMMARY.DETACHMENT);
                 if (data.SUMMARY.TOTAL_ARMY_POINTS) summaryParts.push(data.SUMMARY.TOTAL_ARMY_POINTS);
                 if (summaryParts.length > 0) {
@@ -894,7 +943,6 @@
                     text += plain ? `${header}\n` : `\u001b[1;33m${header}\u001b[0m\n\n`;
                 }
             }
-            let firstUnitOverall = true;
             for (const section in data) {
                 if (section === 'SUMMARY' || !Array.isArray(data[section])) continue;
                 data[section].forEach(unit => {
@@ -905,42 +953,27 @@
                     }
                     const unitName = `${quantityDisplay}${unit.name}`;
                     const points = `${unit.points}`;
-                    text += plain ? `* ${unitName} [${points}]\n` : `\u001b[0;31m* ${unitName}\u001b[0m [\u001b[0;33m${points}\u001b[0m]\n`;
-                    if (unit.items && unit.items.length > 0) {
-                        const hasVisibleItems = plain || unit.items.some(item => {
-                            if (item.points !== undefined) {
-                                return item.items && item.items.some(subItem => subItem.nameshort !== "NULL" || subItem.type === 'special');
-                            }
-                            return item.nameshort !== "NULL" || item.type === 'special';
-                        });
-
-                        if (hasVisibleItems) {
-                            const allItems = [...unit.items];
-                            const topLevelItems = allItems.filter(item => item.points === undefined);
-                            const subunitItems = allItems.filter(item => item.points !== undefined).sort((a, b) => parseInt(a.quantity.replace('x', ''), 10) - parseInt(b.quantity.replace('x', ''), 10));
-
-                            text += renderDiscordItems(topLevelItems, plain, '  - ');
-
-                            subunitItems.forEach(item => {
-                                const subUnitHasVisibleItems = plain || (item.items && item.items.some(subItem => subItem.nameshort !== "NULL" || subItem.type === 'special'));
-                                if (subUnitHasVisibleItems) {
-                                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
-                                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-                                    const subunitName = item.name;
-                                    text += plain ? `  + ${itemQtyDisplay}${subunitName}\n` : `  \u001b[1;36m+ ${itemQtyDisplay}${subunitName}\u001b[0m\n`;
-
-                                    text += renderDiscordItems(item.items, plain, '    - ');
-                                }
-                            });
+                    const topLevelItems = unit.items.filter(item => item.points === undefined);
+                    const itemsString = getInlineItemsString(topLevelItems, useAbbreviations);
+                    text += plain ? `* ${unitName}${itemsString} [${points}]\n` : `\u001b[0;31m* ${unitName}\u001b[0m${itemsString} [\u001b[0;33m${points}\u001b[0m]\n`;
+                    
+                    const subunitItems = unit.items.filter(item => item.points !== undefined);
+                    subunitItems.forEach(item => {
+                        const subUnitHasVisibleItems = item.items && item.items.some(subItem => subItem.nameshort !== "NULL" || subItem.type === 'special');
+                        if (subUnitHasVisibleItems) {
+                            const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                            const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                            const subunitName = item.name;
+                            const subunitItemsString = getInlineItemsString(item.items, useAbbreviations);
+                            text += plain ? `  + ${itemQtyDisplay}${subunitName}${subunitItemsString}\n` : `  \u001b[1;36m+ ${itemQtyDisplay}${subunitName}\u001b[0m${subunitItemsString}\n`;
                         }
-                    }
-                    firstUnitOverall = false;
+                    });
                 });
             }
             if (!plain) text += '```';
             return text;
         }
-        
+
         async function copyTextToClipboard(text, button) {
             if (!text) return;
             if (!navigator.clipboard) {
@@ -967,14 +1000,21 @@
 
         document.getElementById('copyCompactButton').addEventListener('click', () => {
             if (parsedData) {
-                const textToCopy = generateDiscordText(parsedData, false);
+                const textToCopy = generateDiscordText(parsedData, false, true);
                 copyTextToClipboard(textToCopy, document.getElementById('copyCompactButton'));
+            }
+        });
+
+        document.getElementById('copyExtendedDiscordButton').addEventListener('click', () => {
+            if (parsedData) {
+                const textToCopy = generateDiscordText(parsedData, false, false);
+                copyTextToClipboard(textToCopy, document.getElementById('copyExtendedDiscordButton'));
             }
         });
 
         document.getElementById('copyPlainDiscordButton').addEventListener('click', () => {
             if (parsedData) {
-                const textToCopy = generateDiscordText(parsedData, true);
+                const textToCopy = generateDiscordText(parsedData, true, true);
                 copyTextToClipboard(textToCopy.trim(), document.getElementById('copyPlainDiscordButton'));
             }
         });

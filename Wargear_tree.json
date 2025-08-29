@@ -13628,6 +13628,10 @@
             {
                 "item": "Seeker Missile",
                 "abbr": "SM"
+            },
+            {
+                "item": "Twin Smart Missile System",
+                "abbr": "TSMS"
             }
         ],
         "AX-1-0 Tiger Shark": [
@@ -13948,6 +13952,32 @@
             {
                 "item": "Hunting Javelin",
                 "abbr": "HJ"
+            },
+            {
+                "item": "Close Combat Weapon",
+                "abbr": "NULL"
+            }
+        ],
+        "Kroot Lone-Spear": [
+            {
+                "item": "Kroot Long Gun",
+                "abbr": "KLG"
+            },
+            {
+                "item": "Kalamandra's Bite",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Blast Javelin",
+                "abbr": "BJ"
+            },
+            {
+                "item": "Hunting Javelin",
+                "abbr": "HJ"
+            },
+            {
+                "item": "Close Combat Weapon",
+                "abbr": "NULL"
             }
         ],
         "Kroot Trail Shaper": [

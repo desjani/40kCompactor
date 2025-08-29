@@ -1,0 +1,140 @@
+The correct amount of rampagers  (2000 points)
+
+T’au Empire
+Strike Force (2000 points)
+Auxiliary Cadre
+
+
+CHARACTERS
+
+Kroot Lone-spear (80 points)
+  • Warlord
+  • 1x Blast javelin
+    1x Close combat weapon
+    1x Hunting javelin
+    1x Kalamandra’s bite
+
+
+OTHER DATASHEETS
+
+Broadside Battlesuits (180 points)
+  • 1x Broadside Shas’vre
+    • 1x Crushing bulk
+      1x Heavy rail rifle
+      2x Missile Drone
+      1x Twin smart missile system
+      1x Weapon Support System
+  • 1x Broadside Shas’ui
+    • 1x Crushing bulk
+      1x Heavy rail rifle
+      2x Missile Drone
+      1x Twin smart missile system
+      1x Weapon Support System
+
+Broadside Battlesuits (180 points)
+  • 1x Broadside Shas’vre
+    • 1x Crushing bulk
+      1x Heavy rail rifle
+      2x Missile Drone
+      1x Twin smart missile system
+      1x Weapon Support System
+  • 1x Broadside Shas’ui
+    • 1x Crushing bulk
+      1x Heavy rail rifle
+      2x Missile Drone
+      1x Twin smart missile system
+      1x Weapon Support System
+
+Broadside Battlesuits (180 points)
+  • 1x Broadside Shas’vre
+    • 1x Crushing bulk
+      1x Heavy rail rifle
+      2x Missile Drone
+      1x Twin smart missile system
+      1x Weapon Support System
+  • 1x Broadside Shas’ui
+    • 1x Crushing bulk
+      1x Heavy rail rifle
+      2x Missile Drone
+      1x Twin smart missile system
+      1x Weapon Support System
+
+Krootox Rampagers (170 points)
+  • 6x Krootox Rampagers
+    • 6x Hunting blades
+      6x Kroot pistol and hunting javelins
+      6x Rampager fists
+
+Krootox Rampagers (170 points)
+  • 6x Krootox Rampagers
+    • 6x Hunting blades
+      6x Kroot pistol and hunting javelins
+      6x Rampager fists
+
+Krootox Rampagers (170 points)
+  • 6x Krootox Rampagers
+    • 6x Hunting blades
+      6x Kroot pistol and hunting javelins
+      6x Rampager fists
+
+Krootox Riders (60 points)
+  • 2x Krootox Rider
+    • 2x Close combat weapon
+      2x Krootox fists
+      2x Repeater cannon
+
+Riptide Battlesuit (190 points)
+  • 1x Ion accelerator
+    2x Missile Drone
+    1x Riptide fists
+    1x Twin smart missile system
+
+Riptide Battlesuit (190 points)
+  • 1x Ion accelerator
+    2x Missile Drone
+    1x Riptide fists
+    1x Twin smart missile system
+
+Riptide Battlesuit (190 points)
+  • 1x Ion accelerator
+    2x Missile Drone
+    1x Riptide fists
+    1x Twin smart missile system
+
+Stealth Battlesuits (80 points)
+  • 1x Stealth Shas’vre
+    • 1x Battlesuit Support System
+      1x Battlesuit fists
+      1x Fusion blaster
+      1x Homing Beacon
+      1x Marker Drone
+      1x Shield Drone
+  • 2x Stealth Shas’ui
+    • 2x Battlesuit fists
+      2x Burst cannon
+
+Stealth Battlesuits (80 points)
+  • 1x Stealth Shas’vre
+    • 1x Battlesuit Support System
+      1x Battlesuit fists
+      1x Fusion blaster
+      1x Homing Beacon
+      1x Marker Drone
+      1x Shield Drone
+  • 2x Stealth Shas’ui
+    • 2x Battlesuit fists
+      2x Burst cannon
+
+Stealth Battlesuits (80 points)
+  • 1x Stealth Shas’vre
+    • 1x Battlesuit Support System
+      1x Battlesuit fists
+      1x Fusion blaster
+      1x Homing Beacon
+      1x Marker Drone
+      1x Shield Drone
+  • 2x Stealth Shas’ui
+    • 2x Battlesuit fists
+      2x Burst cannon
+
+Exported with App Version: v1.40.1 (94), Data Version: v675
