@@ -111,7 +111,7 @@
             parseButton.disabled = true;
             parseButton.textContent = 'Loading DB...';
 
-            fetch('./Wargear_tree.json')
+            fetch('./Wargear_tree.json?v=0.0.2')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
