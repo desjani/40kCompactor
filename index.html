@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warhammer 40k List Compactor</title>
-    <link rel="stylesheet" href="styles.css?v=0.0.3">
+    <link rel="stylesheet" href="styles.css?v=0.0.7">
 </head>
 <body>
 
@@ -25,12 +25,12 @@
                 <div>
                     <label for="inputText" class="io-label">Paste List here (GW App or WTC-Compact)</label>
                     <textarea id="inputText" class="io-box" autofocus></textarea>
-                    <div class="column-footer">
-                        <div id="inputCharCount" class="char-count"></div>
+                    <div class="column-footer" style="flex-direction: column; align-items: center;">
                         <div class="button-group">
                             <button id="resetButton" class="btn btn-danger">Start Over</button>
                             <button id="parseButton" class="btn btn-primary">Compact this list</button>
                         </div>
+                        <div id="inputCharCount" class="char-count" style="margin-top: 0.5rem;"></div>
                     </div>
                 </div>
 
@@ -38,9 +38,9 @@
                 <div>
                     <label for="unabbreviatedOutput" class="io-label">Extended List</label>
                     <div id="unabbreviatedOutput" class="io-box"></div>
-                     <div class="column-footer">
-                        <div id="extendedCharCount" class="char-count"></div>
+                     <div class="column-footer" style="flex-direction: column; align-items: center;">
                         <button id="copyExtendedButton" class="btn btn-copy">Copy Extended Version</button>
+                        <div id="extendedCharCount" class="char-count" style="margin-top: 0.5rem;"></div>
                     </div>
                 </div>
 
@@ -48,12 +48,63 @@
                 <div>
                     <label for="compactedOutput" class="io-label">Compact List</label>
                     <div id="compactedOutput" class="io-box"></div>
-                    <div class="column-footer">
-                        <div id="compactCharCount" class="char-count"></div>
+                    <div class="column-footer" style="flex-direction: column; align-items: center;">
                         <div class="button-group">
                              <button id="copyCompactButton" class="btn btn-discord">Copy for Discord (Fancy)</button>
                          <button id="copyExtendedDiscordButton" class="btn btn-secondary" style="background-color: #4a56c4; border-color: #4a56c4;">Copy for Discord (Extended)</button>
                          <button id="copyPlainDiscordButton" class="btn btn-secondary" style="background-color: #495057; border-color: #495057;">Copy for Discord (Plain)</button>
+                        </div>
+                        <div id="compactCharCount" class="char-count" style="margin-top: 0.5rem;"></div>
+                    </div>
+                    <!-- Color Options Section -->
+                    <div class="color-options-container" style="margin-top: 1rem; text-align: center;">
+                        <div class="color-options">
+                            <label><input type="radio" name="colorMode" value="none" checked> No Color</label>
+                            <label><input type="radio" name="colorMode" value="custom"> Custom Colors</label>
+                        </div>
+                        <div id="customColorPickers" style="display: none; margin-top: 0.5rem; text-align: center;">
+                            <div style="margin-bottom: 0.5rem;">
+                                <label>Unit: 
+                                    <select id="unitColor">
+                                        <option value="#FFFFFF" selected>White</option>
+                                        <option value="#808080">Grey</option>
+                                        <option value="#FF0000">Red</option>
+                                        <option value="#00FF00">Green</option>
+                                        <option value="#FFFF00">Yellow</option>
+                                        <option value="#0000FF">Blue</option>
+                                        <option value="#FF00FF">Magenta</option>
+                                        <option value="#00FFFF">Cyan</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div style="margin-bottom: 0.5rem;">
+                                <label>Subunit: 
+                                    <select id="subunitColor">
+                                        <option value="#FFFFFF">White</option>
+                                        <option value="#808080" selected>Grey</option>
+                                        <option value="#FF0000">Red</option>
+                                        <option value="#00FF00">Green</option>
+                                        <option value="#FFFF00">Yellow</option>
+                                        <option value="#0000FF">Blue</option>
+                                        <option value="#FF00FF">Magenta</option>
+                                        <option value="#00FFFF">Cyan</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div>
+                                <label>Points/Header: 
+                                    <select id="pointsColor">
+                                        <option value="#FFFFFF">White</option>
+                                        <option value="#808080">Grey</option>
+                                        <option value="#FF0000">Red</option>
+                                        <option value="#00FF00">Green</option>
+                                        <option value="#FFFF00" selected>Yellow</option>
+                                        <option value="#0000FF">Blue</option>
+                                        <option value="#FF00FF">Magenta</option>
+                                        <option value="#00FFFF">Cyan</option>
+                                    </select>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -72,6 +123,10 @@
                 </div>
                 <div class="changelog-entry">
                     <h4>Changelog</h4>
+                    <div class="changelog-version-entry">
+                        <h5>Version 0.0.4: Colors and Indentations!</h5>
+                        <p>Added color customization for Discord outputs. Improved indentation and bullet points for plain text exports to render correctly in Discord.</p>
+                    </div>
                     <div class="changelog-version-entry">
                         <h5>Version 0.0.3: Fixes, Formatting, and more!</h5>
                         <p>Implemented a new inline compact format for easier reading. Added more 'Copy for Discord' options for greater flexibility. Numerous parser fixes for both GW App and WTC-Compact formats to improve reliability.</p>
@@ -116,7 +171,7 @@
             parseButton.disabled = true;
             parseButton.textContent = 'Loading DB...';
 
-            fetch('./Wargear_tree.json?v=0.0.3')
+            fetch('./Wargear_tree.json?v=0.0.7')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
@@ -133,6 +188,17 @@
                     console.error("Could not load wargear database:", error);
                     parseButton.textContent = 'Error: DB Load Failed';
                 });
+            
+            document.querySelectorAll('input[name="colorMode"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const customPickers = document.getElementById('customColorPickers');
+                    if (e.target.value === 'custom') {
+                        customPickers.style.display = 'block';
+                    } else {
+                        customPickers.style.display = 'none';
+                    }
+                });
+            });
         })
 
         function normalizeForComparison(name) {
@@ -883,7 +949,7 @@
                                     const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
                                     const itemText = `${itemQtyDisplay}${item.name}`;
                                     html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0.5rem 0 0 0;">${itemText}</p>`;
-                                    plainText += `  + ${itemText}\n`;
+                                    plainText += `  * ${itemText}\n`;
 
                                     if (item.items && item.items.length > 0) {
                                         html += `<div style="padding-left: 1rem;">`;
@@ -914,13 +980,11 @@
         document.getElementById('inputCharCount').textContent = `Characters: ${originalSize}`;
 
         if (originalSize > 0) {
-            const extendedSavings = originalSize - extendedSize;
-            const extendedSavingsPercent = ((extendedSavings / originalSize) * 100).toFixed(1);
-            document.getElementById('extendedCharCount').innerHTML = `Characters: ${extendedSize} | Savings: ${extendedSavings} (${extendedSavingsPercent}%)`;
+            const extendedRatioPercent = ((extendedSize / originalSize) * 100).toFixed(1);
+            document.getElementById('extendedCharCount').innerHTML = `Characters: ${extendedSize} | ${extendedRatioPercent}%`;
 
-            const compactSavings = originalSize - compactSize;
-            const compactSavingsPercent = ((compactSavings / originalSize) * 100).toFixed(1);
-            document.getElementById('compactCharCount').innerHTML = `Characters: ${compactSize} | Savings: ${compactSavings} (${compactSavingsPercent}%)`;
+            const compactRatioPercent = ((compactSize / originalSize) * 100).toFixed(1);
+            document.getElementById('compactCharCount').innerHTML = `Characters: ${compactSize} | ${compactRatioPercent}%`;
         } else {
             document.getElementById('extendedCharCount').innerHTML = '';
             document.getElementById('compactCharCount').innerHTML = '';
@@ -928,7 +992,66 @@
     }
 
         function generateDiscordText(data, plain, useAbbreviations = true) {
-            let text = plain ? '' : '```ansi\n';
+            const colorMode = document.querySelector('input[name="colorMode"]:checked').value;
+            const useColor = !plain && colorMode !== 'none';
+            let text = plain ? '' : (useColor ? '```ansi\n' : '```\n');
+
+            const ansiPalette = [
+                { name: 'grey', hex: '#808080', code: 30 },
+                { name: 'red', hex: '#FF0000', code: 31 },
+                { name: 'green', hex: '#00FF00', code: 32 },
+                { name: 'yellow', hex: '#FFFF00', code: 33 },
+                { name: 'blue', hex: '#0000FF', code: 34 },
+                { name: 'magenta', hex: '#FF00FF', code: 35 },
+                { name: 'cyan', hex: '#00FFFF', code: 36 },
+                { name: 'white', hex: '#FFFFFF', code: 37 }
+            ];
+
+            const hexToRgb = (hex) => {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
+            };
+
+            const findClosestAnsi = (hexColor) => {
+                const inputRgb = hexToRgb(hexColor);
+                if (!inputRgb) return ansiPalette.find(c => c.name === 'white').code;
+
+                let minDistance = Infinity;
+                let bestCode = ansiPalette.find(c => c.name === 'white').code;
+
+                for (const color of ansiPalette) {
+                    const paletteRgb = hexToRgb(color.hex);
+                    const distance = Math.pow(inputRgb.r - paletteRgb.r, 2) +
+                                   Math.pow(inputRgb.g - paletteRgb.g, 2) +
+                                   Math.pow(inputRgb.b - paletteRgb.b, 2);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        bestCode = color.code;
+                    }
+                }
+                return bestCode;
+            };
+
+            const toAnsi = (txt, hexColor, bold = false) => {
+                if (!useColor || !hexColor) return txt;
+                // Black is often unreadable on Discord's dark theme.
+                if (hexColor.toLowerCase() === '#000000') return txt;
+
+                const ansiCode = findClosestAnsi(hexColor);
+                const boldCode = bold ? '1;' : '';
+                return `\u001b[${boldCode}${ansiCode}m${txt}\u001b[0m`;
+            };
+
+            let colors = { unit: '#FFFFFF', subunit: '#808080', points: '#FFFF00' }; // Default custom colors
+            if (useColor) {
+                if (colorMode === 'custom') {
+                    colors = {
+                        unit: document.getElementById('unitColor').value,
+                        subunit: document.getElementById('subunitColor').value,
+                        points: document.getElementById('pointsColor').value
+                    };
+                }
+            }
 
             if (data.SUMMARY) {
                 const summaryParts = [];
@@ -940,7 +1063,7 @@
                 if (data.SUMMARY.TOTAL_ARMY_POINTS) summaryParts.push(data.SUMMARY.TOTAL_ARMY_POINTS);
                 if (summaryParts.length > 0) {
                     const header = summaryParts.join(' | ');
-                    text += plain ? `${header}\n` : `\u001b[1;33m${header}\u001b[0m\n\n`;
+                    text += `${toAnsi(header, colors.points, true)}\n\n`;
                 }
             }
             for (const section in data) {
@@ -955,7 +1078,7 @@
                     const points = `${unit.points}`;
                     const topLevelItems = unit.items.filter(item => item.points === undefined);
                     const itemsString = getInlineItemsString(topLevelItems, useAbbreviations);
-                    text += plain ? `* ${unitName}${itemsString} [${points}]\n` : `\u001b[0;31m* ${unitName}\u001b[0m${itemsString} [\u001b[0;33m${points}\u001b[0m]\n`;
+                    text += `* ${toAnsi(unitName, colors.unit, true)}${itemsString} ${toAnsi(`[${points}]`, colors.points, true)}\n`;
                     
                     const subunitItems = unit.items.filter(item => item.points !== undefined);
                     subunitItems.forEach(item => {
@@ -965,7 +1088,9 @@
                             const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
                             const subunitName = item.name;
                             const subunitItemsString = getInlineItemsString(item.items, useAbbreviations);
-                            text += plain ? `  + ${itemQtyDisplay}${subunitName}${subunitItemsString}\n` : `  \u001b[1;36m+ ${itemQtyDisplay}${subunitName}\u001b[0m${subunitItemsString}\n`;
+                            const subunitText = `${itemQtyDisplay}${subunitName}`;
+                            const prefix = plain ? '*' : '+';
+                            text += `  ${prefix} ${toAnsi(subunitText, colors.subunit)}${subunitItemsString}\n`;
                         }
                     });
                 });
@@ -1014,7 +1139,7 @@
 
         document.getElementById('copyPlainDiscordButton').addEventListener('click', () => {
             if (parsedData) {
-                const textToCopy = generateDiscordText(parsedData, true, true);
+                const textToCopy = generateDiscordText(parsedData, true);
                 copyTextToClipboard(textToCopy.trim(), document.getElementById('copyPlainDiscordButton'));
             }
         });
