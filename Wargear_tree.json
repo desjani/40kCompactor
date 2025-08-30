@@ -13632,6 +13632,22 @@
             {
                 "item": "Twin Smart Missile System",
                 "abbr": "TSMS"
+            },
+            {
+                "item": "Supernova Launcher upgrade",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Thermoneutronic Projector upgrade",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Fusion Blades upgrade",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Plasma Accelerator Rifle upgrade",
+                "abbr": "NULL"
             }
         ],
         "AX-1-0 Tiger Shark": [
@@ -13664,6 +13680,10 @@
             {
                 "item": "Guardian Drone",
                 "abbr": "Guard"
+            },
+            {
+                "item": "Support turret",
+                "abbr": "NULL"
             }
         ],
         "Broadside Battlesuits": [
@@ -13682,6 +13702,10 @@
             {
                 "item": "High-Yield Missile Pods",
                 "abbr": "HYMP"
+            },
+            {
+                "item": "Twin plasma rifle",
+                "abbr": "TPR"
             }
         ],
         "Cadre Fireblade": [
@@ -13694,7 +13718,7 @@
                 "abbr": "NULL"
             }
         ],
-        "Comander in Enforcer Battlesuit": [
+        "Commander in Enforcer Battlesuit": [
             {
                 "item": "Cyclic Ion Blaster",
                 "abbr": "CIB"
@@ -13704,7 +13728,7 @@
                 "abbr": "AFP"
             },
             {
-                "item": "Battlesuit Fists",
+                "item": "Battlesuit fists",
                 "abbr": "NULL"
             }
         ],
@@ -13744,11 +13768,11 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Shield Drone, Crisis Fireknife Shas’ui (Shield Drone)",
+                "item": "Crisis Fireknife Shas’ui (Shield Drone)",
                 "abbr": "NULL"
             },
             {
-                "item": "Shield Drone, Crisis Fireknife Shas’vre (Shield Drone)",
+                "item": "Crisis Fireknife Shas’vre (Shield Drone)",
                 "abbr": "NULL"
             }
         ],
@@ -13756,11 +13780,27 @@
             {
                 "item": "Battlesuit Fists",
                 "abbr": "NULL"
+            },
+            {
+                "item": "Crisis Starscythe Shas’ui (Shield Drone)",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Crisis Starscythe Shas’vre (Shield Drone)",
+                "abbr": "NULL"
             }
         ],
         "Crisis Sunforge Battlesuits": [
             {
                 "item": "Battlesuit Fists",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Crisis Sunforge Shas’ui (Shield Drone)",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Crisis Sunforge Shas’vre (Shield Drone)",
                 "abbr": "NULL"
             }
         ],
@@ -13780,7 +13820,7 @@
                 "abbr": "TPC"
             },
             {
-                "item": "Armored Hull",
+                "item": "Armoured Hull",
                 "abbr": "NULL"
             }
         ],
@@ -13788,6 +13828,10 @@
             {
                 "item": "Honour Stave",
                 "abbr": "NULL"
+            },
+            {
+                "item": "Hover Drone",
+                "abbr": "Hover"
             }
         ],
         "Firesight Team": [
@@ -13834,6 +13878,10 @@
             {
                 "item": "Accelerator Burst Cannon",
                 "abbr": "ABC"
+            },
+            {
+                "item": "Armoured Hull",
+                "abbr": "NULL"
             },
             {
                 "item": "Ion Cannon",
@@ -13994,6 +14042,14 @@
             {
                 "item": "Bladestave and prey-Hook",
                 "abbr": "Hook"
+            },
+            {
+                "item": "Kroot Pistol",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Shaper's blade",
+                "abbr": "NULL"
             }
         ],
         "Krootox Riders": [
@@ -14088,9 +14144,9 @@
                 "abbr": "SAGL"
             }
         ],
-        "Pirahnas": [
+        "Piranha": [
             {
-                "item": "Pirahna Burst Cannon",
+                "item": "Piranha Burst Cannon",
                 "abbr": "PBC"
             },
             {
@@ -14098,11 +14154,11 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Armoured Hull",
+                "item": "Armoured hull",
                 "abbr": "NULL"
             },
             {
-                "item": "Pirahna Fusion Blaster",
+                "item": "Piranha Fusion Blaster",
                 "abbr": "PFB"
             }
         ],
@@ -14178,6 +14234,10 @@
                 "abbr": "SD"
             },
             {
+                "item": "Stealth Shas'ui",
+                "abbr": "NULL"
+            },
+            {
                 "item": "Battlesuit support system",
                 "abbr": "NULL"
             },
@@ -14192,7 +14252,7 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Destoyer Missiles",
+                "item": "Destroyer Missiles",
                 "abbr": "NULL"
             },
             {
@@ -14244,6 +14304,10 @@
             {
                 "item": "Guardian Drone",
                 "abbr": "Guard"
+            },
+            {
+                "item": "Support turret",
+                "abbr": "NULL"
             }
         ],
         "Sun Shark Bomber": [
@@ -14266,7 +14330,7 @@
                 "abbr": "FE"
             },
             {
-                "item": "Pulse Ordinance Driver",
+                "item": "Pulse Ordnance Driver",
                 "abbr": "POD"
             },
             {
@@ -14278,7 +14342,7 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Nexus Missile Launcer",
+                "item": "Nexus Missile Launcher",
                 "abbr": "NML"
             },
             {

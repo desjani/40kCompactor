@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warhammer 40k List Compactor</title>
-    <link rel="stylesheet" href="styles.css?v=0.0.7">
+    <link rel="stylesheet" href="styles.css?v=0.0.8">
     <style>
         .copy-popup {
             position: fixed;
@@ -146,8 +146,8 @@
                 <div class="changelog-entry">
                     <h4>Changelog</h4>
                     <div class="changelog-version-entry">
-                        <h5>Version 0.0.4: Colors and Indentations!</h5>
-                        <p>Added color customization for Discord outputs. Improved indentation and bullet points for plain text exports to render correctly in Discord.</p>
+                        <h5>Version 0.0.4: T'au Season!</h5>
+                        <p>Numerous parser fixes and abbreviation updates for T'au Empire lists. Improved wargear filtering to prevent redundant items from appearing in the compact list.</p>
                     </div>
                     <div class="changelog-version-entry">
                         <h5>Version 0.0.3: Fixes, Formatting, and more!</h5>
@@ -195,7 +195,7 @@
             parseButton.disabled = true;
             parseButton.textContent = 'Loading DB...';
 
-            fetch('./Wargear_tree.json?v=0.0.7')
+            fetch('./Wargear_tree.json?v=0.0.8')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
@@ -433,7 +433,8 @@
                 const quantity = parseInt(withMatch[1]);
                 const items = withMatch[2].split(',').map(s => s.trim());
                 items.forEach(itemName => {
-                    if (normalizeForComparison(itemName) === normalizeForComparison(unitContextName)) {
+                    if (normalizeForComparison(itemName) === normalizeForComparison(unitContextName) ||
+                        (target.name && normalizeForComparison(itemName) === normalizeForComparison(target.name))) {
                         return; // It's a redundant unit name, so ignore it.
                     }
                     const { quantity: innerQuantity, name } = parseItemString(itemName);
@@ -451,7 +452,8 @@
                 return;
             }
             const { quantity, name } = parseItemString(itemString);
-            if (normalizeForComparison(name) === normalizeForComparison(unitContextName)) {
+            if (normalizeForComparison(name) === normalizeForComparison(unitContextName) ||
+                (target.name && normalizeForComparison(name) === normalizeForComparison(target.name))) {
                 return; // It's a redundant unit name, so ignore it.
             }
             const nameshort = itemType === 'special' ? name : abbreviate(name, unitContextName, factionKeyword);
@@ -492,6 +494,17 @@
             const shortText = `E: ${abbreviation} ${enhancementPoints}`.trim();
             
             targetUnit.items.push({ quantity: '1x', name: `Enhancement: ${enhancementContent}`, nameshort: shortText, items: [], type: 'special' });
+
+            // After adding the enhancement, find and hide the corresponding "upgrade" wargear item
+            // that often appears in GW App list wargear strings.
+            const upgradeItemNameToFind = `${enhancementName} upgrade`;
+            const upgradeItem = targetUnit.items.find(item => 
+                item.type === 'wargear' && 
+                normalizeForComparison(item.name) === normalizeForComparison(upgradeItemNameToFind)
+            );
+            if (upgradeItem) {
+                upgradeItem.nameshort = 'NULL';
+            }
         };
 
         // --- Format Detector ---
