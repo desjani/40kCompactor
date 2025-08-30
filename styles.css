@@ -1,4 +1,4 @@
-        /* --- General Styles & Resets --- */
+/* --- General Styles & Resets --- */
         :root {
             --color-bg: #18181b; /* zinc-900 */
             --color-surface: #27272a; /* zinc-800 */
@@ -250,4 +250,25 @@
         }
         @media (min-width: 1024px) {
             .grid-container { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .copy-popup {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s, visibility 0.5s, bottom 0.5s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .copy-popup.show {
+            opacity: 1;
+            visibility: visible;
+            bottom: 50px;
         }
