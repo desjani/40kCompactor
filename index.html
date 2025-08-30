@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warhammer 40k List Compactor</title>
     <link rel="stylesheet" href="styles.css?v=0.0.7">
+    <style>
+        .copy-popup {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s, visibility 0.5s, bottom 0.5s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .copy-popup.show {
+            opacity: 1;
+            visibility: visible;
+            bottom: 50px;
+        }
+    </style>
 </head>
 <body>
 
@@ -39,7 +61,7 @@
                     <label for="unabbreviatedOutput" class="io-label">Extended List</label>
                     <div id="unabbreviatedOutput" class="io-box"></div>
                      <div class="column-footer" style="flex-direction: column; align-items: center;">
-                        <button id="copyExtendedButton" class="btn btn-copy">Copy Extended Version</button>
+                        <button id="copyExtendedButton" class="btn btn-copy">Extended Version</button>
                         <div id="extendedCharCount" class="char-count" style="margin-top: 0.5rem;"></div>
                     </div>
                 </div>
@@ -50,9 +72,9 @@
                     <div id="compactedOutput" class="io-box"></div>
                     <div class="column-footer" style="flex-direction: column; align-items: center;">
                         <div class="button-group">
-                             <button id="copyCompactButton" class="btn btn-discord">Copy for Discord (Fancy)</button>
-                         <button id="copyExtendedDiscordButton" class="btn btn-secondary" style="background-color: #4a56c4; border-color: #4a56c4;">Copy for Discord (Extended)</button>
-                         <button id="copyPlainDiscordButton" class="btn btn-secondary" style="background-color: #495057; border-color: #495057;">Copy for Discord (Plain)</button>
+                             <button id="copyCompactButton" class="btn btn-discord">Discord (Compact)</button>
+                         <button id="copyExtendedDiscordButton" class="btn btn-secondary" style="background-color: #4a56c4; border-color: #4a56c4;">Discord (Extended)</button>
+                         <button id="copyPlainDiscordButton" class="btn btn-secondary" style="background-color: #495057; border-color: #495057;">Plain Text</button>
                         </div>
                         <div id="compactCharCount" class="char-count" style="margin-top: 0.5rem;"></div>
                     </div>
@@ -157,6 +179,8 @@
         </div>
     </div>
 
+    <div id="copyPopup" class="copy-popup">Copied to Clipboard!</div>
+
     <script>
         // Store the parsed data globally within the script's scope
         let parsedData = null;
@@ -189,13 +213,18 @@
                     parseButton.textContent = 'Error: DB Load Failed';
                 });
             
-            document.querySelectorAll('input[name="colorMode"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    const customPickers = document.getElementById('customColorPickers');
-                    if (e.target.value === 'custom') {
-                        customPickers.style.display = 'block';
-                    } else {
-                        customPickers.style.display = 'none';
+            document.querySelectorAll('input[name="colorMode"], #unitColor, #subunitColor, #pointsColor').forEach(el => {
+                el.addEventListener('change', (e) => {
+                    // Show/hide dropdowns when radio button changes
+                    if (e.target.name === 'colorMode') {
+                        document.getElementById('customColorPickers').style.display = e.target.value === 'custom' ? 'block' : 'none';
+                    }
+                    
+                    // Re-render the compact view if data exists to provide a live preview
+                    if (parsedData) {
+                        const compactOutput = generateOutput(parsedData, true);
+                        document.getElementById('compactedOutput').innerHTML = compactOutput.html;
+                        compactPlainText = compactOutput.plainText; // Keep plain text in sync
                     }
                 });
             });
@@ -832,6 +861,27 @@
                 }
             });
 
+            // --- Pass 5: Calculate total quantities for complex units ---
+            for (const section in result) {
+                if (Array.isArray(result[section])) {
+                    result[section].forEach(unit => {
+                        if (unit.isComplex) {
+                            let totalQuantity = 0;
+                            unit.items.forEach(item => {
+                                // A subunit is an item that has a 'points' property. Wargear does not.
+                                if (item.points !== undefined) {
+                                    totalQuantity += parseInt(item.quantity.replace('x', ''), 10) || 0;
+                                }
+                            });
+
+                            if (totalQuantity > 0) {
+                                unit.quantity = `${totalQuantity}x`;
+                            }
+                        }
+                    });
+                }
+            }
+
             return result;
         }
 
@@ -881,6 +931,19 @@
             let html = '', plainText = '';
             const factionKeyword = data.SUMMARY?.FACTION_KEYWORD || '';
             const displayFaction = data.SUMMARY?.DISPLAY_FACTION || (factionKeyword.split(' - ').pop() || factionKeyword);
+
+            const colorMode = document.querySelector('input[name="colorMode"]:checked').value;
+            const useCustomColors = useAbbreviations && colorMode === 'custom';
+            
+            let colors = {};
+            if (useCustomColors) {
+                colors = {
+                    unit: document.getElementById('unitColor').value,
+                    subunit: document.getElementById('subunitColor').value,
+                    points: document.getElementById('pointsColor').value
+                };
+            }
+
             if (data.SUMMARY) {
                 const summaryParts = [];
                 if (displayFaction) summaryParts.push(displayFaction);
@@ -888,7 +951,8 @@
                 if (data.SUMMARY.TOTAL_ARMY_POINTS) summaryParts.push(`${data.SUMMARY.TOTAL_ARMY_POINTS}`);
                 if (summaryParts.length > 0) {
                     const summaryText = summaryParts.join(' | ');
-                    html += `<div style="padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-border);"><p style="font-size: 0.75rem; margin-bottom: 0.25rem; color: var(--color-text-secondary); font-weight: 600;">${summaryText}</p></div>`;
+                    const headerColorStyle = useCustomColors ? `color: ${colors.points};` : 'color: var(--color-text-secondary);';
+                    html += `<div style="padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-border);"><p style="font-size: 0.75rem; margin-bottom: 0.25rem; ${headerColorStyle} font-weight: 600;">${summaryText}</p></div>`;
                     plainText += summaryText + '\n-------------------------------------\n';
                 }
             }
@@ -898,17 +962,21 @@
                     data[section].forEach(unit => {
                         const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
                         let quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
-                        // For complex units with subunits, the total quantity is implied, so we don't show it on the main line.
-                        if (unit.isComplex) {
-                            quantityDisplay = '';
-                        }
 
-                        if (useAbbreviations) {
+                        if (useAbbreviations) { // Compact List Rendering
                             const topLevelItems = unit.items.filter(item => item.points === undefined);
                             const itemsString = getInlineItemsString(topLevelItems);
-                            const unitText = `${quantityDisplay}${unit.name}${itemsString} [${unit.points}]`;
-                            html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitText}</p>`;
-                            plainText += `* ${unitText}\n`;
+                            const unitNameText = `${quantityDisplay}${unit.name}`;
+                            const pointsText = `[${unit.points}]`;
+                            
+                            const unitNameHTML = useCustomColors ? `<span style="color: ${colors.unit};">${unitNameText}</span>` : unitNameText;
+                            const pointsHTML = useCustomColors ? `<span style="color: ${colors.points};">${pointsText}</span>` : pointsText;
+                            
+                            const unitTextForPlain = `${unitNameText}${itemsString} ${pointsText}`;
+                            const unitHTML = `${unitNameHTML}${itemsString} ${pointsHTML}`;
+
+                            html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitHTML}</p>`;
+                            plainText += `* ${unitTextForPlain}\n`;
 
                             const subunitItems = unit.items.filter(item => item.points !== undefined);
                             if (subunitItems.length > 0) {
@@ -919,17 +987,21 @@
                                         const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                                         const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
                                         const subunitItemsString = getInlineItemsString(item.items);
-                                        const itemText = `${itemQtyDisplay}${item.name}${subunitItemsString}`;
-                                        html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemText}</p>`;
-                                        plainText += `  + ${itemText}\n`;
+                                        
+                                        const subunitNameText = `${itemQtyDisplay}${item.name}`;
+                                        const subunitNameHTML = useCustomColors ? `<span style="color: ${colors.subunit};">${subunitNameText}</span>` : subunitNameText;
+                                        const itemHTML = `${subunitNameHTML}${subunitItemsString}`;
+                                        const itemTextForPlain = `${subunitNameText}${subunitItemsString}`;
+
+                                        html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemHTML}</p>`;
+                                        plainText += `  + ${itemTextForPlain}\n`;
                                     }
                                 });
                                 html += `</div>`;
                             }
                             html += `</div>`;
-                        } else {
-                            // Extended List (original logic)
-                            const unitText = `${quantityDisplay}${unit.name} ${unit.points}`;
+                        } else { // Extended List Rendering
+                            const unitText = `${quantityDisplay}${unit.name} [${unit.points}]`;
                             html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitText}</p>`;
                             plainText += `* ${unitText}\n`;
                             if (unit.items && unit.items.length > 0) {
@@ -1099,7 +1171,7 @@
             return text;
         }
 
-        async function copyTextToClipboard(text, button) {
+        async function copyTextToClipboard(text) {
             if (!text) return;
             if (!navigator.clipboard) {
                 console.error('Clipboard API not available');
@@ -1107,40 +1179,36 @@
             }
             try {
                 await navigator.clipboard.writeText(text);
-                const originalText = button.textContent;
-                button.textContent = 'Copied!';
-                button.classList.add('btn-copied');
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.classList.remove('btn-copied');
-                }, 2000);
+                const popup = document.getElementById('copyPopup');
+                popup.classList.add('show');
+                setTimeout(() => { popup.classList.remove('show'); }, 2000);
             } catch (err) {
                 console.error('Failed to copy text: ', err);
             }
         }
 
         document.getElementById('copyExtendedButton').addEventListener('click', () => {
-             copyTextToClipboard(extendedPlainText.trim(), document.getElementById('copyExtendedButton'));
+             copyTextToClipboard(extendedPlainText.trim());
         });
 
         document.getElementById('copyCompactButton').addEventListener('click', () => {
             if (parsedData) {
                 const textToCopy = generateDiscordText(parsedData, false, true);
-                copyTextToClipboard(textToCopy, document.getElementById('copyCompactButton'));
+                copyTextToClipboard(textToCopy);
             }
         });
 
         document.getElementById('copyExtendedDiscordButton').addEventListener('click', () => {
             if (parsedData) {
                 const textToCopy = generateDiscordText(parsedData, false, false);
-                copyTextToClipboard(textToCopy, document.getElementById('copyExtendedDiscordButton'));
+                copyTextToClipboard(textToCopy);
             }
         });
 
         document.getElementById('copyPlainDiscordButton').addEventListener('click', () => {
             if (parsedData) {
                 const textToCopy = generateDiscordText(parsedData, true);
-                copyTextToClipboard(textToCopy.trim(), document.getElementById('copyPlainDiscordButton'));
+                copyTextToClipboard(textToCopy.trim());
             }
         });
     </script>
