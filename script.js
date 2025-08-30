@@ -46,10 +46,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 })
 
-    <script src="script.js"></script>
-
-</body>
-</html>
+function normalizeForComparison(name) {
+    if (!name) return '';
+    // Decomposes accented chars (e.g., 'â' -> 'a' + '^') and removes the diacritics.
+    // Also handles lowercase, trim, and common character variations.
+    return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/’/g, "'")
+        .trim();
+}
 
 function flexibleItemMatch(rule, itemName) {
     const ruleItemNormalized = normalizeForComparison(rule.item);
@@ -96,7 +101,7 @@ function abbreviate(itemName, unitName, fullFactionKeyword) {
         (fullFactionKeyword && fullFactionKeyword.includes("Chaos"))
     );
 
-    if (isChaosFaction) {
+    if (isChaosFaction) {                 
         searchOrder.push("Chaos Space Marines", "Chaos Knights", "Chaos Daemons");
     }
      
@@ -280,7 +285,7 @@ function addItemToTarget(target, itemString, unitContextName, factionKeyword, it
 
 function parseAndAddEnhancement(enhancementContent, targetUnit, factionKeyword) {
     if (!targetUnit) return;
-    const pointsRegex = /\s*\((.*?)\)$/;
+    const pointsRegex = /\s*\((.*?)\)$/; 
     const pointsMatch = enhancementContent.match(pointsRegex);
     
     let enhancementName = enhancementContent;
@@ -325,7 +330,7 @@ function detectFormat(lines) {
         return 'WTC_COMPACT';
     }
     // GW App check is broader. Check for common section headers like CHARACTERS or BATTLELINE.
-    if (lines.slice(0, 25).some(line => /^\s*(CHARACTERS|BATTLELINE|OTHER DATASHEETS|ALLIED UNITS)$/.test(line.toUpperCase()))) {
+    if (lines.slice(0, 25).some(line => /^\s*(CHARACTERS|BATTLELINE|OTHER DATASHEETS|ALLIED UNITS)\s*$/.test(line.toUpperCase()))) {
         return 'GW_APP';
     }
     return 'UNKNOWN';
@@ -347,7 +352,7 @@ function parseGwApp(lines) {
     // --- Header Parsing ---
     result.SUMMARY = {};
     const firstLine = lines[0];
-    const pointsMatch = firstLine.match(/(\d+)\s*points\)/);
+    const pointsMatch = firstLine.match(/\((\d+)\s*points\)/);
     if (pointsMatch) {
         result.SUMMARY.TOTAL_ARMY_POINTS = `${pointsMatch[1]}pts`;
     }
@@ -367,7 +372,7 @@ function parseGwApp(lines) {
         }
     }
     if (!result.SUMMARY.TOTAL_ARMY_POINTS && detachmentIndex !== -1) {
-        const gameSizeMatch = lines[detachmentIndex].match(/(\d+)\s*points\)/);
+        const gameSizeMatch = lines[detachmentIndex].match(/\((\d+)\s*points\)/);
         if (gameSizeMatch) {
             result.SUMMARY.TOTAL_ARMY_POINTS = `${gameSizeMatch[1]}pts`;
         }
@@ -498,7 +503,7 @@ function parseWtcCompact(lines) {
     const summaryEnhancementRegex = /^&\s*(.*)/;
     const separatorRegex = /^\s*\+{3}\s*$/;
     const sectionHeaderRegex = /^(CHARACTER|OTHER DATASHEETS)$/;
-    const unitRegex = /^(?:(?<charid>Char\d+):\s*)?(?<unitinfo>.*?)\s+\(?<points>\d+)\s*pts?\)(?<wargearblock>:\s*(?<wargear>.*))?$/;
+    const unitRegex = /^(?:(?<charid>Char\d+):\s*)?(?<unitinfo>.*?)\s+\(?<points>\d+)\s*pts?\)(?<wargearblock>: \s*(?<wargear>.*))?$/;
     const bulletRegex = /^\s*•\s*(.*)/;
     const enhancementLineRegex = /^Enhancement:\s*(.*)/;
 
@@ -556,7 +561,7 @@ function parseWtcCompact(lines) {
         const summaryEnhancementMatch = line.match(summaryEnhancementRegex);
         if (summaryEnhancementMatch) {
             const value = summaryEnhancementMatch[1].trim();
-            const enhMatch = value.match(/(?:Enhancement:\s*)?(.*)\s+(?:on\s+(?:(Char\d+):\s*)?(.*))/);
+            const enhMatch = value.match(/(?:Enhancement:\s*)?(.*)\s+\(on\s+(?:(Char\d+):\s*)?(.*)\)/);
             if (enhMatch) {
                 const enhName = enhMatch[1].trim();
                 const targetName = enhMatch[3].trim();
@@ -566,7 +571,7 @@ function parseWtcCompact(lines) {
     }
 
     // --- Pass 3: Parse Body ---
-    const contextStack = []; // Stack of { indent: number, node: object }
+    const contextStack = []; // Stack of { indent: number, node: object } 
     let lastUnitProcessed = null;
 
     for (let i = 0; i < bodyLines.length; i++) {
@@ -651,22 +656,18 @@ function parseWtcCompact(lines) {
                 // A line is a subunit if it starts with a quantity AND (it has wargear on the same line OR it's followed by an indent)
                 if (subUnitMatch && (wargearInfo || nextLineIsMoreIndented)) {
                     const { quantity, name } = parseItemString(subUnitInfo);
-                    const newSubUnit = {
-                        quantity, 
-                        name, 
-                        points: 0, 
-                        items: []
-                    };
+                    const newSubUnit = { quantity, name, points: 0, items: [] };
                     parentContext.node.items.push(newSubUnit);
 
                     if (wargearInfo) { // Single-line subunit (e.g. Intercessors)
-                        wargearInfo.split(/(?=\d+\s+with)|,/)).forEach(part => {
+                        wargearInfo.split(/(?=\d+\s+with)|,/).forEach(part => {
                             addItemToTarget(newSubUnit, part.trim(), topLevelUnitName, factionKeyword);
                         });
                     } else { // Multi-line subunit (e.g. Jakhals), its wargear is on subsequent lines
                         contextStack.push({ indent, node: newSubUnit, isBullet: trimmedLine.startsWith('•') });
                     }
-                } else { // It's a bulleted line, but not a subunit header. Treat as wargear for the current context.
+                } else { 
+                    // It's a bulleted line, but not a subunit header. Treat as wargear for the current context.
                     addItemToTarget(parentContext.node, content, topLevelUnitName, factionKeyword);
                 }
                 continue; // The bulleted line is processed.
@@ -871,8 +872,7 @@ function generateOutput(data, useAbbreviations) {
     }
     html += `</div>`;
     return { html, plainText };
-}
-    
+}    
 function updateCharCounts() {
     const originalSize = document.getElementById('inputText').value.length;
     const extendedSize = extendedPlainText.trim().length;
