@@ -268,6 +268,10 @@
             {
                 "item": "Power Weapon",
                 "abbr": "PW"
+            },
+            {
+                "item": "Simulacrum Imperialis",
+                "abbr": "SI"
             }
         ],
         "Exorcist": [
@@ -288,7 +292,7 @@
                 "abbr": "HK"
             },
             {
-                "item": "Excorcist Conflagration Rockets",
+                "item": "Exorcist Conflagration Rockets",
                 "abbr": "ECR"
             }
         ],
@@ -338,7 +342,7 @@
         ],
         "Ministorum Priest": [
             {
-                "item": "Zealot's Vindicator",
+                "item": "Zealot's Vindictor",
                 "abbr": "ZV"
             },
             {
@@ -361,6 +365,14 @@
             },
             {
                 "item": "Mortifier Flamer",
+                "abbr": "MF"
+            },
+            {
+                "item": "Mortifier Heavy Flamer",
+                "abbr": "MHF"
+            },
+            {
+                "item": "Mortimer Flamer",
                 "abbr": "MF"
             },
             {
@@ -426,7 +438,7 @@
                 "abbr": "PWM"
             },
             {
-                "item": "Ministorun Heavy Flamer",
+                "item": "Ministorum Heavy Flamer",
                 "abbr": "MHF"
             },
             {
@@ -564,7 +576,7 @@
                 "abbr": "SI"
             },
             {
-                "item": "Salvationist Medkit",
+                "item": "Salvationist Medikit",
                 "abbr": "SMK"
             }
         ],
@@ -592,6 +604,10 @@
             {
                 "item": "Plasma Pistol",
                 "abbr": "PP"
+            },
+            {
+                "item": "Seraphim",
+                "abbr": "NULL"
             },
             {
                 "item": "Power Weapon",
@@ -640,6 +656,14 @@
                 "abbr": "MF"
             },
             {
+                "item": "Sister Novitiate",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Novitiate autogun",
+                "abbr": "NAG"
+            },
+            {
                 "item": "Novitiate Melee Weapons",
                 "abbr": "NMW"
             }
@@ -658,7 +682,7 @@
                 "abbr": "HK"
             }
         ],
-        "Triumph of Saint Catherine": [
+        "Triumph of Saint Katherine": [
             {
                 "item": "*",
                 "abbr": "NULL"
@@ -878,7 +902,7 @@
                 "abbr": "EG"
             },
             {
-                "item": "Master-Crafted Boltgun",
+                "item": "Master-Crafted Boltgun and CCW",
                 "abbr": "MCB"
             },
             {
@@ -886,7 +910,7 @@
                 "abbr": "CCW"
             },
             {
-                "item": "Witchseeker Flamer",
+                "item": "Witchseeker Flamer and CCW",
                 "abbr": "WF"
             }
         ],
@@ -924,6 +948,14 @@
                 "abbr": "CA"
             },
             {
+                "item": "Sentinel Blade & Praesidium Shield",
+                "abbr": "Blade&PS"
+            },
+            {
+                "item": "Pyrithite Spear & Praesidium Shield",
+                "abbr": "Spear&PS"
+            },
+            {
                 "item": "Sentinel Blade",
                 "abbr": "SB"
             },
@@ -950,7 +982,7 @@
                 "abbr": "GS"
             }
         ],
-        "Shield-captain\u00a0On Dawneagle Jetbike": [
+        "Shield-captain on Dawneagle Jetbike": [
             {
                 "item": "Vertus hurricane bolter",
                 "abbr": "VHB"
@@ -1012,7 +1044,7 @@
                 "abbr": "KD"
             },
             {
-                "item": "Tarsus Buckler",
+                "item": "Tarsis Buckler",
                 "abbr": "TB"
             }
         ],
@@ -1108,7 +1140,7 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Heavy Phospor Blaster",
+                "item": "Heavy phosphor blaster",
                 "abbr": "NULL"
             },
             {
@@ -1170,7 +1202,7 @@
                 "abbr": "NULL"
             }
         ],
-        "Ironstrider Balistarii": [
+        "Ironstrider Ballistarii": [
             {
                 "item": "Twin Cognis Autocannon",
                 "abbr": "TCA"
@@ -1194,7 +1226,7 @@
                 "abbr": "TKF"
             },
             {
-                "item": "Heavy Phospor Blaster",
+                "item": "Heavy phosphor blaster",
                 "abbr": "HPB"
             },
             {
@@ -1310,7 +1342,7 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Cavalry Sabre and Clawed Limbs",
+                "item": "Cavalry sabre & clawed limbs",
                 "abbr": "NULL"
             },
             {
@@ -1398,11 +1430,11 @@
         ],
         "Sicarian Ruststalkers": [
             {
-                "item": "Transonic Razor and Chordclaw",
+                "item": "Transonic Razor & Chordclaw",
                 "abbr": "TRCC"
             },
             {
-                "item": "Transonic Blades and Chordclaw",
+                "item": "Transonic Blades & Chordclaw",
                 "abbr": "TBCC"
             },
             {
@@ -1442,6 +1474,10 @@
                 "abbr": "TUA"
             },
             {
+                "item": "Enhanced data-tether",
+                "abbr": "EDT"
+            },
+            {
                 "item": "Alpha Combat Weapon",
                 "abbr": "ACW"
             }
@@ -1470,6 +1506,10 @@
             {
                 "item": "Transuranic Arquebus",
                 "abbr": "TUA"
+            },
+            {
+                "item": "Enhanced data-tether",
+                "abbr": "EDT"
             },
             {
                 "item": "Alpha Combat Weapon",
@@ -1570,7 +1610,7 @@
                 "abbr": "NULL"
             }
         ],
-        "Technoarchaeologist": [
+        "Technoarcheologist": [
             {
                 "item": "*",
                 "abbr": "NULL"
@@ -1604,6 +1644,10 @@
             {
                 "item": "reaver volcano cannon",
                 "abbr": "RVC"
+            },
+            {
+                "item": "reaver Power Fist",
+                "abbr": "RPF"
             },
             {
                 "item": "reaver feet",
@@ -9171,7 +9215,7 @@
             }
         ]
     },
-    "Imperial Agents": {
+    "Agents of the Imperium": {
         "Callidus Assassin": [
             {
                 "item": "*",
@@ -9312,7 +9356,7 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Nuncio Aquila",
+                "item": "Nuncio-Aquila",
                 "abbr": "NULL"
             },
             {
@@ -9746,7 +9790,7 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Nuncio Aquila",
+                "item": "Nuncio-Aquila",
                 "abbr": "NULL"
             },
             {
@@ -9772,7 +9816,7 @@
                 "abbr": "NULL"
             }
         ],
-        "Voidsmen-at-arms": [
+        "Voidsmen-at-Arms": [
             {
                 "item": "*",
                 "abbr": "NULL"

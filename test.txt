@@ -1,0 +1,200 @@
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Imperium - Agents of the Imperium
++ DETACHMENT: Imperialis Fleet
++ TOTAL ARMY POINTS: 4310pts
++
++ WARLORD: Char4: Inquisitor Coteaz
++ ENHANCEMENT: 
++ NUMBER OF UNITS: 44
++ SECONDARY: - Bring It Down: (9x2) - Assassination: 15 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Char1: 1x Callidus Assassin (100 pts): Neural shredder, Phase sword and poison blades
+Char2: 1x Culexus Assassin (85 pts): Animus speculum, Life-draining touch
+Char3: 1x Eversor Assassin (110 pts): Executioner pistol, Power sword and neuro gauntlet
+Char4: 1x Inquisitor Coteaz (75 pts): Glovodan Psyber-eagle, Warlord, Bolt pistol, Nemesis daemon hammer, Psychic Blast
+Char5: 1x Inquisitor Draxus (75 pts): Dirgesinger, Power fist, Psychic Tempest
+Char6: 1x Inquisitor Greyfax (65 pts): Castigation, Condemnor stake, Master-crafted power sword
+Char7: 1x Vindicare Assassin (110 pts): Exitus pistol, Exitus rifle, Vindicare combat knife
+Char8: 1x Watch Captain Artemis (65 pts): Hellfire Extremis, Master-crafted power weapon
+Char9: 1x Inquisitor (55 pts): Force weapon, Combi-weapon, Psychic gifts
+Char10: 1x Inquisitor (55 pts): Blessed wardings, Inquisitorial melee weapon, Bolt pistol
+Char11: 1x Ministorum Priest (40 pts): Holy Pistol, Power weapon
+Char12: 1x Ministorum Priest (40 pts): Zealot's vindictor
+Char13: 1x Navigator (60 pts): Force-orb cane, Laspistol
+Char14: 4x Rogue Trader Entourage (75 pts)
+• 1x Rogue Trader: Household pistol, Monomolecular cane-rapier
+• 1x Death Cult Assassin: Dartmask, Death Cult power blade
+• 1x Lectro-maester: Close combat weapon, Voltaic pistol
+• 1x Rejuvenant Adept: Healing Serum, Close combat weapon, Laspistol
+Char15: 1x Watch Master (105 pts): Vigil spear
+
+10x Deathwatch Kill Team (200 pts)
+• 9x Veteran
+    1 with Astartes shield, Boltgun
+    1 with Astartes shield, Power weapon
+    1 with Black Shield blades
+    1 with Boltgun, Power weapon
+    1 with Close combat weapon, Deathwatch shotgun
+    1 with Deathwatch thunder hammer
+    1 with Close combat weapon, Frag cannon
+    1 with Close combat weapon, Infernus heavy bolter
+    1 with Close combat weapon, Stalker-pattern boltgun
+• 1x Watch Sergeant: Boltgun, Power weapon
+12x Imperial Navy Breachers (90 pts)
+• 11x Navis Armsman
+    6 with Close combat weapon, Navis shotgun
+    1 with Close combat weapon, Navis shotgun, Demolition charge
+    1 with Close combat weapon, Meltagun
+    1 with Autopistol, Chainfist, Close combat weapon
+    1 with Autopistol, Close combat weapon, Power weapon
+    1 with Endurant shield, Close combat weapon, Navis heavy shotgun
+• 1x Navis Sergeant-at-Arms: Close combat weapon, Autopistol, Chainsword
+12x Imperial Navy Breachers (90 pts)
+• 11x Navis Armsman
+    6 with Close combat weapon, Navis shotgun
+    1 with Close combat weapon, Navis shotgun, Demolition charge
+    1 with Close combat weapon, Plasma gun
+    1 with Autopistol, Chainfist, Close combat weapon
+    1 with Autopistol, Close combat weapon, Power weapon
+    1 with Endurant shield, Close combat weapon, Navis heavy shotgun
+• 1x Navis Sergeant-at-Arms: Close combat weapon, Navis shotgun
+12x Imperial Navy Breachers (90 pts)
+• 11x Navis Armsman
+    6 with Close combat weapon, Navis shotgun
+    1 with Close combat weapon, Navis shotgun, Demolition charge
+    1 with Close combat weapon, Navis las-volley
+    1 with Autopistol, Chainfist, Close combat weapon
+    1 with Autopistol, Close combat weapon, Power weapon
+    1 with Endurant shield, Close combat weapon, Navis heavy shotgun
+• 1x Navis Sergeant-at-Arms: Close combat weapon, Bolt pistol, Power weapon
+15x Vigilant Squad (85 pts)
+• 13x Vigilant
+    9 with Arbites combat shotgun, Arbites shotpistol, Close combat weapon
+    1 with Arbites shotpistol, Close combat weapon, Executioner shotgun
+    1 with Arbites grenade launcher, Arbites shotpistol, Close combat weapon
+    1 with Arbites shotpistol, Close combat weapon, Heavy stubber
+    1 with Arbites shotpistol, Close combat weapon, Webber
+• 1x Proctor-Vigilant: Nuncio-aquila, Arbites combat shotgun, Arbites shotpistol, Close combat weapon
+• 1x Cyber-mastiff: Mechanical bite
+
+13x Exaction Squad (90 pts)
+• 11x Exaction Vigilant
+    1 with Arbites combat shotgun, Arbites shotpistol, Close combat weapon, Excruciator maul
+    1 with Arbites medi-kit, Arbites combat shotgun, Arbites shotpistol, Close combat weapon
+    4 with Arbites combat shotgun, Arbites shotpistol, Close combat weapon
+    1 with Soulguilt scanner, Arbites combat shotgun, Arbites shotpistol, Close combat weapon
+    1 with Arbites shotpistol, Close combat weapon, Executioner shotgun
+    1 with Arbites grenade launcher, Arbites shotpistol, Close combat weapon
+    1 with Arbites shotpistol, Close combat weapon, Heavy stubber
+    1 with Arbites shotpistol, Close combat weapon, Webber
+• 1x Proctor-Exactant: Nuncio-aquila, Arbites combat shotgun, Arbites shotpistol, Close combat weapon
+• 1x Cyber-mastiff: Mechanical bite
+7x Grey Knights Terminator Squad (190 pts)
+• 6x Terminator
+    1 with Ancient's Banner, Nemesis force weapon, Storm bolter
+    3 with Nemesis force weapon, Storm bolter
+    1 with Nemesis force weapon, Psycannon
+    1 with Narthecium, Nemesis force weapon
+• 1x Terminator Justicar: Nemesis force weapon, Storm bolter
+7x Grey Knights Terminator Squad (190 pts)
+• 6x Terminator
+    1 with Ancient's Banner, Nemesis force weapon, Storm bolter
+    3 with Nemesis force weapon, Storm bolter
+    1 with Nemesis force weapon, Incinerator
+    1 with Narthecium, Nemesis force weapon
+• 1x Terminator Justicar: Nemesis force weapon, Storm bolter
+7x Grey Knights Terminator Squad (190 pts)
+• 6x Terminator
+    1 with Ancient's Banner, Nemesis force weapon, Storm bolter
+    3 with Nemesis force weapon, Storm bolter
+    1 with Nemesis force weapon, Psilencer
+    1 with Narthecium, Nemesis force weapon
+• 1x Terminator Justicar: Nemesis force weapon, Storm bolter
+11x Inquisitorial Agents (100 pts): Tome-skull
+• 8x Agent
+    5 with Agent firearm, Agent melee weapon
+    1 with Agent firearm, Agent melee weapon, Eviscerator
+    1 with Agent firearm, Agent melee weapon, Mystic stave
+    1 with Agent firearm, Agent melee weapon, Plasma pistol
+• 3x Servitor
+    1 with Agent melee weapon, Heavy bolter
+    1 with Agent melee weapon, Multi-melta
+    1 with Agent melee weapon, Plasma cannon
+9x Sanctifiers (100 pts)
+• 2x Missionary
+    1 with Holy fire, Sanctifier melee weapon, Meltagun
+    1 with Ministorum flamer, Sanctifier melee weapon
+• 4x Sanctifier: 4 with Ministorum hand flamer, Sanctifier melee weapon
+• 1x Miraculist: Burning hands, Holy fire
+• 1x Death Cult Assassin: Death Cult blades
+• 1x Salvationist: Salvationist Medikit, Close combat weapon
+9x Sanctifiers (100 pts)
+• 2x Missionary
+    1 with Holy fire, Sanctifier melee weapon, Plasma gun
+    1 with Ministorum flamer, Sanctifier melee weapon
+• 4x Sanctifier: 4 with Ministorum hand flamer, Sanctifier melee weapon
+• 1x Miraculist: Burning hands, Holy fire
+• 1x Death Cult Assassin: Death Cult blades
+• 1x Salvationist: Salvationist Medikit, Close combat weapon
+13x Sisters of Battle Squad (100 pts)
+• 12x Battle Sister
+    9 with Bolt pistol, Boltgun, Close combat weapon
+    1 with Simulacrum Imperialis, Bolt pistol, Boltgun, Close combat weapon
+    1 with Bolt pistol, Close combat weapon, Artificer-crafted storm bolter
+    1 with Bolt pistol, Close combat weapon, Ministorum flamer
+• 1x Sister Superior: Bolt pistol, Close combat weapon, Power weapon, Plasma pistol
+13x Sisters of Battle Squad (100 pts)
+• 12x Battle Sister
+    9 with Bolt pistol, Boltgun, Close combat weapon
+    1 with Simulacrum Imperialis, Bolt pistol, Boltgun, Close combat weapon
+    1 with Bolt pistol, Close combat weapon, Artificer-crafted storm bolter
+    1 with Bolt pistol, Close combat weapon, Artificer-crafted storm bolter
+• 1x Sister Superior: Bolt pistol, Close combat weapon, Chainsword, Bolt pistol
+13x Sisters of Battle Squad (100 pts)
+• 12x Battle Sister
+    9 with Bolt pistol, Boltgun, Close combat weapon
+    1 with Simulacrum Imperialis, Bolt pistol, Boltgun, Close combat weapon
+    1 with Bolt pistol, Close combat weapon, Artificer-crafted storm bolter
+    1 with Bolt pistol, Close combat weapon, Meltagun
+• 1x Sister Superior: Bolt pistol, Close combat weapon, Power weapon, Boltgun
+13x Sisters of Battle Squad (100 pts)
+• 12x Battle Sister
+    9 with Bolt pistol, Boltgun, Close combat weapon
+    1 with Simulacrum Imperialis, Bolt pistol, Boltgun, Close combat weapon
+    1 with Bolt pistol, Close combat weapon, Artificer-crafted storm bolter
+    1 with Bolt pistol, Close combat weapon, Ministorum flamer
+• 1x Sister Superior: Bolt pistol, Close combat weapon, Power weapon, Combi-weapon
+13x Sisters of Battle Squad (100 pts)
+• 12x Battle Sister
+    9 with Bolt pistol, Boltgun, Close combat weapon
+    1 with Simulacrum Imperialis, Bolt pistol, Boltgun, Close combat weapon
+    1 with Bolt pistol, Close combat weapon, Artificer-crafted storm bolter
+    1 with Bolt pistol, Close combat weapon, Ministorum flamer
+• 1x Sister Superior: Bolt pistol, Close combat weapon, Power weapon, Condemnor boltgun
+13x Sisters of Battle Squad (100 pts)
+• 12x Battle Sister
+    9 with Bolt pistol, Boltgun, Close combat weapon
+    1 with Simulacrum Imperialis, Bolt pistol, Boltgun, Close combat weapon
+    1 with Bolt pistol, Close combat weapon, Artificer-crafted storm bolter
+    1 with Bolt pistol, Close combat weapon, Ministorum flamer
+• 1x Sister Superior: Bolt pistol, Close combat weapon, Power weapon, Ministorum hand flamer
+11x Subductor Squad (85 pts)
+• 1x Proctor Subductor: Nuncio-aquila, Arbites shotpistol, Shock maul
+• 9x Subductor: 9 with Arbites shotpistol, Shock maul
+• 1x Cyber-mastiff: Mechanical bite
+6x Voidsmen-at-Arms (50 pts)
+• 4x Voidsman
+    3 with Close combat weapon, Lasgun, Laspistol
+    1 with Close combat weapon, Laspistol, Voidsman rotor cannon
+• 1x Voidmaster: Artificer shotgun, Close combat weapon, Laspistol
+• 1x Canid: Vicious bite
+1x Corvus Blackstar (180 pts): Infernum halo-launcher, Armoured hull, Hurricane bolter, Twin lascannon, 2x Stormstrike missile launcher
+1x Corvus Blackstar (180 pts): Infernum halo-launcher, Armoured hull, Hurricane bolter, Twin assault cannon, 2x Blackstar rocket launcher
+1x Imperial Rhino (75 pts): Armoured tracks, Hunter-killer missile, Storm bolter
+1x Inquisitorial Chimera (70 pts): Armoured tracks, Hunter-killer missile, Lasgun array, Heavy flamer, Storm bolter, Multi-laser
+1x Inquisitorial Chimera (70 pts): Armoured tracks, Hunter-killer missile, Lasgun array, Heavy bolter, Heavy stubber, Heavy bolter
+1x Inquisitorial Chimera (70 pts): Armoured tracks, Hunter-killer missile, Lasgun array, Heavy flamer, Storm bolter, Heavy flamer
+1x Sisters of Battle Immolator (100 pts): Armoured tracks, Heavy bolter, Hunter-killer missile, Twin multi-melta
+1x Sisters of Battle Immolator (100 pts): Armoured tracks, Heavy bolter, Hunter-killer missile, Immolation flamers
+1x Sisters of Battle Immolator (100 pts): Armoured tracks, Heavy bolter, Hunter-killer missile, Twin heavy bolter
