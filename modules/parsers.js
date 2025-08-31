@@ -232,10 +232,11 @@ export function parseGwApp(lines) {
                 const subUnitRegex = /^(\d+x?\s+)(.*)/;
                 const subUnitMatch = itemContent.match(subUnitRegex);
                 const nextLine = (i + 1 < lines.length) ? lines[i + 1] : '';
-                const nextLineIsMoreIndented = nextLine.trim() !== '' && getIndent(nextLine) > getIndent(line);                
+                const nextLineIsMoreIndented = nextLine.trim() !== '' && getIndent(nextLine) > getIndent(line);
+                const nextLineIsBulleted = bulletItemRegex.test(nextLine);
 
-                // A bulleted line with a quantity is a subunit if it's followed by a more indented line (its wargear).
-                if (subUnitMatch && nextLineIsMoreIndented) {
+                // A bulleted line is a subunit if it's followed by a more indented, bulleted line (its wargear).
+                if (subUnitMatch && nextLineIsMoreIndented && nextLineIsBulleted) {
                     const newSubUnit = {
                         quantity: subUnitMatch[1].trim(),
                         name: subUnitMatch[2].trim(),
