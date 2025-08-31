@@ -1,5 +1,5 @@
 
-import { normalizeForComparison, flexibleItemMatch } from './utils.js';
+import { normalizeForComparison, flexibleItemMatch, flexibleNameMatch } from './utils.js';
 
 let factionAbbreviationDBs = {};
 
@@ -87,7 +87,7 @@ export function abbreviate(itemName, unitName, fullFactionKeyword) {
            if (!dbFactionKey) continue;
            const rules = factionAbbreviationDBs[dbFactionKey];
 
-           const unitRulesKey = Object.keys(rules).find(key => normalizeForComparison(key) === normalizeForComparison(unitName));
+           const unitRulesKey = Object.keys(rules).find(key => flexibleNameMatch(key, unitName));
            if (unitRulesKey) {
                bestUnitRules = rules[unitRulesKey];
                break; // Found the first, most specific unit entry. Stop searching for the unit.

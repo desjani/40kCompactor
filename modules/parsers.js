@@ -112,55 +112,85 @@ export function parseGwApp(lines) {
 
     // --- Header Parsing ---
     result.SUMMARY = {};
-    const firstLine = lines[0];
-    const pointsMatch = firstLine.match(/\((\d+)\s*points\)/);
-    if (pointsMatch) {
-        result.SUMMARY.TOTAL_ARMY_POINTS = `${pointsMatch[1]}pts`;
-    }
-    const detachmentIndex = lines.findIndex(line => /(Combat Patrol|Incursion|Strike Force|Onslaught)/.test(line));
-    if (detachmentIndex !== -1 && detachmentIndex + 1 < lines.length) {
-        const nextLine = lines[detachmentIndex + 1].trim();
-        if (nextLine && !/^(CHARACTERS|BATTLELINE|OTHER DATASHEETS|ALLIED UNITS)$/.test(nextLine.toUpperCase())) {
-            result.SUMMARY.DETACHMENT = nextLine;
+    const sectionHeaderRegex = /^(CHARACTERS|CHARACTER|BATTLELINE|OTHER DATASHEETS|ALLIED UNITS|DEDICATED TRANSPORTS)$/;
+    const firstSectionIndex = lines.findIndex(line => sectionHeaderRegex.test(line.trim().toUpperCase()));
+
+    // 1. Isolate and clean header lines
+    const headerLinesRaw = firstSectionIndex === -1 ? lines : lines.slice(0, firstSectionIndex);
+    let headerLines = headerLinesRaw.map(l => l.trim()).filter(l => l && !l.startsWith('Exported with'));
+
+    // 2. Find and extract points from any line, then remove the points part
+    let listTitleWithPoints = '';
+    headerLines = headerLines.map(line => {
+        const pointsMatch = line.match(/\(([\d,.\s]+)\s*(?:pts|points)\)/i);
+        if (pointsMatch) {
+            const pointsValue = pointsMatch[1].replace(/[,\s.]/g, '');
+            result.SUMMARY.TOTAL_ARMY_POINTS = `${pointsValue}pts`;
+            const cleanedLine = line.replace(/\s*\([\d,.\s]+\s*(?:pts|points)\)/i, '').trim();
+            
+            // If this line isn't a game size, it's our best candidate for a list title.
+            if (!/^(Combat Patrol|Incursion|Strike Force|Onslaught)$/i.test(cleanedLine)) {
+                listTitleWithPoints = cleanedLine;
+            }
+            return cleanedLine;
         }
-        const factionLines = lines.slice(1, detachmentIndex).map(l => l.trim()).filter(l => l);
-        if (factionLines.length > 0) {
-            const fullFaction = factionLines.join(' - ');
-            const shortFaction = factionLines[factionLines.length - 1];
-            result.SUMMARY.FACTION_KEYWORD = shortFaction; // For debug display matching user expectation
-            result.SUMMARY.DISPLAY_FACTION = fullFaction; // For list header display
-            factionKeyword = fullFaction; // For internal logic (abbreviation)
+        return line;
+    }).filter(l => l); // Remove any lines that became empty (e.g., a line with only points)
+
+    // 3. Identify and remove the game size line
+    const gameSizeKeywords = /^(Combat Patrol|Incursion|Strike Force|Onslaught)$/i;
+    let gameSizeLineIndex = headerLines.findIndex(line => gameSizeKeywords.test(line));
+    if (gameSizeLineIndex !== -1) {
+        headerLines.splice(gameSizeLineIndex, 1);
+    }
+
+    // 4. If we found a title with points, extract it and remove it from the pool.
+    if (listTitleWithPoints) {
+        const titleIndex = headerLines.indexOf(listTitleWithPoints);
+        if (titleIndex !== -1) {
+            result.SUMMARY.LIST_TITLE = headerLines[titleIndex];
+            headerLines.splice(titleIndex, 1);
         }
     }
-    if (!result.SUMMARY.TOTAL_ARMY_POINTS && detachmentIndex !== -1) {
-        const gameSizeMatch = lines[detachmentIndex].match(/\((\d+)\s*points\)/);
-        if (gameSizeMatch) {
-            result.SUMMARY.TOTAL_ARMY_POINTS = `${gameSizeMatch[1]}pts`;
+    
+    // 5. Now, what's left should be Faction and Detachment.
+    // The GW app format is consistently Faction(s) then Detachment.
+    // So, the last line should be the detachment.
+    if (headerLines.length > 0) {
+        result.SUMMARY.DETACHMENT = headerLines.pop();
+        
+        if (headerLines.length > 0) {
+            // If a title wasn't found via points, and we have more than one line left,
+            // assume the first line is the title and the rest is the faction.
+            // This handles the "Title on its own line" case.
+            if (!result.SUMMARY.LIST_TITLE && headerLines.length > 1) {
+                 result.SUMMARY.LIST_TITLE = headerLines.shift();
+            }
+
+            const fullFaction = headerLines.join(' - ');
+            const shortFaction = headerLines[headerLines.length - 1];
+            result.SUMMARY.FACTION_KEYWORD = shortFaction;
+            result.SUMMARY.DISPLAY_FACTION = fullFaction;
+            factionKeyword = fullFaction;
         }
     }
 
     // --- Regex Definitions ---
-    const sectionHeaderRegex = /^(CHARACTERS|CHARACTER|BATTLELINE|OTHER DATASHEETS|ALLIED UNITS|DEDICATED TRANSPORTS)$/;
-    const gwUnitRegex = /^(.*?)\s+\((\d+)\s+(?:pts|points)\)$/;
-    const bulletItemRegex = /^\s*•\s*(.*)/;
+    const gwUnitRegex = /^(.*?)\s+\(([\d,.\s]+)\s+(?:pts|points)\)\s*$/i; // Handle trailing spaces
+    const bulletItemRegex = /^\s*(?:•|-|◦)\s*(.*)/; // Handle •, -, and ◦ as bullets
 
-    let listParsingStarted = false;
+    const startIndex = firstSectionIndex === -1 ? 0 : firstSectionIndex;
 
-    for (let i = 0; i < lines.length; i++) {
+    for (let i = startIndex; i < lines.length; i++) {
         const line = lines[i];
         const trimmedLine = line.trim();
         if (!trimmedLine || trimmedLine.startsWith('Exported with')) continue;
 
-        // Section headers are the trigger to start parsing the list content.
+        // Section headers
         if (sectionHeaderRegex.test(trimmedLine.toUpperCase())) {
-            listParsingStarted = true;
             currentSection = trimmedLine.toUpperCase().replace('CHARACTER', 'CHARACTERS').replace('DEDICATED TRANSPORTS', 'OTHER DATASHEETS');
             contextStack.length = 0;
             continue;
-        }
-
-        if (!listParsingStarted) {
-            continue; // Ignore everything before the first section header.
         }
 
         // --- From here on, we are parsing the actual list ---
@@ -175,7 +205,7 @@ export function parseGwApp(lines) {
             const gwMatch = trimmedLine.match(gwUnitRegex);
             if (gwMatch) {
                 const unitName = gwMatch[1].trim();
-                const unitPoints = parseInt(gwMatch[2]);
+                const unitPoints = parseInt(gwMatch[2].replace(/[,\s.]/g, ''), 10);
                 const newUnit = { quantity: '1x', name: unitName, points: unitPoints, items: [] };
                 
                 const sectionKey = currentSection || 'OTHER DATASHEETS';
@@ -202,12 +232,10 @@ export function parseGwApp(lines) {
                 const subUnitRegex = /^(\d+x?\s+)(.*)/;
                 const subUnitMatch = itemContent.match(subUnitRegex);
                 const nextLine = (i + 1 < lines.length) ? lines[i + 1] : '';
-                const nextLineIsMoreIndented = nextLine.trim() !== '' && getIndent(nextLine) > getIndent(line);
-                const nextLineIsBulleted = nextLine.trim().startsWith('•');
+                const nextLineIsMoreIndented = nextLine.trim() !== '' && getIndent(nextLine) > getIndent(line);                
 
-                // A bulleted line is a subunit only if it's followed by a MORE indented AND bulleted line.
-                // This is a more reliable heuristic for the GW App format.
-                if (subUnitMatch && nextLineIsMoreIndented && nextLineIsBulleted) {
+                // A bulleted line with a quantity is a subunit if it's followed by a more indented line (its wargear).
+                if (subUnitMatch && nextLineIsMoreIndented) {
                     const newSubUnit = {
                         quantity: subUnitMatch[1].trim(),
                         name: subUnitMatch[2].trim(),
@@ -219,9 +247,10 @@ export function parseGwApp(lines) {
                 } else {
                     addItemToTarget(parentContext.node, itemContent, topLevelUnitName, factionKeyword);
                 }
-            } else if (indent > 0) { // It's an indented, non-bulleted line (wargear)
+            } else if (indent > parentContext.indent) { // It's an indented, non-bulleted line (wargear)
                 const topLevelUnitName = contextStack[0].node.name;
-                addItemToTarget(parentContext.node, trimmedLine, topLevelUnitName, factionKeyword);
+                // This branch should not be hit for bulleted lines, but we clean it just in case.
+                addItemToTarget(parentContext.node, trimmedLine.replace(/^\s*(?:•|-|◦)\s*/, ''), topLevelUnitName, factionKeyword);
             }
         }
     }
@@ -265,7 +294,7 @@ export function parseWtcCompact(lines) {
     const separatorRegex = /^\s*\+{3}\s*$/;
     const sectionHeaderRegex = /^(CHARACTER|OTHER DATASHEETS)$/;
     const unitRegex = /^(?:(?<charid>Char\d+):\s*)?(?<unitinfo>.*?)\s+\((?<points>\d+)\s*pts?\)(?<wargearblock>: \s*(?<wargear>.*))?$/;
-    const bulletRegex = /^\s*•\s*(.*)/;
+    const bulletRegex = /^\s*(?:•|-|◦)\s*(.*)/; // Handle multiple bullet types for robustness
     const enhancementLineRegex = /^Enhancement:\s*(.*)/;
 
     // --- Pass 1: Separate Header and Body ---

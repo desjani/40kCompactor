@@ -52,6 +52,7 @@ export function generateOutput(data, useAbbreviations) {
 
     if (data.SUMMARY) {
         const summaryParts = [];
+        if (data.SUMMARY.LIST_TITLE) summaryParts.push(data.SUMMARY.LIST_TITLE);
         if (displayFaction) summaryParts.push(displayFaction);
         if (data.SUMMARY.DETACHMENT) summaryParts.push(`${data.SUMMARY.DETACHMENT}`);
         if (data.SUMMARY.TOTAL_ARMY_POINTS) summaryParts.push(`${data.SUMMARY.TOTAL_ARMY_POINTS}`);
@@ -215,6 +216,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true) {
 
     if (data.SUMMARY) {
         const summaryParts = [];
+        if (data.SUMMARY.LIST_TITLE) summaryParts.push(data.SUMMARY.LIST_TITLE);
         if (data.SUMMARY.FACTION_KEYWORD) {
             const displayFaction = data.SUMMARY?.DISPLAY_FACTION || (data.SUMMARY.FACTION_KEYWORD.split(' - ').pop() || data.SUMMARY.FACTION_KEYWORD);
             summaryParts.push(displayFaction);
