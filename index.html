@@ -60,16 +60,30 @@
                     <!-- Color Options Section -->
                     <div class="color-options-container" style="margin-top: 1rem; text-align: center;">
                         <div class="color-options">
-                            <label><input type="radio" name="colorMode" value="none" checked> No Color</label>
-                            <label><input type="radio" name="colorMode" value="custom"> Custom Colors</label>
+                            <label><input type="radio" name="colorMode" value="custom" checked> Custom Colors</label>
+                            <label><input type="radio" name="colorMode" value="none"> No Color</label>
                         </div>
-                        <div id="customColorPickers" style="display: none; margin-top: 0.5rem; text-align: center;">
+                        <div id="customColorPickers" style="margin-top: 0.5rem; text-align: center;">
                             <div style="margin-bottom: 0.5rem;">
-                                <label>Unit: 
-                                    <select id="unitColor">
+                                <label>Header: 
+                                    <select id="headerColor">
                                         <option value="#FFFFFF" selected>White</option>
                                         <option value="#808080">Grey</option>
                                         <option value="#FF0000">Red</option>
+                                        <option value="#00FF00">Green</option>
+                                        <option value="#FFFF00">Yellow</option>
+                                        <option value="#0000FF">Blue</option>
+                                        <option value="#FF00FF">Magenta</option>
+                                        <option value="#00FFFF">Cyan</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div style="margin-bottom: 0.5rem;">
+                                <label>Unit: 
+                                    <select id="unitColor">
+                                        <option value="#FFFFFF">White</option>
+                                        <option value="#808080">Grey</option>
+                                        <option value="#FF0000" selected>Red</option>
                                         <option value="#00FF00">Green</option>
                                         <option value="#FFFF00">Yellow</option>
                                         <option value="#0000FF">Blue</option>
@@ -92,8 +106,22 @@
                                     </select>
                                 </label>
                             </div>
+                            <div style="margin-bottom: 0.5rem;">
+                                <label>Wargear: 
+                                    <select id="wargearColor">
+                                        <option value="#FFFFFF" selected>White</option>
+                                        <option value="#808080">Grey</option>
+                                        <option value="#FF0000">Red</option>
+                                        <option value="#00FF00">Green</option>
+                                        <option value="#FFFF00">Yellow</option>
+                                        <option value="#0000FF">Blue</option>
+                                        <option value="#FF00FF">Magenta</option>
+                                        <option value="#00FFFF">Cyan</option>
+                                    </select>
+                                </label>
+                            </div>
                             <div>
-                                <label>Points/Header: 
+                                <label>Points: 
                                     <select id="pointsColor">
                                         <option value="#FFFFFF">White</option>
                                         <option value="#808080">Grey</option>
@@ -124,6 +152,18 @@
                 </div>
                 <div class="changelog-entry">
                     <h4>Changelog</h4>
+                    <div class="changelog-version-entry">
+                        <h5>Version 0.1.1: The Ordo Spellcheck would like a word...</h5>
+                        <ul>
+                            <li>Separated "Points/Header" color option into two distinct settings: "Points" and "Header".</li>
+                            <li>Added a new color option for "Wargear" to customize its appearance in the output.</li>
+                            <li>Set the default color scheme to "Custom Colors" and adjusted the default color values for better readability.</li>
+                            <li>Rearranged the color picker order for a more logical workflow.</li>
+                            <li>Corrected a bunch of typos for all Imperium (non-Space Marine) factions.</li>
+                            <li>Updated Grey Knights to match new codex.</li>
+                            <li>Fixed a bug where wargear items were incorrectly displayed as "[object Object]" in the compact list view.</li>
+                        </ul>
+                    </div>
                     <div class="changelog-version-entry">
                         <h5>Version 0.1.0 - The 'No List Left Behind' Update</h5>
                         <ul>

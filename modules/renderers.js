@@ -1,9 +1,8 @@
-
 import { normalizeForComparison } from './utils.js';
 
-function getInlineItemsString(items, useAbbreviations = true) {
+function getInlineItemsString(items, useAbbreviations = true, useCustomColors = false, colors = {}) {
     if (!items || items.length === 0) return '';
-    
+
     const specialItems = items.filter(item => item.type === 'special' && item.nameshort !== "NULL");
     const wargearItems = items.filter(item => item.type === 'wargear' && item.nameshort !== "NULL");
 
@@ -15,7 +14,6 @@ function getInlineItemsString(items, useAbbreviations = true) {
         if (useAbbreviations) {
             return item.nameshort;
         }
-        // For extended discord format, show the full name but clean it up.
         if (item.name.startsWith('Enhancement: ')) {
             return item.name.substring('Enhancement: '.length);
         }
@@ -29,9 +27,17 @@ function getInlineItemsString(items, useAbbreviations = true) {
     });
 
     const allStrings = [...specialStrings, ...wargearStrings];
-    
-    return ` (${allStrings.join(', ')})`;
+    const itemsString = allStrings.join(', ');
+
+    if (!itemsString) return '';
+
+    if (useCustomColors) {
+        return ` <span style="color: ${colors.wargear};">(${itemsString})</span>`;
+    }
+
+    return ` (${itemsString})`;
 }
+
 
 export function generateOutput(data, useAbbreviations) {
     let html = '', plainText = '';
@@ -46,7 +52,9 @@ export function generateOutput(data, useAbbreviations) {
         colors = {
             unit: document.getElementById('unitColor').value,
             subunit: document.getElementById('subunitColor').value,
-            points: document.getElementById('pointsColor').value
+            points: document.getElementById('pointsColor').value,
+            header: document.getElementById('headerColor').value,
+            wargear: document.getElementById('wargearColor').value
         };
     }
 
@@ -58,7 +66,7 @@ export function generateOutput(data, useAbbreviations) {
         if (data.SUMMARY.TOTAL_ARMY_POINTS) summaryParts.push(`${data.SUMMARY.TOTAL_ARMY_POINTS}`);
         if (summaryParts.length > 0) {
             const summaryText = summaryParts.join(' | ');
-            const headerColorStyle = useCustomColors ? `color: ${colors.points};` : 'color: var(--color-text-secondary);';
+            const headerColorStyle = useCustomColors ? `color: ${colors.header};` : 'color: var(--color-text-secondary);';
             html += `<div style="padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-border);"><p style="font-size: 0.75rem; margin-bottom: 0.25rem; ${headerColorStyle} font-weight: 600;">${summaryText}</p></div>`;
             plainText += summaryText + '\n-------------------------------------\n';
         }
@@ -72,14 +80,14 @@ export function generateOutput(data, useAbbreviations) {
 
                 if (useAbbreviations) { // Compact List Rendering
                     const topLevelItems = unit.items.filter(item => item.points === undefined);
-                    const itemsString = getInlineItemsString(topLevelItems);
+                    const itemsString = getInlineItemsString(topLevelItems, true, useCustomColors, colors);
                     const unitNameText = `${quantityDisplay}${unit.name}`;
                     const pointsText = `[${unit.points}]`;
                     
                     const unitNameHTML = useCustomColors ? `<span style="color: ${colors.unit};">${unitNameText}</span>` : unitNameText;
                     const pointsHTML = useCustomColors ? `<span style="color: ${colors.points};">${pointsText}</span>` : pointsText;
                     
-                    const unitTextForPlain = `${unitNameText}${itemsString} ${pointsText}`;
+                    const unitTextForPlain = `${unitNameText}${getInlineItemsString(topLevelItems, true, false)} ${pointsText}`;
                     const unitHTML = `${unitNameHTML}${itemsString} ${pointsHTML}`;
 
                     html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitHTML}</p>`;
@@ -93,12 +101,12 @@ export function generateOutput(data, useAbbreviations) {
                             if (subUnitHasVisibleItems) {
                                 const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                                 const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-                                const subunitItemsString = getInlineItemsString(item.items);
+                                const subunitItemsString = getInlineItemsString(item.items, true, useCustomColors, colors);
                                 
                                 const subunitNameText = `${itemQtyDisplay}${item.name}`;
                                 const subunitNameHTML = useCustomColors ? `<span style="color: ${colors.subunit};">${subunitNameText}</span>` : subunitNameText;
                                 const itemHTML = `${subunitNameHTML}${subunitItemsString}`;
-                                const itemTextForPlain = `${subunitNameText}${subunitItemsString}`;
+                                const itemTextForPlain = `${subunitNameText}${getInlineItemsString(item.items, true, false)}`;
 
                                 html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemHTML}</p>`;
                                 plainText += `  + ${itemTextForPlain}\n`;
@@ -195,7 +203,6 @@ export function generateDiscordText(data, plain, useAbbreviations = true) {
 
     const toAnsi = (txt, hexColor, bold = false) => {
         if (!useColor || !hexColor) return txt;
-        // Black is often unreadable on Discord's dark theme.
         if (hexColor.toLowerCase() === '#000000') return txt;
 
         const ansiCode = findClosestAnsi(hexColor);
@@ -203,16 +210,53 @@ export function generateDiscordText(data, plain, useAbbreviations = true) {
         return `\u001b[${boldCode}${ansiCode}m${txt}\u001b[0m`;
     };
 
-    let colors = { unit: '#FFFFFF', subunit: '#808080', points: '#FFFF00' }; // Default custom colors
+    let colors = { unit: '#FFFFFF', subunit: '#808080', points: '#FFFF00', header: '#FFFFFF', wargear: '#FFFFFF' };
     if (useColor) {
         if (colorMode === 'custom') {
             colors = {
                 unit: document.getElementById('unitColor').value,
                 subunit: document.getElementById('subunitColor').value,
-                points: document.getElementById('pointsColor').value
+                points: document.getElementById('pointsColor').value,
+                header: document.getElementById('headerColor').value,
+                wargear: document.getElementById('wargearColor').value
             };
         }
     }
+    
+    const getDiscordItemsString = (items, useAbbreviations = true) => {
+        if (!items || items.length === 0) return '';
+        
+        const specialItems = items.filter(item => item.type === 'special' && item.nameshort !== "NULL");
+        const wargearItems = items.filter(item => item.type === 'wargear' && item.nameshort !== "NULL");
+    
+        if (specialItems.length === 0 && wargearItems.length === 0) return '';
+    
+        wargearItems.sort((a, b) => parseInt(b.quantity.replace('x', ''), 10) - parseInt(a.quantity.replace('x', ''), 10));
+        
+        const specialStrings = specialItems.map(item => {
+            if (useAbbreviations) {
+                return item.nameshort;
+            }
+            if (item.name.startsWith('Enhancement: ')) {
+                return item.name.substring('Enhancement: '.length);
+            }
+            return item.name;
+        });
+        const wargearStrings = wargearItems.map(item => {
+            const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+            const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+            const itemName = useAbbreviations ? item.nameshort : item.name;
+            return `${itemQtyDisplay}${itemName}`;
+        });
+    
+        const allStrings = [...specialStrings, ...wargearStrings];
+        const itemsString = allStrings.join(', ');
+
+        if(!itemsString) return '';
+
+        return ` ${toAnsi(`(${itemsString})`, colors.wargear)}`;
+    };
+
 
     if (data.SUMMARY) {
         const summaryParts = [];
@@ -225,7 +269,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true) {
         if (data.SUMMARY.TOTAL_ARMY_POINTS) summaryParts.push(data.SUMMARY.TOTAL_ARMY_POINTS);
         if (summaryParts.length > 0) {
             const header = summaryParts.join(' | ');
-            text += `${toAnsi(header, colors.points, true)}\n\n`;
+            text += `${toAnsi(header, colors.header, true)}\n\n`;
         }
     }
     for (const section in data) {
@@ -239,7 +283,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true) {
             const unitName = `${quantityDisplay}${unit.name}`;
             const points = `${unit.points}`;
             const topLevelItems = unit.items.filter(item => item.points === undefined);
-            const itemsString = getInlineItemsString(topLevelItems, useAbbreviations);
+            const itemsString = getDiscordItemsString(topLevelItems, useAbbreviations);
             text += `* ${toAnsi(unitName, colors.unit, true)}${itemsString} ${toAnsi(`[${points}]`, colors.points, true)}\n`;
             
             const subunitItems = unit.items.filter(item => item.points !== undefined);
@@ -249,7 +293,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true) {
                     const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                     const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
                     const subunitName = item.name;
-                    const subunitItemsString = getInlineItemsString(item.items, useAbbreviations);
+                    const subunitItemsString = getDiscordItemsString(item.items, useAbbreviations);
                     const subunitText = `${itemQtyDisplay}${subunitName}`;
                     const prefix = plain ? '*' : '+';
                     text += `  ${prefix} ${toAnsi(subunitText, colors.subunit)}${subunitItemsString}\n`;

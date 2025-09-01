@@ -3178,6 +3178,14 @@
                 "abbr": "SCS"
             },
             {
+                "item": "armoured sentinel",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Autocannon",
+                "abbr": "AC"
+            },
+            {
                 "item": "Hunter-Killer Missile",
                 "abbr": "HK"
             }
@@ -3204,7 +3212,7 @@
                 "abbr": "HQL"
             },
             {
-                "item": "Multiple Rocker Launcher",
+                "item": "Multiple Rocket Launcher",
                 "abbr": "MRL"
             }
         ],
@@ -3350,6 +3358,10 @@
                 "abbr": "NULL"
             },
             {
+                "item": "Heavy Weapons Team",
+                "abbr": "NULL"
+            },
+            {
                 "item": "Mortar",
                 "abbr": "Mortar"
             }
@@ -3370,6 +3382,10 @@
             {
                 "item": "Vox-Caster",
                 "abbr": "Vox"
+            },
+            {
+                "item": "Shock Trooper",
+                "abbr": "NULL"
             },
             {
                 "item": "Sergeant's Autogun",
@@ -3415,6 +3431,10 @@
             },
             {
                 "item": "lasgun",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Catachan Jungle Fighter",
                 "abbr": "NULL"
             },
             {
@@ -3468,7 +3488,7 @@
                 "abbr": "LL"
             },
             {
-                "item": "Medi-pack",
+                "item": "Death Korps of Krieg Medi-pack",
                 "abbr": "MP"
             },
             {
@@ -3514,7 +3534,7 @@
                 "abbr": "NULL"
             }
         ],
-        "Field Ordinance Battery": [
+        "Field Ordnance Battery": [
             {
                 "item": "Malleus Rocket Launcher",
                 "abbr": "MRL"
@@ -3692,6 +3712,10 @@
                 "abbr": "NULL"
             },
             {
+                "item": "Heavy Weapons Gunner",
+                "abbr": "NULL"
+            },
+            {
                 "item": "Close Combat Weapon",
                 "abbr": "NULL"
             }
@@ -3716,6 +3740,10 @@
                 "abbr": "DBC"
             },
             {
+                "item": "Leman Russ Battle Cannon",
+                "abbr": "LRBC"
+            },
+            {
                 "item": "Eradicator Nova Cannon",
                 "abbr": "ENC"
             },
@@ -3734,6 +3762,10 @@
             {
                 "item": "Vanquisher Battle Cannon",
                 "abbr": "VBC"
+            },
+            {
+                "item": "Armoured Tracks",
+                "abbr": "NULL"
             },
             {
                 "item": "Hunter-Killer Missile",
@@ -3874,6 +3906,10 @@
             {
                 "item": "Command Rod",
                 "abbr": "CR"
+            },
+            {
+                "item": "Tempestus Dagger",
+                "abbr": "NULL"
             },
             {
                 "item": "Hot-Shot Laspistol",
@@ -4026,6 +4062,10 @@
                 "abbr": "SCS"
             },
             {
+                "item": "Scout Sentinel",
+                "abbr": "NULL"
+            },
+            {
                 "item": "Hunter-Killer Missile",
                 "abbr": "HK"
             }
@@ -4166,7 +4206,7 @@
                 "abbr": "PC"
             },
             {
-                "item": "Hot-Shot Long-Las",
+                "item": "Hot-Shot Long Las",
                 "abbr": "HSLL"
             }
         ],
@@ -8776,6 +8816,10 @@
             {
                 "item": "Purge Soul",
                 "abbr": "NULL"
+            },
+            {
+                "item": "Vortex of Doom",
+                "abbr": "NULL"
             }
         ],
         "Brotherhood Techmarine": [
@@ -8800,13 +8844,21 @@
                 "abbr": "NULL"
             },
             {
+                "item": "Forge Bolter",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Grav-Pistol",
+                "abbr": "NULL"
+            },
+            {
                 "item": "Flamer",
                 "abbr": "NULL"
             }
         ],
         "Brotherhood Terminator Squad": [
             {
-                "item": "Narthecium",
+                "item": "Apothecary's Narthecium",
                 "abbr": "NAR"
             },
             {
@@ -8844,6 +8896,18 @@
                 "abbr": "DF"
             },
             {
+                "item": "Nemesis Flail",
+                "abbr": "NF"
+            },
+            {
+                "item": "Fragstorm Grenade Launcher",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Sublimator",
+                "abbr": "Sub"
+            },
+            {
                 "item": "Nemesis Daemon Greathammer",
                 "abbr": "NDG"
             },
@@ -8852,7 +8916,7 @@
                 "abbr": "NGS"
             }
         ],
-        "Grey Knights Land Raider": [
+        "Land Raider": [
             {
                 "item": "Godhammer Lascannon",
                 "abbr": "NULL"
@@ -8874,7 +8938,7 @@
                 "abbr": "MM"
             }
         ],
-        "Grey Knights Land Raider Crusader": [
+        "Land Raider Crusader": [
             {
                 "item": "Hurricane Bolter",
                 "abbr": "NULL"
@@ -8896,9 +8960,9 @@
                 "abbr": "MM"
             }
         ],
-        "Grey Knights Land Raider Redeemer": [
+        "Land Raider Redeemer": [
             {
-                "item": "Flamerstorm Cannon",
+                "item": "Flamestorm Cannon",
                 "abbr": "NULL"
             },
             {
@@ -8918,7 +8982,7 @@
                 "abbr": "MM"
             }
         ],
-        "Grey Knights Razorback": [
+        "Razorback": [
             {
                 "item": "Twin Heavy Bolter",
                 "abbr": "THB"
@@ -8940,13 +9004,13 @@
                 "abbr": "HK"
             }
         ],
-        "Grey Knights Rhino": [
+        "Rhino": [
             {
                 "item": "Armoured Tracks",
                 "abbr": "NULL"
             }
         ],
-        "Grey Knights Stormhawk Interceptor": [
+        "Stormhawk Interceptor": [
             {
                 "item": "Las-Talon",
                 "abbr": "LT"
@@ -8976,7 +9040,7 @@
                 "abbr": "ISC"
             }
         ],
-        "Grey Knights Stormraven Gunship": [
+        "Stormraven Gunship": [
             {
                 "item": "Hurricane Bolter",
                 "abbr": "HB"
@@ -9014,7 +9078,7 @@
                 "abbr": "NULL"
             }
         ],
-        "Grey Knights Stormtalon Gunship": [
+        "Stormtalon Gunship": [
             {
                 "item": "Skyhammer Missile Launcher",
                 "abbr": "SML"
@@ -9070,7 +9134,7 @@
                 "abbr": "TCB"
             }
         ],
-        "Grey Knights Venerable Dreadnought": [
+        "Venerable Dreadnought": [
             {
                 "item": "Assault Cannon",
                 "abbr": "AC"
@@ -9168,6 +9232,10 @@
             {
                 "item": "Ancient's Banner",
                 "abbr": "AB"
+            },
+            {
+                "item": "Apothecary's Narthecium",
+                "abbr": "NAR"
             }
         ],
         "Purgation Squad": [
@@ -9916,7 +9984,7 @@
                 "abbr": "VV"
             },
             {
-                "item": "Lightining Lock",
+                "item": "Lightning Lock",
                 "abbr": "LL"
             },
             {
@@ -10040,7 +10108,7 @@
                 "abbr": "QHS"
             },
             {
-                "item": "Rapid Fire Battle Cannon",
+                "item": "Rapid-Fire Battle Cannon",
                 "abbr": "RFBC"
             },
             {
@@ -10122,7 +10190,7 @@
         ],
         "Knight Paladin": [
             {
-                "item": "Rapid Fire Battle Cannon",
+                "item": "Rapid-Fire Battle Cannon",
                 "abbr": "NULL"
             },
             {
@@ -10186,6 +10254,10 @@
             {
                 "item": "Ironstorm Missile Pod",
                 "abbr": "IMP"
+            },
+            {
+                "item": "Stormspear Rocket Pod",
+                "abbr": "SRP"
             }
         ],
         "Knight Valiant": [
@@ -10246,6 +10318,10 @@
             {
                 "item": "Ironstorm Missile Pod",
                 "abbr": "IMP"
+            },
+            {
+                "item": "Stormspear Rocket Pod",
+                "abbr": "SRP"
             }
         ],
         "Questoris Knight Magaera": [
@@ -10262,7 +10338,7 @@
                 "abbr": "RC"
             },
             {
-                "item": "Hekaton Seige Claw",
+                "item": "Hekaton Siege Claw",
                 "abbr": "HSC"
             },
             {
@@ -10284,7 +10360,7 @@
                 "abbr": "RC"
             },
             {
-                "item": "Hekaton Seige Claw",
+                "item": "Hekaton Siege Claw",
                 "abbr": "HSC"
             },
             {
