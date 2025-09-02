@@ -1,161 +1,143 @@
-Kauyon - Base (2000 Points)
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Xenos - Tyranids
++ DETACHMENT: Crusher Stampede
++ TOTAL ARMY POINTS: 10245pts
++
++ WARLORD: Char3: The Swarmlord
++ ENHANCEMENT: 
++ NUMBER OF UNITS: 71
++ SECONDARY: - Bring It Down: (31x2) + (7x4) + (2x6) - Assassination: 18 Characters - Cull The Horde: 1x5
++++++++++++++++++++++++++++++++++++++++++++++++
 
-T’au Empire
-Kauyon
-Strike Force (2 000 Points)
+Char1: 1x Deathleaper (80 pts): Lictor claws and talons
+Char2: 1x Old One Eye (150 pts): Old One Eye’s claws and talons
+Char3: 1x The Swarmlord (220 pts): Warlord, Bone Sabres, Synaptic Pulse
+Char4: 1x Broodlord (80 pts): Broodlord Claws and Talons
+Char5: 1x Hive Tyrant (195 pts): Stranglethorn cannon, Monstrous scything talons
+Char6: 1x Hive Tyrant (195 pts): Heavy venom cannon, Monstrous scything talons
+Char7: 1x Hive Tyrant (195 pts): Monstrous bonesword and lash whip, Heavy venom cannon
+Char8: 1x Hive Tyrant (195 pts): Monstrous scything talons, Stranglethorn cannon
+Char9: 5x Hyperadapted Raveners (165 pts)
+• 4x Ravener
+    3 with Ravener, Ravener heavy claws and talons
+    1 with Ravener, Ravener heavy claws and talons, Venom bolt
+• 1x Ravener Prime: Prime claws and talons
+Char10: 1x Neurotyrant (105 pts): Neurotyrant claws and lashes, Psychic scream
+Char11: 1x Parasite of Mortrex (80 pts): Barbed ovipositor, Clawed limbs
+Char12: 1x Tervigon (175 pts): Stinger salvoes, Massive crushing claws
+Char13: 1x Tervigon (175 pts): Stinger salvoes, Massive scything talons
+Char14: 1x Winged Hive Tyrant (170 pts): Tyrant talons, Stranglethorn cannon
+Char15: 1x Winged Hive Tyrant (170 pts): Tyrant talons, Heavy venom cannon
+Char16: 1x Winged Hive Tyrant (170 pts): Tyrant talons, Monstrous bonesword and lash whip
+Char17: 1x Winged Hive Tyrant (170 pts): Tyrant talons, Monstrous scything talons
+Char18: 1x Winged Tyranid Prime (65 pts): Prime talons
 
-CHARACTERS
+10x Gargoyles (85 pts): 10 with Blinding venom, Fleshborer
+10x Hormagaunts (65 pts): 10 with Hormagaunt talons
+20x Termagants (120 pts)
+• 3x Termagant
+    1 with Termagants, Chitinous claws and teeth, Shardlauncher
+    1 with Termagants, Chitinous claws and teeth, Spike rifle
+    1 with Termagants, Chitinous claws and teeth, Strangleweb
+• 17x Termagants
+    3 with Termagants, Chitinous claws and teeth, Termagant devourer
+    4 with Termagants, Chitinous claws and teeth, Termagant spinefist
+    10 with Termagants, Chitinous claws and teeth, Fleshborer
 
-Commander Shadowsun (100 Points)
-  • Warlord
-  • 1x Advanced Guardian Drone
-  • 1x Battlesuit fists
-  • 1x Command-link Drone (Aura)
-  • 1x Flechette launcher
-  • 2x High-energy fusion blaster
-  • 1x Light missile pod
-  • 1x Pulse pistol
-
-OTHER DATASHEETS
-
-Broadside Battlesuits (90 Points)
-  • 1x Broadside Shas’vre
-     ◦ 1x Crushing bulk
-     ◦ 1x Heavy rail rifle
-     ◦ 2x Missile Drone
-     ◦ 1x Twin smart missile system
-     ◦ 1x Weapon Support System
-
-Broadside Battlesuits (90 Points)
-  • 1x Broadside Shas’vre
-     ◦ 1x Crushing bulk
-     ◦ 1x Heavy rail rifle
-     ◦ 2x Missile Drone
-     ◦ 1x Twin smart missile system
-     ◦ 1x Weapon Support System
-
-Ghostkeel Battlesuit (160 Points)
-  • 1x Battlesuit Support System
-  • 1x Cyclic ion raker
-  • 1x Ghostkeel fists
-  • 1x Twin fusion blaster
-
-Hammerhead Gunship (145 Points)
-  • 1x Armoured hull
-  • 1x Ion cannon
-  • 2x Seeker missile
-  • 2x Smart missile system
-
-Hammerhead Gunship (145 Points)
-  • 1x Armoured hull
-  • 1x Ion cannon
-  • 2x Seeker missile
-  • 2x Smart missile system
-
-Pathfinder Team (90 Points)
-  • 1x Pathfinder Shas’ui
-     ◦ 1x Close combat weapon
-     ◦ 2x Gun Drone
-     ◦ 1x Pulse carbine
-     ◦ 1x Pulse pistol
-     ◦ 1x Recon Drone
-     ◦ 1x Semi-automatic grenade launcher
-  • 9x Pathfinder
-     ◦ 9x Close combat weapon
-     ◦ 3x Ion rifle
-     ◦ 6x Pulse carbine
-     ◦ 9x Pulse pistol
-
-Pathfinder Team (90 Points)
-  • 1x Pathfinder Shas’ui
-     ◦ 1x Close combat weapon
-     ◦ 1x Grav-inhibitor Drone
-     ◦ 2x Gun Drone
-     ◦ 1x Pulse carbine
-     ◦ 1x Pulse pistol
-     ◦ 1x Semi-automatic grenade launcher
-  • 9x Pathfinder
-     ◦ 9x Close combat weapon
-     ◦ 3x Ion rifle
-     ◦ 6x Pulse carbine
-     ◦ 9x Pulse pistol
-
-Pathfinder Team (90 Points)
-  • 1x Pathfinder Shas’ui
-     ◦ 1x Close combat weapon
-     ◦ 1x Grav-inhibitor Drone
-     ◦ 2x Gun Drone
-     ◦ 1x Pulse carbine
-     ◦ 1x Pulse pistol
-     ◦ 1x Semi-automatic grenade launcher
-  • 9x Pathfinder
-     ◦ 9x Close combat weapon
-     ◦ 3x Ion rifle
-     ◦ 6x Pulse carbine
-     ◦ 9x Pulse pistol
-
-Piranhas (60 Points)
-  • 1x Armoured hull
-  • 1x Piranha fusion blaster
-  • 2x Seeker missile
-  • 2x Twin pulse carbine
-
-Piranhas (60 Points)
-  • 1x Armoured hull
-  • 1x Piranha fusion blaster
-  • 2x Seeker missile
-  • 2x Twin pulse carbine
-
-Piranhas (60 Points)
-  • 1x Armoured hull
-  • 1x Piranha fusion blaster
-  • 2x Seeker missile
-  • 2x Twin pulse carbine
-
-Riptide Battlesuit (190 Points)
-  • 1x Ion accelerator
-  • 2x Missile Drone
-  • 1x Riptide fists
-  • 1x Twin smart missile system
-
-Riptide Battlesuit (190 Points)
-  • 1x Ion accelerator
-  • 2x Missile Drone
-  • 1x Riptide fists
-  • 1x Twin smart missile system
-
-Sky Ray Gunship (140 Points)
-  • 1x Armoured hull
-  • 1x Seeker missile rack
-  • 2x Smart missile system
-
-Sky Ray Gunship (140 Points)
-  • 1x Armoured hull
-  • 1x Seeker missile rack
-  • 2x Smart missile system
-
-Stealth Battlesuits (80 Points)
-  • 1x Stealth Shas’vre
-     ◦ 1x Battlesuit Support System
-     ◦ 1x Battlesuit fists
-     ◦ 1x Fusion blaster
-     ◦ 1x Homing Beacon
-     ◦ 1x Marker Drone
-     ◦ 1x Shield Drone
-  • 2x Stealth Shas’ui
-     ◦ 2x Battlesuit fists
-     ◦ 2x Burst cannon
-
-Stealth Battlesuits (80 Points)
-  • 1x Stealth Shas’vre
-     ◦ 1x Battlesuit Support System
-     ◦ 1x Battlesuit fists
-     ◦ 1x Fusion blaster
-     ◦ 1x Homing Beacon
-     ◦ 1x Marker Drone
-     ◦ 1x Shield Drone
-  • 2x Stealth Shas’ui
-     ◦ 2x Battlesuit fists
-     ◦ 2x Burst cannon
-
-Exported with App Version: v1.40.0 (1), Data Version: v674
+5x Barbgaunts (55 pts): 5 with Barblauncher, Chitinous claws and teeth
+1x Biovores (50 pts): Chitin-barbed limbs, Spore mine launcher
+5x Genestealers (75 pts): 5 with Genestealers claws and talons
+3x Hive Guard (90 pts)
+  1 with Hive Guard, Chitinous claws and teeth, Impaler cannon
+  1 with Hive Guard, Chitinous claws and teeth, Impaler cannon
+  1 with Hive Guard, Chitinous claws and teeth, Impaler cannon
+3x Hive Guard (90 pts): 3 with Chitinous claws and teeth, Shockcannon
+1x Lictor (60 pts): Lictor claws and talons
+11x Neurogaunts (45 pts)
+• 1x Neurogaunt Nodebeast: Chitinous claws and teeth
+• 10x Neurogaunt: 10 with Chitinous claws and teeth
+1x Neurolictor (80 pts): Piercing claws and talons
+1x Pyrovores (40 pts): Chitin-barbed limbs, Flamespurt
+5x Raveners (125 pts): 5 with Ravener claws and talons
+3x Tyranid Warriors with Melee Bio-Weapons (75 pts)
+• 1x Tyranid Prime: Tyranid Warrior claws and talons
+• 2x Tyranid Warrior: 2 with Tyranid Warrior claws and talons
+6x Tyranid Warriors with Ranged Bio-Weapons (130 pts)
+• 5x Tyranid Warrior
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Venom cannon
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Spinefists
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Devourer
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Deathspitter
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Barbed strangler
+• 1x Tyranid Prime: Tyranid Warrior claws and talons, Venom cannon
+6x Tyranid Warriors with Ranged Bio-Weapons (130 pts)
+• 5x Tyranid Warrior
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Venom cannon
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Spinefists
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Devourer
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Deathspitter
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Barbed strangler
+• 1x Tyranid Prime: Tyranid Warrior claws and talons, Barbed strangler
+6x Tyranid Warriors with Ranged Bio-Weapons (130 pts)
+• 5x Tyranid Warrior
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Venom cannon
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Spinefists
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Devourer
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Deathspitter
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Barbed strangler
+• 1x Tyranid Prime: Tyranid Warrior claws and talons, Deathspitter
+6x Tyranid Warriors with Ranged Bio-Weapons (130 pts)
+• 5x Tyranid Warrior
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Venom cannon
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Spinefists
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Devourer
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Deathspitter
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Barbed strangler
+• 1x Tyranid Prime: Tyranid Warrior claws and talons, Devourer
+6x Tyranid Warriors with Ranged Bio-Weapons (130 pts)
+• 5x Tyranid Warrior
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Venom cannon
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Spinefists
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Devourer
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Deathspitter
+    1 with Tyranid Warrior, Tyranid Warrior claws and talons, Barbed strangler
+• 1x Tyranid Prime: Tyranid Warrior claws and talons, Spinefists
+3x Tyrant Guard (80 pts)
+  1 with Tyrant Guard, Bone cleaver, lash whip and rending claws
+  1 with Tyrant Guard, Crushing claws and rending claws
+  1 with Tyrant Guard, Scything talons and rending claws
+3x Venomthropes (70 pts): 3 with Toxic lashes
+3x Von Ryan's Leapers (70 pts): 3 with Leaper's talons
+3x Zoanthropes (100 pts)
+• 1x Neurothrope: Chitinous claws and teeth, Warp blast
+• 2x Zoanthrope: 2 with Chitinous claws and teeth, Warp blast
+1x Ripper Swarms (25 pts): Chitinous claws and teeth, Spinemaw
+1x Mucolid Spores (30 pts): 
+3x Spore Mines (55 pts): 3 with 
+1x Carnifexes (115 pts): Chitinous claws and teeth, Bio-plasma, Spine banks, Devourers with brainleech worms, Stranglethorn cannon
+1x Carnifexes (115 pts): Chitinous claws and teeth, Bio-plasma, Spine banks, Carnifex crushing claws, Carnifex crushing claws
+1x Carnifexes (115 pts): Chitinous claws and teeth, Bio-plasma, Spine banks, Carnifex scything talons, Carnifex extra scything talons
+1x Carnifexes (115 pts): Chitinous claws and teeth, Bio-plasma, Spine banks, Deathspitters with slimer maggots, Deathspitters with slimer maggots
+1x Carnifexes (115 pts): Chitinous claws and teeth, Bio-plasma, Spine banks, Devourers with brainleech worms, Devourers with brainleech worms
+1x Carnifexes (115 pts): Chitinous claws and teeth, Bio-plasma, Spine banks, Devourers with brainleech worms, Heavy venom cannon
+1x Carnifexes (115 pts): Chitinous claws and teeth, Bio-plasma, Spine banks, Devourers with brainleech worms, Stranglethorn cannon
+1x Exocrine (140 pts): Bio-plasmic cannon, Powerful limbs
+1x Harpy (215 pts): Scything wings, Stinger salvoes, Twin heavy venom cannon
+1x Harpy (215 pts): Scything wings, Stinger salvoes, Twin stranglethorn cannon
+1x Harridan (610 pts): 2x Dire bio-cannon, Gargantuan scything talons
+1x Haruspex (125 pts): Grasping tongue, Ravenous maw, Shovelling claws
+1x Hierophant (810 pts): Bio-plasma torrent, 2x Dire bio-cannon, Lashwhip pods, Titanic scything talons
+1x Hive Crone (200 pts): Drool cannon, Scything wings, Stinger salvoes, Tentaclids, Thorax spur
+1x Maleceptor (170 pts): Massive scything talons, Psychic overload
+1x Mawloc (145 pts): Distendible jaw, Mawloc scything talons
+1x Norn Assimilator (275 pts): Monstrous scything talons, Toxinjecter harpoon
+1x Norn Emissary (260 pts): Monstrous rending claws, Monstrous scything talons, Psychic tendril
+1x Psychophage (110 pts): Psychoclastic torrent, Talons and betentacled maw
+1x Screamer-killer (135 pts): Bio-plasmic scream, Screamer-killer talons
+1x Sporocyst (145 pts): Flensing whips, Sporocyst bio-weapon
+1x Toxicrene (150 pts): Massive toxic lashes
+1x Trygon (140 pts): Bio-electric pulse, Trygon scything talons
+1x Tyrannofex (200 pts): Powerful limbs, Stinger salvoes, Rupture cannon
+1x Tyrannofex (200 pts): Powerful limbs, Stinger salvoes, Fleshborer hive
+1x Tyrannofex (200 pts): Powerful limbs, Stinger salvoes, Acid spray
+1x Tyrannocyte (105 pts): Flensing Whips, Tyrannocyte Bio-weapons

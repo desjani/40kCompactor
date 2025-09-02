@@ -1,0 +1,2527 @@
+{
+    "World Eaters": {
+        "Angron": true,
+        "Bloodcrushers": [
+            "Hellblade",
+            "Bladed Horn"
+        ],
+        "Bloodletters": [
+            "Hellblade"
+        ],
+        "Bloodthirster": [
+            "Hellfire Breath"
+        ],
+        "Chaos Land Raider": [
+            "Soulshatter Lascannon",
+            "Armoured Tracks",
+            "Twin Heavy Bolter"
+        ],
+        "Chaos Predator Annihilator": [
+            "Predator Twin Lascannon",
+            "Armoured Tracks"
+        ],
+        "Chaos Predator Destructor": [
+            "Predator Autocannon",
+            "Armoured Tracks"
+        ],
+        "Chaos Rhino": [
+            "Armoured Tracks"
+        ],
+        "Chaos Spawn": true,
+        "Daemon Prince of Khorne": true,
+        "Daemon Prince of Khorne with Wings": true,
+        "Defiler": [
+            "Defiler Cannon",
+            "Defiler Claws"
+        ],
+        "Eightbound": true,
+        "Exalted Eightbound": true,
+        "Flesh Hounds": true,
+        "Goremongers": [
+            "Chainblade",
+            "Close Combat Weapon"
+        ],
+        "Heldrake": [
+            "Heldrake Claws"
+        ],
+        "Jakhals": [
+            "Autopistol",
+            "Chainblades"
+        ],
+        "Khorne Berzerkers": [
+            "Bolt Pistol",
+            "Khorne Berzerker",
+            "Chainblade"
+        ],
+        "Khorne Lord of Skulls": [
+            "Great Cleaver of Khorne"
+        ],
+        "Khârn The Betrayer": true,
+        "Lord Invocatus": true,
+        "Lord on Juggernaut": true,
+        "Master of Executions": true,
+        "Maulerfiend": [
+            "Maulerfiend Fists"
+        ],
+        "Skarbrand": true,
+        "Slaughterbound": true
+    },
+    "Adepta Sororitas": {
+        "Aestred Thurga and Agathae Dolan": true,
+        "Arco-Flagellants": true,
+        "Battle Sisters Squad": [
+            "Bolt Pistol",
+            "Close Combat Weapon"
+        ],
+        "Canoness": [],
+        "Canoness with Jump Pack": [],
+        "Castigator": [
+            "Heavy Bolter",
+            "Armoured Tracks"
+        ],
+        "Celestian Sacresants": [],
+        "Daemonifuge": true,
+        "Dialogus": true,
+        "Dogmata": true,
+        "Dominion Squad": [
+            "Bolt Pistol",
+            "Boltgun",
+            "Close Combat Weapon"
+        ],
+        "Exorcist": [
+            "Heavy Bolter",
+            "Armoured Tracks"
+        ],
+        "Hospitaller": true,
+        "Imagifier": true,
+        "Immolator": [
+            "Heavy Bolter",
+            "Armoured Tracks"
+        ],
+        "Junith Eruita": true,
+        "Ministorum Priest": [],
+        "Mortifiers": [],
+        "Morvenn Vahl": true,
+        "Palatine": [
+            "Palatine Blade"
+        ],
+        "Paragon Warsuits": [
+            "Bolt Pistol"
+        ],
+        "Penitent Engines": [
+            "Penitent Flamers"
+        ],
+        "Repentia Squad": true,
+        "Retributor Squad": [
+            "Bolt Pistol",
+            "Close Combat Weapon"
+        ],
+        "Saint Celestine": true,
+        "Sanctifiers": [],
+        "Seraphim Squad": [
+            "Close Combat Weapon",
+            "Seraphim"
+        ],
+        "Sisters Novitiate Squad": [
+            "Close Combat Weapon",
+            "Sister Novitiate"
+        ],
+        "Sororitas Rhino": [
+            "Storm Bolter",
+            "Armoured Tracks"
+        ],
+        "Triumph of Saint Katherine": true,
+        "Zephyrim Squad": [
+            "Power Weapon"
+        ]
+    },
+    "Adeptus Custodes": {
+        "Agamatus Custodians": [
+            "Interceptor Lance"
+        ],
+        "Aleya": true,
+        "Allarus Custodians": [
+            "Balistus Grenade Launcher"
+        ],
+        "Anathema Psykana Rhino": [
+            "Storm Bolter",
+            "Armoured Tracks"
+        ],
+        "Aquilon Custodians": [],
+        "Ares Gunship": true,
+        "Blade Champion": true,
+        "Caladius Grav-tank": [
+            "Twin Lastrum Bolt Cannon",
+            "Armoured Hull"
+        ],
+        "Contemptor-Achillus Dreadnought": [
+            "Achillus Dreadspear"
+        ],
+        "Contemptor-Galatus Dreadnought": true,
+        "Coronus Grav-carrier": true,
+        "Custodian Guard": [],
+        "Custodian Guard with Adrasite and Pyrithite Spears": [],
+        "Custodian Wardens": [],
+        "Knight-Centura": [],
+        "Orion Assault Dropship": true,
+        "Pallas Grav-attack": true,
+        "Prosecutors": true,
+        "Sagittarum Custodians": true,
+        "Shield-Captain": [],
+        "Shield-captain In Allarus Terminator Armour": [
+            "Balistus Grenade Launcher"
+        ],
+        "Shield-captain on Dawneagle Jetbike": [
+            "Interceptor Lance"
+        ],
+        "Telemon Heavy Dreadnought": [
+            "Spiculus Bolt Launcher",
+            "Armoured Feet"
+        ],
+        "Trajann Valoris": true,
+        "Valerian": true,
+        "Venatari Custodians": [],
+        "Venerable Contemptor Dreadnought": [
+            "Combi-Bolter",
+            "Contemptor Combat Weapon"
+        ],
+        "Venerable Land Raider": [
+            "Godhammer Lascannon",
+            "Twin Heavy Bolter",
+            "Armoured Tracks"
+        ],
+        "Vertus Praetors": [
+            "Interceptor Lance"
+        ],
+        "Vigilators": true,
+        "Witchseekers": true
+    },
+    "Adeptus Mechanicus": {
+        "Archaeopter Fusilave": [
+            "Cognis Heavy Stubber Array",
+            "Armoured Hull"
+        ],
+        "Archaeopter Stratoraptor": [
+            "Cognis Heavy Stubber",
+            "Heavy phosphor blaster",
+            "Twin Cognis Lascannon",
+            "Armoured Hull"
+        ],
+        "Archaeopter Transvector": [
+            "Cognis Heavy Stubber Array",
+            "Armoured Hull"
+        ],
+        "Belisarius Cawl": true,
+        "Corpuscarii Electro-priests": true,
+        "Cybernetica Datasmith": true,
+        "Fulgurite Electro-priests": true,
+        "Ironstrider Ballistarii": [
+            "Ironstrider Feet"
+        ],
+        "Kastelan Robots": [],
+        "Kataphron Breachers": [],
+        "Kataphron Destroyers": [
+            "Close Combat Weapon"
+        ],
+        "Onager Dunecrawler": [
+            "Dunecrawler Legs"
+        ],
+        "Pteraxii Skystalkers": true,
+        "Pteraxii Sterylizors": true,
+        "Serberys Raiders": [
+            "Mechanicus Pistol",
+            "Galvanic Carbine",
+            "Cavalry sabre & clawed limbs"
+        ],
+        "Serberys Sulphurhounds": [
+            "Mechanicus Pistol",
+            "Sulphur Breath",
+            "Cavalry Arc Maul",
+            "Clawed Limbs"
+        ],
+        "Servitor Battleclade": [
+            "Heavy Arc Rifle",
+            "Heavy Bolter",
+            "Mechanicus Pistol",
+            "Dataspikes",
+            "Servo-claw"
+        ],
+        "Sicarian Infiltrators": [
+            "Stubcarbine",
+            "Power Weapon"
+        ],
+        "Sicarian Ruststalkers": [],
+        "Skitarii Marshal": true,
+        "Skitarii Rangers": [
+            "Galvanic Rifle",
+            "Close Combat Weapon"
+        ],
+        "Skitarii Vanguard": [
+            "Radium Carbine",
+            "Close Combat Weapon"
+        ],
+        "Skorpius Disintegrator": [
+            "Cognis Heavy Stubber",
+            "Disruptor Missile Launcher",
+            "Armoured Hull"
+        ],
+        "Skorpius Dunerider": true,
+        "Sydonian Dragoons with Radium Jezzails": true,
+        "Sydonian Skatros": [
+            "Mechanicus Pistol",
+            "Sydonian Feet"
+        ],
+        "Tech-Priest Dominus": [
+            "Omnissian Axe"
+        ],
+        "Tech-Priest Enginseer": true,
+        "Tech-Priest Manipulus": [
+            "Omnissian Staff"
+        ],
+        "Technoarcheologist": true,
+        "sydonian Dragoons with Taser Lances": true
+    },
+    "Adeptus Titanicus": {
+        "Reaver Titan": [
+            "Reaver apocalypse launcher",
+            "reaver feet"
+        ],
+        "Warbringer Nemesis Titan": [
+            "Anvillus Defence Battery",
+            "Ardex-defensor Mauler",
+            "Nemesis Feet"
+        ],
+        "Warhound Titan": [
+            "Warhound Feet"
+        ],
+        "Warlord Titan": [
+            "Ardex-defensor Mauler",
+            "Ardex-defensor Lascannon",
+            "Warlord Feet"
+        ]
+    },
+    "Aeldari": {
+        "Asurmen": true,
+        "Autarch": [],
+        "Autarch Wayleaper": [
+            "Shuriken Pistol",
+            "Star Glaive"
+        ],
+        "Avatar of Khaine": true,
+        "Baharroth": true,
+        "Corsair Voidreavers": [
+            "Shuriken Pistol",
+            "Power Sword",
+            "Close Combat Weapon"
+        ],
+        "Corsair Voidscarred": [
+            "Close Combat Weapon"
+        ],
+        "Crimson Hunter": [
+            "Pulse laser",
+            "Wraithbone Hull"
+        ],
+        "D-Cannon Platform": true,
+        "Dark Reapers": [
+            "Close Combat Weapon"
+        ],
+        "Death Jester": true,
+        "Dire Avengers": [
+            "Close Combat Weapon"
+        ],
+        "Eldrad Ulthran": true,
+        "Falcon": [
+            "Pulse laser",
+            "Wraithbone Hull"
+        ],
+        "Farseer": [
+            "Eldritch Storm",
+            "Shuriken Pistol"
+        ],
+        "Farseer Skyrunner": [
+            "Eldritch Storm",
+            "Shuriken Pistol",
+            "Twin Shuriken Catapult"
+        ],
+        "Fire Dragons": [
+            "Close Combat Weapon",
+            "Dragon Fusion Gun"
+        ],
+        "Fire Prism": [
+            "Prism Cannon",
+            "Wraithbone Hull"
+        ],
+        "Fuegan": true,
+        "Guardian Defenders": [
+            "Shuriken Catapult",
+            "Close Combat Weapon"
+        ],
+        "Hemlock Wraithfighter": true,
+        "Howling Banshees": [
+            "Shuriken Pistol",
+            "Banshee Blade"
+        ],
+        "Jain Zar": true,
+        "Lhykhis": true,
+        "Maugan Ra": true,
+        "Night Spinner": [
+            "Doomweaver",
+            "Wraithbone Hull"
+        ],
+        "Phantom Titan": [
+            "Voidstorm Missile Launcher",
+            "Phantom Feet"
+        ],
+        "Rangers": true,
+        "Revenant Titan": [
+            "Cloudburst Missile Launcher",
+            "Revenant Feet"
+        ],
+        "Shadow Weaver Platform": true,
+        "Shadowseer": [
+            "Shuriken Pistol",
+            "Miststave",
+            "Flip Belt"
+        ],
+        "Shining Spears": [],
+        "Shroud Runners": true,
+        "Skyweavers": [
+            "Close Combat Weapon",
+            "Skyweaver",
+            "Invulnerable Save",
+            "Acrobatic Grace"
+        ],
+        "Solitaire": true,
+        "Spiritseer": true,
+        "Starweaver": true,
+        "Storm Guardians": [
+            "Shuriken Pistol",
+            "Close Combat Weapon",
+            "Serpent Shield"
+        ],
+        "Striking Scorpions": [],
+        "Swooping Hawks": [
+            "Close Combat Weapon"
+        ],
+        "The Visarch": true,
+        "The Yncarne": true,
+        "Troupe": [
+            "Flip Belt"
+        ],
+        "Troupe Master": [
+            "Shuriken Pistol",
+            "Troupe Master's Blade",
+            "Flip Belt"
+        ],
+        "Vibro Cannon Platform": true,
+        "Voidweaver": [
+            "Shuriken Cannon",
+            "Close Combat Weapon"
+        ],
+        "Vypers": [
+            "Wraithbone Hull"
+        ],
+        "War Walkers": [
+            "War Walker Feet"
+        ],
+        "Warlock": [
+            "Destructor",
+            "Shuriken Pistol"
+        ],
+        "Warlock Conclave": [
+            "Destructor",
+            "Shuriken Pistol",
+            "Warlock"
+        ],
+        "Warlock Skyrunners": [
+            "Destructor",
+            "Shuriken Pistol",
+            "Twin Shuriken Catapult"
+        ],
+        "Warp Spiders": [
+            "Close Combat Weapon"
+        ],
+        "Wave Serpent": [
+            "Wraithbone Hull"
+        ],
+        "Windriders": [
+            "Close Combat Weapon"
+        ],
+        "Wraithblades": [
+            "Ghostswords",
+            "Wraithblade"
+        ],
+        "Wraithguard": [
+            "Close Combat Weapon"
+        ],
+        "Wraithknight": [
+            "Titanic Feet"
+        ],
+        "Wraithknight with Ghostglaive": [
+            "Titanic Ghostglaive"
+        ],
+        "Wraithlord": [
+            "Wraithbone Fists",
+            "Aeldari Missile Launcher"
+        ],
+        "Ynnari Archon": [
+            "Huskblade",
+            "Shadow Field"
+        ],
+        "Ynnari Incubi": [
+            "Klaive"
+        ],
+        "Ynnari Kabalite Warriors": [
+            "Splinter Rifle",
+            "Close Combat Weapon"
+        ],
+        "Ynnari Raider": [
+            "Bladevanes"
+        ],
+        "Ynnari Reavers": [
+            "Splinter Pistol",
+            "Bladevanes"
+        ],
+        "Ynnari Succubus": [
+            "Succubus Weapons"
+        ],
+        "Ynnari Venom": [
+            "Bladevanes"
+        ],
+        "Ynnari Wyches": [
+            "Splinter Pistol",
+            "Hekatarii Blade"
+        ],
+        "Yvraine": true
+    },
+    "Astra Militarum": {
+        "Aegis Defence Line": true,
+        "Armoured Sentinels": [
+            "Close Combat Weapon",
+            "armoured sentinel"
+        ],
+        "Artillery Team": [
+            "Lasgun",
+            "Crew Close Combat Weapons"
+        ],
+        "Attilan Rough Riders": [
+            "Hunting Lance",
+            "Steed's hooves"
+        ],
+        "Avenger Strike Fighter": true,
+        "Baneblade": [
+            "Baneblade Cannon",
+            "Coaxial Autocannon",
+            "Demolisher Cannon",
+            "Armoured Tracks"
+        ],
+        "Banehammer": [
+            "Tremor Cannon",
+            "Armoured Tracks"
+        ],
+        "Banesword": [
+            "Quake Cannon",
+            "Armoured Tracks"
+        ],
+        "Basilisk": [
+            "Earthshaker Cannon",
+            "Armoured Tracks"
+        ],
+        "Bullgryn Squad": [
+            "Grenadier Gauntlet",
+            "Close Combat Weapon",
+            "Slabshield"
+        ],
+        "Cadian Command Squad": [
+            "Medi-pack",
+            "Regimental Standard",
+            "Master Vox"
+        ],
+        "Cadian Heavy Weapons Squad": [
+            "Weapons Team Close Combat Weapons",
+            "Heavy Weapons Team"
+        ],
+        "Cadian Shock Troops": [
+            "Lasgun",
+            "Laspistol",
+            "Close Combat Weapon",
+            "Shock Trooper"
+        ],
+        "Catachan Command Squad": [],
+        "Catachan Heavy Weapons Squad": [
+            "Weapons Team Close Combat Weapons"
+        ],
+        "Catachan Jungle Fighters": [
+            "Laspistol",
+            "Close Combat Weapon",
+            "lasgun",
+            "Catachan Jungle Fighter"
+        ],
+        "Chimera": [
+            "Armoured Tracks"
+        ],
+        "Cyclops Demolition Vehicle": true,
+        "Death Korps of Krieg": [
+            "Laspistol",
+            "Chainsword",
+            "Lasgun",
+            "Close Combat Weapon"
+        ],
+        "Death Riders": true,
+        "Deathstrike": [
+            "Deathstrike Missile",
+            "Armoured Tracks"
+        ],
+        "Doomhammer": [
+            "Magma Cannon",
+            "Armoured Tracks"
+        ],
+        "Field Ordnance Battery": [
+            "Battery Close Combat Weapons"
+        ],
+        "Gaunt's Ghosts": true,
+        "Hellhammer": [
+            "Coaxial Autocannon",
+            "Demolisher Cannon",
+            "Hellhammer Cannon",
+            "Armoured Tracks"
+        ],
+        "Hellhound": [
+            "Armoured Tracks"
+        ],
+        "Hydra": [
+            "Hydra Autocannon",
+            "Armoured Tracks"
+        ],
+        "Kasrkin": [
+            "Hot-Shot Laspistol",
+            "Chainsword",
+            "Hot-Shot Lasgun",
+            "Close Combat Weapon"
+        ],
+        "Krieg Combat Engineers": [
+            "Autopistol",
+            "Trench Club"
+        ],
+        "Krieg Command Squad": [
+            "Alchemyk Counteragents",
+            "Servo-Scribes",
+            "Master Vox",
+            "Regimental Standard"
+        ],
+        "Krieg Heavy Weapons Squad": [
+            "Laspistol",
+            "Heavy Weapons Gunner",
+            "Close Combat Weapon"
+        ],
+        "Leman Russ Battle Tank": [
+            "Leman Russ Battle Cannon",
+            "Armoured Tracks"
+        ],
+        "Leman Russ Commander": [
+            "Armoured Tracks"
+        ],
+        "Leman Russ Demolisher": [
+            "Demolisher Battle Cannon",
+            "Armoured Tracks"
+        ],
+        "Leman Russ Eradicator": [
+            "Eradicator Nova Cannon",
+            "Armoured Tracks"
+        ],
+        "Leman Russ Executioner": [
+            "Executioner Plasma Cannon",
+            "Armoured Tracks"
+        ],
+        "Leman Russ Exterminator": [
+            "Exterminator Autocannon",
+            "Armoured Tracks"
+        ],
+        "Leman Russ Punisher": [
+            "Punisher Gatling Cannon",
+            "Armoured Tracks"
+        ],
+        "Leman Russ Vanquisher": [
+            "Vanquisher Battle Cannon",
+            "Armoured Tracks"
+        ],
+        "Lord Marshal Dreir": true,
+        "Lord Solar Leontus": true,
+        "Manticore": [
+            "Storm Eagle Rockets",
+            "Armoured Tracks"
+        ],
+        "Militarum Tempestus Command squad": [
+            "Hot-Shot Lasgun",
+            "Tempestus Dagger"
+        ],
+        "Ministorum Priest": [],
+        "Nork Deddog": true,
+        "Ogryn Bodyguard": [],
+        "Ogryn Squad": true,
+        "Primaris Psyker": true,
+        "Ratlings": [
+            "Sniper Rifle",
+            "Close Combat Weapon"
+        ],
+        "Rogal Dorn Battle Tank": [
+            "Armoured Tracks"
+        ],
+        "Rogal Dorn Commander": [
+            "Armoured Tracks"
+        ],
+        "Scout Sentinels": [
+            "Scout Sentinel"
+        ],
+        "Shadowsword": [
+            "Volcano Cannon",
+            "Armoured Tracks"
+        ],
+        "Sly Marbo": true,
+        "StormSword": [
+            "Stormsword Siege Cannon",
+            "Armoured Tracks"
+        ],
+        "Stormlord": [
+            "Vulcan Mega-bolter",
+            "Armoured Tracks"
+        ],
+        "Taurox": [
+            "Twin Autocannon",
+            "Armoured Tracks"
+        ],
+        "Taurox Prime": [
+            "Armoured Tracks"
+        ],
+        "Tech-Priest Enginseer": true,
+        "Tempestus Aquilons": [
+            "Close Combat Weapon"
+        ],
+        "Tempestus Scions": [
+            "Close Combat Weapon",
+            "Chainsword"
+        ],
+        "Ursula Creed": true,
+        "Valkyrie": [
+            "Armoured Hull"
+        ],
+        "Wyvern": [
+            "Wyvern Quad Stormshard Mortar",
+            "Armoured Tracks"
+        ]
+    },
+    "Black Templars": {
+        "Black Templars Gladiator Lancer": [
+            "Lancer Laser Destroyer",
+            "Armoured Hull"
+        ],
+        "Black Templars Gladiator Reaper": [
+            "Tempest Bolter",
+            "Twin Heavy Onslaught Gatling Cannon",
+            "Armoured Hull"
+        ],
+        "Black Templars Gladiator Valiant": [
+            "Twin Las-Talon",
+            "Armored Hull"
+        ],
+        "Black Templars Impulsor": [
+            "Armoured Hull"
+        ],
+        "Black Templars Repulsor": [
+            "Heavy Onslaught Gatling Cannon",
+            "Hunter-Slayer Missile",
+            "Repulsor Defensive Array",
+            "Armoured Hull"
+        ],
+        "Black Templars Repulsor Executioner": [
+            "Heavy Onslaught Gatling Cannon",
+            "Repulsor Executioner Defensive Array",
+            "Twin Heavy Bolter",
+            "Twin Icarus Ironhail Heavy Stubber",
+            "Armoured Hull"
+        ],
+        "Castellan": [],
+        "Chaplain Grimaldus": true,
+        "Crusader Squad": [],
+        "High Marshal Helbrecht": true,
+        "Marshal": [
+            "Master-Crafted Power Weapon"
+        ],
+        "Primaris Crusader Squad": [],
+        "Primaris Sword Bretheren": [],
+        "The Emperor's Champion": true
+    },
+    "Blood Angels": {
+        "Astorath": true,
+        "Baal Predator": [
+            "Armoured Tracks"
+        ],
+        "Blood Angels Captain": [],
+        "Chief Librarian Mephiston": true,
+        "Commander Dante": true,
+        "Death Company Captain": [],
+        "Death Company Captain with Jump Pack": [],
+        "Death Company Dreadnought": [
+            "Twin Icarus Ironhail Heavy Stubber"
+        ],
+        "Death Company Marines": [],
+        "Death Company Marines with Bolt Rifles": [],
+        "Death Company Marines with Jump Packs": [],
+        "Lemartes": true,
+        "Sanguinary Guard": [],
+        "Sanguinary Priest": true,
+        "The Sanguinor": true
+    },
+    "Chaos Daemons": {
+        "Be'Lakor": [
+            "Betraying Shades",
+            "The Blade of Shadows"
+        ],
+        "Beasts of Nurgle": [
+            "Putrid Appendages"
+        ],
+        "Bloodcrushers": [
+            "Hellblade",
+            "Juggernaut's Bladed Horn"
+        ],
+        "Bloodletters": [
+            "Hellblade"
+        ],
+        "Bloodthirster": [
+            "Hellfire Breath"
+        ],
+        "Blue Horrors": [
+            "Coruscating Blue Flames",
+            "Blue Claws",
+            "Coruscating Yellow Flames",
+            "Yellow Claws"
+        ],
+        "Burning Chariot": [
+            "Fire of Tzeentch",
+            "Flamer Mouths",
+            "Screamer Bites"
+        ],
+        "Changecaster": [
+            "Arcane Fireball",
+            "Herald Combat Weapon"
+        ],
+        "Contorted Epitome": [
+            "Coiled Tentacles",
+            "Ravaging Claws"
+        ],
+        "Daemon Prince of Chaos": [
+            "Hellforged Weapons",
+            "Infernal Cannon"
+        ],
+        "Daemon Prince of Chaos With Wings": [
+            "Hellforged Weapons",
+            "Infernal Cannon"
+        ],
+        "Daemonettes": [
+            "Slashing Claws"
+        ],
+        "Epidemius": [
+            "Balesword and Nurgling Attendants"
+        ],
+        "Exalted Flamer": [
+            "Fire of Tzeentch",
+            "Flamer Mouths"
+        ],
+        "Fateskimmer": [
+            "Arcane Fireball",
+            "Herald Combat Weapon",
+            "Screamer Bites"
+        ],
+        "Fiends": [
+            "Barbed Tail and Dissecting Claws"
+        ],
+        "Flamers": [
+            "Flickering Flames",
+            "Flamer Mouths"
+        ],
+        "Flesh Hounds": [
+            "Burning Roar",
+            "Gore-drenched Fangs",
+            "Collar of Khorne"
+        ],
+        "Fluxmaster": [
+            "Arcane Fireball",
+            "Herald Combat Weapon"
+        ],
+        "Great Unclean One": [
+            "Putrid Vomit"
+        ],
+        "Hellflayers": [
+            "Lashes of Torment",
+            "Seeker Tongues",
+            "Slashing Claws"
+        ],
+        "Horticulous Slimux": [
+            "Acidic Maw",
+            "Lopping Shears"
+        ],
+        "Infernal Enrapturess": [
+            "Heartstring Lyre",
+            "Ravaging Claws"
+        ],
+        "Kairos Fateweaver": [
+            "Infernal Gateway",
+            "Staff of Tomorrow"
+        ],
+        "Karanak": [
+            "Scalding Roar",
+            "Soul-Rending Fangs",
+            "Brass Collar of Bloody Vengeance"
+        ],
+        "Keeper of Secrets": [
+            "Phantasmagoria",
+            "Snapping Claws",
+            "Witstealer Sword"
+        ],
+        "Lord of Change": [
+            "Bolt of Change",
+            "Staff of Tzeentch"
+        ],
+        "Nurglings": [
+            "Diseased Claws and Teeth"
+        ],
+        "Pink Horrors": [
+            "Coruscating Blue Flames",
+            "Coruscating Yellow Flames",
+            "Coruscating Pink Flames",
+            "Pink Claws",
+            "Blue Claws",
+            "Yellow Claws"
+        ],
+        "Plague Drones": [
+            "Death's Heads",
+            "Foul Mouthparts",
+            "Plaguesword"
+        ],
+        "Plaguebearers": [
+            "Plaguesword"
+        ],
+        "Poxbringer": [
+            "Foul Balesword"
+        ],
+        "Rendmaster on Blood Throne": [
+            "Attendants' Hellblades",
+            "Blade of Blood"
+        ],
+        "Rotigus": [
+            "Streams of Brackish Filth",
+            "Gnarlrod"
+        ],
+        "Screamers": [
+            "Lamprey Bite"
+        ],
+        "Seekers": [
+            "Lashing Tongue",
+            "Slashing Claws"
+        ],
+        "Shalaxi Helbane": [
+            "Lash of Slaanesh",
+            "Pavane of Slaanesh",
+            "Snapping Claws",
+            "Soulpiercer"
+        ],
+        "Skarbrand": [
+            "Bellow of Endless Fury",
+            "Slaughter and Carnage"
+        ],
+        "Skull Cannon": [
+            "Skull Cannon",
+            "Attendants' Hellblades",
+            "Biting Maw"
+        ],
+        "Skullmaster": [
+            "Blade of Blood",
+            "Juggernaut's Bladed Horn"
+        ],
+        "Skulltaker": [
+            "The Slayer Sword"
+        ],
+        "Sloppity Bilepiper": [
+            "Marotter"
+        ],
+        "Soul Grinder": [
+            "Harvester Cannon",
+            "Iron Claw"
+        ],
+        "Spoilpox Scrivener": [
+            "Disgusting Sneezes",
+            "Plaguesword and Distended Maw"
+        ],
+        "Syll'esske": [
+            "Cacophonic Choir",
+            "Scourging Whip",
+            "Axe of Dominion"
+        ],
+        "The Blue Scribes": [
+            "Sharp Quills"
+        ],
+        "The Changeling": [
+            "Infernal Flames",
+            "The Trickster's Staff"
+        ],
+        "The masque of Slaanesh": [
+            "Serrated Claws"
+        ],
+        "Tormentbringer": [
+            "Lashes of Torment",
+            "Seeker Tongues",
+            "Slashing Claws"
+        ],
+        "Tranceweaver": [
+            "Ravaging Claws"
+        ]
+    },
+    "Chaos Knights": {
+        "Chaos Acastus Knight Asterius": [
+            "Asterius Volkite Culverin",
+            "Karacnos mortar Battery",
+            "twin conversion beam cannon",
+            "Titanic Feet"
+        ],
+        "Chaos Acastus Knight Porphyrion": [
+            "Twin Magna Lascannon",
+            "Titanic Feet"
+        ],
+        "Chaos Cerastus Knight Acheron": [
+            "Acheron Flame Cannon",
+            "Twin Heavy Bolter",
+            "Reaper Chainfist"
+        ],
+        "Chaos Cerastus Knight Atrapos": [
+            "Atrapos Lascutter",
+            "Graviton Singularity Cannon"
+        ],
+        "Chaos Cerastus Knight Castigator": [
+            "Castigator Bolt Cannon",
+            "Tempest Warblade"
+        ],
+        "Chaos Cerastus Knight Lancer": [
+            "Cerastus Shock Lance"
+        ],
+        "Chaos Questoris Knight Magaera": [
+            "Lightning cannon",
+            "Phased Plasma-fusil"
+        ],
+        "Chaos Questoris Knight Styrix": [
+            "Graviton Crusher",
+            "Volkite Chierovile"
+        ],
+        "Knight Abominant": [
+            "Diabolus Heavy Stubber",
+            "Volkite Combustor",
+            "Balemace",
+            "Electroscourge"
+        ],
+        "Knight Desecrator": [
+            "Desecrator Laser Destroyer",
+            "Diabolus Heavy Stubber"
+        ],
+        "Knight Despoiler": [
+            "Titanic Feet"
+        ],
+        "Knight Rampager": [
+            "Diabolus Heavy Stubber",
+            "Reaper Chainsword",
+            "Warpstrike Claw"
+        ],
+        "Knight Ruinator": [
+            "Darkflame Lance",
+            "Terrorpulse Missiles",
+            "Fellbore"
+        ],
+        "Knight Tyrant": [
+            "Titanic Feet"
+        ],
+        "War Dog Brigand": [
+            "Avenger Chaincannon",
+            "Daemonbreath Spear",
+            "Armoured Feet"
+        ],
+        "War Dog Executioner": [
+            "War Dog Autocannon",
+            "Armoured Feet"
+        ],
+        "War Dog Huntsman": [
+            "Reaper Chaintalon",
+            "Daemonbreath Spear"
+        ],
+        "War Dog Karnivore": [
+            "Reaper Chaintalon",
+            "Slaughterclaw"
+        ],
+        "War Dog Moirax": [
+            "Armoured Feet"
+        ],
+        "War Dog Stalker": []
+    },
+    "Chaos Space Marines": {
+        "Abbadon the Despoiler": true,
+        "Accursed Cultists": true,
+        "Chaos Bikers": [],
+        "Chaos Land Raider": [
+            "Soulshatter Lascannon",
+            "Twin Heavy Bolter",
+            "Armoured Tracks"
+        ],
+        "Chaos Lord": [],
+        "Chaos Lord in Terminator Armour": [],
+        "Chaos Lord with Jump Pack": [],
+        "Chaos Predator Annihilator": [
+            "Predator Twin Lascannon",
+            "Armoured Tracks"
+        ],
+        "Chaos Predator Destructor": [
+            "Predator Autocannon",
+            "Armoured Tracks"
+        ],
+        "Chaos Rhino": [
+            "Armoured Tracks"
+        ],
+        "Chaos Spawn": true,
+        "Chaos Terminator Squad": [],
+        "Chaos Vindicator": [
+            "Demolisher Cannon",
+            "Armoured Tracks"
+        ],
+        "Chosen": [],
+        "Cultist Firebrand": true,
+        "Cultist Mob": [
+            "Brutal Assault Weapon"
+        ],
+        "Cypher": true,
+        "Dark Apostle": true,
+        "Dark Commune": true,
+        "Defiler": [
+            "Defiler Cannon",
+            "Defiler Claws"
+        ],
+        "Fabius Bile": true,
+        "Fellgor Beastmen": [
+            "Chainsword",
+            "Autopistol"
+        ],
+        "Forgefiend": [],
+        "Haarken Worldclaimer": true,
+        "Havocs": [
+            "Flamer"
+        ],
+        "Helbrute": [],
+        "Heldrake": [
+            "Heldrake Claws"
+        ],
+        "Heretic Astartes Daemon Prince": true,
+        "Heretic Astartes Daemon Prince With Wings": true,
+        "Huron Blackheart": true,
+        "Khorne Berzerkers": [],
+        "Khorne Lord of Skulls": [
+            "Great Cleaver of Khorne"
+        ],
+        "Legionaries": [],
+        "Lord Discordant on Helstalker": [
+            "bladed limbs",
+            "impaler chainglaive"
+        ],
+        "Master of Executions": true,
+        "Master of Posession": true,
+        "Maulerfiend": [
+            "Maulerfiend Fists"
+        ],
+        "Nemesis Claw": [],
+        "Noctilith Crown": true,
+        "Noise Marines": [],
+        "Obliterators": true,
+        "Plague Marines": [],
+        "Possessed": [
+            "Hideous Mutations"
+        ],
+        "Raptors": [],
+        "Rubric Marines": [],
+        "Sorcerer": true,
+        "Sorcerer in Terminator Armour": [
+            "Infernal Gaze",
+            "Force Weapon"
+        ],
+        "Traitor Enforcer": true,
+        "Traitor Guardsmen Squad": [],
+        "Vashtorr the Arkifane": true,
+        "Venomcrawler": true,
+        "Warp Talons": true,
+        "Warpsmith": true
+    },
+    "Dark Angels": {
+        "Asmodai": true,
+        "Azrael": true,
+        "Belial": true,
+        "Deathwing Knights": [],
+        "Deathwing Terminator Squad": [
+            "Storm Bolter",
+            "Power Weapon"
+        ],
+        "Ezekiel": true,
+        "Inner Circle Companions": true,
+        "Land Speeder Vengeance": [
+            "Plasma Storm Battery",
+            "Close Combat Weapon"
+        ],
+        "Lazarus": true,
+        "Lion El'Jonson": true,
+        "Nephilim Jetfighter": [
+            "Blacksword Missiles",
+            "Twin Heavy Bolter",
+            "Armoured Hull"
+        ],
+        "Ravenwind Darkshroud": [
+            "Close Combat Weapon"
+        ],
+        "Ravenwing Black Knights": [
+            "Bolt Pistol",
+            "Black Knight Combat Weapon"
+        ],
+        "Ravenwing Command Squad": [
+            "Bolt Pistol",
+            "Black Knight Combat Weapon",
+            "Master-Crafted Power Weapon"
+        ],
+        "Ravenwing Dark Talon": true,
+        "Sammael": true
+    },
+    "Death Guard": {
+        "Beasts of Nurgle": true,
+        "Biologus Putrifier": true,
+        "Blightlord Terminators": [
+            "Bubotic Blade"
+        ],
+        "Chaos Land Raider": [
+            "Soulshatter Lascannon",
+            "Twin Heavy Bolter",
+            "Armoured Tracks"
+        ],
+        "Chaos Predator Annihilator": [
+            "Predator Twin Lascannon",
+            "Armoured Tracks"
+        ],
+        "Chaos Predator Destructor": [
+            "Predator Autocannon",
+            "Armoured Tracks"
+        ],
+        "Chaos Rhino": [
+            "Armoured Tracks"
+        ],
+        "Chaos Spawn": true,
+        "Daemon Prince of Nurgle": true,
+        "Daemon Prince of Nurgle With Wings": true,
+        "Deathshroud Terminators": [
+            "Plaguespurt Gauntlet",
+            "Manreaper"
+        ],
+        "Defiler": [
+            "Defiler Cannon",
+            "Defiler Claws"
+        ],
+        "Foetid Bloat Drone": [
+            "Plague Probe"
+        ],
+        "Foetid Bloat Drone with Heavy Blight Launcher": true,
+        "Great Unclean One": [
+            "Putrid Vomit"
+        ],
+        "Helbrute": [],
+        "Icon Bearer": true,
+        "Lord of Contagion": true,
+        "Lord of Poxes": true,
+        "Lord of Virulence": true,
+        "Malignant Plaguecaster": true,
+        "Miasmic Malignifier": true,
+        "Mortarion": true,
+        "Myphitic Blight-Haulers": true,
+        "Noxious Blightbringer": true,
+        "Nurglings": true,
+        "Plague Drones": [
+            "Death's Heads",
+            "Foul Mouthparts",
+            "Plaguesword"
+        ],
+        "Plague Marines": [],
+        "Plague Surgeon": true,
+        "Plaguebearers": [
+            "Plaguesword"
+        ],
+        "Plagueburst Crawler": [
+            "Plagueburst Mortar",
+            "Armoured Tracks"
+        ],
+        "Poxwalkers": true,
+        "Rotigus": true,
+        "Tallyman": true,
+        "Typhus": true
+    },
+    "Deathwatch": {
+        "Corvus Blackstar": [
+            "Armoured Hull"
+        ],
+        "Deathwatch Terminator Squad": [],
+        "Deathwatch Veterans": [],
+        "Fortis Kill Team": [],
+        "Indomitor Kill Team": [],
+        "Spectrus Kill Team": [],
+        "Talonstrike Kill Team": [],
+        "Watch Captain Artemis": true,
+        "Watch Master": true
+    },
+    "Drukhari": {
+        "Archon": [
+            "Huskblade"
+        ],
+        "Beastmaster": true,
+        "Court of the Archon": true,
+        "Cronos": [
+            "Spirit Syphon",
+            "Spirit-Leech Tentacles"
+        ],
+        "Drazhar": true,
+        "Grotesques": [
+            "Monstrous Weapons"
+        ],
+        "Haemonculus": true,
+        "Hellions": [
+            "Splinter Pods",
+            "Hellglaive"
+        ],
+        "Incubi": [
+            "Klaive"
+        ],
+        "Kabalite Warriors": [
+            "Splinter Rifle",
+            "Close Combat Weapon"
+        ],
+        "Lelith Hesperax": true,
+        "Mandrakes": true,
+        "Raider": [
+            "Bladevanes"
+        ],
+        "Ravager": [
+            "Bladevanes"
+        ],
+        "Razorwing Jetfighter": [
+            "Razorwing Missiles",
+            "Bladed Wings"
+        ],
+        "Reavers": [
+            "Splinter Pistol",
+            "Bladevanes"
+        ],
+        "Scourges": [
+            "Close Combat Weapon"
+        ],
+        "Succubus": [
+            "Succubus Weapons"
+        ],
+        "Talos": [],
+        "Urien Rakarth": true,
+        "Venom": [
+            "Bladevanes"
+        ],
+        "Voidraven Bomber": [
+            "Bladed Wings"
+        ],
+        "Wracks": [
+            "Wrack Blades"
+        ],
+        "Wyches": [
+            "Splinter Pistol",
+            "Hekatarii Blade"
+        ]
+    },
+    "Emperor's Children": {
+        "Chaos Land Raider": [
+            "Soulshatter Lascannon",
+            "Twin Heavy Bolter",
+            "Armoured Tracks"
+        ],
+        "Chaos Rhino": [
+            "Armoured Tracks"
+        ],
+        "Chaos Spawn": true,
+        "Chaos Terminators": [],
+        "Daemon Prince of Slaanesh": true,
+        "Daemon Prince of Slaanesh with Wings": true,
+        "Daemonettes": [
+            "Slashing Claws"
+        ],
+        "Fiends": true,
+        "Flawless Blades": true,
+        "Fulgrim": true,
+        "Heldrake": [
+            "Heldrake Claws"
+        ],
+        "Infractors": [
+            "Duelling Sabre"
+        ],
+        "Keeper of Secrets": [
+            "Phantasmagoria",
+            "Snapping Claws",
+            "Witstealer Sword"
+        ],
+        "Lord Exultant": [],
+        "Lucius the Eternal": true,
+        "Maulerfiend": [
+            "Maulerfiend Fists"
+        ],
+        "Noise Marines": [],
+        "Seekers": [
+            "Lashing Tongue",
+            "Slashing Claws"
+        ],
+        "Shalaxi Helbane": true,
+        "Sorcerer": true,
+        "Tormentors": []
+    },
+    "Genestealer Cults": {
+        "Aberrants": true,
+        "Abominant": true,
+        "Achilles Ridgerunners": [
+            "Armoured Hull"
+        ],
+        "Acolyte Hybrids with Autopistols": [],
+        "Acolyte Hybrids with Hand Flamers": [],
+        "Acolyte Iconward": true,
+        "Atalan Jackals": [
+            "Atalan Small Arms",
+            "Close Combat Weapon"
+        ],
+        "Benefictus": true,
+        "Biophagus": true,
+        "Clamavus": true,
+        "Goliath Rockgrinder": [
+            "Heavy Stubber",
+            "Drilldozer blade",
+            "Demolition Charge Cache"
+        ],
+        "Goliath Truck": true,
+        "Hybrid Metamorphs": [
+            "Autopistol",
+            "Leader's Bio-weapons",
+            "Metamorph Mutations"
+        ],
+        "Jackal Alphus": true,
+        "Kelermorph": true,
+        "Locus": true,
+        "Magus": true,
+        "Neophyte Hybrids": [
+            "Autopistol",
+            "Hybrid Firearm",
+            "Close Combat Weapon"
+        ],
+        "Nexos": true,
+        "Patriarch": true,
+        "Primus": true,
+        "Purestrain Genestealers": true,
+        "Reductus Saboteur": true,
+        "Sanctus": []
+    },
+    "Grey Knights": {
+        "Brother-Captain Stern": true,
+        "Brotherhood Champion": true,
+        "Brotherhood Chaplain": true,
+        "Brotherhood Librarian": [
+            "Purge Soul",
+            "Vortex of Doom"
+        ],
+        "Brotherhood Techmarine": [
+            "Plasma Cutter",
+            "Omnissian Power Axe",
+            "Servo-Arms",
+            "Forge Bolter",
+            "Grav-Pistol",
+            "Flamer"
+        ],
+        "Brotherhood Terminator Squad": [],
+        "Castellan Crowe": true,
+        "Grand Master Voldus": true,
+        "Grand Master in Nemesis Dreadknight": [
+            "Fragstorm Grenade Launcher"
+        ],
+        "Land Raider": [
+            "Godhammer Lascannon",
+            "Twin Heavy Bolter",
+            "Armoured Tracks"
+        ],
+        "Land Raider Crusader": [
+            "Hurricane Bolter",
+            "Twin Assault Cannon",
+            "Armoured Tracks"
+                ],
+        "Land Raider Redeemer": [
+            "Flamestorm Cannon",
+            "Twin Assault Cannon",
+            "Armoured Tracks"
+        ],
+        "Razorback": [
+            "Armoured Tracks"
+        ],
+        "Rhino": [
+            "Armoured Tracks"
+        ],
+        "Stormhawk Interceptor": [
+            "Armoured Hull"
+        ],
+        "Stormraven Gunship": [
+            "Stormstrike Missile Launcher",
+            "Armoured Hull"
+        ],
+        "Stormtalon Gunship": [
+            "Twin Assault Cannon",
+            "Armoured Hull"
+        ],
+        "Grey Knights Thunderhawk Gunship": [
+            "Lascannon",
+            "Twin Heavy Bolter",
+            "Armoured Hull"
+        ],
+        "Venerable Dreadnought": [],
+        "Interceptor Squad": [
+            "Close Combat Weapon"
+        ],
+        "Kaldor Draigo": true,
+        "Land Raider Banisher": [
+            "Armoured Tracks"
+        ],
+        "Nemesis Dreadknight": [],
+        "Paladin Squad": [],
+        "Purgation Squad": [
+            "Close Combat Weapon"
+        ],
+        "Purifier squad": [
+            "Purifying Flame",
+            "Close Combat Weapon"
+        ],
+        "Servitors": [
+            "Servitor's Servo-arm",
+            "Servitor's Tools"
+        ],
+        "Strike Squad": [
+            "Close Combat Weapon"
+        ]
+    },
+    "Imperial Fists": {
+        "Darnath Lysander": true,
+        "Pedro Kantor": true,
+        "Tor Garadon": true
+    },
+    "Imperial Knights": {
+        "Acastus Knight Asterius": true,
+        "Acastus Knight Porphyrion": [
+            "Twin Magna Lascannon",
+            "Titanic Feet"
+        ],
+        "Armiger Helverin": [
+            "Armiger Autocannon",
+            "Armoured Feet"
+        ],
+        "Armiger Moirax": [
+            "Armoured Feet"
+        ],
+        "Armiger Warglaive": [
+            "Reaper Chain-cleaver",
+            "Thermal Spear",
+            "Armoured Feet"
+        ],
+        "Canis Rex": true,
+        "Cerastus Knight Atrapos": true,
+        "Cerastus Knight Acheron": true,
+        "Cerastus Knight Castigator": true,
+        "Cerastus Knight Lancer": true,
+        "Knight Castellan": [
+            "Plasma Decimator",
+            "Twin Meltagun",
+            "Volcano Lance",
+            "Titanic Feet"
+        ],
+        "Knight Crusader": [
+            "Avenger Gatling Cannon",
+            "Titanic Feet"
+        ],
+        "Knight Errant": [
+            "Thermal Cannon"
+        ],
+        "Knight Gallant": [
+            "Thunderstrike Gauntlet",
+            "Reaper Chainsword"
+        ],
+        "Knight Paladin": [
+            "Rapid-Fire Battle Cannon"
+        ],
+        "Knight Preceptor": [
+            "Las-Impulsor"
+        ],
+        "Knight Valiant": [
+            "Conflagration Cannon",
+            "Thundercoil Harpoon",
+            "Twin Meltagun",
+            "Titanic Feet"
+        ],
+        "Knight Warden": [
+            "Avenger Gatling Cannon",
+            "Heavy Flamer"
+        ],
+        "Questoris Knight Magaera": [
+            "Lightning Cannon",
+            "Phased Plasma-fusil"
+        ],
+        "Questoris Knight Styrix": [
+            "Graviton Crusher",
+            "Volkite Chierovile"
+        ],
+        "Sir Hekhtur": true
+    },
+    "Iron Hands": {
+        "Iron Father Feirros": true
+    },
+    "Leagues of Votann": {
+        "Buri Aegnirssen": true,
+        "Arcanyst Evaluator": true,
+        "Grimnyr": true,
+        "Memnyr Strategist": true,
+        "Cthonian Earthshakers": [
+            "Autoch-pattern bolt pistol",
+            "Plasma picks"
+        ],
+        "Ironkin Steeljacks with Heavy Volkanite Disintegrators": [
+            "Preymark crest",
+            "Autoch-pattern bolter"
+        ],
+        "Ironkin Steeljacks with Melee Weapons": [
+            "Preymark crest",
+            "Autoch-pattern bolter"
+        ],
+        "Kapricus Defenders": [
+            "Armoured hull",
+            "Twin magna-coil autocannon"
+        ],
+        "Kapricus Carrier": [
+            "Armoured hull",
+            "Magna-coil autocannon",
+            "Twin magna-coil autocannon"
+        ],
+        "Brôkhyr Iron-master": true,
+        "Einhyr Champion": [
+            "Autoch-pattern combi-bolter"
+        ],
+        "Kâhl": [],
+        "Hearthkyn Warriors": [
+            "Weavefield crest",
+            "Autoch-pattern bolt pistol",
+            "Close combat weapon",
+            "Autoch-pattern bolter"
+        ],
+        "Brôkhyr Thunderkyn": [
+            "Close combat weapon"
+        ],
+        "Cthonian Beserks": [
+            "Beserk"
+        ],
+        "Einhyr Hearthguard": [
+            "Exo-armour grenade launcher"
+        ],
+        "Hernkyn Yaegirs": [
+            "Close combat weapon"
+        ],
+        "Hekaton Land Fortress": [
+            "Armoured wheels",
+            "MATR autocannon"
+        ],
+        "Sagitaur": [
+            "Armoured wheels",
+            "Twin bolt cannon"
+        ],
+        "Ûthar the Destined": true,
+        "Hernkyn Pioneers": [
+            "Bolt Revolver",
+            "Bolt Shotgun",
+            "Magna-coil autocannon",
+            "Plasma knife"
+        ]
+    },
+    "Necrons": {
+        "Annihilation Barge": [
+            "Twin Tesla Destructor",
+            "Armoured Bulk"
+        ],
+        "C'tan Shard of the Deceiver": true,
+        "C'tan Shard of the Nightbringer": true,
+        "C'tan Shard of the Void Dragon": true,
+        "Canoptek Doomstalker": true,
+        "Canoptek Reanimator": true,
+        "Canoptek Scarab Swarms": true,
+        "Canoptek Spyders": [
+            "Automaton Claws"
+        ],
+        "Canoptek Wraiths": [],
+        "Catacomb Command Barge": [],
+        "Chronomancer": true,
+        "Convergence of Dominion": true,
+        "Cryptothralls": true,
+        "Deathmarks": true,
+        "Doom Scythe": true,
+        "Doomsday Ark": true,
+        "Flayed Ones": true,
+        "Ghost Ark": true,
+        "Hexmark Destroyer": true,
+        "Illuminor Szeras": true,
+        "Immortals": [
+            "Close Combat Weapon"
+        ],
+        "Imotekh the Stormlord": true,
+        "Lokhust Destroyers": true,
+        "Lokhust Heavy Destroyers": [
+            "Close Combat Weapon"
+        ],
+        "Lokhust Lord": [
+            "Nanoscarab Amulet"
+        ],
+        "Lychguard": [],
+        "Monolith": [
+            "Particle Whip",
+            "Portal of Exile"
+        ],
+        "Necron Warriors": [
+            "Close Combat Weapon"
+        ],
+        "Night Scythe": true,
+        "Obelisk": true,
+        "Ophydian Destroyers": [
+            "Ophydian Hyperphase Weapons"
+        ],
+        "Orikan the Diviner": true,
+        "Overlord": [],
+        "Overlord with Translocation Shroud": true,
+        "Plasmancer": true,
+        "Psychomancer": true,
+        "Royal Warden": true,
+        "Seraptek Heavy Construct": [
+            "Titanic Forelimbs"
+        ],
+        "Skorpekh Destroyers": [
+            "Skorpekh Hyperphase Weapons"
+        ],
+        "Skorpekh Lord": true,
+        "Technomancer": true,
+        "Tesseract Vault": true,
+        "The Silent king": true,
+        "Tomb Blades": [
+            "Close Combat Weapon"
+        ],
+        "Transcendent C'tan": true,
+        "Trazyn the Infinite": true,
+        "Triarch Praetorians": [],
+        "Triarch Stalker": [
+            "Stalker's Forelimbs"
+        ]
+    },
+    "Orks": {
+        "Battlewagon": [],
+        "Beast Snagga Boyz": [],
+        "Beastboss": true,
+        "Beastboss on Squigosaur": [
+            "Slugga",
+            "Beastchoppa",
+            "Squigosaur's Jaws"
+        ],
+        "Big Mek": [],
+        "Big Mek in Mega Armour": [],
+        "Big Mek with Shokk Attack Gun": [
+            "Close Combat Weapon",
+            "Shokk Attack Gun"
+        ],
+        "Big'ed Bossbunka": [
+            "Gaze of Gork"
+        ],
+        "Blitza-Bommer": true,
+        "Boomdakka Snazzwagon": true,
+        "Boss Snikrot": true,
+        "Boyz": [],
+        "Breaka Boyz": [],
+        "Burna Boyz": [
+            "Burna",
+            "Cuttin' Flames",
+            "Close Combat Weapon"
+        ],
+        "Burna-Bommer": [
+            "Twin Big Shoota",
+            "Twin Supa-Shoota",
+            "Armoured Hull"
+        ],
+        "Dakkajet": [
+            "Armoured Hull"
+        ],
+        "Deff Dread": [
+            "Stompy Feet"
+        ],
+        "Deffkilla Wartrike": true,
+        "Deffkoptas": [
+            "Slugga",
+            "Spinnin' Blades"
+        ],
+        "Flash Gitz": [
+            "Snazzgun",
+            "Choppa"
+        ],
+        "Gargantuan Squiggoth": [
+            "Huge Tusks"
+        ],
+        "Ghazghkull Thraka": true,
+        "Gorkanaut": true,
+        "Gretchin": true,
+        "Hunta Rig": true,
+        "Kill Rig": true,
+        "Killa Kans": [
+            "Kan Klaw"
+        ],
+        "Kommandos": [],
+        "Kustom Boosta-Blasta": true,
+        "Lootas": [
+            "Close Combat Weapon",
+            "Deffgun"
+        ],
+        "Mozrog Skragbad": true,
+        "Meganobz": [],
+        "Megatrakk Scrapjet": true,
+        "Mek": [
+            "Kustom-Mega Slugga"
+        ],
+        "Mek Gunz": [
+            "Grot Crew"
+        ],
+        "Morkanaut": true,
+        "Nobz": [],
+        "Painboss": [
+            "Beast Snagga klaw"
+        ],
+        "Painboy": [
+            "Power Klaw",
+            "urty Syringe"
+        ],
+        "Rukkatrukk Squigbuggy": true,
+        "Shokkjump Dragsta": true,
+        "Squighog Boyz": [
+            "Slugga",
+            "Big Choppa",
+            "Squig Jaws",
+            "Saddlegit Weapons",
+            "Stikka"
+        ],
+        "Stompa": true,
+        "Stormboyz": [
+            "Slugga"
+        ],
+        "Tankbustas": [
+            "Choppa",
+            "Close Combat Weapon"
+        ],
+        "Trukk": [
+            "Big Shoota",
+            "Spiked Wheels"
+        ],
+        "Warbikers": [
+            "Twin Dakkagun",
+            "Close Combat Weapon"
+        ],
+        "Warboss": [
+            "Kombi-weapon",
+            "Twin Slugga"
+        ],
+        "Warboss in Mega Armour": true,
+        "Wazbom Blastajet": [
+            "Smasha Gun",
+            "Armoured Hull"
+        ],
+        "Weirdboy": true,
+        "Wurrboy": true,
+        "Zodgrod Wortsnagga": true
+    },
+    "Raven Guard": {
+        "Kayvaan Shrike": true
+    },
+    "Salamanders": {
+        "Adrax Agatone": true,
+        "Vulkan He'stan": true
+    },
+    "Space Marines": {
+        "Aggressor Squad": [
+            "Twin Power Fist"
+        ],
+        "Ancient": [
+            "Bolt Pistol",
+            "Bolt Rifle"
+        ],
+        "Ancient in Terminator Armour": [],
+        "Apothecary": true,
+        "Apothecary Biologis": true,
+        "Assault Intercessor Squad": [
+            "Heavy Bolt Pistol",
+            "Astartes Chainsword"
+        ],
+        "Assault Intercessors with Jump Packs": [
+            "Heavy Bolt Pistol",
+            "Astartes Chainsword"
+        ],
+        "Astraeus": [
+            "Storm Bolter",
+            "Twin Macro-Accelerator Cannon",
+            "Armoured Hull"
+        ],
+        "Ballistus Dreadnought": true,
+        "Bladeguard Ancient": true,
+        "Bladeguard Veteran Squad": [
+            "Heavy Bolt Pistol",
+            "Master-Crafted Power Weapon"
+        ],
+        "Brutalis Dreadnought": [
+            "Twin Icarus Ironhail Heavy Stubber"
+        ],
+        "Captain": [],
+        "Captain in Gravis Armour": [],
+        "Captain in Phobos Armour": true,
+        "Captain in Terminator Armour": [],
+        "Captain with Jump Pack": [],
+        "Centurion Assault Squad": [
+            "Siege Drills"
+        ],
+        "Centurion Devastator Squad": [
+            "Centurion Fists"
+        ],
+        "Chaplain": true,
+        "Chaplain in Terminator Armour": [
+            "Crozius Arcanum"
+        ],
+        "Chaplain on Bike": true,
+        "Chaplain with Jump pack": [
+            "Crozius Arcanum"
+        ],
+        "Company Heroes": true,
+        "Desolation Squad": [
+            "Bolt Pistol",
+            "Castellan Launcher",
+            "Close Combat Weapon"
+        ],
+        "Devastator Squad": [
+            "Bolt Pistol",
+            "Boltgun",
+            "Close Combat Weapon"
+        ],
+        "Dreadnought": [],
+        "Drop Pod": true,
+        "Eliminator Squad": [
+            "Bolt Pistol",
+            "Close Combat Weapon"
+        ],
+        "Eradicator Squad": [
+            "Bolt Pistol",
+            "Melta Rifle",
+            "Close Combat Weapon"
+        ],
+        "Firestrike Servo Turrets": [
+            "Close Combat Weapon"
+        ],
+        "Gladiator Lancer": [
+            "Lancer Laser Destroyer",
+            "Armoured Hull"
+        ],
+        "Gladiator Reaper": [
+            "Tempest Bolter",
+            "Twin Heavy Onslaught Gatling Cannon",
+            "Armoured Hull"
+        ],
+        "Gladiator Valiant": [
+            "Twin Las-Talon",
+            "Armored Hull"
+        ],
+        "Hammerfall Bunker": [
+            "Hammerfall Missile Launcher"
+        ],
+        "Heavy Intercessor Squad": [
+            "Heavy Bolt Rifle"
+        ],
+        "Hellblaster Squad": [
+            "Bolt Pistol",
+            "Plasma Incinerator",
+            "Close Combat Weapon"
+        ],
+        "Impulsor": [
+            "Armoured Hull"
+        ],
+        "Inceptor Squad": [
+            "Close Combat Weapon"
+        ],
+        "Incursor Squad": [
+            "Bolt Pistol",
+            "Occulus Bolt Carbine",
+            "Paired Combat Blades"
+        ],
+        "Infernus Squad": true,
+        "Infiltrator Squad": [
+            "Bolt Pistol",
+            "Marksman Bolt carbine",
+            "Close Combat Weapon"
+        ],
+        "Intercessor Squad": [],
+        "Invader ATV": [
+            "Bolt Pistol",
+            "Twin Bolt Rifle",
+            "Close Combat Weapon"
+        ],
+        "Invictor Tactical Warsuit": [
+            "Fragstorm Grenade Launcher",
+            "Heavy Bolter",
+            "Twin Ironhail Heavy Stubber",
+            "Invictor Fist"
+        ],
+        "Judiciar": true,
+        "Land Raider": [
+            "Godhammer Lascannon",
+            "Twin Heavy Bolter",
+            "Armoured Tracks"
+        ],
+        "Land Raider Crusader": [
+            "Hurricane Bolter",
+            "Twin Assault Cannon",
+            "Armoured Tracks"
+        ],
+        "Land Raider Redeemer": [
+            "Flamestorm Cannon",
+            "Twin Assault Cannon",
+            "Armoured Tracks"
+        ],
+        "Librarian": true,
+        "Librarian in Phobos Armour": true,
+        "Librarian in Terminator Armour": [
+            "Force Weapon",
+            "Smite"
+        ],
+        "Lieutenant": [],
+        "Lieutenant in Phobos Armour": true,
+        "Lieutenant in Reiver Armour": true,
+        "Lieutenant with Combi-weapon": true,
+        "Outrider Squad": [
+            "Bolt Pistol",
+            "Twin Bolt Rifle",
+            "Close Combat Weapon",
+            "Heavy Bolt Pistol",
+            "Astartes Chainsword"
+        ],
+        "Predator Annihilator": [
+            "Predator Twin Lascannon",
+            "Armoured Tracks"
+        ],
+        "Predator Destructor": [
+            "Predator Autocannon",
+            "Armoured Tracks"
+        ],
+        "Razorback": [
+            "Armoured Tracks"
+        ],
+        "Redemptor Dreadnought": [
+            "Redemptor Fist"
+        ],
+        "Reiver Squad": [
+            "Special Issue Bolt Pistol",
+            "Combat Knife",
+            "Close Combat Weapon"
+        ],
+        "Repulsor": [
+            "Hunter-Slayer Missile",
+            "Repulsor Defensive Array",
+            "Armoured Hull"
+        ],
+        "Repulsor Executioner": [
+            "Heavy Onslaught Gatling Cannon",
+            "Repulsor Executioner Defensive Array",
+            "Twin Heavy Bolter",
+            "Twin Icarus Ironhail Heavy Stubber",
+            "Armoured Hull"
+        ],
+        "Rhino": [
+            "Armoured Tracks"
+        ],
+        "Scout Squad": [
+            "Bolt Pistol",
+            "Boltgun",
+            "Close Combat Weapon"
+        ],
+        "Sternguard Veteran Squad": [
+            "Sternguard Bolt Pistol",
+            "Sternguard Bolt Rifle",
+            "Close Combat Weapon"
+        ],
+        "Storm Speeder Hailstrike": true,
+        "Storm Speeder Hammerstrike": true,
+        "Storm Speeder Thunderstrike": true,
+        "Stormhawk Interceptor": [
+            "Armoured Hull"
+        ],
+        "Stormraven Gunship": [
+            "Stormstrike Missile Launcher",
+            "Armoured Hull"
+        ],
+        "Stormtalon Gunship": [
+            "Twin Assault Cannon",
+            "Armoured Hull"
+        ],
+        "Suppressor Squad": true,
+        "Tactical Squad": [],
+        "Techmarine": true,
+        "Terminator Assault Squad": [],
+        "Terminator Squad": [],
+        "Thunderhawk Gunship": [
+            "Lascannon",
+            "Twin Heavy Bolter",
+            "Armoured Hull"
+        ],
+        "Vanguard Veteran Squad": [
+            "Bolt Pistol",
+            "Vanguard Veteran Weapon"
+        ],
+        "Vanguard Veteran Squad with Jump Packs": [
+            "Bolt Pistol",
+            "Vanguard Veteran Weapon"
+        ],
+        "Vindicator": [
+            "Demolisher Cannon",
+            "Armoured Tracks"
+        ],
+        "Whirlwind": [
+            "Whirlwind Vengeance Launcher",
+            "Armoured Tracks"
+        ]
+    },
+    "Space Wolves": {
+        "Arjac Rockfist": true,
+        "Bjorn the Fell-Handed": [
+            "Heavy Flamer",
+            "Trueclaw"
+        ],
+        "Blood Claws": [],
+        "Fenrisian Wolves": true,
+        "Grey Hunters": [],
+        "Iron Priest": true,
+        "Logan Grimnar": true,
+        "Murderfang": true,
+        "Njal Stormcaller": true,
+        "Ragnar Blackmane": true,
+        "Thunderwolf Cavalry": [
+            "Teeth and Claws",
+            "Wolf Guard Weapon"
+        ],
+        "Ulrik the Slayer": true,
+        "Venerable Dreadnought": [],
+        "Wolf Guard Battle Leader": [],
+        "Wolf Guard Headtakers": [
+            "Heavy Bolt Pistol"
+        ],
+        "Wolf Guard Terminators": [
+            "Storm Bolter",
+            "Master-Crafted Power Weapon"
+        ],
+        "Wolf Priest": true,
+        "Wulfen": [
+            "Wulfen Weapons"
+        ],
+        "Wulfen Dreadnought": [],
+        "Wulfen with Storm Shields": [
+            "Thunder Hammer"
+        ]
+    },
+    "T'au Empire": {
+        "AX-1-0 Tiger Shark": [
+            "Twin Heavy Rail Cannon",
+            "Armoured Hull"
+        ],
+        "Breacher Team": [
+            "Pulse Blaster",
+            "Pulse Pistol",
+            "Close Combat Weapon",
+            "Support turret"
+        ],
+        "Broadside Battlesuits": [
+            "Crushing Bulk"
+        ],
+        "Cadre Fireblade": [
+            "Fireblade Pulse Rifle",
+            "Close Combat Weapon"
+        ],
+        "Commander in Enforcer Battlesuit": [
+            "Battlesuit fists"
+        ],
+        "Commander Farsight": true,
+        "Commander Shadowsun": true,
+        "Commander in Coldstar Battlesuit": [
+            "Battlesuit fists"
+        ],
+        "Crisis Fireknife Battlesuits": [
+            "Battlesuit Fists",
+            "Crisis Fireknife Shas’ui (Shield Drone)",
+            "Crisis Fireknife Shas’vre (Shield Drone)"
+        ],
+        "Crisis Starscythe Battlesuits": [
+            "Battlesuit Fists",
+            "Crisis Starscythe Shas’ui (Shield Drone)",
+            "Crisis Starscythe Shas’vre (Shield Drone)"
+        ],
+        "Crisis Sunforge Battlesuits": [
+            "Battlesuit Fists",
+            "Crisis Sunforge Shas’ui (Shield Drone)",
+            "Crisis Sunforge Shas’vre (Shield Drone)"
+        ],
+        "Darkstrider": true,
+        "Devilfish": [
+            "Accelerator Burst Cannon",
+            "Armoured Hull"
+        ],
+        "Ethereal": [
+            "Honour Stave"
+        ],
+        "Firesight Team": true,
+        "Ghostkeel Battlesuit": [
+            "Ghostkeel Fists"
+        ],
+        "Hammerhead Gunship": [
+            "Armoured Hull"
+        ],
+        "Kroot Carnivores": [
+            "Close Combat Weapon",
+            "Kroot Pistol",
+            "Kroot Pistol",
+            "Kroot Pistol",
+            "Kroot Pistol",
+            "Kroot Pistol",
+            "Kroot Pistol",
+            "Kroot Pistol"
+        ],
+        "Kroot Farstalkers": [
+            "Ritual Blade",
+            "Close Combat Weapon",
+            "Ripping Fangs"
+        ],
+        "Kroot Flesh Shaper": true,
+        "Kroot Hounds": true,
+        "Kroot Lone Spear": [
+            "Kalamandra's Bite",
+            "Close Combat Weapon"
+        ],
+        "Kroot Lone-Spear": [
+            "Kalamandra's Bite",
+            "Close Combat Weapon"
+        ],
+        "Kroot Trail Shaper": true,
+        "Kroot War Shaper": [
+            "Kroot Pistol",
+            "Shaper's blade"
+        ],
+        "Krootox Riders": [
+            "Close Combat Weapon",
+            "Krootox Fists"
+        ],
+        "Krootox rampagers": true,
+        "Manta": true,
+        "Pathfinder Team": [
+            "Pulse Carbine",
+            "Pulse Pistol",
+            "Close Combat Weapon",
+            "Recon droneDrone burst cannon"
+        ],
+        "Piranha": [
+            "Twin Pulse Carbine",
+            "Armoured hull"
+        ],
+        "Razorshark Strike Fighter": [
+            "Accelerator Burst Cannon",
+            "Quad Ion Turret",
+            "Armoured Hull"
+        ],
+        "Riptide Battlesuit": [
+            "Riptide Fists"
+        ],
+        "Sky Ray Gunship": [
+            "Seeker missile Rack",
+            "Armoured Hull"
+        ],
+        "Stealth Battlesuits": [
+            "Battlesuit Fists",
+            "Stealth Shas’ui",
+            "Battlesuit support system",
+            "Homing beacon"
+        ],
+        "Stormsurge": [
+            "Cluster Rocket System",
+            "Destroyer Missiles",
+            "Thunderous Footfalls"
+        ],
+        "Strike Team": [
+            "Pulse Rifle",
+            "Close Combat Weapon",
+            "Support turret"
+        ],
+        "Sun Shark Bomber": [
+            "Twin Ion Rifle",
+            "Armoured Hull"
+        ],
+        "Ta'unar Supremacy Armour": [
+            "Crushing Feet"
+        ],
+        "Tidewall Droneport": true,
+        "Tidewall Gunrig": true,
+        "Tidewall Shieldline": [],
+        "Tiger Shark": [
+            "Armoured Hull"
+        ],
+        "Vespid Stingwings": [
+            "Stingwing Claws"
+        ]
+    },
+    "Thousand Sons": {
+        "Ahriman": true,
+        "Blue Horrors": true,
+        "Chaos Land Raider": [
+            "Soulshatter Lascannon"
+        ],
+        "Chaos Predator Annihilator": [
+            "Predator Twin Lascannon",
+            "Armoured Tracks"
+        ],
+        "Chaos Predator Destructor": [
+            "Predator Autocannon",
+            "Armoured Tracks"
+        ],
+        "Chaos Rhino": [
+            "Armoured Tracks"
+        ],
+        "Chaos Spawn": true,
+        "Chaos Vindicator": [
+            "Demolisher Cannon",
+            "Armoured Tracks"
+        ],
+        "Daemon Prince of Tzeentch": true,
+        "Daemon Prince of Tzeentch with Wings": true,
+        "Defiler": [
+            "Defiler Cannon",
+            "Defiler Claws"
+        ],
+        "Exalted Sorcerer": [
+            "Inferno Bolt Pistol",
+            "Astral Blast",
+            "Force Weapon"
+        ],
+        "Exalted Sorcerer\u00a0on Disc of Tzeentch": [
+            "Arcane Fire",
+            "Inferno Bolt Pistol",
+            "Force Weapon"
+        ],
+        "Flamers": true,
+        "Forgefiend": [],
+        "Helbrute": [],
+        "Heldrake": [
+            "Heldrake Claws"
+        ],
+        "Infernal Master": true,
+        "Kairos Fateweaver": true,
+        "Lord of Change": [
+            "Bolt of Change",
+            "Staff of Tzeentch"
+        ],
+        "Magnus the Red": true,
+        "Maulerfiend": [
+            "Maulerfiend Fists"
+        ],
+        "Mutalith Vortex Beast": true,
+        "Pink Horrors": [
+            "Coruscating Pink Flames",
+            "Coruscating Blue Flames",
+            "Coruscating Yellow Flames",
+            "Pink Claws",
+            "Blue Claws",
+            "Yellow Claws"
+        ],
+        "Rubric Marines": [
+            "Malefic Curse"
+        ],
+        "Scarab Occult Terminators": [
+            "Malefic Curse",
+            "Force Weapon"
+        ],
+        "Screamers": true,
+        "Sekhetar Robots": [
+            "Heavy Warpflamer",
+            "Hellfyre Missile Rack",
+            "Close Combat Weapon"
+        ],
+        "Sorcerer": [
+            "Pandaemonic Delusion",
+            "Inferno Bolt Pistol",
+            "Force Weapon"
+        ],
+        "Sorcerer in Terminator Armour": [
+            "Gaze of Hate"
+        ],
+        "Tzaangor Enlightened": [],
+        "Tzaangor Enlightened with Fatecaster Greatbows": true,
+        "Tzaangor Shaman": true,
+        "Tzaangors": []
+    },
+    "Tyranids": {
+        "Barbgaunts": true,
+        "Biovores": true,
+        "Broodlord": true,
+        "Carnifexes": [
+            "Chitinous Claws and Teeth"
+        ],
+        "Deathleaper": true,
+        "Exocrine": true,
+        "Gargoyles": true,
+        "Genestealers": true,
+        "Harpy": [
+            "Stinger Salvoes",
+            "Scything Wings"
+        ],
+        "Harridan": true,
+        "Haruspex": true,
+        "Hierophant": true,
+        "Hive Crone": true,
+        "Hive Guard": [
+            "Chitinous Claws and Teeth"
+        ],
+        "Hive Tyrant": [],
+        "Hormagaunts": true,
+        "Hyperadapted Raveners": true,
+        "Lictor": true,
+        "Maleceptor": true,
+        "Mawloc": true,
+        "Mucolid Spores": true,
+        "Neurogaunts": true,
+        "Neurolictor": true,
+        "Neurotyrant": true,
+        "Norn Assimilator": true,
+        "Norn Emissary": true,
+        "Old One Eye": true,
+        "Parasite of Mortrex": true,
+        "Psychophage": true,
+        "Pyrovores": true,
+        "Raveners": true,
+        "Ripper Swarms": true,
+        "Screamer-Killer": true,
+        "Spore Mines": true,
+        "Sporocyst": true,
+        "Termagants": [
+            "Chitinous Claws and Teeth",
+            "Mucolid Spores (30 pts):"
+        ],
+        "Tervigon": [
+            "Stinger Salvoes"
+        ],
+        "The Swarmlord": true,
+        "Toxicrene": true,
+        "Trygon": true,
+        "Tyranid Warriors with Melee Bio-Weapons": true,
+        "Tyranid Warriors with Ranged Bio-weapons": [
+            "Tyranid Warrior claws and talons"
+        ],
+        "Tyrannocyte": true,
+        "Tyrannofex": [
+            "Stinger Salvoes",
+            "Powerful Limbs"
+        ],
+        "Tyrant Guard": [],
+        "Venomthropes": true,
+        "Von Ryan's Leapers": true,
+        "Winged Hive Tyrant": [
+            "Tyrant talons"
+        ],
+        "Winged Tyranid Prime": true,
+        "Zoanthropes": [
+            "Warp blast"
+        ]
+    },
+    "Ultramarines": {
+        "Captain Sicarius": true,
+        "Chief Librarian Tigurius": true,
+        "Lieutenant Titus": true,
+        "Marneus Calgar": true,
+        "Roboute Guilliman": true,
+        "Uriel Ventris": true
+    },
+    "White Scars": {
+        "Kor'sarro Khan": true
+    },
+    "Agents of the Imperium": {
+        "Callidus Assassin": true,
+        "Corvus Blackstar": [
+            "Twin Assault Cannon",
+            "Armoured Hull"
+        ],
+        "Culexus Assassin": true,
+        "Deathwatch Kill Team": [],
+        "Eversor Assassin": true,
+        "Exaction Squad": [
+            "Arbites Shotpistol",
+            "Close Combat Weapon",
+            "Mechanical Bite",
+            "Nuncio-Aquila"
+        ],
+        "Grey Knights Terminator Squad": [
+            "Nemesis Force Weapon"
+        ],
+        "Imperial Navy Breachers": [
+            "Close Combat Weapon",
+            "Endurant Shield"
+        ],
+        "Imperial Rhino": [
+            "Storm Bolter",
+            "Armoured Tracks"
+        ],
+        "Inquisitor": [
+            "Blessed Wardings"
+        ],
+        "Inquisitor Coteaz": true,
+        "Inquisitor Draxus": true,
+        "Inquisitor Greyfax": true,
+        "Inquisitorial Agents": [
+            "Agent Firearm",
+            "Agent Melee Weapon"
+        ],
+        "Inquisitorial Chimera": [
+            "Armoured Tracks"
+        ],
+        "Ministorum Priest": [],
+        "Navigator": true,
+        "Rogue Trader Entourage": true,
+        "Sanctifiers": [],
+        "Sisters of Battle Immolator": [
+            "Heavy Bolter",
+            "Armoured Tracks"
+        ],
+        "Sisters of Battle Squad": [
+            "Bolt Pistol",
+            "Close Combat Weapon"
+        ],
+        "Subductor Squad": [
+            "Arbites Shotpistol",
+            "Shock maul",
+            "Mechanical Bite",
+            "Nuncio Aquila"
+        ],
+        "Vigilant Squad": [
+            "Arbites Shotpistol",
+            "Close Combat Weapon",
+            "Mechanical Bite",
+            "Nuncio-Aquila"
+        ],
+        "Vindicare Assassin": true,
+        "Voidsmen-at-Arms": true,
+        "Watch Captain Artemis": true,
+        "Watch Master": true
+    }
+}
