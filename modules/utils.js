@@ -1,25 +1,40 @@
-
 export function normalizeForComparison(name) {
     if (!name) return '';
-    // Decomposes accented chars (e.g., 'â' -> 'a' + '^') and removes the diacritics.
-    // Also handles lowercase, trim, and common character variations.
-    return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    return name.normalize("NFD").replace(/[̀-ͯ]/g, "")
+        .toLowerCase()
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9\s]/g, '')
+        .trim();
+}
+
+export function normalizeForSubstringComparison(name) {
+    if (!name) return '';
+    return name.normalize("NFD").replace(/[̀-ͯ]/g, "")
         .toLowerCase()
         .replace(/’/g, "'")
         .trim();
 }
 
 export function flexibleNameMatch(name1, name2) {
-    const name1Normalized = normalizeForComparison(name1);
-    const name2Normalized = normalizeForComparison(name2);
-    if (name1Normalized === name2Normalized) return true; // Exact match
-    if (name1Normalized.endsWith('s') && name2Normalized === name1Normalized.slice(0, -1)) return true; // name1 is plural, name2 is singular
-    if (name2Normalized.endsWith('s') && name1Normalized === name2Normalized.slice(0, -1)) return true; // name2 is plural, name1 is singular
+    const name1Normalized = normalizeForComparison(name1).replace(/\s/g, '');
+    const name2Normalized = normalizeForComparison(name2).replace(/\s/g, '');
+
+    if (name1Normalized === name2Normalized) return true;
+
+    if (name1Normalized.endsWith('s') && name2Normalized === name1Normalized.slice(0, -1)) return true;
+    if (name2Normalized.endsWith('s') && name1Normalized === name2Normalized.slice(0, -1)) return true;
+
     return false;
 }
 
 export function flexibleItemMatch(rule, itemName) {
     return flexibleNameMatch(rule.item, itemName);
+}
+
+export function flexibleSubstringMatch(sourceString, targetString) {
+    const normalizedSource = normalizeForSubstringComparison(sourceString);
+    const normalizedTarget = normalizeForSubstringComparison(targetString);
+    return normalizedSource.includes(normalizedTarget);
 }
 
 export function getIndent(s) { return s.match(/^\s*/)[0].length; }

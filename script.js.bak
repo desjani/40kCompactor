@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     parseButton.disabled = true;
     parseButton.textContent = 'Loading DB...';
 
-    fetch('./Wargear_tree.json?v=0.0.8')
+        fetch('./wargear.json?v=0.0.8')
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

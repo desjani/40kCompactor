@@ -5,7 +5,7 @@ let factionAbbreviationDBs = {};
 
 export async function loadAbbreviationDatabase() {
     try {
-        const response = await fetch('./Wargear_tree.json?v=0.0.8');
+                const response = await fetch('./wargear.json?v=0.0.8');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

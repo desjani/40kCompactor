@@ -1896,7 +1896,7 @@
                 "abbr": "PHB"
             },
             {
-                "item": "Channeller Stones",
+                "item": "Channeler Stones",
                 "abbr": "CS"
             },
             {
@@ -1938,6 +1938,14 @@
             {
                 "item": "Faolch\u00fa",
                 "abbr": "FA"
+            },
+            {
+                "item": "Corsair Shredder",
+                "abbr": "CS"
+            },
+            {
+                "item": "Corsair Blaster",
+                "abbr": "CB"
             }
         ],
         "Crimson Hunter": [
@@ -1998,7 +2006,7 @@
         ],
         "Dire Avengers": [
             {
-                "item": "Avenger Shuriken Catapault",
+                "item": "Avenger Shuriken Catapult",
                 "abbr": "ASC"
             },
             {
@@ -2020,6 +2028,18 @@
             {
                 "item": "Aspect Shrine Token",
                 "abbr": "AST"
+            },
+            {
+                "item": "Diresword and Shimmershield",
+                "abbr": "DS&SS"
+            },
+            {
+                "item": "Power Glaive and Shimmershield",
+                "abbr": "PG&SS"
+            },
+            {
+                "item": "Shuriken Pistol",
+                "abbr": "SP"
             }
         ],
         "Eldrad Ulthran": [
@@ -2038,7 +2058,7 @@
                 "abbr": "SL"
             },
             {
-                "item": "Twin Shuriken Catapault",
+                "item": "Twin Shuriken Catapult",
                 "abbr": "TSC"
             },
             {
@@ -2098,7 +2118,7 @@
                 "abbr": "SS"
             },
             {
-                "item": "Twin Shuriken Catapault",
+                "item": "Twin Shuriken Catapult",
                 "abbr": "NULL"
             }
         ],
@@ -2142,7 +2162,7 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Twin Shuriken Catapault",
+                "item": "Twin Shuriken Catapult",
                 "abbr": "TSCat"
             },
             {
@@ -2150,7 +2170,7 @@
                 "abbr": "SCan"
             },
             {
-                "item": "Shuriken Catapault",
+                "item": "Shuriken Catapult",
                 "abbr": "Scat"
             },
             {
@@ -2166,7 +2186,7 @@
         ],
         "Guardian Defenders": [
             {
-                "item": "Shuriken Catapault",
+                "item": "Shuriken Catapult",
                 "abbr": "NULL"
             },
             {
@@ -2232,7 +2252,7 @@
                 "abbr": "NULL"
             }
         ],
-        "Lhykis": [
+        "Lhykhis": [
             {
                 "item": "*",
                 "abbr": "NULL"
@@ -2250,7 +2270,7 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Twin Shuriken Catapault",
+                "item": "Twin Shuriken Catapult",
                 "abbr": "TSCat"
             },
             {
@@ -2346,7 +2366,7 @@
                 "abbr": "LL"
             },
             {
-                "item": "Twin Shuriken Catapault",
+                "item": "Twin Shuriken Catapult",
                 "abbr": "TSCat"
             },
             {
@@ -2392,6 +2412,18 @@
             {
                 "item": "Zephyrglaive",
                 "abbr": "ZG"
+            },
+            {
+                "item": "Skyweaver",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Invulnerable Save",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Acrobatic Grace",
+                "abbr": "NULL"
             }
         ],
         "Solitaire": [
@@ -2596,7 +2628,7 @@
                 "abbr": "SCan"
             },
             {
-                "item": "Twin Shuriken Catapault",
+                "item": "Twin Shuriken Catapult",
                 "abbr": "TSCat"
             },
             {
@@ -2680,6 +2712,10 @@
             {
                 "item": "Singing Spear",
                 "abbr": "SS"
+            },
+            {
+                "item": "Warlock",
+                "abbr": "NULL"
             }
         ],
         "Warlock Skyrunners": [
@@ -2700,7 +2736,7 @@
                 "abbr": "SS"
             },
             {
-                "item": "Twin Shuriken Catapault",
+                "item": "Twin Shuriken Catapult",
                 "abbr": "NULL"
             }
         ],
@@ -2744,7 +2780,7 @@
                 "abbr": "TSCan"
             },
             {
-                "item": "Twin Shuriken Catapault",
+                "item": "Twin Shuriken Catapult",
                 "abbr": "TSCat"
             },
             {
@@ -2752,7 +2788,7 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Twin Missile Launcher",
+                "item": "Twin Aeldari Missile Launcher",
                 "abbr": "TML"
             },
             {
@@ -2774,7 +2810,7 @@
         ],
         "Windriders": [
             {
-                "item": "Twin Shuriken Catapault",
+                "item": "Twin Shuriken Catapult",
                 "abbr": "TSCat"
             },
             {
@@ -2802,6 +2838,14 @@
             {
                 "item": "Forceshield",
                 "abbr": "FS"
+            },
+            {
+                "item": "Ghostaxe and Forceshield",
+                "abbr": "GA&FS"
+            },
+            {
+                "item": "Wraithblade",
+                "abbr": "NULL"
             }
         ],
         "Wraithguard": [
@@ -2848,7 +2892,7 @@
                 "abbr": "Starc"
             }
         ],
-        "Wraithknight\u00a0with Ghostglaive": [
+        "Wraithknight with Ghostglaive": [
             {
                 "item": "Titanic Ghostglaive",
                 "abbr": "NULL"
@@ -2876,7 +2920,7 @@
         ],
         "Wraithlord": [
             {
-                "item": "Shuriken Catapault",
+                "item": "Shuriken Catapult",
                 "abbr": "SCat"
             },
             {
@@ -2906,6 +2950,10 @@
             {
                 "item": "Shuriken Cannon",
                 "abbr": "SCan"
+            },
+            {
+                "item": "Aeldari Missile Launcher",
+                "abbr": "NULL"
             }
         ],
         "Ynnari Archon": [
@@ -7850,7 +7898,7 @@
                 "abbr": "SP"
             },
             {
-                "item": "Helliarch Weapon",
+                "item": "Heliarch Weapon",
                 "abbr": "HW"
             }
         ],
@@ -7986,7 +8034,7 @@
                 "abbr": "HL"
             },
             {
-                "item": "Grav-Talon",
+                "item": "Grav Talon",
                 "abbr": "GT"
             },
             {
@@ -8070,6 +8118,18 @@
             {
                 "item": "Stinger Pod",
                 "abbr": "SP"
+            },
+            {
+                "item": "Twin Liquifier Gun",
+                "abbr": "TLG"
+            },
+            {
+                "item": "Twin Heat Lance",
+                "abbr": "THL"
+            },
+            {
+                "item": "Twin Haywire Blasters",
+                "abbr": "THB"
             }
         ],
         "Urien Rakarth": [
@@ -8426,7 +8486,7 @@
         ]
     },
     "Genestealer Cults": {
-        "Abberants": [
+        "Aberrants": [
             {
                 "item": "*",
                 "abbr": "NULL"
@@ -8472,7 +8532,7 @@
                 "abbr": "SA"
             }
         ],
-        "Acolyte Hybrids": [
+        "Acolyte Hybrids with Autopistols": [
             {
                 "item": "Autopistol",
                 "abbr": "AP"
@@ -10384,354 +10444,158 @@
         ]
     },
     "Leagues of Votann": {
-        "Br\u00f4khyr Iron-master": [
-            {
-                "item": "*",
-                "abbr": "NULL"
-            }
+        "Buri Aegnirssen": [
+            { "item": "*", "abbr": "NULL" }
         ],
-        "Br\u00f4khyr Thunderkyn": [
-            {
-                "item": "Bolt Cannon",
-                "abbr": "BC"
-            },
-            {
-                "item": "Close Combat Weapon",
-                "abbr": "NULL"
-            },
-            {
-                "item": "SP Conversion Beamer",
-                "abbr": "SPCB"
-            },
-            {
-                "item": "Graviton Blast Cannon",
-                "abbr": "GBC"
-            }
-        ],
-        "Cthonian Beserks": [
-            {
-                "item": "Heavy Plasma Axe",
-                "abbr": "NULL"
-            },
-            {
-                "item": "Concussion Maul",
-                "abbr": "CM"
-            },
-            {
-                "item": "Mole Grenade Launcher",
-                "abbr": "MGL"
-            },
-            {
-                "item": "Twin Concussion Gauntlet",
-                "abbr": "TCG"
-            }
-        ],
-        "Einhyr Champion": [
-            {
-                "item": "Autoch-pattern Combi-bolter",
-                "abbr": "NULL"
-            },
-            {
-                "item": "Mass Hammer",
-                "abbr": "MH"
-            },
-            {
-                "item": "Weavefield Crest",
-                "abbr": "WC"
-            },
-            {
-                "item": "Darkstar Axe",
-                "abbr": "DA"
-            },
-            {
-                "item": "Teleport Crest",
-                "abbr": "TC"
-            }
-        ],
-        "Einhyr Hearthguard": [
-            {
-                "item": "EtaCarn Plasma Gun",
-                "abbr": "ECPG"
-            },
-            {
-                "item": "Exo-Armour Grenade Launcher",
-                "abbr": "EAGL"
-            },
-            {
-                "item": "Concussion Gauntlet",
-                "abbr": "CG"
-            },
-            {
-                "item": "Concussion Hammer",
-                "abbr": "CH"
-            },
-            {
-                "item": "Plasma Blade Gauntlet",
-                "abbr": "PBG"
-            },
-            {
-                "item": "Volkanite Disintegrator",
-                "abbr": "VD"
-            },
-            {
-                "item": "Weavefield Crest",
-                "abbr": "WC"
-            },
-            {
-                "item": "Teleport Crest",
-                "abbr": "TC"
-            }
+        "Arcanyst Evaluator": [
+            { "item": "*", "abbr": "NULL" }
         ],
         "Grimnyr": [
-            {
-                "item": "*",
-                "abbr": "NULL"
-            }
+            { "item": "*", "abbr": "NULL" }
+        ],
+        "Memnyr Strategist": [
+            { "item": "*", "abbr": "NULL" }
+        ],
+        "Cthonian Earthshakers": [
+            { "item": "Autoch-pattern bolt pistol", "abbr": "NULL" },
+            { "item": "Plasma picks", "abbr": "NULL" },
+            { "item": "Tremor shells", "abbr": "TS" },
+            { "item": "Breacher ordnance", "abbr": "BO" }
+        ],
+        "Ironkin Steeljacks with Heavy Volkanite Disintegrators": [
+            { "item": "Preymark crest", "abbr": "NULL" },
+            { "item": "Autoch-pattern bolter", "abbr": "NULL" },
+            { "item": "Plasma sword", "abbr": "PS" },
+            { "item": "Heavy volkanite disintegrator", "abbr": "HVD" },
+            { "item": "Plasma knife", "abbr": "PK" }
+        ],
+        "Ironkin Steeljacks with Melee Weapons": [
+            { "item": "Preymark crest", "abbr": "NULL" },
+            { "item": "Autoch-pattern bolter", "abbr": "NULL" },
+            { "item": "Plasma sword", "abbr": "PS" },
+            { "item": "Concussion gauntlet", "abbr": "CG" }
+        ],
+        "Kapricus Defenders": [
+            { "item": "Smoke launcher", "abbr": "SL" },
+            { "item": "Armoured hull", "abbr": "NULL" },
+            { "item": "Twin magna-coil autocannon", "abbr": "NULL" },
+            { "item": "Magna-rail cannon", "abbr": "MRC" },
+            { "item": "HYLas rotary cannon", "abbr": "HLRC" }
+        ],
+        "Kapricus Carrier": [
+            { "item": "Smoke launcher", "abbr": "SL" },
+            { "item": "Armoured hull", "abbr": "NULL" },
+            { "item": "Magna-coil autocannon", "abbr": "NULL" },
+            { "item": "Twin magna-coil autocannon", "abbr": "NULL" }
+        ],
+        "Brôkhyr Iron-master": [
+            { "item": "*", "abbr": "NULL" }
+        ],
+        "Einhyr Champion": [
+            { "item": "Teleport crest", "abbr": "TC" },
+            { "item": "Autoch-pattern combi-bolter", "abbr": "NULL" },
+            { "item": "Darkstar axe", "abbr": "DA" },
+            { "item": "Weavefield crest", "abbr": "WC" },
+            { "item": "Mass hammer", "abbr": "MH" }
+        ],
+        "Kâhl": [
+            { "item": "Teleport crest", "abbr": "TC" },
+            { "item": "Mass gauntlet", "abbr": "MG" },
+            { "item": "Volkanite disintegrator", "abbr": "VD" },
+            { "item": "Rampart crest", "abbr": "RC" },
+            { "item": "Forgewrought plasma axe", "abbr": "FPA" },
+            { "item": "Autoch-pattern combi-bolter", "abbr": "APCB" }
         ],
         "Hearthkyn Warriors": [
-            {
-                "item": "Autoch-pattern Bolt Pistol",
-                "abbr": "APBP"
-            },
-            {
-                "item": "Autoch-pattern Bolter",
-                "abbr": "APB"
-            },
-            {
-                "item": "Close Combat Weapon",
-                "abbr": "NULL"
-            },
-            {
-                "item": "Weavefield Crest",
-                "abbr": "WC"
-            },
-            {
-                "item": "Ion Blaster",
-                "abbr": "IB"
-            },
-            {
-                "item": "HYLas Auto Rifle",
-                "abbr": "HLAR"
-            },
-            {
-                "item": "HyLas Rotary Cannon",
-                "abbr": "HLRC"
-            },
-            {
-                "item": "L7 missile Launcher",
-                "abbr": "L7"
-            },
-            {
-                "item": "EtaCarn Plasma Beamer",
-                "abbr": "ECPB"
-            },
-            {
-                "item": "Magna-rail Rifle",
-                "abbr": "MRR"
-            },
-            {
-                "item": "Kin melee Weapon",
-                "abbr": "KMW"
-            },
-            {
-                "item": "Medipack",
-                "abbr": "MP"
-            },
-            {
-                "item": "Comms Array",
-                "abbr": "CA"
-            },
-            {
-                "item": "EtaCarn Plasma Pistol",
-                "abbr": "ECPP"
-            }
+            { "item": "Weavefield crest", "abbr": "NULL" },
+            { "item": "Autoch-pattern bolt pistol", "abbr": "NULL" },
+            { "item": "Close combat weapon", "abbr": "NULL" },
+            { "item": "Theyn's melee weapon", "abbr": "TMW" },
+            { "item": "Theyn's pistol", "abbr": "TP" },
+            { "item": "Ion blaster", "abbr": "IB" },
+            { "item": "Autoch-pattern bolter", "abbr": "NULL" },
+            { "item": "Plasma knife", "abbr": "PK" },
+            { "item": "EtaCarn plasma beamer", "abbr": "ECPB" },
+            { "item": "HYLas auto rifle", "abbr": "HLAR" },
+            { "item": "HYLas rotary cannon", "abbr": "HLRC" },
+            { "item": "L7 missile launcher", "abbr": "L7" },
+            { "item": "Magna-rail rifle", "abbr": "MRR" }
         ],
-        "Hekaton Land Fortress": [
-            {
-                "item": "Cyclic Ion Cannon",
-                "abbr": "CIC"
-            },
-            {
-                "item": "MATR Autocannon",
-                "abbr": "MATR"
-            },
-            {
-                "item": "Twin Bolt Cannon",
-                "abbr": "TBC"
-            },
-            {
-                "item": "Armoured Wheels",
-                "abbr": "NULL"
-            },
-            {
-                "item": "Pan Spectral Scanner",
-                "abbr": "PSS"
-            },
-            {
-                "item": "Twin Ion Beamer",
-                "abbr": "TIB"
-            },
-            {
-                "item": "SP Heavy Conversion Beamer",
-                "abbr": "SPHCB"
-            },
-            {
-                "item": "Heavy Magna-rail Cannon",
-                "abbr": "HMRC"
-            },
-            {
-                "item": "Heakton Warhead",
-                "abbr": "HW"
-            }
+        "Brôkhyr Thunderkyn": [
+            { "item": "SP conversion beamer", "abbr": "SPCB" },
+            { "item": "Bolt cannon", "abbr": "BC" },
+            { "item": "Graviton blast cannon", "abbr": "GBC" },
+            { "item": "Close combat weapon", "abbr": "NULL" }
         ],
-        "Hernkyn Pioneers": [
-            {
-                "item": "Bolt Revolver",
-                "abbr": "NULL"
-            },
-            {
-                "item": "Bolt Shotgun",
-                "abbr": "NULL"
-            },
-            {
-                "item": "Magna-coil Autocannon",
-                "abbr": "NULL"
-            },
-            {
-                "item": "Plasma Knife",
-                "abbr": "NULL"
-            },
-            {
-                "item": "HyLas Rotary Cannon",
-                "abbr": "HLRC"
-            },
-            {
-                "item": "Ion Beamer",
-                "abbr": "IB"
-            },
-            {
-                "item": "Comms Array",
-                "abbr": "CA"
-            },
-            {
-                "item": "Pan Spectral Scanner",
-                "abbr": "PSS"
-            },
-            {
-                "item": "Rollbar Searchlight",
-                "abbr": "RS"
-            }
+        "Cthonian Beserks": [
+            { "item": "Concussion maul", "abbr": "CM" },
+            { "item": "Subterranean Explosives", "abbr": "SE" },
+            { "item": "Mole grenade launcher", "abbr": "MGL" },
+            { "item": "Twin concussion gauntlets", "abbr": "TCG" },
+            { "item": "Heavy plasma axe", "abbr": "HPA" },
+            { "item": "Beserk", "abbr": "NULL" }
+        ],
+        "Einhyr Hearthguard": [
+            { "item": "Hesyr", "abbr": "Hesyr" },
+            { "item": "Teleport crest", "abbr": "TC" },
+            { "item": "Exo-armour grenade launcher", "abbr": "NULL" },
+            { "item": "Plasma blade gauntlet", "abbr": "PBG" },
+            { "item": "EtaCarn plasma gun", "abbr": "ECPG" },
+            { "item": "Volkanite disintegrator", "abbr": "VD" },
+            { "item": "Weavefield crest", "abbr": "WC" },
+            { "item": "Concussion gauntlet", "abbr": "CG" },
+            { "item": "Graviton hammer", "abbr": "GH" }
         ],
         "Hernkyn Yaegirs": [
-            {
-                "item": "APM Launcher",
-                "abbr": "APM"
-            },
-            {
-                "item": "Bolt Revolver",
-                "abbr": "BR"
-            },
-            {
-                "item": "Bolt Shotgun",
-                "abbr": "BS"
-            },
-            {
-                "item": "Magna-coil Rifle",
-                "abbr": "MCR"
-            },
-            {
-                "item": "Close Combat Weapon",
-                "abbr": "NULL"
-            },
-            {
-                "item": "Plasma Knife",
-                "abbr": "PK"
-            }
+            { "item": "APM launcher", "abbr": "APML" },
+            { "item": "Close combat weapon", "abbr": "NULL" },
+            { "item": "Bolt shotgun", "abbr": "BSG" },
+            { "item": "Magna-coil rifle", "abbr": "MCR" },
+            { "item": "Bolt revolver", "abbr": "BR" },
+            { "item": "Plasma knife", "abbr": "PK" },
+            { "item": "Yaegir Theyn", "abbr": "YT" }
         ],
-        "K\u00e2hl": [
-            {
-                "item": "Autoch-pattern Combi-bolter",
-                "abbr": "APCB"
-            },
-            {
-                "item": "Forgewrought Plasma Axe",
-                "abbr": "FPA"
-            },
-            {
-                "item": "Rampart Crest",
-                "abbr": "RC"
-            },
-            {
-                "item": "Volkanite Disintegrator",
-                "abbr": "VD"
-            },
-            {
-                "item": "Mass Gauntlet",
-                "abbr": "MG"
-            },
-            {
-                "item": "Teleport Crest",
-                "abbr": "TC"
-            }
+        "Hekaton Land Fortress": [
+            { "item": "Armoured wheels", "abbr": "NULL" },
+            { "item": "MATR autocannon", "abbr": "NULL" },
+            { "item": "SP heavy conversion beamer", "abbr": "SPHCB" },
+            { "item": "Twin bolt cannon", "abbr": "TBC" },
+            { "item": "Twin ion beamer", "abbr": "TIB" },
+            { "item": "Hekaton warhead", "abbr": "HW" },
+            { "item": "Pan spectral scanner", "abbr": "PSS" },
+            { "item": "Cyclic ion cannon", "abbr": "CIC" },
+            { "item": "Heavy magna-rail cannon", "abbr": "HMRC" }
         ],
         "Sagitaur": [
-            {
-                "item": "HYLas Beam Cannon",
-                "abbr": "HLBC"
-            },
-            {
-                "item": "Twin Bolt Cannon",
-                "abbr": "NULL"
-            },
-            {
-                "item": "Armoured Wheels",
-                "abbr": "NULL"
-            },
-            {
-                "item": "L7 missile Launcher",
-                "abbr": "L7"
-            },
-            {
-                "item": "Sagitaur Missile Launcher",
-                "abbr": "SML"
-            },
-            {
-                "item": "MATR Autocannon",
-                "abbr": "MATR"
-            }
+            { "item": "Armoured wheels", "abbr": "NULL" },
+            { "item": "Twin bolt cannon", "abbr": "NULL" },
+            { "item": "HYLas beam cannon", "abbr": "HLBC" },
+            { "item": "MATR autocannon", "abbr": "MATR" },
+            { "item": "Lmissile launcher", "abbr": "L7" },
+            { "item": "Sagitaur missile launcher", "abbr": "SML" }
         ],
-        "\u00dbthar the Destined": [
-            {
-                "item": "*",
-                "abbr": "NULL"
-            }
+        "Ûthar the Destined": [
+            { "item": "*", "abbr": "NULL" }
+        ],
+        "Hernkyn Pioneers": [
+            { "item": "Bolt Revolver", "abbr": "NULL" },
+            { "item": "Bolt Shotgun", "abbr": "NULL" },
+            { "item": "Magna-coil autocannon", "abbr": "NULL" },
+            { "item": "Plasma knife", "abbr": "NULL" },
+            { "item": "Comms array", "abbr": "Comms" },
+            { "item": "Pan-spectral scanner", "abbr": "Scan" },
+            { "item": "Rollbar Searchlight", "abbr": "Light" },
+            { "item": "HYLas rotary cannon", "abbr": "HYLas" },
+            { "item": "Ion Beamer", "abbr": "IB" }
         ]
     },
     "Necrons": {
         "Annihilation Barge": [
-            {
-                "item": "Gauss Cannon",
-                "abbr": "GC"
-            },
-            {
-                "item": "Twin Tesla Destructor",
-                "abbr": "NULL"
-            },
-            {
-                "item": "Armoured Bulk",
-                "abbr": "NULL"
-            },
-            {
-                "item": "Tesla Cannon",
-                "abbr": "TC"
-            }
-        ],
-        "C'tan Shard of the Deceiver": [
-            {
-                "item": "*",
-                "abbr": "NULL"
-            }
-        ],
+            { "item": "Gauss Cannon", "abbr": "GC" },
+            { "item": "Twin Tesla Destructor", "abbr": "NULL" },
+            { "item": "Armoured Bulk", "abbr": "NULL" },
+            { "item": "Tesla Cannon", "abbr": "TC" } ],
+        "C'tan Shard of the Deceiver": [ { "item": "*", "abbr": "NULL" } ],
         "C'tan Shard of the Nightbringer": [
             {
                 "item": "*",
@@ -10950,6 +10814,10 @@
             {
                 "item": "Dispersion Shield",
                 "abbr": "DS"
+            },
+            {
+                "item": "Hyperphase sword and dispersion shield",
+                "abbr": "HS&DS"
             }
         ],
         "Monolith": [
@@ -11164,6 +11032,10 @@
             {
                 "item": "Voidblade",
                 "abbr": "VB"
+            },
+            {
+                "item": "Particle caster and voidblade",
+                "abbr": "PC&VB"
             }
         ],
         "Triarch Stalker": [
@@ -11350,7 +11222,7 @@
                 "abbr": "NULL"
             }
         ],
-        "Blitza-Bomma": [
+        "Blitza-Bommer": [
             {
                 "item": "*",
                 "abbr": "NULL"
@@ -11686,7 +11558,7 @@
                 "abbr": "RL"
             }
         ],
-        "Mazrog Skragbad": [
+        "Mozrog Skragbad": [
             {
                 "item": "*",
                 "abbr": "NULL"
@@ -11708,6 +11580,10 @@
             {
                 "item": "Killsaw",
                 "abbr": "Saw"
+            },
+            {
+                "item": "Twin killsaw",
+                "abbr": "TSaw"
             }
         ],
         "Megatrakk Scrapjet": [
@@ -11886,6 +11762,10 @@
             {
                 "item": "Pulsa Rokkit",
                 "abbr": "PR"
+            },
+            {
+                "item": "Smash Hammer",
+                "abbr": "SH"
             }
         ],
         "Trukk": [
@@ -11970,7 +11850,7 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Twin Tellyport Mega-Basta",
+                "item": "Twin Tellyport Mega-Blasta",
                 "abbr": "TTMB"
             },
             {
@@ -15062,7 +14942,7 @@
                 "abbr": "CST"
             },
             {
-                "item": "Carnifex Extra Scything Claws",
+                "item": "Carnifex Extra Scything Talons",
                 "abbr": "CEST"
             },
             {
@@ -15152,7 +15032,7 @@
                 "abbr": "NULL"
             }
         ],
-        "Heirophant": [
+        "Hierophant": [
             {
                 "item": "*",
                 "abbr": "NULL"
@@ -15174,7 +15054,7 @@
                 "abbr": "NULL"
             },
             {
-                "item": "Impaler Cannon",
+                "item": "Impaler cannon",
                 "abbr": "IC"
             }
         ],
@@ -15226,7 +15106,7 @@
                 "abbr": "NULL"
             }
         ],
-        "Mucloid Spores": [
+        "Mucolid Spores": [
             {
                 "item": "*",
                 "abbr": "NULL"
@@ -15256,7 +15136,7 @@
                 "abbr": "NULL"
             }
         ],
-        "Norn Emmisary": [
+        "Norn Emissary": [
             {
                 "item": "*",
                 "abbr": "NULL"
@@ -15344,6 +15224,10 @@
             {
                 "item": "Strangleweb",
                 "abbr": "SW"
+            },
+            {
+                "item": "Mucolid Spores (30 pts):",
+                "abbr": "NULL"
             }
         ],
         "Tervigon": [
@@ -15378,19 +15262,19 @@
                 "abbr": "NULL"
             }
         ],
-        "Tyranid Warriors": [
+        "Tyranid Warriors with Melee Bio-Weapons": [
             {
                 "item": "*",
                 "abbr": "NULL"
             }
         ],
-        "Tyranid Warriors\u00a0With Ranged Bio-weapons": [
+        "Tyranid Warriors with Ranged Bio-weapons": [
             {
                 "item": "Devourer",
                 "abbr": "DE"
             },
             {
-                "item": "Tyranid Warrior Claws and Talons",
+                "item": "Tyranid Warrior claws and talons",
                 "abbr": "NULL"
             },
             {
@@ -15444,12 +15328,16 @@
                 "abbr": "STRC"
             },
             {
-                "item": "Bone Cleaver, Lash Whip and rending Claws",
-                "abbr": "BCLWRC"
+                "item": "Lash Whip and rending Claws",
+                "abbr": "LWRC"
             },
             {
                 "item": "Crushing Claws and rending claws",
                 "abbr": "CCRC"
+            },
+            {
+                "item": "Bone Cleaver",
+                "abbr": "BC"
             }
         ],
         "Venomthropes": [
@@ -15480,6 +15368,10 @@
             {
                 "item": "Stranglethorn Cannon",
                 "abbr": "SC"
+            },
+            {
+                "item": "Tyrant talons",
+                "abbr": "NULL"
             }
         ],
         "Winged Tyranid Prime": [
@@ -15491,6 +15383,10 @@
         "Zoanthropes": [
             {
                 "item": "*",
+                "abbr": "NULL"
+            },
+            {
+                "item": "Warp blast",
                 "abbr": "NULL"
             }
         ]

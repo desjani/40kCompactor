@@ -1,5 +1,4 @@
-
-import { getIndent, normalizeForComparison, parseItemString } from './utils.js';
+import { getIndent, normalizeForComparison, parseItemString, flexibleNameMatch } from './utils.js';
 import { abbreviate } from './abbreviations.js';
 
 // --- Helper Functions (shared by parsers) ---
@@ -16,8 +15,8 @@ function addItemToTarget(target, itemString, unitContextName, factionKeyword, it
         const quantity = parseInt(withMatch[1]);
         const items = withMatch[2].split(',').map(s => s.trim());
         items.forEach(itemName => {
-            if (normalizeForComparison(itemName) === normalizeForComparison(unitContextName) ||
-                (target.name && normalizeForComparison(itemName) === normalizeForComparison(target.name))) {
+            if (flexibleNameMatch(itemName, unitContextName) ||
+                (target.name && flexibleNameMatch(itemName, target.name))) {
                 return; // It's a redundant unit name, so ignore it.
             }
             const { quantity: innerQuantity, name } = parseItemString(itemName);
@@ -35,8 +34,8 @@ function addItemToTarget(target, itemString, unitContextName, factionKeyword, it
         return;
     }
     const { quantity, name } = parseItemString(itemString);
-    if (normalizeForComparison(name) === normalizeForComparison(unitContextName) ||
-        (target.name && normalizeForComparison(name) === normalizeForComparison(target.name))) {
+    if (flexibleNameMatch(name, unitContextName) ||
+        (target.name && flexibleNameMatch(name, target.name))) {
         return; // It's a redundant unit name, so ignore it.
     }
     const nameshort = itemType === 'special' ? name : abbreviate(name, unitContextName, factionKeyword);
