@@ -39,6 +39,10 @@ function getInlineItemsString(items, useAbbreviations = true, useCustomColors = 
     const wargearItems = items.filter(item => item.type === 'wargear');
 
     const specialStrings = specialItems.map(item => {
+        // Special handling for Warlord
+        if (item.name === 'Warlord') {
+            return item.name; // Always return 'Warlord'
+        }
         if (useAbbreviations) {
             return item.nameshort;
         }
@@ -111,12 +115,7 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                 let quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
 
                 if (useAbbreviations) { // Compact List Rendering
-                    let itemsToRender = unit.items;
-                    if (hideSubunits) {
-                        itemsToRender = aggregateWargear(unit, wargearAbbrMap);
-                    }
-
-                    const topLevelItems = itemsToRender.filter(item => item.points === undefined);
+                    const topLevelItems = unit.items.filter(item => item.points === undefined);
                     const itemsString = getInlineItemsString(topLevelItems, true, useCustomColors, colors, wargearAbbrMap);
                     const unitNameText = `${quantityDisplay}${unit.name}`;
                     const pointsText = `[${unit.points}]`;
@@ -269,6 +268,10 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
         const wargearItems = items.filter(item => item.type === 'wargear');
     
         const specialStrings = specialItems.map(item => {
+            // Special handling for Warlord
+            if (item.name === 'Warlord') {
+                return item.name; // Always return 'Warlord'
+            }
             if (useAbbreviations) {
                 return item.nameshort;
             }
@@ -322,16 +325,11 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
             const unitName = `${quantityDisplay}${unit.name}`;
             const points = `${unit.points}`;
             
-            let itemsToRender = unit.items;
-            if (hideSubunits && useAbbreviations) {
-                itemsToRender = aggregateWargear(unit, wargearAbbrMap);
-            }
-
-            const topLevelItems = itemsToRender.filter(item => item.points === undefined);
+            const topLevelItems = unit.items.filter(item => item.points === undefined);
             const itemsString = getDiscordItemsString(topLevelItems, useAbbreviations);
             text += `* ${toAnsi(unitName, colors.unit, true)}${itemsString} ${toAnsi(`[${points}]`, colors.points, true)}\n`;
             
-            if (!hideSubunits || !useAbbreviations) {
+            if (!hideSubunits) {
                 const subunitItems = unit.items.filter(item => item.points !== undefined);
                 subunitItems.forEach(item => {
                     const subUnitHasVisibleItems = item.items && item.items.some(subItem => wargearAbbrMap.get(subItem.name)?.abbr !== 'NULL' || subItem.type === 'special');
