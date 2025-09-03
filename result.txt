@@ -1,41 +1,20 @@
 ```
-Xenos - T'au Empire | Retaliation Cadre | 2000pts
+Chaos - World Eaters | Berzerker Warband | 1995pts
 
-* Commander Farsight [95]
-* Commander in Coldstar Battlesuit (2SD, 2BC, CIB, HOBC) [95]
-* Commander in Coldstar Battlesuit (2SD, 4FB) [95]
-* Commander in Enforcer Battlesuit (E: SIS (+20), 2SD, 4MP) [100]
-* Kroot Carnivores [65]
-  + Long-quill (KR)
-  + Kroot Carnivore (TL)
-  + 8 Kroot Carnivores (8KR)
-* Pathfinder Team (3IR) [90]
-  + Pathfinder Shas'ui (RD, SAGL, 2TPC)
-* Stealth Battlesuits [80]
-  + Stealth Shas'vre (MD, SD, FB)
-  + 2 Stealth Shas'ui (2BC)
-* Stealth Battlesuits [80]
-  + Stealth Shas'vre (MD, SD, FB)
-  + 2 Stealth Shas'ui (2BC)
-* Stealth Battlesuits [80]
-  + Stealth Shas'vre (MD, SD, FB)
-  + 2 Stealth Shas'ui (2BC)
-* Crisis Fireknife Battlesuits [130]
-  + Crisis Fireknife Shas’vre (SD, 2MP, TPC)
-  + 2 Crisis Fireknife Shas’ui (4SD, 4MP, 2TPC)
-* Crisis Starscythe Battlesuits [110]
-  + Crisis Starscythe Shas’vre (SD, 2BC, TPC)
-  + 2 Crisis Starscythe Shas’ui (4SD, 4BC, 2TPC)
-* Crisis Starscythe Battlesuits [110]
-  + Crisis Starscythe Shas’vre (MD, 2TF, TPC)
-  + 2 Crisis Starscythe Shas’ui (4SD, 4TF, 2TPC)
-* Crisis Sunforge Battlesuits [150]
-  + Crisis Sunforge Shas’vre (SD, 2FB, TPC)
-  + 2 Crisis Sunforge Shas’ui (4SD, 4FB, 2TPC)
-* Crisis Sunforge Battlesuits [150]
-  + Crisis Sunforge Shas’vre (SD, 2FB, TPC)
-  + 2 Crisis Sunforge Shas’ui (4SD, 4FB, 2TPC)
-* Riptide Battlesuit (IA, 2MP, TSMS) [190]
-* Riptide Battlesuit (IA, 2MP, TSMS) [190]
-* Riptide Battlesuit (IA, 2MP, TSMS) [190]
+* Khârn the Betrayer [85]
+* Daemon Prince of Khorne (Warlord, E: HOBI (+20)) [220]
+* Master of Executions (E: BG (+25)) [85]
+* Slaughterbound (E: FOK (+15)) [100]
+* Khorne Berzerkers (2xKE, IOK) [180]
+* Khorne Berzerkers (2xKE, IOK) [180]
+* Eightbound [150]
+* Jakhals (IOK, MC, S&M) [65]
+* 2 Chaos Spawn [80]
+* 2 Chaos Spawn [80]
+* Forgefiend (3xEC) [150]
+* Forgefiend (3xEC) [150]
+* Maulerfiend (2xMaC) [150]
+* Maulerfiend (2xMaC) [150]
+* Chaos Rhino (2xCB, HL) [85]
+* Chaos Rhino (2xCB, HL) [85]
 ```

@@ -32,7 +32,7 @@ function aggregateWargear(unit, wargearAbbrMap) {
     }));
 }
 
-function getInlineItemsString(items, useAbbreviations = true, useCustomColors = false, colors = {}, wargearAbbrMap) {
+function getInlineItemsString(items, useAbbreviations = true, useCustomColors = false, colors = {}, wargearDataMap, unitName) {
     if (!items || items.length === 0) return '';
 
     const specialItems = items.filter(item => item.type === 'special');
@@ -53,9 +53,9 @@ function getInlineItemsString(items, useAbbreviations = true, useCustomColors = 
     });
 
     const wargearStrings = wargearItems.map(item => {
+        if (wargearDataMap.get(item.name)?.skippableForUnits.has(unitName)) return null; // Skip if marked skippable for this unit
         const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
-        const abbr = wargearAbbrMap.get(item.name)?.abbr;
-        if (abbr === 'NULL') return null;
+        const abbr = wargearDataMap.get(item.name)?.abbr;
         const itemName = useAbbreviations && abbr ? abbr : item.name;
         const itemQtyDisplay = itemNumericQty > 1 ? (useAbbreviations ? `${itemNumericQty}x` : `${itemNumericQty} `) : '';
         return `${itemQtyDisplay}${itemName}`;
@@ -74,7 +74,7 @@ function getInlineItemsString(items, useAbbreviations = true, useCustomColors = 
 }
 
 
-export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits) {
+export function generateOutput(data, useAbbreviations, wargearDataMap, hideSubunits) {
     let html = '', plainText = '';
     const factionKeyword = data.SUMMARY?.FACTION_KEYWORD || '';
     const displayFaction = data.SUMMARY?.DISPLAY_FACTION || (factionKeyword.split(' - ').pop() || factionKeyword);
@@ -117,16 +117,18 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                 if (useAbbreviations) { // Compact List Rendering
                     let itemsToRender = unit.items.filter(item => item.points === undefined);
                     if (hideSubunits) {
-                        itemsToRender = aggregateWargear(unit, wargearAbbrMap);
+                        const topLevelSpecialItems = unit.items.filter(item => item.type === 'special' && item.points === undefined);
+                        const aggregatedWargearItems = aggregateWargear(unit, wargearDataMap);
+                        itemsToRender = [...topLevelSpecialItems, ...aggregatedWargearItems];
                     }
-                    const itemsString = getInlineItemsString(itemsToRender, true, useCustomColors, colors, wargearAbbrMap);
+                    const itemsString = getInlineItemsString(itemsToRender, true, useCustomColors, colors, wargearDataMap, unit.name);
                     const unitNameText = `${quantityDisplay}${unit.name}`;
                     const pointsText = `[${unit.points}]`;
                     
                     const unitNameHTML = useCustomColors ? `<span style="color: ${colors.unit};">${unitNameText}</span>` : unitNameText;
                     const pointsHTML = useCustomColors ? `<span style="color: ${colors.points};">${pointsText}</span>` : pointsText;
                     
-                    const unitTextForPlain = `${unitNameText}${getInlineItemsString(itemsToRender, true, false, {}, wargearAbbrMap)} ${pointsText}`;
+                    const unitTextForPlain = `${unitNameText}${getInlineItemsString(itemsToRender, true, false, {}, wargearDataMap, unit.name)} ${pointsText}`;
                     const unitHTML = `${unitNameHTML}${itemsString} ${pointsHTML}`;
 
                     html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitHTML}</p>`;
@@ -137,16 +139,16 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                         if (subunitItems.length > 0) {
                             html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
                             subunitItems.forEach(item => {
-                                const subUnitHasVisibleItems = item.items && item.items.some(subItem => wargearAbbrMap.get(subItem.name)?.abbr !== 'NULL' || subItem.type === 'special');
+                                const subUnitHasVisibleItems = item.items && item.items.some(subItem => wargearDataMap.get(subItem.name)?.abbr !== 'NULL' || subItem.type === 'special');
                                 if (subUnitHasVisibleItems) {
                                     const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                                     const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-                                    const subunitItemsString = getInlineItemsString(item.items, true, useCustomColors, colors, wargearAbbrMap);
+                                    const subunitItemsString = getInlineItemsString(item.items, true, useCustomColors, colors, wargearDataMap, item.name);
                                     
                                     const subunitNameText = `${itemQtyDisplay}${item.name}`;
                                     const subunitNameHTML = useCustomColors ? `<span style="color: ${colors.subunit};">${subunitNameText}</span>` : subunitNameText;
                                     const itemHTML = `${subunitNameHTML}${subunitItemsString}`;
-                                    const itemTextForPlain = `${subunitNameText}${getInlineItemsString(item.items, true, false, {}, wargearAbbrMap)}`;
+                                    const itemTextForPlain = `${subunitNameText}${getInlineItemsString(item.items, true, false, {}, wargearDataMap, item.name)}`;
 
                                     html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemHTML}</p>`;
                                     plainText += `  + ${itemTextForPlain}\n`;
@@ -201,7 +203,7 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
     return { html, plainText };
 }
 
-export function generateDiscordText(data, plain, useAbbreviations = true, wargearAbbrMap, hideSubunits) {
+export function generateDiscordText(data, plain, useAbbreviations = true, wargearDataMap, hideSubunits) {
     const colorMode = document.querySelector('input[name="colorMode"]:checked').value;
     const useColor = !plain && colorMode !== 'none';
     let text = plain ? '' : (useColor ? '\`\`\`ansi\n' : '\`\`\`\n');
@@ -264,7 +266,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
         }
     }
     
-    const getDiscordItemsString = (items, useAbbreviations = true) => {
+    const getDiscordItemsString = (items, useAbbreviations = true, wargearDataMap, unitName) => {
         if (!items || items.length === 0) return '';
         
         const specialItems = items.filter(item => item.type === 'special');
@@ -285,9 +287,9 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
         });
 
         const wargearStrings = wargearItems.map(item => {
+            if (wargearDataMap.get(item.name)?.skippableForUnits.has(unitName)) return null; // Skip if marked skippable for this unit
             const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
-            const abbr = wargearAbbrMap.get(item.name)?.abbr;
-            if (abbr === 'NULL') return null;
+            const abbr = wargearDataMap.get(item.name)?.abbr;
             const itemName = useAbbreviations && abbr ? abbr : item.name;
             const itemQtyDisplay = itemNumericQty > 1 ? (useAbbreviations ? `${itemNumericQty}x` : `${itemNumericQty} `) : '';
             return `${itemQtyDisplay}${itemName}`;
@@ -330,21 +332,23 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
             
             let itemsToRender = unit.items.filter(item => item.points === undefined);
             if (hideSubunits) {
-                itemsToRender = aggregateWargear(unit, wargearAbbrMap);
+                const topLevelSpecialItems = unit.items.filter(item => item.type === 'special' && item.points === undefined);
+                const aggregatedWargearItems = aggregateWargear(unit, wargearDataMap);
+                itemsToRender = [...topLevelSpecialItems, ...aggregatedWargearItems];
             }
-            const itemsString = getDiscordItemsString(itemsToRender, useAbbreviations);
+            const itemsString = getDiscordItemsString(itemsToRender, useAbbreviations, wargearDataMap, unit.name);
             text += `* ${toAnsi(unitName, colors.unit, true)}${itemsString} ${toAnsi(`[${points}]`, colors.points, true)}
 `;
             
             if (!hideSubunits) {
                 const subunitItems = unit.items.filter(item => item.points !== undefined);
                 subunitItems.forEach(item => {
-                    const subUnitHasVisibleItems = item.items && item.items.some(subItem => wargearAbbrMap.get(subItem.name)?.abbr !== 'NULL' || subItem.type === 'special');
+                    const subUnitHasVisibleItems = item.items && item.items.some(subItem => wargearDataMap.get(subItem.name)?.abbr !== 'NULL' || subItem.type === 'special');
                     if (subUnitHasVisibleItems) {
                         const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                         const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
                         const subunitName = item.name;
-                        const subunitItemsString = getDiscordItemsString(item.items, useAbbreviations);
+                        const subunitItemsString = getDiscordItemsString(item.items, useAbbreviations, wargearDataMap, subunitName);
                         const subunitText = `${itemQtyDisplay}${subunitName}`;
                         const prefix = plain ? '*' : '+';
                         text += `  ${prefix} ${toAnsi(subunitText, colors.subunit)}${subunitItemsString}

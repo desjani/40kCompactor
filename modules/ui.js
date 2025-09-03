@@ -115,12 +115,8 @@ export function setMarkdownPreviewOutput(markdownText) {
 
 export function setDebugOutput(text) {
     if (debugOutput) {
-        const resultEntry = document.createElement('pre');
-        resultEntry.style.whiteSpace = 'pre-wrap';
-        resultEntry.style.wordBreak = 'break-all';
-        resultEntry.textContent = text;
-        debugOutput.innerHTML = ''; // Clear previous content
-        debugOutput.appendChild(resultEntry);
+        debugOutput.innerHTML += text + '\n';
+        debugOutput.scrollTop = debugOutput.scrollHeight; // Scroll to bottom
     }
 }
 

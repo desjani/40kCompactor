@@ -1,4 +1,5 @@
 import { normalizeForComparison, flexibleNameMatch } from './utils.js';
+import { setDebugOutput } from './ui.js';
 
 const SPACE_MARINE_CHAPTERS = [
     "Adeptus Astartes", // General Space Marine faction
@@ -46,10 +47,10 @@ export async function loadAbbreviationRules() {
         skippableWargear = await skippableResponse.json();
         abbreviationRules = await rulesResponse.json();
 
-        console.log("Abbreviation rules loaded successfully.");
+        setDebugOutput("Abbreviation rules loaded successfully.");
         return true;
     } catch (error) {
-        console.error("Could not load abbreviation rules:", error);
+        setDebugOutput("Could not load abbreviation rules:" + error);
         return false;
     }
 }
@@ -75,7 +76,7 @@ function collectWargear(items, wargearMap, unitName) {
             if (!wargearMap.has(item.name)) {
                 wargearMap.set(item.name, {
                     units: new Set(),
-                    abbr: ''
+                    skippableForUnits: new Set()
                 });
             }
             wargearMap.get(item.name).units.add(unitName);
@@ -89,10 +90,13 @@ function collectWargear(items, wargearMap, unitName) {
 function markSkippable(items, factionRules, unitName, wargearMap) {
     items.forEach(item => {
         if (item.type === 'wargear') {
+            setDebugOutput(`Processing wargear: ${item.name} for unit: ${unitName}`);
             let unitRules = null;
             for (const key in factionRules) {
+                setDebugOutput(`  Checking rule for key: ${key} against unitName: ${unitName}`);
                 if (flexibleNameMatch(key, unitName)) {
                     unitRules = factionRules[key];
+                    setDebugOutput(`    Match found! unitRules: ${JSON.stringify(unitRules)}`);
                     break;
                 }
             }
@@ -101,14 +105,17 @@ function markSkippable(items, factionRules, unitName, wargearMap) {
             const lowerCaseItemName = item.name.toLowerCase();
 
             if (unitRules === true) {
+                setDebugOutput(`  Unit rule is TRUE. Adding ${unitName} to skippableForUnits for ${item.name}.`);
                 if (wargearMap.has(item.name)) {
-                    wargearMap.get(item.name).abbr = 'NULL';
+                    wargearMap.get(item.name).skippableForUnits.add(unitName);
                 }
             } else if (Array.isArray(unitRules)) {
                 // Convert each rule to lowercase for comparison
                 const lowerCaseUnitRules = unitRules.map(rule => rule.toLowerCase());
+                setDebugOutput(`  Unit rule is ARRAY. Checking if ${lowerCaseItemName} is in: ${JSON.stringify(lowerCaseUnitRules)}`);
                 if (lowerCaseUnitRules.includes(lowerCaseItemName) && wargearMap.has(item.name)) {
-                    wargearMap.get(item.name).abbr = 'NULL';
+                    setDebugOutput(`    Item ${item.name} found in unit rule. Adding ${unitName} to skippableForUnits.`);
+                    wargearMap.get(item.name).skippableForUnits.add(unitName);
                 }
             }
 
@@ -116,8 +123,10 @@ function markSkippable(items, factionRules, unitName, wargearMap) {
             if (Array.isArray(factionWideRules)) {
                 // Convert each rule to lowercase for comparison
                 const lowerCaseFactionWideRules = factionWideRules.map(rule => rule.toLowerCase());
+                setDebugOutput(`  Faction-wide rule is ARRAY. Checking if ${lowerCaseItemName} is in: ${JSON.stringify(lowerCaseFactionWideRules)}`);
                 if (lowerCaseFactionWideRules.includes(lowerCaseItemName) && wargearMap.has(item.name)) {
-                    wargearMap.get(item.name).abbr = 'NULL';
+                    setDebugOutput(`    Item ${item.name} found in faction-wide rule. Adding ${unitName} to skippableForUnits.`);
+                    wargearMap.get(item.name).skippableForUnits.add(unitName);
                 }
             }
         }
@@ -214,17 +223,13 @@ export function generateAbbreviations(parsedList) {
             }
         }
     }
+    setDebugOutput("Wargear Map after markSkippable:" + JSON.stringify(Array.from(wargearMap.entries())));
 
     // Phase 2: Initial Abbreviation Generation and Conflict Resolution
     const usedAbbrs = new Set(); // To keep track of abbreviations already assigned
     const itemsToProcess = Array.from(wargearMap.entries()); // Convert to array to maintain order
 
     for (const [name, data] of itemsToProcess) {
-        if (data.abbr === 'NULL') {
-            // If already marked as NULL, skip abbreviation generation and conflict resolution
-            continue;
-        }
-
         let currentAbbr;
         const words = name.split(' ');
 
