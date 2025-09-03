@@ -115,15 +115,18 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                 let quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
 
                 if (useAbbreviations) { // Compact List Rendering
-                    const topLevelItems = unit.items.filter(item => item.points === undefined);
-                    const itemsString = getInlineItemsString(topLevelItems, true, useCustomColors, colors, wargearAbbrMap);
+                    let itemsToRender = unit.items.filter(item => item.points === undefined);
+                    if (hideSubunits) {
+                        itemsToRender = aggregateWargear(unit, wargearAbbrMap);
+                    }
+                    const itemsString = getInlineItemsString(itemsToRender, true, useCustomColors, colors, wargearAbbrMap);
                     const unitNameText = `${quantityDisplay}${unit.name}`;
                     const pointsText = `[${unit.points}]`;
                     
                     const unitNameHTML = useCustomColors ? `<span style="color: ${colors.unit};">${unitNameText}</span>` : unitNameText;
                     const pointsHTML = useCustomColors ? `<span style="color: ${colors.points};">${pointsText}</span>` : pointsText;
                     
-                    const unitTextForPlain = `${unitNameText}${getInlineItemsString(topLevelItems, true, false, {}, wargearAbbrMap)} ${pointsText}`;
+                    const unitTextForPlain = `${unitNameText}${getInlineItemsString(itemsToRender, true, false, {}, wargearAbbrMap)} ${pointsText}`;
                     const unitHTML = `${unitNameHTML}${itemsString} ${pointsHTML}`;
 
                     html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitHTML}</p>`;
@@ -325,9 +328,13 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
             const unitName = `${quantityDisplay}${unit.name}`;
             const points = `${unit.points}`;
             
-            const topLevelItems = unit.items.filter(item => item.points === undefined);
-            const itemsString = getDiscordItemsString(topLevelItems, useAbbreviations);
-            text += `* ${toAnsi(unitName, colors.unit, true)}${itemsString} ${toAnsi(`[${points}]`, colors.points, true)}\n`;
+            let itemsToRender = unit.items.filter(item => item.points === undefined);
+            if (hideSubunits) {
+                itemsToRender = aggregateWargear(unit, wargearAbbrMap);
+            }
+            const itemsString = getDiscordItemsString(itemsToRender, useAbbreviations);
+            text += `* ${toAnsi(unitName, colors.unit, true)}${itemsString} ${toAnsi(`[${points}]`, colors.points, true)}
+`;
             
             if (!hideSubunits) {
                 const subunitItems = unit.items.filter(item => item.points !== undefined);
@@ -340,7 +347,8 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
                         const subunitItemsString = getDiscordItemsString(item.items, useAbbreviations);
                         const subunitText = `${itemQtyDisplay}${subunitName}`;
                         const prefix = plain ? '*' : '+';
-                        text += `  ${prefix} ${toAnsi(subunitText, colors.subunit)}${subunitItemsString}\n`;
+                        text += `  ${prefix} ${toAnsi(subunitText, colors.subunit)}${subunitItemsString}
+`;
                     }
                 });
             }

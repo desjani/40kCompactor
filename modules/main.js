@@ -44,6 +44,8 @@ function handleParse() {
     const text = getInputText();
     const lines = text.split('\n');
 
+
+
     const format = detectFormat(lines);
     const parser = {
         GW_APP: parseGwApp,
@@ -54,7 +56,6 @@ function handleParse() {
         console.error("Unsupported list format.");
         setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use GW App or WTC-Compact format.</p>');
         setCompactedOutput('');
-        setMarkdownPreviewOutput(''); // Clear new output box
         return;
     }
 
@@ -108,6 +109,10 @@ function updatePreview() {
         case 'plainText':
             useAbbreviations = true; // Abbreviations are used for plain text output
             plain = true;
+            break;
+        case 'plainTextExtended':
+            useAbbreviations = false; // Content of Discord Extended (no abbreviations)
+            plain = true; // Formatting of Plain Text
             break;
     }
 
