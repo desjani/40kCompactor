@@ -1,8 +1,7 @@
 import { getIndent, normalizeForComparison, parseItemString, flexibleNameMatch } from './utils.js';
-import { abbreviate } from './abbreviations.js';
 
 // --- Helper Functions (shared by parsers) ---
-function addItemToTarget(target, itemString, unitContextName, factionKeyword, itemType = 'wargear') {
+function addItemToTarget(target, itemString, unitContextName, factionKeyword, itemType = 'wargear', parentQuantity = 1) {
     if (!target || !itemString) return;
 
     const cleanItemNameForCheck = itemString.replace(/^\d+x?\s*/, '').trim();
@@ -17,35 +16,36 @@ function addItemToTarget(target, itemString, unitContextName, factionKeyword, it
         items.forEach(itemName => {
             if (flexibleNameMatch(itemName, unitContextName) ||
                 (target.name && flexibleNameMatch(itemName, target.name))) {
-                return; // It's a redundant unit name, so ignore it.
+                return;
             }
             const { quantity: innerQuantity, name } = parseItemString(itemName);
             const numericInnerQuantity = parseInt(innerQuantity.replace('x', ''), 10) || 1;
             const totalQuantity = quantity * numericInnerQuantity;
-            const nameshort = abbreviate(name, unitContextName, factionKeyword);
+
             const existingItem = target.items.find(item => item.name === name);
             if (existingItem) {
                 const existingQty = parseInt(existingItem.quantity.replace('x', ''));
                 existingItem.quantity = `${existingQty + totalQuantity}x`;
             } else {
-                target.items.push({ quantity: `${totalQuantity}x`, name, nameshort, items: [], type: itemType });
+                target.items.push({ quantity: `${totalQuantity}x`, name, items: [], type: itemType });
             }
         });
         return;
     }
+
     const { quantity, name } = parseItemString(itemString);
     if (flexibleNameMatch(name, unitContextName) ||
         (target.name && flexibleNameMatch(name, target.name))) {
-        return; // It's a redundant unit name, so ignore it.
+        return;
     }
-    const nameshort = itemType === 'special' ? name : abbreviate(name, unitContextName, factionKeyword);
     const numericQuantity = parseInt(quantity.replace('x', ''), 10);
+    const totalQuantity = numericQuantity * parentQuantity;
     const existingItem = target.items.find(item => item.name === name);
     if (existingItem) {
         const existingQty = parseInt(existingItem.quantity.replace('x', ''));
-        existingItem.quantity = `${existingQty + numericQuantity}x`;
+        existingItem.quantity = `${existingQty + totalQuantity}x`;
     } else {
-        target.items.push({ quantity, name, nameshort, items: [], type: itemType });
+        target.items.push({ quantity: `${totalQuantity}x`, name, items: [], type: itemType });
     }
 };
 
@@ -245,12 +245,18 @@ export function parseGwApp(lines) {
                     parentContext.node.items.push(newSubUnit);
                     contextStack.push({ indent, node: newSubUnit });
                 } else {
-                    addItemToTarget(parentContext.node, itemContent, topLevelUnitName, factionKeyword);
+                    const parentNode = parentContext.node;
+                    const isSubUnit = parentNode.points === 0;
+                    const parentQuantity = isSubUnit ? (parseInt(parentNode.quantity.replace('x', ''), 10) || 1) : 1;
+                    addItemToTarget(parentNode, itemContent, topLevelUnitName, factionKeyword, 'wargear', parentQuantity);
                 }
             } else if (indent > parentContext.indent) { // It's an indented, non-bulleted line (wargear)
                 const topLevelUnitName = contextStack[0].node.name;
+                const parentNode = parentContext.node;
+                const isSubUnit = parentNode.points === 0;
+                const parentQuantity = isSubUnit ? (parseInt(parentNode.quantity.replace('x', ''), 10) || 1) : 1;
                 // This branch should not be hit for bulleted lines, but we clean it just in case.
-                addItemToTarget(parentContext.node, trimmedLine.replace(/^\s*(?:•|-|◦)\s*/, ''), topLevelUnitName, factionKeyword);
+                addItemToTarget(parentNode, trimmedLine.replace(/^\s*(?:•|-|◦)\s*/, ''), topLevelUnitName, factionKeyword, 'wargear', parentQuantity);
             }
         }
     }
@@ -294,7 +300,7 @@ export function parseWtcCompact(lines) {
     const separatorRegex = /^\s*\+{3}\s*$/;
     const sectionHeaderRegex = /^(CHARACTER|OTHER DATASHEETS)$/;
     const unitRegex = /^(?:(?<charid>Char\d+):\s*)?(?<unitinfo>.*?)\s+\((?<points>\d+)\s*pts?\)(?<wargearblock>: \s*(?<wargear>.*))?$/;
-    const bulletRegex = /^\s*(?:•|-|◦)\s*(.*)/; // Handle multiple bullet types for robustness
+    const bulletRegex = /^\s*(?:•|-|◦|\+)\s*(.*)/; // Handle multiple bullet types for robustness
     const enhancementLineRegex = /^Enhancement:\s*(.*)/;
 
     // --- Pass 1: Separate Header and Body ---
@@ -373,17 +379,12 @@ export function parseWtcCompact(lines) {
 
         while (contextStack.length > 0) {
             const lastContext = contextStack[contextStack.length - 1];
-            // A new context is a child if it's more indented.
-            // Or, if it's a bullet and the parent is not, at the same indent level.
             const isChildBullet = trimmedLine.startsWith('•') && !lastContext.isBullet && indent === lastContext.indent;
 
             if (indent > lastContext.indent || isChildBullet) {
-                // The current context is correct, this line is a child.
-            } else {
-                // This line is a sibling or a parent, so pop the context.
-                contextStack.pop();
+                break;
             }
-            break; // Otherwise, the context is correct
+            contextStack.pop();
         }
 
         const parentContext = contextStack.length > 0 ? contextStack[contextStack.length - 1] : null;
@@ -440,7 +441,7 @@ export function parseWtcCompact(lines) {
                 const content = bulletMatch[1];
                 const [subUnitInfo, wargearInfo] = content.split(/:\s*/, 2);
                 const subUnitMatch = subUnitInfo.match(/^(\d+x?\s+)(.*)/);
-                const nextLine = (i + 1 < bodyLines.length) ? bodyLines[i + 1] : '';
+                const nextLine = (i + 1 < lines.length) ? lines[i + 1] : '';
                 const nextLineIsMoreIndented = nextLine.trim() !== '' && getIndent(nextLine) > getIndent(line);
 
                 // A line is a subunit if it starts with a quantity AND (it has wargear on the same line OR it's followed by an indent)
@@ -448,24 +449,31 @@ export function parseWtcCompact(lines) {
                     const { quantity, name } = parseItemString(subUnitInfo);
                     const newSubUnit = { quantity, name, points: 0, items: [] };
                     parentContext.node.items.push(newSubUnit);
+                    const subUnitQuantity = parseInt(quantity.replace('x', ''), 10) || 1;
 
                     if (wargearInfo) { // Single-line subunit (e.g. Intercessors)
                         wargearInfo.split(/(?=\d+\s+with)|,/).forEach(part => {
-                            addItemToTarget(newSubUnit, part.trim(), topLevelUnitName, factionKeyword);
+                            addItemToTarget(newSubUnit, part.trim(), topLevelUnitName, factionKeyword, 'wargear', subUnitQuantity);
                         });
                     } else { // Multi-line subunit (e.g. Jakhals), its wargear is on subsequent lines
                         contextStack.push({ indent, node: newSubUnit, isBullet: trimmedLine.startsWith('•') });
                     }
                 } else { 
                     // It's a bulleted line, but not a subunit header. Treat as wargear for the current context.
-                    addItemToTarget(parentContext.node, content, topLevelUnitName, factionKeyword);
+                    const parentNode = parentContext.node;
+                    const isSubUnit = parentNode.points === 0;
+                    const parentQuantity = isSubUnit ? (parseInt(parentNode.quantity.replace('x', ''), 10) || 1) : 1;
+                    addItemToTarget(parentNode, content, topLevelUnitName, factionKeyword, 'wargear', parentQuantity);
                 }
                 continue; // The bulleted line is processed.
             } else if (trimmedLine.match(enhancementLineRegex)) { // Enhancement for the top-level unit
                 const enhContent = trimmedLine.match(enhancementLineRegex)[1].trim();
                 parseAndAddEnhancement(enhContent, contextStack[0].node, factionKeyword);
             } else { // Wargear for the current context (the last thing on the stack)
-                addItemToTarget(parentContext.node, trimmedLine, topLevelUnitName, factionKeyword);
+                const parentNode = parentContext.node;
+                const isSubUnit = parentNode.points === 0;
+                const parentQuantity = isSubUnit ? (parseInt(parentNode.quantity.replace('x', ''), 10) || 1) : 1;
+                addItemToTarget(parentNode, trimmedLine, topLevelUnitName, factionKeyword, 'wargear', parentQuantity);
             }
         }
     }

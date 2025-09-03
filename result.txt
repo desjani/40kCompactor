@@ -1,181 +1,41 @@
-Xenos - Tyranids | Crusher Stampede | 10245pts
-
-Deathleaper (Lictor claws and talons) [80]
-
-Old One Eye (Old One Eye’s claws and talons) [150]
-
-The Swarmlord (Warlord, Bone Sabres, Synaptic Pulse) [220]
-
-Broodlord (Broodlord Claws and Talons) [80]
-
-Hive Tyrant (SC, MST) [195]
-
-Hive Tyrant (HVC, MST) [195]
-
-Hive Tyrant (MBSLW, HVC) [195]
-
-Hive Tyrant (MST, SC) [195]
-
-5 Hyperadapted Raveners [165]
-
-4 Ravener (4 Ravener heavy claws and talons, Venom bolt)
-
-Ravener Prime (Prime claws and talons)
-
-Neurotyrant (Neurotyrant claws and lashes, Psychic scream) [105]
-
-Parasite of Mortrex (Barbed ovipositor, Clawed limbs) [80]
-
-Tervigon (Stinger salvoes, MCC) [175]
-
-Tervigon (Stinger salvoes, MST) [175]
-
-Winged Hive Tyrant (Tyrant talons, SC) [170]
-
-Winged Hive Tyrant (Tyrant talons, HVC) [170]
-
-Winged Hive Tyrant (Tyrant talons, MBSLW) [170]
-
-Winged Hive Tyrant (Tyrant talons, MST) [170]
-
-Winged Tyranid Prime (Prime talons) [65]
-
-10 Gargoyles (10 Blinding venom, Fleshborer) [85]
-
-10 Hormagaunts (10 Hormagaunt talons) [65]
-
-20 Termagants (Mucolid Spores (30 pts):) [120]
-
-3 Termagant (3 Chitinous claws and teeth, SL, SR, SW)
-
-17 Termagants (17 Chitinous claws and teeth, 10 FB, 4 Termagant spinefist, 3 TD)
-
-5 Barbgaunts (5 Barblauncher, Chitinous claws and teeth) [55]
-
-Biovores (Chitin-barbed limbs, Spore mine launcher) [50]
-
-5 Genestealers (5 Genestealers claws and talons) [75]
-
-3 Hive Guard (3 Chitinous claws and teeth, IC) [90]
-
-3 Hive Guard (3 Chitinous claws and teeth, SC) [90]
-
-Lictor (Lictor claws and talons) [60]
-
-11 Neurogaunts [45]
-
-Neurogaunt Nodebeast (Chitinous claws and teeth)
-
-10 Neurogaunt (1, Chitinous claws and teeth)
-
-Neurolictor (Piercing claws and talons) [80]
-
-Pyrovores (Chitin-barbed limbs, Flamespurt) [40]
-
-5 Raveners (5 Ravener claws and talons) [125]
-
-3 Tyranid Warriors with Melee Bio-Weapons [75]
-
-Tyranid Prime (Tyranid Warrior claws and talons)
-
-2 Tyranid Warrior (2 Tyranid Warrior claws and talons)
-
-6 Tyranid Warriors with Ranged Bio-Weapons [130]
-
-5 Tyranid Warrior (5 Tyranid Warrior claws and talons, Venom cannon, Spinefists, Devourer, Deathspitter, Barbed strangler)
-
-Tyranid Prime (Tyranid Warrior claws and talons, Venom cannon)
-
-6 Tyranid Warriors with Ranged Bio-Weapons [130]
-
-5 Tyranid Warrior (5 Tyranid Warrior claws and talons, Venom cannon, Spinefists, Devourer, Deathspitter, Barbed strangler)
-
-Tyranid Prime (Tyranid Warrior claws and talons, Barbed strangler)
-
-6 Tyranid Warriors with Ranged Bio-Weapons [130]
-
-5 Tyranid Warrior (5 Tyranid Warrior claws and talons, Venom cannon, Spinefists, Devourer, Deathspitter, Barbed strangler)
-
-Tyranid Prime (Tyranid Warrior claws and talons, Deathspitter)
-
-6 Tyranid Warriors with Ranged Bio-Weapons [130]
-
-5 Tyranid Warrior (5 Tyranid Warrior claws and talons, Venom cannon, Spinefists, Devourer, Deathspitter, Barbed strangler)
-
-Tyranid Prime (Tyranid Warrior claws and talons, Devourer)
-
-6 Tyranid Warriors with Ranged Bio-Weapons [130]
-
-5 Tyranid Warrior (5 Tyranid Warrior claws and talons, Venom cannon, Spinefists, Devourer, Deathspitter, Barbed strangler)
-
-Tyranid Prime (Tyranid Warrior claws and talons, Spinefists)
-
-3 Tyrant Guard (Bone cleaver, lash whip and rending claws, Crushing claws and rending claws, Scything talons and rending claws) [80]
-
-3 Venomthropes (3 Toxic lashes) [70]
-
-3 Von Ryan's Leapers (3 Leaper's talons) [70]
-
-3 Zoanthropes [100]
-
-Neurothrope (Chitinous claws and teeth, Warp blast)
-
-2 Zoanthrope (2 Chitinous claws and teeth, Warp blast)
-
-Ripper Swarms (Chitinous claws and teeth, Spinemaw) [25]
-
-3 Spore Mines (3 with) [55]
-
-Carnifexes (Chitinous claws and teeth, BP, SB, DBW, STC) [115]
-
-Carnifexes (2 CCC, Chitinous claws and teeth, BP, SB) [115]
-
-Carnifexes (Chitinous claws and teeth, BP, SB, CST, CEST) [115]
-
-Carnifexes (2 DSM, Chitinous claws and teeth, BP, SB) [115]
-
-Carnifexes (2 DBW, Chitinous claws and teeth, BP, SB) [115]
-
-Carnifexes (Chitinous claws and teeth, BP, SB, DBW, HVC) [115]
-
-Carnifexes (Chitinous claws and teeth, BP, SB, DBW, STC) [115]
-
-Exocrine (Bio-plasmic cannon, Powerful limbs) [140]
-
-Harpy (Scything wings, Stinger salvoes, THVC) [215]
-
-Harpy (Scything wings, Stinger salvoes, TSC) [215]
-
-Harridan (2 Dire bio-cannon, Gargantuan scything talons) [610]
-
-Haruspex (Grasping tongue, Ravenous maw, Shovelling claws) [125]
-
-Hierophant (2 Dire bio-cannon, Bio-plasma torrent, Lashwhip pods, Titanic scything talons) [810]
-
-Hive Crone (Drool cannon, Scything wings, Stinger salvoes, Tentaclids, Thorax spur) [200]
-
-Maleceptor (Massive scything talons, Psychic overload) [170]
-
-Mawloc (Distendible jaw, Mawloc scything talons) [145]
-
-Norn Assimilator (Monstrous scything talons, Toxinjecter harpoon) [275]
-
-Norn Emissary (Monstrous rending claws, Monstrous scything talons, Psychic tendril) [260]
-
-Psychophage (Psychoclastic torrent, Talons and betentacled maw) [110]
-
-Screamer-killer (Bio-plasmic scream, Screamer-killer talons) [135]
-
-Sporocyst (Flensing whips, Sporocyst bio-weapon) [145]
-
-Toxicrene (Massive toxic lashes) [150]
-
-Trygon (Bio-electric pulse, Trygon scything talons) [140]
-
-Tyrannofex (Powerful limbs, Stinger salvoes, RC) [200]
-
-Tyrannofex (Powerful limbs, Stinger salvoes, FBH) [200]
-
-Tyrannofex (Powerful limbs, Stinger salvoes, AS) [200]
-
-Tyrannocyte (Flensing Whips, Tyrannocyte Bio-weapons) [105]
+```
+Xenos - T'au Empire | Retaliation Cadre | 2000pts
+
+* Commander Farsight [95]
+* Commander in Coldstar Battlesuit (2SD, 2BC, CIB, HOBC) [95]
+* Commander in Coldstar Battlesuit (2SD, 4FB) [95]
+* Commander in Enforcer Battlesuit (E: SIS (+20), 2SD, 4MP) [100]
+* Kroot Carnivores [65]
+  + Long-quill (KR)
+  + Kroot Carnivore (TL)
+  + 8 Kroot Carnivores (8KR)
+* Pathfinder Team (3IR) [90]
+  + Pathfinder Shas'ui (RD, SAGL, 2TPC)
+* Stealth Battlesuits [80]
+  + Stealth Shas'vre (MD, SD, FB)
+  + 2 Stealth Shas'ui (2BC)
+* Stealth Battlesuits [80]
+  + Stealth Shas'vre (MD, SD, FB)
+  + 2 Stealth Shas'ui (2BC)
+* Stealth Battlesuits [80]
+  + Stealth Shas'vre (MD, SD, FB)
+  + 2 Stealth Shas'ui (2BC)
+* Crisis Fireknife Battlesuits [130]
+  + Crisis Fireknife Shas’vre (SD, 2MP, TPC)
+  + 2 Crisis Fireknife Shas’ui (4SD, 4MP, 2TPC)
+* Crisis Starscythe Battlesuits [110]
+  + Crisis Starscythe Shas’vre (SD, 2BC, TPC)
+  + 2 Crisis Starscythe Shas’ui (4SD, 4BC, 2TPC)
+* Crisis Starscythe Battlesuits [110]
+  + Crisis Starscythe Shas’vre (MD, 2TF, TPC)
+  + 2 Crisis Starscythe Shas’ui (4SD, 4TF, 2TPC)
+* Crisis Sunforge Battlesuits [150]
+  + Crisis Sunforge Shas’vre (SD, 2FB, TPC)
+  + 2 Crisis Sunforge Shas’ui (4SD, 4FB, 2TPC)
+* Crisis Sunforge Battlesuits [150]
+  + Crisis Sunforge Shas’vre (SD, 2FB, TPC)
+  + 2 Crisis Sunforge Shas’ui (4SD, 4FB, 2TPC)
+* Riptide Battlesuit (IA, 2MP, TSMS) [190]
+* Riptide Battlesuit (IA, 2MP, TSMS) [190]
+* Riptide Battlesuit (IA, 2MP, TSMS) [190]
+```

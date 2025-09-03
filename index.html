@@ -13,7 +13,7 @@
         <div class="card">
             <header class="header">
                 <h1>Warhammer 40k List Compactor</h1>
-                <p>Paste your army list below (supports GW App and WTC-Compact formats). The tool will generate an extended version and a compact version. Use the "Copy for Discord" buttons for various colored, pre-formatted outputs ready for pasting.</p>
+                <p>Paste your army list from the GW App or in WTC-Compact format below. The tool will generate a full version and a compact, Discord-friendly version.</p>
             </header>
 
             <!-- App Footer with Contact Info -->
@@ -21,41 +21,41 @@
                 <p>For feedback or questions, reach out to <a href="https://discord.com/users/Desjani" target="_blank">@Desjani</a> on Discord.</p>
             </footer>
 
-            <div class="grid-container">
+            <div class="grid-container-two-col">
                 <!-- Input Column -->
                 <div>
                     <label for="inputText" class="io-label">Paste List here (GW App or WTC-Compact)</label>
                     <textarea id="inputText" class="io-box" autofocus></textarea>
                     <div class="column-footer" style="flex-direction: column; align-items: center;">
+                        <div id="inputCharCount" class="char-count" style="margin-bottom: 0.5rem;"></div>
                         <div class="button-group">
                             <button id="resetButton" class="btn btn-danger">Start Over</button>
                             <button id="parseButton" class="btn btn-primary">Compact this list</button>
                         </div>
-                        <div id="inputCharCount" class="char-count" style="margin-top: 0.5rem;"></div>
                     </div>
                 </div>
 
-                <!-- Extended Output Column -->
-                <div>
-                    <label for="unabbreviatedOutput" class="io-label">Extended List</label>
-                    <div id="unabbreviatedOutput" class="io-box"></div>
-                     <div class="column-footer" style="flex-direction: column; align-items: center;">
-                        <button id="copyExtendedButton" class="btn btn-copy">Extended Version</button>
-                        <div id="extendedCharCount" class="char-count" style="margin-top: 0.5rem;"></div>
+                <!-- Dropdowns Column -->
+                <div class="dropdowns-column">
+                    <h3>List Options</h3>
+                    <div style="margin-bottom: 0.5rem;">
+                        <label>List Style: 
+                            <select id="outputFormatSelect">
+                                <option value="discordCompact">Discord (Compact)</option>
+                                <option value="discordExtended">Discord (Extended)</option>
+                                <option value="plainText">Plain Text</option>
+                            </select>
+                        </label>
                     </div>
-                </div>
-
-                <!-- Compacted Output Column -->
-                <div>
-                    <label for="compactedOutput" class="io-label">Compact List</label>
-                    <div id="compactedOutput" class="io-box"></div>
-                    <div class="column-footer" style="flex-direction: column; align-items: center;">
-                        <div class="button-group">
-                             <button id="copyCompactButton" class="btn btn-discord">Discord (Compact)</button>
-                         <button id="copyExtendedDiscordButton" class="btn btn-secondary" style="background-color: #4a56c4; border-color: #4a56c4;">Discord (Extended)</button>
-                         <button id="copyPlainDiscordButton" class="btn btn-secondary" style="background-color: #495057; border-color: #495057;">Plain Text</button>
-                        </div>
-                        <div id="compactCharCount" class="char-count" style="margin-top: 0.5rem;"></div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <label>
+                            <input type="checkbox" id="hideSubunitsCheckbox"> Hide Subunits
+                        </label>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <label>
+                            <input type="checkbox" id="multilineHeaderCheckbox"> Multiline Header
+                        </label>
                     </div>
                     <!-- Color Options Section -->
                     <div class="color-options-container" style="margin-top: 1rem; text-align: center;">
@@ -120,7 +120,7 @@
                                     </select>
                                 </label>
                             </div>
-                            <div>
+                            <div style="margin-bottom: 0.5rem;">
                                 <label>Points: 
                                     <select id="pointsColor">
                                         <option value="#FFFFFF">White</option>
@@ -139,9 +139,27 @@
                 </div>
             </div>
 
-            <div style="text-align: center; margin-top: 1.5rem;">
-        <a href="v2/index.html" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.2rem; text-decoration: none;">Click here to try out the V2 Beta!</a>
-    </div>
+            <div class="grid-container-two-col" style="margin-top: 1.5rem;">
+                <!-- Extended Output Column -->
+                <div>
+                    <label for="unabbreviatedOutput" class="io-label">Full Text</label>
+                    <div id="unabbreviatedOutput" class="io-box"></div>
+                     <div class="column-footer" style="flex-direction: column; align-items: center;">
+                        <div id="extendedCharCount" class="char-count" style="margin-bottom: 0.5rem;"></div>
+                        <button id="copyExtendedButton" class="btn btn-copy">Copy Full Text to Clipboard</button>
+                    </div>
+                </div>
+
+                <!-- Discord Preview Column -->
+                <div>
+                    <label for="markdownPreviewOutput" class="io-label">Compacted Preview</label>
+                    <div id="markdownPreviewOutput" class="io-box markdown-preview"></div>
+                    <div class="column-footer" style="flex-direction: column; align-items: center;">
+                        <div id="markdownPreviewCharCount" class="char-count" style="margin-bottom: 0.5rem;"></div>
+                        <button id="copyPreviewButton" class="btn btn-copy">Copy Preview to Clipboard</button>
+                    </div>
+                </div>
+            </div>
 
             <!-- Changelog and Roadmap Section -->
             <div class="changelog-section">
@@ -156,6 +174,18 @@
                 </div>
                 <div class="changelog-entry">
                     <h4>Changelog</h4>
+                    <div class="changelog-version-entry">
+                        <h5>Version 1.0.0: TOTAL OVERHAUL!</h5>
+                        <ul>
+                            <li>Completely re-architected the application for improved performance, maintainability, and future expansion.</li>
+                            <li>Introduced a new modular structure for better code organization.</li>
+                            <li>Enhanced parsing capabilities for even more robust list processing.</li>
+                            <li>Improved UI responsiveness and user experience.</li>
+                            <li>Added "Multiline Header" option for flexible output formatting.</li>
+                            <li>Added "Side Subunits" option for even more compact output.</li>
+                            <li>Fixed various bugs and improved overall stability.</li>
+                        </ul>
+                    </div>
                     <div class="changelog-version-entry">
                         <h5>Version 0.1.2: Internal Updates</h5>
                         <ul>
@@ -225,6 +255,7 @@
 
     <div id="copyPopup" class="copy-popup">Copied to Clipboard!</div>
 
+    <script src="https://cdn.jsdelivr.net/npm/ansi_up@5.1.0/ansi_up.min.js"></script>
     <script type="module" src="./modules/main.js"></script>
 
 </body>

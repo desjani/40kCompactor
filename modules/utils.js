@@ -1,50 +1,28 @@
-export function normalizeForComparison(name) {
-    if (!name) return '';
-    return name.normalize("NFD").replace(/[̀-ͯ]/g, "")
-        .toLowerCase()
-        .replace(/’/g, "'")
-        .replace(/[^a-z0-9\s]/g, '')
-        .trim();
+export function getIndent(line) {
+    const match = line.match(/^\s*/);
+    return match ? match[0].length : 0;
 }
 
-export function normalizeForSubstringComparison(name) {
-    if (!name) return '';
-    return name.normalize("NFD").replace(/[̀-ͯ]/g, "")
-        .toLowerCase()
-        .replace(/’/g, "'")
-        .trim();
+export function normalizeForComparison(text) {
+    if (!text) return '';
+    return text.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+export function parseItemString(itemString) {
+    const itemRegex = /^(?:(\d+)x?\s+)?(.*)/;
+    const itemMatch = itemString.trim().match(itemRegex);
+    if (itemMatch) {
+        const quantity = itemMatch[1] ? `${itemMatch[1]}x` : '1x';
+        const name = itemMatch[2].trim();
+        return { quantity, name };
+    }
+    return { quantity: '1x', name: itemString.trim() };
 }
 
 export function flexibleNameMatch(name1, name2) {
-    const name1Normalized = normalizeForComparison(name1).replace(/\s/g, '');
-    const name2Normalized = normalizeForComparison(name2).replace(/\s/g, '');
+    if (!name1 || !name2) return false;
+    const normName1 = normalizeForComparison(name1).replace(/s$/, '');
+    const normName2 = normalizeForComparison(name2).replace(/s$/, '');
 
-    if (name1Normalized === name2Normalized) return true;
-
-    if (name1Normalized.endsWith('s') && name2Normalized === name1Normalized.slice(0, -1)) return true;
-    if (name2Normalized.endsWith('s') && name1Normalized === name2Normalized.slice(0, -1)) return true;
-
-    return false;
-}
-
-export function flexibleItemMatch(rule, itemName) {
-    return flexibleNameMatch(rule.item, itemName);
-}
-
-export function flexibleSubstringMatch(sourceString, targetString) {
-    const normalizedSource = normalizeForSubstringComparison(sourceString);
-    const normalizedTarget = normalizeForSubstringComparison(targetString);
-    return normalizedSource.includes(normalizedTarget);
-}
-
-export function getIndent(s) { return s.match(/^\s*/)[0].length; }
-
-export function parseItemString(itemString) {
-    const match = itemString.match(/^(\d+x?\s+)?(.*)$/);
-    if (match) {
-        const quantity = match[1] ? match[1].trim() : '1x';
-        const name = match[2].trim();
-        return { quantity, name };
-    }
-    return { quantity: '1x', name: itemString };
+    return normName1.includes(normName2) || normName2.includes(normName1);
 }

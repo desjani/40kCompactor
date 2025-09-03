@@ -1,31 +1,48 @@
-
 // --- UI Elements ---
 const inputText = document.getElementById('inputText');
 const unabbreviatedOutput = document.getElementById('unabbreviatedOutput');
 const compactedOutput = document.getElementById('compactedOutput');
+const markdownPreviewOutput = document.getElementById('markdownPreviewOutput'); // New element
 const debugOutput = document.getElementById('debugOutput');
 const parseButton = document.getElementById('parseButton');
 const resetButton = document.getElementById('resetButton');
 const toggleDebugButton = document.getElementById('toggleDebugButton');
 const copyExtendedButton = document.getElementById('copyExtendedButton');
-const copyCompactButton = document.getElementById('copyCompactButton');
-const copyExtendedDiscordButton = document.getElementById('copyExtendedDiscordButton');
-const copyPlainDiscordButton = document.getElementById('copyPlainDiscordButton');
+const outputFormatSelect = document.getElementById('outputFormatSelect');
+const copyPreviewButton = document.getElementById('copyPreviewButton');
 const customColorPickers = document.getElementById('customColorPickers');
 const inputCharCount = document.getElementById('inputCharCount');
-const extendedCharCount = document.getElementById('extendedCharCount');
+const extendedCharCount = document.getElementById('extendedCharCount'); // Corrected ID
 const compactCharCount = document.getElementById('compactCharCount');
+const markdownPreviewCharCount = document.getElementById('markdownPreviewCharCount'); // New element
 const copyPopup = document.getElementById('copyPopup');
+
+// Initialize ansi_up
+const ansi_up = new AnsiUp();
+
+export function getHideSubunitsState() {
+    const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');
+    return hideSubunitsCheckbox ? hideSubunitsCheckbox.checked : false;
+}
+
+export function getMultilineHeaderState() { // New function
+    const multilineHeaderCheckbox = document.getElementById('multilineHeaderCheckbox');
+    return multilineHeaderCheckbox ? multilineHeaderCheckbox.checked : false;
+}
 
 // --- UI Initialization ---
 export function initializeUI(callbacks) {
-    parseButton.disabled = true;
-    parseButton.textContent = 'Loading DB...';
+    if (parseButton) {
+        parseButton.disabled = true;
+        parseButton.textContent = 'Loading DB...';
+    }
 
-    document.querySelectorAll('input[name="colorMode"], #unitColor, #subunitColor, #pointsColor').forEach(el => {
+    document.querySelectorAll('input[name="colorMode"]').forEach(el => { // Modified to only target colorMode
         el.addEventListener('change', (e) => {
             if (e.target.name === 'colorMode') {
-                customColorPickers.style.display = e.target.value === 'custom' ? 'block' : 'none';
+                if (customColorPickers) {
+                    customColorPickers.style.display = e.target.value === 'custom' ? 'block' : 'none';
+                }
             }
             if (callbacks.onColorChange) {
                 callbacks.onColorChange();
@@ -33,34 +50,67 @@ export function initializeUI(callbacks) {
         });
     });
 
-    parseButton.addEventListener('click', callbacks.onParse);
-    resetButton.addEventListener('click', callbacks.onReset);
-    toggleDebugButton.addEventListener('click', toggleDebug);
-    copyExtendedButton.addEventListener('click', callbacks.onCopyExtended);
-    copyCompactButton.addEventListener('click', callbacks.onCopyCompact);
-    copyExtendedDiscordButton.addEventListener('click', callbacks.onCopyExtendedDiscord);
-    copyPlainDiscordButton.addEventListener('click', callbacks.onCopyPlainDiscord);
+    // New event listeners for color pickers
+    document.querySelectorAll('#unitColor, #subunitColor, #pointsColor, #headerColor, #wargearColor').forEach(el => {
+        el.addEventListener('change', () => {
+            if (callbacks.onColorChange) {
+                callbacks.onColorChange();
+            }
+        });
+    });
+
+    if (parseButton) parseButton.addEventListener('click', callbacks.onParse);
+    if (resetButton) resetButton.addEventListener('click', callbacks.onReset);
+    if (toggleDebugButton) toggleDebugButton.addEventListener('click', toggleDebug);
+    if (copyExtendedButton) copyExtendedButton.addEventListener('click', callbacks.onCopyExtended);
+    if (outputFormatSelect) outputFormatSelect.addEventListener('change', callbacks.onOutputFormatChange);
+    if (copyPreviewButton) copyPreviewButton.addEventListener('click', callbacks.onCopyPreview);
+    
+    const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');
+    if (hideSubunitsCheckbox) {
+        hideSubunitsCheckbox.addEventListener('change', callbacks.onHideSubunitsChange);
+    }
+
+    const multilineHeaderCheckbox = document.getElementById('multilineHeaderCheckbox'); // New checkbox event listener
+    if (multilineHeaderCheckbox) {
+        multilineHeaderCheckbox.addEventListener('change', callbacks.onMultilineHeaderChange);
+    }
 }
 
 export function enableParseButton() {
-    parseButton.disabled = false;
-    parseButton.textContent = 'Compact this list';
+    if (parseButton) {
+        parseButton.disabled = false;
+        parseButton.textContent = 'Compact this list';
+    }
 }
 
 export function setParseButtonError() {
-    parseButton.textContent = 'Error: DB Load Failed';
+    if (parseButton) {
+        parseButton.textContent = 'Error: DB Load Failed';
+    }
 }
 
 export function getInputText() {
-    return inputText.value;
+    return inputText ? inputText.value : '';
 }
 
 export function setUnabbreviatedOutput(html) {
-    unabbreviatedOutput.innerHTML = html;
+    if (unabbreviatedOutput) {
+        unabbreviatedOutput.innerHTML = html;
+    }
 }
 
 export function setCompactedOutput(html) {
-    compactedOutput.innerHTML = html;
+    if (compactedOutput) {
+        compactedOutput.innerHTML = html;
+    }
+}
+
+export function setMarkdownPreviewOutput(markdownText) {
+    if (markdownPreviewOutput) {
+        // Convert ANSI to HTML directly
+        markdownPreviewOutput.innerHTML = ansi_up.ansi_to_html(markdownText);
+    }
 }
 
 export function setDebugOutput(text) {
@@ -75,43 +125,51 @@ export function setDebugOutput(text) {
 }
 
 export function resetUI() {
-    inputText.value = '';
-    unabbreviatedOutput.innerHTML = '';
-    compactedOutput.innerHTML = '';
+    if (inputText) inputText.value = '';
+    if (unabbreviatedOutput) unabbreviatedOutput.innerHTML = '';
+    if (compactedOutput) compactedOutput.innerHTML = '';
+    if (markdownPreviewOutput) markdownPreviewOutput.innerHTML = ''; // Clear new output box
     if (debugOutput) {
         debugOutput.innerHTML = '';
     }
-    updateCharCounts('', '', '');
-    inputText.focus();
+    updateCharCounts('', '', '', ''); // Pass empty string for new output box
+    if (inputText) inputText.focus();
 }
 
 function toggleDebug() {
     const debugContainer = document.getElementById('debugContainer');
-    if (debugContainer.style.display === 'none') {
-        debugContainer.style.display = 'flex';
-        toggleDebugButton.textContent = 'Hide Debug Log';
-    } else {
-        debugContainer.style.display = 'none';
-        toggleDebugButton.textContent = 'Show Debug Log';
+    if (debugContainer) {
+        if (debugContainer.style.display === 'none') {
+            debugContainer.style.display = 'flex';
+            if (toggleDebugButton) toggleDebugButton.textContent = 'Hide Debug Log';
+        } else {
+            debugContainer.style.display = 'none';
+            if (toggleDebugButton) toggleDebugButton.textContent = 'Show Debug Log';
+        }
     }
 }
 
-export function updateCharCounts(original, extended, compact) {
+export function updateCharCounts(original, extended, compact, markdownPreview) {
     const originalSize = original.length;
     const extendedSize = extended.trim().length;
     const compactSize = compact.trim().length;
+    const markdownPreviewSize = markdownPreview.trim().length; // New line
 
-    inputCharCount.textContent = `Characters: ${originalSize}`;
+    if (inputCharCount) inputCharCount.textContent = `Characters: ${originalSize}`;
 
     if (originalSize > 0) {
         const extendedRatioPercent = ((extendedSize / originalSize) * 100).toFixed(1);
-        extendedCharCount.innerHTML = `Characters: ${extendedSize} | ${extendedRatioPercent}%`;
+        if (extendedCharCount) extendedCharCount.innerHTML = `Characters: ${extendedSize} | ${extendedRatioPercent}%`;
 
         const compactRatioPercent = ((compactSize / originalSize) * 100).toFixed(1);
-        compactCharCount.innerHTML = `Characters: ${compactSize} | ${compactRatioPercent}%`;
+        if (compactCharCount) compactCharCount.innerHTML = `Characters: ${compactSize} | ${compactRatioPercent}%`;
+
+        const markdownPreviewRatioPercent = ((markdownPreviewSize / originalSize) * 100).toFixed(1); // New line
+        if (markdownPreviewCharCount) markdownPreviewCharCount.innerHTML = `Characters: ${markdownPreviewSize} | ${markdownPreviewRatioPercent}%`; // New line
     } else {
-        extendedCharCount.innerHTML = '';
-        compactCharCount.innerHTML = '';
+        if (extendedCharCount) extendedCharCount.innerHTML = '';
+        if (compactCharCount) compactCharCount.innerHTML = '';
+        if (markdownPreviewCharCount) markdownPreviewCharCount.innerHTML = ''; // New line
     }
 }
 
@@ -123,8 +181,10 @@ export async function copyTextToClipboard(text) {
     }
     try {
         await navigator.clipboard.writeText(text);
-        copyPopup.classList.add('show');
-        setTimeout(() => { copyPopup.classList.remove('show'); }, 2000);
+        if (copyPopup) {
+            copyPopup.classList.add('show');
+            setTimeout(() => { copyPopup.classList.remove('show'); }, 2000);
+        }
     } catch (err) {
         console.error('Failed to copy text: ', err);
     }

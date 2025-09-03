@@ -1845,7 +1845,8 @@
         "Zodgrod Wortsnagga": true
     },
     "Raven Guard": {
-        "Kayvaan Shrike": true
+        "Kayvaan Shrike": true,
+        "Aethon Shaan": true
     },
     "Salamanders": {
         "Adrax Agatone": true,
@@ -2232,7 +2233,8 @@
             "Pulse Carbine",
             "Pulse Pistol",
             "Close Combat Weapon",
-            "Recon droneDrone burst cannon"
+            "Recon droneDrone burst cannon",
+            "Drone burst cannon"
         ],
         "Piranha": [
             "Twin Pulse Carbine",

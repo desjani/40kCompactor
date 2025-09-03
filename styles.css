@@ -64,6 +64,26 @@
             gap: 1.5rem;
         }
 
+        .grid-container-two-col {
+            display: grid;
+            grid-template-columns: 1fr; /* Default for small screens */
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .grid-container-two-col {
+                grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
+            }
+        }
+
+        .dropdowns-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* Space between dropdowns and color options */
+            align-items: center;
+            padding-top: 1.5rem; /* Align with input box top */
+        }
+
         /* --- Header --- */
         .header {
             margin-bottom: 0.5rem;
@@ -272,3 +292,52 @@
             visibility: visible;
             bottom: 50px;
         }
+
+        /* --- New Markdown Preview Box --- */
+        .markdown-preview {
+            background-color: #282c34; /* Darker background for code-like appearance */
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace; /* Monospace font */
+            white-space: pre-wrap; /* Preserve whitespace and wrap text */
+            word-break: break-all; /* Break long words */
+            padding: 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.5rem;
+            color: var(--color-text-primary);
+            font-size: 0.875rem;
+            overflow: auto;
+            height: 450px; /* Match other io-box heights */
+            box-sizing: border-box;
+        }
+
+#outputFormatSelect {
+    color: var(--color-text-primary) !important; /* Ensure visibility on dark background */
+}
+
+/* Styling for select elements within labels, similar to input boxes */
+div[style*="margin-bottom: 0.5rem;"] > label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* Ensure label takes full width */
+}
+
+div[style*="margin-bottom: 0.5rem;"] > label > select {
+    width: 70%; /* Adjust width as needed */
+    padding: 0.5rem;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+    box-sizing: border-box;
+    -webkit-appearance: none; /* Remove default browser styling for dropdowns */
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+div[style*="margin-bottom: 0.5rem;"] > label > select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-action);
+    border-color: var(--color-action);
+}

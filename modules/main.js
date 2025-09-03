@@ -1,46 +1,37 @@
-
-import { loadAbbreviationDatabase } from './abbreviations.js';
+import { loadAbbreviationRules, generateAbbreviations } from './abbreviations.js';
 import { detectFormat, parseGwApp, parseWtcCompact } from './parsers.js';
 import { generateOutput, generateDiscordText } from './renderers.js';
-import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard } from './ui.js';
+import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
 let compactPlainText = '';
+let wargearAbbrMap = null;
+let currentPreviewText = ''; // New global variable
 
 document.addEventListener('DOMContentLoaded', async () => {
     initializeUI({
         onParse: handleParse,
         onReset: handleReset,
         onCopyExtended: () => copyTextToClipboard(extendedPlainText.trim()),
-        onCopyCompact: () => {
-            if (parsedData) {
-                const textToCopy = generateDiscordText(parsedData, false, true);
-                copyTextToClipboard(textToCopy);
-            }
-        },
-        onCopyExtendedDiscord: () => {
-            if (parsedData) {
-                const textToCopy = generateDiscordText(parsedData, false, false);
-                copyTextToClipboard(textToCopy);
-            }
-        },
-        onCopyPlainDiscord: () => {
-            if (parsedData) {
-                const textToCopy = generateDiscordText(parsedData, true);
-                copyTextToClipboard(textToCopy.trim());
-            }
-        },
+        onOutputFormatChange: () => updatePreview(),
+        onCopyPreview: () => copyTextToClipboard(currentPreviewText),
         onColorChange: () => {
             if (parsedData) {
-                const compactOutput = generateOutput(parsedData, true);
+                const compactOutput = generateOutput(parsedData, true, wargearAbbrMap);
                 setCompactedOutput(compactOutput.html);
                 compactPlainText = compactOutput.plainText;
+                // Also update the markdown preview on color change
+                updatePreview();
+                
+                
             }
-        }
+        },
+        onHideSubunitsChange: () => updatePreview(),
+        onMultilineHeaderChange: () => updatePreview()
     });
 
-    const dbLoaded = await loadAbbreviationDatabase();
+    const dbLoaded = await loadAbbreviationRules();
     if (dbLoaded) {
         enableParseButton();
     } else {
@@ -63,21 +54,27 @@ function handleParse() {
         console.error("Unsupported list format.");
         setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use GW App or WTC-Compact format.</p>');
         setCompactedOutput('');
+        setMarkdownPreviewOutput(''); // Clear new output box
         return;
     }
 
     const result = parser(lines);
 
-    setDebugOutput(JSON.stringify(result, null, 2));
+    wargearAbbrMap = generateAbbreviations(result);
+    setDebugOutput(JSON.stringify(result, null, 2) + '\n\n' + JSON.stringify(Array.from(wargearAbbrMap.entries()), null, 2));
+
 
     parsedData = result;
-    const extendedOutput = generateOutput(result, false);
+    const hideSubunits = getHideSubunitsState();
+    const extendedOutput = generateOutput(result, false, wargearAbbrMap, hideSubunits);
     setUnabbreviatedOutput(extendedOutput.html);
     extendedPlainText = extendedOutput.plainText;
-    const compactOutput = generateOutput(result, true);
+    const compactOutput = generateOutput(result, true, wargearAbbrMap, hideSubunits);
     setCompactedOutput(compactOutput.html);
     compactPlainText = compactOutput.plainText;
-    updateCharCounts(text, extendedPlainText, compactPlainText);
+
+    // Generate and set Discord Compact Preview
+    updatePreview();
 }
 
 function handleReset() {
@@ -85,4 +82,37 @@ function handleReset() {
     parsedData = null;
     extendedPlainText = '';
     compactPlainText = '';
+    wargearAbbrMap = null;
+}
+
+function updatePreview() {
+    if (!parsedData) return;
+
+    const outputFormatSelect = document.getElementById('outputFormatSelect');
+    const selectedFormat = outputFormatSelect ? outputFormatSelect.value : 'discordCompact'; // Default to discordCompact
+    const hideSubunits = getHideSubunitsState();
+
+    let previewText = '';
+    let useAbbreviations = true;
+    let plain = false;
+
+    switch (selectedFormat) {
+        case 'discordCompact':
+            useAbbreviations = true;
+            plain = false;
+            break;
+        case 'discordExtended':
+            useAbbreviations = false;
+            plain = false;
+            break;
+        case 'plainText':
+            useAbbreviations = true; // Abbreviations are used for plain text output
+            plain = true;
+            break;
+    }
+
+    previewText = generateDiscordText(parsedData, plain, useAbbreviations, wargearAbbrMap, hideSubunits);
+    setMarkdownPreviewOutput(previewText);
+    currentPreviewText = previewText; // Store for copying
+    updateCharCounts(getInputText(), extendedPlainText, compactPlainText, currentPreviewText);
 }
