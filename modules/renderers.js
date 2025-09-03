@@ -143,7 +143,7 @@ export function generateOutput(data, useAbbreviations, wargearDataMap, hideSubun
                                 if (subUnitHasVisibleItems) {
                                     const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
                                     const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-                                    const subunitItemsString = getInlineItemsString(item.items, true, useCustomColors, colors, wargearDataMap, item.name);
+                                                            const subunitItemsString = getInlineItemsString(item.items, true, useCustomColors, colors, wargearDataMap, item.name);
                                     
                                     const subunitNameText = `${itemQtyDisplay}${item.name}`;
                                     const subunitNameHTML = useCustomColors ? `<span style="color: ${colors.subunit};">${subunitNameText}</span>` : subunitNameText;
