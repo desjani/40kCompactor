@@ -1,51 +1,26 @@
+```ansi
 Chaos - World Eaters | Berzerker Warband | 1995pts
 
-Khârn the Betrayer (G, PP) [85]
-
-Daemon Prince of Khorne (E: HOBI (+20)) [220]
-
-Master of Executions (E: BG (+25)) [85]
-
-Slaughterbound (E: FOK (+15)) [100]
-
-10 Khorne Berzerkers [180]
-
-9 Khorne Berzerker (7 Chainblade, 2 PP, 2 Khornate eviscerator)
-
-Khorne Berzerker Champion (Icon of Khorne, Chainblade, PP)
-
-10 Khorne Berzerkers [180]
-
-9 Khorne Berzerker (7 Chainblade, 2 PP, 2 Khornate eviscerator)
-
-Khorne Berzerker Champion (Icon of Khorne, Chainblade, PP)
-
-3 Eightbound [150]
-
-Eightbound Champion (Chainblades)
-
-2 Eightbound (2 Chainblades)
-
-10 Jakhals [65]
-
-8 Jakhal (8 Autopistol, 7 Chainblades, Icon of Khorne, Mauler chainblade)
-
-Jakhal Pack Leader (Autopistol, Chainblades)
-
-Dishonoured (Skullsmasher and mangler)
-
-2 Chaos Spawn [80]
-
-2 Chaos Spawn [80]
-
-Forgefiend (3 EC, FC) [150]
-
-Forgefiend (3 EC, FC) [150]
-
-Maulerfiend (MF, 2 MC) [150]
-
-Maulerfiend (MF, 2 MC) [150]
-
-Chaos Rhino (AT, 2 C, HL) [85]
-
-Chaos Rhino (AT, 2 C, HL) [85]
+* Khârn the Betrayer ([object Object], [object Object]) [85]
+* Daemon Prince of Khorne (E: HOBI (+20), [object Object], [object Object]) [220]
+* Master of Executions (E: BG (+25), [object Object], [object Object]) [85]
+* Slaughterbound (E: FOK (+15), [object Object]) [100]
+* Khorne Berzerkers [180]
+  + 9 Khorne Berzerker ([object Object], [object Object], [object Object], [object Object])
+  + Khorne Berzerker Champion ([object Object], [object Object], [object Object])
+* Khorne Berzerkers [180]
+  + 9 Khorne Berzerker ([object Object], [object Object], [object Object], [object Object])
+  + Khorne Berzerker Champion ([object Object], [object Object], [object Object])
+* Eightbound [150]
+* Jakhals [65]
+  + 8 Jakhal ([object Object], [object Object], [object Object], [object Object])
+  + Dishonoured ([object Object])
+* 2 Chaos Spawn ([object Object]) [80]
+* 2 Chaos Spawn ([object Object]) [80]
+* Forgefiend ([object Object], [object Object]) [150]
+* Forgefiend ([object Object], [object Object]) [150]
+* Maulerfiend ([object Object], [object Object]) [150]
+* Maulerfiend ([object Object], [object Object]) [150]
+* Chaos Rhino ([object Object], [object Object], [object Object]) [85]
+* Chaos Rhino ([object Object], [object Object], [object Object]) [85]
+```

@@ -1,41 +1,30 @@
 import { loadAbbreviationRules, generateAbbreviations } from './abbreviations.js';
 import { detectFormat, parseGwApp, parseWtcCompact } from './parsers.js';
 import { generateOutput, generateDiscordText } from './renderers.js';
-import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard } from './ui.js';
+import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
 let compactPlainText = '';
 let wargearAbbrMap = null;
+let currentPreviewText = ''; // New global variable
 
 document.addEventListener('DOMContentLoaded', async () => {
     initializeUI({
         onParse: handleParse,
         onReset: handleReset,
         onCopyExtended: () => copyTextToClipboard(extendedPlainText.trim()),
-        onCopyCompact: () => {
-            if (parsedData) {
-                const textToCopy = generateDiscordText(parsedData, false, true, wargearAbbrMap);
-                copyTextToClipboard(textToCopy);
-            }
-        },
-        onCopyExtendedDiscord: () => {
-            if (parsedData) {
-                const textToCopy = generateDiscordText(parsedData, false, false, wargearAbbrMap);
-                copyTextToClipboard(textToCopy);
-            }
-        },
-        onCopyPlainDiscord: () => {
-            if (parsedData) {
-                const textToCopy = generateDiscordText(parsedData, true, true, wargearAbbrMap);
-                copyTextToClipboard(textToCopy.trim());
-            }
-        },
+        onOutputFormatChange: () => updatePreview(),
+        onCopyPreview: () => copyTextToClipboard(currentPreviewText),
         onColorChange: () => {
             if (parsedData) {
                 const compactOutput = generateOutput(parsedData, true, wargearAbbrMap);
                 setCompactedOutput(compactOutput.html);
                 compactPlainText = compactOutput.plainText;
+                // Also update the markdown preview on color change
+                updatePreview();
+                
+                
             }
         }
     });
@@ -63,6 +52,7 @@ function handleParse() {
         console.error("Unsupported list format.");
         setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use GW App or WTC-Compact format.</p>');
         setCompactedOutput('');
+        setMarkdownPreviewOutput(''); // Clear new output box
         return;
     }
 
@@ -79,7 +69,9 @@ function handleParse() {
     const compactOutput = generateOutput(result, true, wargearAbbrMap);
     setCompactedOutput(compactOutput.html);
     compactPlainText = compactOutput.plainText;
-    updateCharCounts(text, extendedPlainText, compactPlainText);
+
+    // Generate and set Discord Compact Preview
+    updatePreview();
 }
 
 function handleReset() {
@@ -88,4 +80,35 @@ function handleReset() {
     extendedPlainText = '';
     compactPlainText = '';
     wargearAbbrMap = null;
+}
+
+function updatePreview() {
+    if (!parsedData) return;
+
+    const outputFormatSelect = document.getElementById('outputFormatSelect');
+    const selectedFormat = outputFormatSelect ? outputFormatSelect.value : 'discordCompact'; // Default to discordCompact
+
+    let previewText = '';
+    let useAbbreviations = true;
+    let plain = false;
+
+    switch (selectedFormat) {
+        case 'discordCompact':
+            useAbbreviations = true;
+            plain = false;
+            break;
+        case 'discordExtended':
+            useAbbreviations = false;
+            plain = false;
+            break;
+        case 'plainText':
+            useAbbreviations = true; // Abbreviations are used for plain text output
+            plain = true;
+            break;
+    }
+
+    previewText = generateDiscordText(parsedData, plain, useAbbreviations, wargearAbbrMap);
+    setMarkdownPreviewOutput(previewText);
+    currentPreviewText = previewText; // Store for copying
+    updateCharCounts(getInputText(), extendedPlainText, compactPlainText, currentPreviewText);
 }

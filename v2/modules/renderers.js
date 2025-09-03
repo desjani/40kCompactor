@@ -247,7 +247,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
             return `${itemQtyDisplay}${itemName}`;
         }).filter(Boolean);
     
-        const allStrings = [...specialStrings, ...wargearItems].filter(Boolean);
+        const allStrings = [...specialStrings, ...wargearStrings].filter(Boolean);
         const itemsString = allStrings.join(', ');
 
         if(!itemsString) return '';
