@@ -11,13 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     parseButton.disabled = true;
     parseButton.textContent = 'Loading DB...';
 
-    fetch('./wargear.json?v=0.0.8')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
+    // Use the shared dynamic loader so we don't duplicate fetch logic and so
+    // the UI uses the exact same wargear abbreviation DB as the rest of the app.
+    import('./modules/abbreviations.js')
+        .then(mod => mod.loadAbbreviationRules())
         .then(data => {
             factionAbbreviationDBs = data;
             console.log("Wargear database loaded successfully.");
@@ -38,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Re-render the compact view if data exists to provide a live preview
             if (parsedData) {
-                const compactOutput = generateOutput(parsedData, true);
+                const compactOutput = generateOutput(parsedData, true, factionAbbreviationDBs);
                 document.getElementById('compactedOutput').innerHTML = compactOutput.html;
                 compactPlainText = compactOutput.plainText; // Keep plain text in sync
             }
@@ -204,10 +201,10 @@ document.getElementById('parseButton').addEventListener('click', () => {
 
     // --- Common Rendering Logic ---
     parsedData = result;
-    const extendedOutput = generateOutput(result, false);
+    const extendedOutput = generateOutput(result, false, factionAbbreviationDBs);
     document.getElementById('unabbreviatedOutput').innerHTML = extendedOutput.html;
     extendedPlainText = extendedOutput.plainText;
-    const compactOutput = generateOutput(result, true);
+    const compactOutput = generateOutput(result, true, factionAbbreviationDBs);
     document.getElementById('compactedOutput').innerHTML = compactOutput.html;
     compactPlainText = compactOutput.plainText;
     updateCharCounts();
@@ -1019,21 +1016,21 @@ document.getElementById('copyExtendedButton').addEventListener('click', () => {
 
 document.getElementById('copyCompactButton').addEventListener('click', () => {
     if (parsedData) {
-        const textToCopy = generateDiscordText(parsedData, false, true);
+    const textToCopy = generateDiscordText(parsedData, false, true, factionAbbreviationDBs);
         copyTextToClipboard(textToCopy);
     }
 });
 
 document.getElementById('copyExtendedDiscordButton').addEventListener('click', () => {
     if (parsedData) {
-        const textToCopy = generateDiscordText(parsedData, false, false);
+    const textToCopy = generateDiscordText(parsedData, false, false, factionAbbreviationDBs);
         copyTextToClipboard(textToCopy);
     }
 });
 
 document.getElementById('copyPlainDiscordButton').addEventListener('click', () => {
     if (parsedData) {
-        const textToCopy = generateDiscordText(parsedData, true);
+    const textToCopy = generateDiscordText(parsedData, true, true, factionAbbreviationDBs);
         copyTextToClipboard(textToCopy.trim());
     }
 });

@@ -13,7 +13,9 @@ export function parseItemString(itemString) {
     const itemMatch = itemString.trim().match(itemRegex);
     if (itemMatch) {
         const quantity = itemMatch[1] ? `${itemMatch[1]}x` : '1x';
-        const name = itemMatch[2].trim();
+    let name = itemMatch[2].trim();
+    // Normalize inputs that begin with the literal 'with' (e.g. "with Hideous Mutations")
+    name = name.replace(/^with\s+/i, '').trim();
         return { quantity, name };
     }
     return { quantity: '1x', name: itemString.trim() };

@@ -44,6 +44,7 @@
                                 <option value="discordCompact">Discord (Compact)</option>
                                 <option value="discordExtended">Discord (Extended)</option>
                                 <option value="plainText">Plain Text</option>
+                                <option value="plainTextExtended">Plain Text (extended)</option>
                             </select>
                         </label>
                     </div>
@@ -168,7 +169,7 @@
                     <ul>
                         <li>.ROSZ file format support</li>
                         <li>Mobile-friendly version</li>
-                        <li>Individual faction abbreviation rule adjustments</li>
+                        <li>Individual faction compacting rule adjustments (skippable wargear)</li>
                         <li>Ongoing bugfixes and performance improvements</li>
                     </ul>
                 </div>
@@ -210,7 +211,7 @@
                         <ul>
                             <li><b>Overhauled GW App Parser:</b> The parser is now significantly more robust and can handle a much wider variety of list formats and quirks.</li>
                             <li><b>Flexible Header Parsing:</b> Correctly identifies the List Title, Faction, Detachment, and Points, even if they appear in a different order.</li>
-                            <li><b>Smarter Wargear Detection:</b> Improved logic for identifying sub-units (like squad leaders) and their wargear, leading to more accurate abbreviations.</li>
+                            <li><b>Smarter Wargear Detection:</b> Improved logic for identifying sub-units (like squad leaders) and their wargear, leading to more accurate compacting.</li>
                             <li><b>Intelligent Name Matching:</b> The abbreviation engine now smartly handles plural vs. singular unit names (e.g., "Piranha" vs. "Piranhas").</li>
                             <li><b>Expanded Format Support:</b> Now correctly parses point values with separators (e.g., "2,000") and more types of bullet points (•, -, ◦).</li>
                         </ul>
@@ -221,7 +222,7 @@
                     </div>
                     <div class="changelog-version-entry">
                         <h5>Version 0.0.4: T'au Season!</h5>
-                        <p>Numerous parser fixes and abbreviation updates for T'au Empire lists. Improved wargear filtering to prevent redundant items from appearing in the compact list.</p>
+                        <p>Numerous parser fixes and improved wargear filtering for T'au Empire lists to prevent redundant items from appearing in the compact list.</p>
                     </div>
                     <div class="changelog-version-entry">
                         <h5>Version 0.0.3: Fixes, Formatting, and more!</h5>

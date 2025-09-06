@@ -1,249 +1,134 @@
-import { normalizeForComparison, flexibleNameMatch } from './utils.js';
+// Dynamic abbreviation generator: build abbreviation map from parsed list data
+// The goal: do not depend on any external JSON (wargear.json or abbreviation_rules.json).
+// We'll derive reasonable abbreviations by: using explicit nameshort from parsed items if
+// present, else generating a short token by taking initials of significant words.
 
-const SPACE_MARINE_CHAPTERS = [
-    "Adeptus Astartes", // General Space Marine faction
-    "Ultramarines",
-    "Dark Angels",
-    "Blood Angels",
-    "Space Wolves",
-    "Imperial Fists",
-    "Salamanders",
-    "Raven Guard",
-    "White Scars",
-    "Black Templars",
-    "Deathwatch",
-    "Grey Knights"
-];
-
-const IMPERIUM_FACTIONS = [...new Set([
-    "Adepta Sororitas",
-    "Adeptus Custodes",
-    "Adeptus Mechanicus",
-    "Adeptus Titanicus",
-    "Astra Militarum",
-    "Agents of the Imperium",
-    "Imperial Knights",
-    ...SPACE_MARINE_CHAPTERS
-])];
-
-let skippableWargear = {};
-let abbreviationRules = {};
-
-export async function loadAbbreviationRules() {
-    try {
-        const [skippableResponse, rulesResponse] = await Promise.all([
-            fetch('./skippable_wargear.json?v=0.1.2'),
-            fetch('./abbreviation_rules.json?v=0.1.2')
-        ]);
-
-        if (!skippableResponse.ok) {
-            throw new Error(`HTTP error! status: ${skippableResponse.status}`);
-        }
-        if (!rulesResponse.ok) {
-            throw new Error(`HTTP error! status: ${rulesResponse.status}`);
-        }
-
-        skippableWargear = await skippableResponse.json();
-        abbreviationRules = await rulesResponse.json();
-
-        console.log("Abbreviation rules loaded successfully.");
-        return true;
-    } catch (error) {
-        console.error("Could not load abbreviation rules:", error);
-        return false;
+// Generate a base abbreviation following project rules:
+// - Trim parenthetical content and punctuation, split on words
+// - Single word -> first two letters uppercase (e.g. "Plasma" -> "PL")
+// - Multi-word -> for each word:
+//     * if word === 'and' -> use '&'
+//     * if word === 'of'  -> use 'o' (lowercase)
+//     * otherwise take first letter uppercase
+// Example: "Icon of Khorne" -> "IoK" ; "Skullsmasher and Mangler" -> "S&M"
+function makeBaseAbbreviation(name) {
+    if (!name) return null;
+    const cleaned = name.replace(/\(.*?\)/g, '').replace(/[\-]/g, ' ').replace(/["'`.,;:?!]/g, '').trim();
+    const parts = cleaned.split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return null;
+    if (parts.length === 1) {
+        return parts[0].slice(0, 2).toUpperCase();
     }
-}
-
-function getInitialism(text) {
-    if (!text) return '';
-    const processedText = text.replace(/\band\b/gi, '&'); // Use word boundaries to match whole word "and"
-    return processedText.split(/[\s-]/).map(word => word.charAt(0)).join('').toUpperCase();
-}
-
-function shortenWord(word) {
-    const lowerWord = word.toLowerCase();
-    if (abbreviationRules[lowerWord]) {
-        return abbreviationRules[lowerWord];
-    }
-    // Fallback: remove vowels
-    return lowerWord.replace(/[aeiou]/gi, '');
-}
-
-function collectWargear(items, wargearMap, unitName) {
-    items.forEach(item => {
-        if (item.type === 'wargear') {
-            if (!wargearMap.has(item.name)) {
-                wargearMap.set(item.name, {
-                    units: new Set(),
-                    abbr: ''
-                });
-            }
-            wargearMap.get(item.name).units.add(unitName);
-        }
-        if (item.items && item.items.length > 0) {
-            collectWargear(item.items, wargearMap, unitName);
-        }
+    const tokens = parts.map(p => {
+        const low = p.toString().toLowerCase();
+        if (low === 'and') return '&';
+        if (low === 'of') return 'o';
+        return p[0].toUpperCase();
     });
+    return tokens.join('');
 }
 
-function markSkippable(items, factionRules, unitName, wargearMap) {
-    items.forEach(item => {
-        if (item.type === 'wargear') {
-            let unitRules = null;
-            for (const key in factionRules) {
-                if (flexibleNameMatch(key, unitName)) {
-                    unitRules = factionRules[key];
-                    break;
-                }
-            }
-
-            // Convert item.name to lowercase for case-insensitive comparison
-            const lowerCaseItemName = item.name.toLowerCase();
-
-            if (unitRules === true) {
-                if (wargearMap.has(item.name)) {
-                    wargearMap.get(item.name).abbr = 'NULL';
-                }
-            } else if (Array.isArray(unitRules)) {
-                // Convert each rule to lowercase for comparison
-                const lowerCaseUnitRules = unitRules.map(rule => rule.toLowerCase());
-                if (lowerCaseUnitRules.includes(lowerCaseItemName) && wargearMap.has(item.name)) {
-                    wargearMap.get(item.name).abbr = 'NULL';
-                }
-            }
-
-            const factionWideRules = factionRules['*'];
-            if (Array.isArray(factionWideRules)) {
-                // Convert each rule to lowercase for comparison
-                const lowerCaseFactionWideRules = factionWideRules.map(rule => rule.toLowerCase());
-                if (lowerCaseFactionWideRules.includes(lowerCaseItemName) && wargearMap.has(item.name)) {
-                    wargearMap.get(item.name).abbr = 'NULL';
-                }
-            }
-        }
-        if (item.items && item.items.length > 0) {
-            markSkippable(item.items, factionRules, unitName, wargearMap);
-        }
-    });
+// Helper exported so renderers can reuse the exact same abbreviation logic when
+// the dynamic map isn't available at runtime.
+export function makeAbbrevForName(name) {
+    return makeBaseAbbreviation(name);
 }
 
-// This function attempts to resolve a conflict by extending the abbreviation of 'nameToAbbreviate'
-// until it is unique among 'existingAbbrs'.
-function resolveConflict(nameToAbbreviate, existingAbbrs, originalName) {
-    const processedName = originalName.replace(/\band\b/gi, '&');
-    const words = processedName.split(/[\s-]/);
-    if (words.length === 0) return originalName.toUpperCase(); // Fallback
+export function buildAbbreviationIndex(parsedData) {
+    // Build a flat map: lowercased full item name -> abbreviation string
+    const flat = Object.create(null);
 
-    let currentLength = 1;
-    let newAbbr = '';
+    // Keep a reverse map of used abbreviations -> canonical name so we can
+    // detect collisions and expand later items per the requested rule.
+    const used = Object.create(null);
 
-    while (true) {
-        // Corrected camel case for the first word's extended part
-        let firstWordPart = words[0].charAt(0).toUpperCase() + words[0].substring(1, currentLength).toLowerCase();
-        newAbbr = firstWordPart;
+    if (!parsedData) return { __flat_abbr: flat };
 
-        for (let i = 1; i < words.length; i++) {
-            newAbbr += words[i].charAt(0).toUpperCase(); // Take first letter from subsequent words
+    // Walk units recursively and collect wargear names
+    const walk = (node) => {
+        if (!node) return;
+        if (Array.isArray(node)) {
+            node.forEach(n => walk(n));
+            return;
         }
-
-        if (!existingAbbrs.has(newAbbr)) {
-            return newAbbr; // Found a unique abbreviation
-        }
-
-        currentLength++;
-        // Safeguard to prevent infinite loops or overly long abbreviations
-        if (currentLength > words[0].length + 5) { // +5 to allow some extra characters if needed
-            return generateCamelCaseAbbr(originalName); // Fallback to a more descriptive but potentially longer abbr
-        }
-    }
-}
-
-// Helper to generate camel case abbreviation (for fallback or specific cases)
-function generateCamelCaseAbbr(name) {
-    if (!name) return '';
-    const processedName = name.replace(/\band\b/gi, '&');
-    const words = processedName.split(/[\s-]/);
-    if (words.length === 0) return '';
-
-    return words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join('');
-}
-
-export function generateAbbreviations(parsedList) {
-    const wargearMap = new Map(); // Stores { name: { units: Set, abbr: string } }
-
-    // Phase 1: Data Collection
-    for (const section in parsedList) {
-        if (Array.isArray(parsedList[section])) {
-            parsedList[section].forEach(unit => {
-                collectWargear(unit.items, wargearMap, unit.name);
-            });
-        }
-    }
-
-    // Phase 1.5: Mark skippable wargear (moved up to ensure 'NULL' is set early)
-    const factionName = parsedList.SUMMARY?.FACTION_KEYWORD;
-    let relevantFactionRules = {};
-
-    // Always include the specific faction's rules if they exist
-    if (skippableWargear[factionName]) {
-        Object.assign(relevantFactionRules, skippableWargear[factionName]);
-    }
-
-    // Check if the current faction is an Imperium faction
-    const isImperiumFaction = IMPERIUM_FACTIONS.some(faction => factionName.includes(faction));
-
-    if (isImperiumFaction) {
-        if (skippableWargear["Space Marines"]) {
-            Object.assign(relevantFactionRules, skippableWargear["Space Marines"]);
-        }
-        if (skippableWargear["Agents of the Imperium"]) {
-            Object.assign(relevantFactionRules, skippableWargear["Agents of the Imperium"]);
-        }
-        if (skippableWargear["Imperial Knights"]) {
-            Object.assign(relevantFactionRules, skippableWargear["Imperial Knights"]);
-        }
-    }
-
-    // Only proceed if there are any relevant rules
-    if (Object.keys(relevantFactionRules).length > 0) {
-        for (const section in parsedList) {
-            if (Array.isArray(parsedList[section])) {
-                parsedList[section].forEach(unit => {
-                    markSkippable(unit.items, relevantFactionRules, unit.name, wargearMap);
-                });
+        if (node.items && Array.isArray(node.items)) {
+            for (const it of node.items) {
+                if (!it || !it.name) continue;
+                const name = it.name.toString().trim();
+                const key = name.toLowerCase();
+                // If this is an Enhancement special, reserve an abbreviation for the
+                // stripped enhancement name (without the prefix). We also store the
+                // abbreviation under the stripped and stripped-without-paren keys so
+                // renderers can look it up in multiple forms.
+                if (it.type === 'special' && name.toLowerCase().startsWith('enhancement:')) {
+                    const stripped = name.replace(/^Enhancement:\s*/i, '').trim();
+                    const strippedNoParen = stripped.replace(/\(.*?\)/g, '').trim();
+                    // generate base abbreviation for the stripped name and register it
+                    const gen = makeBaseAbbreviation(strippedNoParen || stripped);
+                    if (gen && gen.toUpperCase() !== 'NULL') {
+                        let candidate = gen;
+                        if (used[candidate]) {
+                            const first = (strippedNoParen || stripped).split(/\s+/)[0] || '';
+                            let i = 1;
+                            while (used[candidate]) {
+                                const extra = (first.length > 1) ? first.slice(1, 1 + i).toLowerCase() : String(i);
+                                candidate = gen + extra;
+                                i++;
+                            }
+                        }
+                        flat[key] = candidate;
+                        if (stripped && stripped.toLowerCase() !== key) flat[stripped.toLowerCase()] = candidate;
+                        if (strippedNoParen && strippedNoParen.toLowerCase() !== key && strippedNoParen.toLowerCase() !== stripped.toLowerCase()) flat[strippedNoParen.toLowerCase()] = candidate;
+                        used[candidate] = name;
+                    }
+                }
+                // If parser provided nameshort, prefer it
+                if (it.nameshort && typeof it.nameshort === 'string' && it.nameshort.trim().length > 0) {
+                    // honor explicit parser-provided short name, but still ensure uniqueness
+                    let candidate = it.nameshort.trim();
+                    if (used[candidate]) {
+                        // conflict: expand this item's candidate using letters from first word
+                        const first = name.replace(/\(.*?\)/g, '').replace(/[\-]/g, ' ').trim().split(/\s+/)[0] || '';
+                        let i = 1;
+                        while (used[candidate]) {
+                            const extra = (first.length > 1) ? first.slice(1, 1 + i).toLowerCase() : String(i);
+                            candidate = it.nameshort.trim() + extra;
+                            i++;
+                        }
+                    }
+                    flat[key] = candidate;
+                    used[candidate] = name;
+                } else if (!flat[key]) {
+                    // generate initials but avoid 'NULL' and avoid clobbering existing
+                    const gen = makeBaseAbbreviation(name);
+                    if (gen && gen.toUpperCase() !== 'NULL') {
+                        let candidate = gen;
+                        if (used[candidate]) {
+                            // Append lowercase letters from the first word until unique
+                            const first = name.replace(/\(.*?\)/g, '').replace(/[\-]/g, ' ').trim().split(/\s+/)[0] || '';
+                            let i = 1;
+                            while (used[candidate]) {
+                                const extra = (first.length > 1) ? first.slice(1, 1 + i).toLowerCase() : String(i);
+                                candidate = gen + extra;
+                                i++;
+                            }
+                        }
+                        flat[key] = candidate;
+                        used[candidate] = name;
+                    }
+                }
+                // Recurse into nested items
+                if (it.items) walk(it.items);
             }
         }
+    };
+
+    // Top-level sections are arrays of units
+    for (const k of Object.keys(parsedData || {})) {
+        if (k === 'SUMMARY') continue;
+        const section = parsedData[k];
+        walk(section);
     }
 
-    // Phase 2: Initial Abbreviation Generation and Conflict Resolution
-    const usedAbbrs = new Set(); // To keep track of abbreviations already assigned
-    const itemsToProcess = Array.from(wargearMap.entries()); // Convert to array to maintain order
-
-    for (const [name, data] of itemsToProcess) {
-        if (data.abbr === 'NULL') {
-            // If already marked as NULL, skip abbreviation generation and conflict resolution
-            continue;
-        }
-
-        let currentAbbr;
-        const words = name.split(' ');
-
-        if (words.length === 1 && name.length > 3) {
-            currentAbbr = shortenWord(name).toUpperCase(); // Use shortenWord for single words
-        } else {
-            currentAbbr = getInitialism(name); // Use initialism for multiple words
-        }
-
-        // Check for conflict with already assigned abbreviations
-        if (usedAbbrs.has(currentAbbr)) {
-            // Conflict detected, resolve for the current item
-            const existingAbbrsForResolution = new Set(usedAbbrs); // Pass a copy of currently used abbrs
-            currentAbbr = resolveConflict(name, existingAbbrsForResolution, name);
-        }
-
-        data.abbr = currentAbbr;
-        usedAbbrs.add(currentAbbr);
-    }
-
-    return wargearMap;
+    return { __flat_abbr: flat };
 }
