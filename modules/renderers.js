@@ -33,6 +33,7 @@ function aggregateWargear(unit) {
     return [...specials, ...wargearList];
 }
 
+<<<<<<< HEAD
 function formatEnhancementPoints(raw) {
     if (!raw) return '';
     const s = String(raw || '').trim();
@@ -112,6 +113,21 @@ function getInlineItemsString(items, useAbbreviations, wargearAbbrMap, dataSumma
         if (n.toString().trim().toLowerCase() === 'warlord') {
             special.push('Warlord');
             return;
+=======
+function getInlineItemsString(items, useAbbreviations = true, useCustomColors = false, colors = {}, wargearDataMap, unitName) {
+    if (!items || items.length === 0) return '';
+
+    const specialItems = items.filter(item => item.type === 'special');
+    const wargearItems = items.filter(item => item.type === 'wargear');
+
+    const specialStrings = specialItems.map(item => {
+        // Special handling for Warlord
+        if (item.name === 'Warlord') {
+            return item.name; // Always return 'Warlord'
+        }
+        if (useAbbreviations) {
+            return item.nameshort;
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1
         }
         if (n.toString().startsWith && n.toString().startsWith('Enhancement:')) {
             // strip prefix
@@ -142,6 +158,7 @@ function getInlineItemsString(items, useAbbreviations, wargearAbbrMap, dataSumma
         // default special handling
         special.push(n);
     });
+<<<<<<< HEAD
     items.filter(i => i.type === 'wargear').forEach(i => {
         const qtyNum = parseInt((i.quantity || '1').toString().replace('x', ''), 10) || 1;
         const qtyPrefix = qtyNum > 1 ? `${i.quantity} ` : '';
@@ -156,6 +173,28 @@ function getInlineItemsString(items, useAbbreviations, wargearAbbrMap, dataSumma
     });
     const all = [...special, ...wargear].filter(Boolean);
     return all.length ? ` (${all.join(', ')})` : '';
+=======
+
+    const wargearStrings = wargearItems.map(item => {
+        if (wargearDataMap.get(item.name)?.skippableForUnits.has(unitName)) return null; // Skip if marked skippable for this unit
+        const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+        const abbr = wargearDataMap.get(item.name)?.abbr;
+        const itemName = useAbbreviations && abbr ? abbr : item.name;
+        const itemQtyDisplay = itemNumericQty > 1 ? (useAbbreviations ? `${itemNumericQty}x` : `${itemNumericQty} `) : '';
+        return `${itemQtyDisplay}${itemName}`;
+    }).filter(Boolean);
+
+    const allStrings = [...specialStrings, ...wargearStrings].filter(Boolean);
+    const itemsString = allStrings.join(', ');
+
+    if (!itemsString) return '';
+
+    if (useCustomColors) {
+        return ` <span style="color: ${colors.wargear};">(${itemsString})</span>`;
+    }
+
+    return ` (${itemsString})`;
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1
 }
 
 function findSkippableForUnit(skippableWargearMap, dataSummary, unitName) {
@@ -175,6 +214,13 @@ function findSkippableForUnit(skippableWargearMap, dataSummary, unitName) {
     const unitLower = normalizeKey(unitName);
     const unitAlt = unitLower.endsWith('s') ? unitLower.slice(0, -1) : unitLower + 's';
 
+<<<<<<< HEAD
+=======
+export function generateOutput(data, useAbbreviations, wargearDataMap, hideSubunits) {
+    let html = '', plainText = '';
+    const factionKeyword = data.SUMMARY?.FACTION_KEYWORD || '';
+    const displayFaction = data.SUMMARY?.DISPLAY_FACTION || (factionKeyword.split(' - ').pop() || factionKeyword);
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1
 
     // Return a special token if the caller requested hiding all wargear for a unit.
     const normalize = (list) => {
@@ -267,6 +313,7 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
     }
     html += `<div style="margin-top:0.5rem;">`;
     for (const section in data) {
+<<<<<<< HEAD
         if (section === 'SUMMARY' || !Array.isArray(data[section])) continue;
         data[section].forEach(unit => {
             const qtyNum = parseInt((unit.quantity || '1').toString().replace('x', ''), 10) || 1;
@@ -312,6 +359,93 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                         html += `<p style="margin:0;">${itemQtyDisplay}${displayName}</p>`;
                         plainText += `  - ${itemQtyDisplay}${displayName}\n`;
                     });
+=======
+        if (section !== 'SUMMARY' && Array.isArray(data[section]) && data[section].length > 0) {
+            data[section].forEach(unit => {
+                const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
+                let quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
+
+                if (useAbbreviations) { // Compact List Rendering
+                    let itemsToRender = unit.items.filter(item => item.points === undefined);
+                    if (hideSubunits) {
+                        const topLevelSpecialItems = unit.items.filter(item => item.type === 'special' && item.points === undefined);
+                        const aggregatedWargearItems = aggregateWargear(unit, wargearDataMap);
+                        itemsToRender = [...topLevelSpecialItems, ...aggregatedWargearItems];
+                    }
+                    const itemsString = getInlineItemsString(itemsToRender, true, useCustomColors, colors, wargearDataMap, unit.name);
+                    const unitNameText = `${quantityDisplay}${unit.name}`;
+                    const pointsText = `[${unit.points}]`;
+                    
+                    const unitNameHTML = useCustomColors ? `<span style="color: ${colors.unit};">${unitNameText}</span>` : unitNameText;
+                    const pointsHTML = useCustomColors ? `<span style="color: ${colors.points};">${pointsText}</span>` : pointsText;
+                    
+                    const unitTextForPlain = `${unitNameText}${getInlineItemsString(itemsToRender, true, false, {}, wargearDataMap, unit.name)} ${pointsText}`;
+                    const unitHTML = `${unitNameHTML}${itemsString} ${pointsHTML}`;
+
+                    html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitHTML}</p>`;
+                    plainText += `* ${unitTextForPlain}\n`;
+
+                    if (!hideSubunits) {
+                        const subunitItems = unit.items.filter(item => item.points !== undefined);
+                        if (subunitItems.length > 0) {
+                            html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
+                            subunitItems.forEach(item => {
+                                const subUnitHasVisibleItems = item.items && item.items.some(subItem => wargearDataMap.get(subItem.name)?.abbr !== 'NULL' || subItem.type === 'special');
+                                if (subUnitHasVisibleItems) {
+                                    const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                                    const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                                                            const subunitItemsString = getInlineItemsString(item.items, true, useCustomColors, colors, wargearDataMap, item.name);
+                                    
+                                    const subunitNameText = `${itemQtyDisplay}${item.name}`;
+                                    const subunitNameHTML = useCustomColors ? `<span style="color: ${colors.subunit};">${subunitNameText}</span>` : subunitNameText;
+                                    const itemHTML = `${subunitNameHTML}${subunitItemsString}`;
+                                    const itemTextForPlain = `${subunitNameText}${getInlineItemsString(item.items, true, false, {}, wargearDataMap, item.name)}`;
+
+                                    html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0;">${itemHTML}</p>`;
+                                    plainText += `  + ${itemTextForPlain}\n`;
+                                }
+                            });
+                            html += `</div>`;
+                        }
+                    }
+                    html += `</div>`;
+                } else { // Extended List Rendering
+                    const unitText = `${quantityDisplay}${unit.name} [${unit.points}]`;
+                    html += `<div><p style="color: var(--color-text-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">${unitText}</p>`;
+                    plainText += `* ${unitText}\n`;
+                    if (unit.items && unit.items.length > 0) {
+                        html += `<div style="padding-left: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 400;">`;
+                        const topLevelItems = unit.items.filter(item => item.points === undefined);
+                        const subunitItems = unit.items.filter(item => item.points !== undefined).sort((a, b) => parseInt(a.quantity.replace('x', ''), 10) - parseInt(b.quantity.replace('x', ''), 10));
+
+                        topLevelItems.forEach(item => {
+                            const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                            const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                            html += `<p style="margin: 0;">${itemQtyDisplay}${item.name}</p>`;
+                            plainText += `  - ${itemQtyDisplay}${item.name}\n`;
+                        });
+
+                        subunitItems.forEach(item => {
+                            const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                            const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                            const itemText = `${itemQtyDisplay}${item.name}`;
+                            html += `<p style="font-weight: 500; color: var(--color-text-primary); margin: 0.5rem 0 0 0;">${itemText}</p>`;
+                            plainText += `  * ${itemText}\n`;
+
+                            if (item.items && item.items.length > 0) {
+                                html += `<div style="padding-left: 1rem;">`;
+                                item.items.forEach(subItem => {
+                                    const subItemNumericQty = parseInt(subItem.quantity.replace('x', ''), 10);
+                                    const subItemQtyDisplay = subItemNumericQty > 1 ? `${subItemNumericQty} ` : '';
+                                    html += `<p style="margin: 0;">${subItemQtyDisplay}${subItem.name}</p>`;
+                                    plainText += `    - ${subItemQtyDisplay}${subItem.name}\n`;
+                                });
+                                html += `</div>`;
+                            }
+                        });
+                        html += `</div>`;
+                    }
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1
                     html += `</div>`;
                 }
                 const subunitItems = itemsArr.filter(i => i.type === 'subunit' || (i.items && i.items.length > 0)).sort((a,b)=> { const aq = parseInt((a.quantity||'1').toString().replace('x',''),10) || 1; const bq = parseInt((b.quantity||'1').toString().replace('x',''),10) || 1; return aq - bq; });
@@ -342,6 +476,7 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
     return { html, plainText };
 }
 
+<<<<<<< HEAD
 export function generateDiscordText(data, plain, useAbbreviations = true, wargearAbbrMap, hideSubunits, skippableWargearMap) {
     // Produce plain or ANSI-colored Discord text. When in browser and colorMode
     // is 'custom', emit ANSI SGR sequences approximating the selected hex colors.
@@ -366,6 +501,12 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
             if (h && h.value) colors.header = h.value;
         }
     }
+=======
+export function generateDiscordText(data, plain, useAbbreviations = true, wargearDataMap, hideSubunits) {
+    const colorMode = document.querySelector('input[name="colorMode"]:checked').value;
+    const useColor = !plain && colorMode !== 'none';
+    let text = plain ? '' : (useColor ? '\`\`\`ansi\n' : '\`\`\`\n');
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1
 
     const ansiPalette = [
         { hex: '#000000', code: 30 }, { hex: '#FF0000', code: 31 }, { hex: '#00FF00', code: 32 },
@@ -376,8 +517,96 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
     const findClosestAnsi = (hex) => { const rgb = hexToRgb(hex); if (!rgb) return 37; let best = 37; let bestD = Infinity; for (const c of ansiPalette) { const cr = hexToRgb(c.hex); const d = Math.pow(rgb.r - cr.r, 2) + Math.pow(rgb.g - cr.g, 2) + Math.pow(rgb.b - cr.b, 2); if (d < bestD) { bestD = d; best = c.code; } } return best; };
     const toAnsi = (txt, hex, bold = false) => { if (!useColor || !hex) return txt; const code = findClosestAnsi(hex); const boldPart = bold ? '1;' : ''; return `\u001b[${boldPart}${code}m${txt}\u001b[0m`; };
 
+<<<<<<< HEAD
     let out = '';
     if (!plain) out += useColor ? '```ansi\n' : '```\n';
+=======
+    const hexToRgb = (hex) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
+    };
+
+    const findClosestAnsi = (hexColor) => {
+        const inputRgb = hexToRgb(hexColor);
+        if (!inputRgb) return ansiPalette.find(c => c.name === 'white').code;
+
+        let minDistance = Infinity;
+        let bestCode = ansiPalette.find(c => c.name === 'white').code;
+
+        for (const color of ansiPalette) {
+            const paletteRgb = hexToRgb(color.hex);
+            const distance = Math.pow(inputRgb.r - paletteRgb.r, 2) +
+                           Math.pow(inputRgb.g - paletteRgb.g, 2) +
+                           Math.pow(inputRgb.b - paletteRgb.b, 2);
+            if (distance < minDistance) {
+                minDistance = distance;
+                bestCode = color.code;
+            }
+        }
+        return bestCode;
+    };
+
+    const toAnsi = (txt, hexColor, bold = false) => {
+        if (!useColor || !hexColor) return txt;
+        if (hexColor.toLowerCase() === '#000000') return txt;
+
+        const ansiCode = findClosestAnsi(hexColor);
+        const boldCode = bold ? '1;' : '';
+        return `\u001b[${boldCode}${ansiCode}m${txt}\u001b[0m`;
+    };
+
+    let colors = { unit: '#FFFFFF', subunit: '#808080', points: '#FFFF00', header: '#FFFFFF', wargear: '#FFFFFF' };
+    if (useColor) {
+        if (colorMode === 'custom') {
+            colors = {
+                unit: document.getElementById('unitColor').value,
+                subunit: document.getElementById('subunitColor').value,
+                points: document.getElementById('pointsColor').value,
+                header: document.getElementById('headerColor').value,
+                wargear: document.getElementById('wargearColor').value
+            };
+        }
+    }
+    
+    const getDiscordItemsString = (items, useAbbreviations = true, wargearDataMap, unitName) => {
+        if (!items || items.length === 0) return '';
+        
+        const specialItems = items.filter(item => item.type === 'special');
+        const wargearItems = items.filter(item => item.type === 'wargear');
+    
+        const specialStrings = specialItems.map(item => {
+            // Special handling for Warlord
+            if (item.name === 'Warlord') {
+                return item.name; // Always return 'Warlord'
+            }
+            if (useAbbreviations) {
+                return item.nameshort;
+            }
+            if (item.name.startsWith('Enhancement: ')) {
+                return item.name.substring('Enhancement: '.length);
+            }
+            return item.name;
+        });
+
+        const wargearStrings = wargearItems.map(item => {
+            if (wargearDataMap.get(item.name)?.skippableForUnits.has(unitName)) return null; // Skip if marked skippable for this unit
+            const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+            const abbr = wargearDataMap.get(item.name)?.abbr;
+            const itemName = useAbbreviations && abbr ? abbr : item.name;
+            const itemQtyDisplay = itemNumericQty > 1 ? (useAbbreviations ? `${itemNumericQty}x` : `${itemNumericQty} `) : '';
+            return `${itemQtyDisplay}${itemName}`;
+        }).filter(Boolean);
+    
+        const allStrings = [...specialStrings, ...wargearStrings].filter(Boolean);
+        const itemsString = allStrings.join(', ');
+
+        if(!itemsString) return '';
+
+        return ` ${toAnsi(`(${itemsString})`, colors.wargear)}`;
+    };
+
+
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1
     if (data.SUMMARY) {
         const parts = [];
         if (data.SUMMARY.LIST_TITLE) parts.push(data.SUMMARY.LIST_TITLE);
@@ -390,6 +619,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
     for (const section in data) {
         if (section === 'SUMMARY' || !Array.isArray(data[section])) continue;
         data[section].forEach(unit => {
+<<<<<<< HEAD
             const qtyNum = parseInt((unit.quantity || '1').toString().replace('x',''), 10) || 1;
             const qtyDisplay = qtyNum > 1 ? `${qtyNum} ` : '';
             let itemsToRender = hideSubunits ? aggregateWargear(unit) : unit.items || [];
@@ -431,11 +661,51 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
                     const subItems = getInlineItemsString(filteredItems, useAbbreviations, wargearAbbrMap, data.SUMMARY);
                     const subItemsText = (useColor && subItems) ? toAnsi(subItems, colors.wargear, false) : subItems;
                     out += `  + ${subName}${subItemsText}\n`;
+=======
+            const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
+            let quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
+            if (unit.isComplex) {
+                quantityDisplay = '';
+            }
+            const unitName = `${quantityDisplay}${unit.name}`;
+            const points = `${unit.points}`;
+            
+            let itemsToRender = unit.items.filter(item => item.points === undefined);
+            if (hideSubunits) {
+                const topLevelSpecialItems = unit.items.filter(item => item.type === 'special' && item.points === undefined);
+                const aggregatedWargearItems = aggregateWargear(unit, wargearDataMap);
+                itemsToRender = [...topLevelSpecialItems, ...aggregatedWargearItems];
+            }
+            const itemsString = getDiscordItemsString(itemsToRender, useAbbreviations, wargearDataMap, unit.name);
+            text += `* ${toAnsi(unitName, colors.unit, true)}${itemsString} ${toAnsi(`[${points}]`, colors.points, true)}
+`;
+            
+            if (!hideSubunits) {
+                const subunitItems = unit.items.filter(item => item.points !== undefined);
+                subunitItems.forEach(item => {
+                    const subUnitHasVisibleItems = item.items && item.items.some(subItem => wargearDataMap.get(subItem.name)?.abbr !== 'NULL' || subItem.type === 'special');
+                    if (subUnitHasVisibleItems) {
+                        const itemNumericQty = parseInt(item.quantity.replace('x', ''), 10);
+                        const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
+                        const subunitName = item.name;
+                        const subunitItemsString = getDiscordItemsString(item.items, useAbbreviations, wargearDataMap, subunitName);
+                        const subunitText = `${itemQtyDisplay}${subunitName}`;
+                        const prefix = plain ? '*' : '+';
+                        text += `  ${prefix} ${toAnsi(subunitText, colors.subunit)}${subunitItemsString}
+`;
+                    }
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1
                 });
             }
         });
     }
+<<<<<<< HEAD
 
     if (!plain) out += '```';
     return out;
 }
+=======
+    if (!plain) text += '\`\`\`';
+    return text;
+}
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1

@@ -52,6 +52,8 @@ function handleParse() {
     const text = getInputText();
     const lines = text.split('\n');
 
+
+
     const format = detectFormat(lines);
     const parser = {
         GW_APP: parseGwApp,
@@ -62,7 +64,6 @@ function handleParse() {
         console.error("Unsupported list format.");
         setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use GW App or WTC-Compact format.</p>');
         setCompactedOutput('');
-        setMarkdownPreviewOutput(''); // Clear new output box
         return;
     }
 
@@ -124,11 +125,17 @@ function updatePreview() {
             previewText = generateDiscordText(parsedData, true, true, wargearAbbrDB, hideSubunits, skippableWargearMap);
             break;
         case 'plainTextExtended':
+<<<<<<< HEAD
             // plainTextExtended uses the same logic as Discord plain but with plain=true
             previewText = generateDiscordText(parsedData, true, false, wargearAbbrDB, hideSubunits, skippableWargearMap);
             break;
         default:
             previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap);
+=======
+            useAbbreviations = false; // Content of Discord Extended (no abbreviations)
+            plain = true; // Formatting of Plain Text
+            break;
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1
     }
     setMarkdownPreviewOutput(previewText);
     currentPreviewText = previewText; // Store for copying

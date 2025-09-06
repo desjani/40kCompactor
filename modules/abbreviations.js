@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // Dynamic abbreviation generator: build abbreviation map from parsed list data
 // The goal: do not depend on any external JSON (wargear.json or abbreviation_rules.json).
 // We'll derive reasonable abbreviations by: using explicit nameshort from parsed items if
@@ -24,10 +25,99 @@ function makeBaseAbbreviation(name) {
         if (low === 'and') return '&';
         if (low === 'of') return 'o';
         return p[0].toUpperCase();
+=======
+import { normalizeForComparison, flexibleNameMatch } from './utils.js';
+import { setDebugOutput } from './ui.js';
+
+const SPACE_MARINE_CHAPTERS = [
+    "Adeptus Astartes", // General Space Marine faction
+    "Ultramarines",
+    "Dark Angels",
+    "Blood Angels",
+    "Space Wolves",
+    "Imperial Fists",
+    "Salamanders",
+    "Raven Guard",
+    "White Scars",
+    "Black Templars",
+    "Deathwatch",
+    "Grey Knights"
+];
+
+const IMPERIUM_FACTIONS = [...new Set([
+    "Adepta Sororitas",
+    "Adeptus Custodes",
+    "Adeptus Mechanicus",
+    "Adeptus Titanicus",
+    "Astra Militarum",
+    "Agents of the Imperium",
+    "Imperial Knights",
+    ...SPACE_MARINE_CHAPTERS
+])];
+
+let skippableWargear = {};
+let abbreviationRules = {};
+
+export async function loadAbbreviationRules() {
+    try {
+        const [skippableResponse, rulesResponse] = await Promise.all([
+            fetch('./skippable_wargear.json?v=0.1.2'),
+            fetch('./abbreviation_rules.json?v=0.1.2')
+        ]);
+
+        if (!skippableResponse.ok) {
+            throw new Error(`HTTP error! status: ${skippableResponse.status}`);
+        }
+        if (!rulesResponse.ok) {
+            throw new Error(`HTTP error! status: ${rulesResponse.status}`);
+        }
+
+        skippableWargear = await skippableResponse.json();
+        abbreviationRules = await rulesResponse.json();
+
+        setDebugOutput("Abbreviation rules loaded successfully.");
+        return true;
+    } catch (error) {
+        setDebugOutput("Could not load abbreviation rules:" + error);
+        return false;
+    }
+}
+
+function getInitialism(text) {
+    if (!text) return '';
+    const processedText = text.replace(/\band\b/gi, '&'); // Use word boundaries to match whole word "and"
+    return processedText.split(/[\s-]/).map(word => word.charAt(0)).join('').toUpperCase();
+}
+
+function shortenWord(word) {
+    const lowerWord = word.toLowerCase();
+    if (abbreviationRules[lowerWord]) {
+        return abbreviationRules[lowerWord];
+    }
+    // Fallback: remove vowels
+    return lowerWord.replace(/[aeiou]/gi, '');
+}
+
+function collectWargear(items, wargearMap, unitName) {
+    items.forEach(item => {
+        if (item.type === 'wargear') {
+            if (!wargearMap.has(item.name)) {
+                wargearMap.set(item.name, {
+                    units: new Set(),
+                    skippableForUnits: new Set()
+                });
+            }
+            wargearMap.get(item.name).units.add(unitName);
+        }
+        if (item.items && item.items.length > 0) {
+            collectWargear(item.items, wargearMap, unitName);
+        }
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1
     });
     return tokens.join('');
 }
 
+<<<<<<< HEAD
 // Helper exported so renderers can reuse the exact same abbreviation logic when
 // the dynamic map isn't available at runtime.
 export function makeAbbrevForName(name) {
@@ -92,6 +182,48 @@ export function buildAbbreviationIndex(parsedData, skippableWargearMap) {
                         if (!innerK) continue;
                         if (normalizeKey(innerK) === unitLower || normalizeKey(innerK) === unitAlt) return normalize(innerV);
                     }
+=======
+function markSkippable(items, factionRules, unitName, wargearMap) {
+    items.forEach(item => {
+        if (item.type === 'wargear') {
+            setDebugOutput(`Processing wargear: ${item.name} for unit: ${unitName}`);
+            let unitRules = null;
+            for (const key in factionRules) {
+                setDebugOutput(`  Checking rule for key: ${key} against unitName: ${unitName}`);
+                if (flexibleNameMatch(key, unitName)) {
+                    unitRules = factionRules[key];
+                    setDebugOutput(`    Match found! unitRules: ${JSON.stringify(unitRules)}`);
+                    break;
+                }
+            }
+
+            // Convert item.name to lowercase for case-insensitive comparison
+            const lowerCaseItemName = item.name.toLowerCase();
+
+            if (unitRules === true) {
+                setDebugOutput(`  Unit rule is TRUE. Adding ${unitName} to skippableForUnits for ${item.name}.`);
+                if (wargearMap.has(item.name)) {
+                    wargearMap.get(item.name).skippableForUnits.add(unitName);
+                }
+            } else if (Array.isArray(unitRules)) {
+                // Convert each rule to lowercase for comparison
+                const lowerCaseUnitRules = unitRules.map(rule => rule.toLowerCase());
+                setDebugOutput(`  Unit rule is ARRAY. Checking if ${lowerCaseItemName} is in: ${JSON.stringify(lowerCaseUnitRules)}`);
+                if (lowerCaseUnitRules.includes(lowerCaseItemName) && wargearMap.has(item.name)) {
+                    setDebugOutput(`    Item ${item.name} found in unit rule. Adding ${unitName} to skippableForUnits.`);
+                    wargearMap.get(item.name).skippableForUnits.add(unitName);
+                }
+            }
+
+            const factionWideRules = factionRules['*'];
+            if (Array.isArray(factionWideRules)) {
+                // Convert each rule to lowercase for comparison
+                const lowerCaseFactionWideRules = factionWideRules.map(rule => rule.toLowerCase());
+                setDebugOutput(`  Faction-wide rule is ARRAY. Checking if ${lowerCaseItemName} is in: ${JSON.stringify(lowerCaseFactionWideRules)}`);
+                if (lowerCaseFactionWideRules.includes(lowerCaseItemName) && wargearMap.has(item.name)) {
+                    setDebugOutput(`    Item ${item.name} found in faction-wide rule. Adding ${unitName} to skippableForUnits.`);
+                    wargearMap.get(item.name).skippableForUnits.add(unitName);
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1
                 }
             }
         }
@@ -108,7 +240,9 @@ export function buildAbbreviationIndex(parsedData, skippableWargearMap) {
         }
         return [];
     }
+    setDebugOutput("Wargear Map after markSkippable:" + JSON.stringify(Array.from(wargearMap.entries())));
 
+<<<<<<< HEAD
     // Walk units recursively and collect wargear names
     const walk = (node, ownerName) => {
         if (!node) return;
@@ -219,6 +353,18 @@ export function buildAbbreviationIndex(parsedData, skippableWargearMap) {
                 const owner = unit && unit.name ? unit.name : undefined;
                 walk(unit, owner);
             }
+=======
+    // Phase 2: Initial Abbreviation Generation and Conflict Resolution
+    const usedAbbrs = new Set(); // To keep track of abbreviations already assigned
+    const itemsToProcess = Array.from(wargearMap.entries()); // Convert to array to maintain order
+
+    for (const [name, data] of itemsToProcess) {
+        let currentAbbr;
+        const words = name.split(' ');
+
+        if (words.length === 1 && name.length > 3) {
+            currentAbbr = shortenWord(name).toUpperCase(); // Use shortenWord for single words
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1
         } else {
             walk(section, undefined);
         }
