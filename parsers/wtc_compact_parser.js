@@ -121,8 +121,7 @@ export function parseWtcCompact(lines) {
                         quantity, 
                         name, 
                         points: parseInt(points, 10), 
-                        items: [],
-                        isComplex: !unitMatch.groups.wargearblock
+                        items: []
                     };
 
                     const sectionKey = (currentSection === 'CHARACTER' || charid) ? 'CHARACTER' : 'OTHER DATASHEETS';
@@ -156,12 +155,47 @@ export function parseWtcCompact(lines) {
                         const content = bulletMatch[1];
                         const [subUnitInfo, wargearInfo] = content.split(/:\s*/, 2);
                         const subUnitMatch = subUnitInfo.match(/^(\d+x?\s+)(.*)/);
-                        const nextLine = (i + 1 < bodyLines.length) ? bodyLines[i + 1] : '';
-                        const nextLineIsMoreIndented = nextLine.trim() !== '' && getIndent(nextLine) > getIndent(line);
+                        // Find the next non-blank line to determine structural relationship
+                        let nextLine = '';
+                        for (let k = i + 1; k < bodyLines.length; k++) {
+                            if ((bodyLines[k] || '').trim() === '') continue;
+                            nextLine = bodyLines[k];
+                            break;
+                        }
+                        const nextLineIsMoreIndented = nextLine && getIndent(nextLine) > getIndent(line);
 
                         // A line is a subunit if it starts with a quantity AND (it has wargear on the same line OR it's followed by an indent)
+                        // Many lists however use a quantityed bullet to list repeated wargear (e.g. "3x Ectoplasma cannon").
+                        // Relying on name similarity is brittle because subunits may have very different names
+                        // (e.g. "Dishounoured" under "Jakhals"). Instead, prefer structural evidence: inspect the
+                        // following indented block. If the block contains multiple lines or any bulleted lines, it's
+                        // very likely a true subunit with its own wargear lines; otherwise treat the quantityed bullet
+                        // as bulleted wargear for the parent unit.
                         if (subUnitMatch && (wargearInfo || nextLineIsMoreIndented)) {
                             const { quantity, name } = parseItemString(subUnitInfo);
+
+                            if (nextLineIsMoreIndented && !wargearInfo) {
+                                // Collect the contiguous indented block following this line
+                                const blockLines = [];
+                                for (let j = i + 1; j < bodyLines.length; j++) {
+                                    const lineJ = bodyLines[j];
+                                    if (lineJ.trim() === '') break;
+                                    if (getIndent(lineJ) > getIndent(line)) {
+                                        blockLines.push(lineJ.trim());
+                                    } else {
+                                        break;
+                                    }
+                                }
+
+                                const hasBulletInBlock = blockLines.some(bl => bulletRegex.test(bl));
+                                // Heuristic based on structure: if the indented block has multiple lines or any bullets,
+                                // treat this as a subunit; otherwise treat it as bulleted wargear for the parent.
+                                if (!hasBulletInBlock && blockLines.length <= 1) {
+                                    addItemToTarget(parentContext.node, content, topLevelUnitName, factionKeyword);
+                                    continue;
+                                }
+                            }
+
                             const newSubUnit = { quantity, name, points: 0, items: [] };
                             parentContext.node.items.push(newSubUnit);
 
@@ -200,18 +234,17 @@ export function parseWtcCompact(lines) {
             for (const section in result) {
                 if (Array.isArray(result[section])) {
                     result[section].forEach(unit => {
-                        if (unit.isComplex) {
+                        // If the unit contains subunits (items where points is defined or type === 'subunit'),
+                        // sum their quantities to synthesize the top-level unit quantity.
+                        const hasSubunits = unit.items && unit.items.some(it => it && (it.points !== undefined || it.type === 'subunit'));
+                        if (hasSubunits) {
                             let totalQuantity = 0;
                             unit.items.forEach(item => {
-                                // A subunit is an item that has a 'points' property. Wargear does not.
-                                if (item.points !== undefined) {
+                                if (item && (item.points !== undefined || item.type === 'subunit')) {
                                     totalQuantity += parseInt(item.quantity.replace('x', ''), 10) || 0;
                                 }
                             });
-
-                            if (totalQuantity > 0) {
-                                unit.quantity = `${totalQuantity}x`;
-                            }
+                            if (totalQuantity > 0) unit.quantity = `${totalQuantity}x`;
                         }
                     });
                 }

@@ -1,7 +1,5 @@
-// Store the parsed data globally within the script's scope
-let parsedData = null;
-let extendedPlainText = '';
-let compactPlainText = '';
+/* placeholder removed */
+
 
 // --- Abbreviation Database ---
 let factionAbbreviationDBs = {}; // Use let to allow reassignment

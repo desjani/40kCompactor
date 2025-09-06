@@ -1,15 +1,29 @@
-import { loadAbbreviationRules, generateAbbreviations } from './abbreviations.js';
 import { detectFormat, parseGwApp, parseWtcCompact } from './parsers.js';
 import { generateOutput, generateDiscordText } from './renderers.js';
+import { buildAbbreviationIndex } from './abbreviations.js';
 import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
 let compactPlainText = '';
-let wargearAbbrMap = null;
+// let wargearAbbrMap = null; // DEPRECATED
+let skippableWargearMap = null;
+let wargearAbbrDB = null; // dynamic abbreviations built from parsed data
 let currentPreviewText = ''; // New global variable
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Load skippable_wargear.json
+    try {
+        const resp = await fetch('skippable_wargear.json');
+        skippableWargearMap = await resp.json();
+        console.log('Loaded skippableWargearMap:', skippableWargearMap);
+    } catch (e) {
+        console.error('Failed to load skippable_wargear.json', e);
+        skippableWargearMap = {};
+    }
+    // No external abbreviation DB - will build indexes dynamically after parsing
+    wargearAbbrDB = { __flat_abbr: {} };
+
     initializeUI({
         onParse: handleParse,
         onReset: handleReset,
@@ -18,25 +32,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         onCopyPreview: () => copyTextToClipboard(currentPreviewText),
         onColorChange: () => {
             if (parsedData) {
-                const compactOutput = generateOutput(parsedData, true, wargearAbbrMap);
+                const hideSubunits = getHideSubunitsState();
+                const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap);
                 setCompactedOutput(compactOutput.html);
                 compactPlainText = compactOutput.plainText;
                 // Also update the markdown preview on color change
                 updatePreview();
-                
-                
             }
         },
         onHideSubunitsChange: () => updatePreview(),
         onMultilineHeaderChange: () => updatePreview()
     });
 
-    const dbLoaded = await loadAbbreviationRules();
-    if (dbLoaded) {
-        enableParseButton();
-    } else {
-        setParseButtonError();
-    }
+    enableParseButton();
 });
 
 function handleParse() {
@@ -61,16 +69,27 @@ function handleParse() {
 
     const result = parser(lines);
 
-    wargearAbbrMap = generateAbbreviations(result);
-    setDebugOutput(JSON.stringify(result, null, 2) + '\n\n' + JSON.stringify(Array.from(wargearAbbrMap.entries()), null, 2));
+    // Debug: log raw parser output to console for inspection
+    if (typeof window !== 'undefined') {
+        window.LAST_RAW_PARSER_OUTPUT = result;
+        console.log('[DEBUG] Raw parser output:', JSON.parse(JSON.stringify(result)));
+    }
 
+    setDebugOutput(JSON.stringify(result, null, 2));
 
     parsedData = result;
+    // Build dynamic abbreviation index from parsed data
+    try {
+        wargearAbbrDB = buildAbbreviationIndex(result, skippableWargearMap);
+    } catch (e) {
+        console.warn('Failed to build dynamic abbreviation index', e);
+        wargearAbbrDB = { __flat_abbr: {} };
+    }
     const hideSubunits = getHideSubunitsState();
-    const extendedOutput = generateOutput(result, false, wargearAbbrMap, hideSubunits);
+    const extendedOutput = generateOutput(result, false, wargearAbbrDB, hideSubunits, skippableWargearMap);
     setUnabbreviatedOutput(extendedOutput.html);
     extendedPlainText = extendedOutput.plainText;
-    const compactOutput = generateOutput(result, true, wargearAbbrMap, hideSubunits);
+    const compactOutput = generateOutput(result, true, wargearAbbrDB, hideSubunits, skippableWargearMap);
     setCompactedOutput(compactOutput.html);
     compactPlainText = compactOutput.plainText;
 
@@ -83,7 +102,7 @@ function handleReset() {
     parsedData = null;
     extendedPlainText = '';
     compactPlainText = '';
-    wargearAbbrMap = null;
+    // wargearAbbrMap = null;
 }
 
 function updatePreview() {
@@ -92,31 +111,32 @@ function updatePreview() {
     const outputFormatSelect = document.getElementById('outputFormatSelect');
     const selectedFormat = outputFormatSelect ? outputFormatSelect.value : 'discordCompact'; // Default to discordCompact
     const hideSubunits = getHideSubunitsState();
+    console.log('UI: hideSubunits value in updatePreview', hideSubunits, 'selectedFormat', selectedFormat);
 
     let previewText = '';
-    let useAbbreviations = true;
-    let plain = false;
-
     switch (selectedFormat) {
         case 'discordCompact':
-            useAbbreviations = true;
-            plain = false;
+            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap);
             break;
         case 'discordExtended':
-            useAbbreviations = false;
-            plain = false;
+            previewText = generateDiscordText(parsedData, false, false, wargearAbbrDB, hideSubunits, skippableWargearMap);
             break;
         case 'plainText':
-            useAbbreviations = true; // Abbreviations are used for plain text output
-            plain = true;
+            previewText = generateDiscordText(parsedData, true, true, wargearAbbrDB, hideSubunits, skippableWargearMap);
             break;
         case 'plainTextExtended':
+<<<<<<< HEAD
+            // plainTextExtended uses the same logic as Discord plain but with plain=true
+            previewText = generateDiscordText(parsedData, true, false, wargearAbbrDB, hideSubunits, skippableWargearMap);
+            break;
+        default:
+            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap);
+=======
             useAbbreviations = false; // Content of Discord Extended (no abbreviations)
             plain = true; // Formatting of Plain Text
             break;
+>>>>>>> dcd447c02ec8cfb64cdaf96e16fe1295e33bcea1
     }
-
-    previewText = generateDiscordText(parsedData, plain, useAbbreviations, wargearAbbrMap, hideSubunits);
     setMarkdownPreviewOutput(previewText);
     currentPreviewText = previewText; // Store for copying
     updateCharCounts(getInputText(), extendedPlainText, compactPlainText, currentPreviewText);

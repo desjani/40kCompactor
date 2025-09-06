@@ -24,9 +24,8 @@ This tool supports the following formats:
 
 The compactor's behavior can be customized by editing the JSON files in the `v2` directory.
 
-### `abbreviation_rules.json`
-
-This file contains rules for shortening wargear names. You can add your own abbreviations to this file. The key is the full wargear name (in lowercase), and the value is the abbreviation.
+Note: the old static abbreviation file has been deprecated and removed.
+The compactor now uses a dynamic wargear DB (`wargear.json`) for optional abbreviations and uses `skippable_wargear.json` to control which wargear should be hidden in compacted output.
 
 ### `skippable_wargear.json`
 

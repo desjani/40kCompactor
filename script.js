@@ -11,13 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     parseButton.disabled = true;
     parseButton.textContent = 'Loading DB...';
 
-    fetch('./wargear.json?v=0.0.8')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
+    // Use the shared dynamic loader so we don't duplicate fetch logic and so
+    // the UI uses the exact same wargear abbreviation DB as the rest of the app.
+    import('./modules/abbreviations.js')
+        .then(mod => mod.loadAbbreviationRules())
         .then(data => {
             factionAbbreviationDBs = data;
             console.log("Wargear database loaded successfully.");
@@ -38,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Re-render the compact view if data exists to provide a live preview
             if (parsedData) {
-                const compactOutput = generateOutput(parsedData, true);
+                const compactOutput = generateOutput(parsedData, true, factionAbbreviationDBs);
                 document.getElementById('compactedOutput').innerHTML = compactOutput.html;
                 compactPlainText = compactOutput.plainText; // Keep plain text in sync
             }
@@ -204,13 +201,26 @@ document.getElementById('parseButton').addEventListener('click', () => {
 
     // --- Common Rendering Logic ---
     parsedData = result;
-    const extendedOutput = generateOutput(result, false);
+    const extendedOutput = generateOutput(result, false, factionAbbreviationDBs);
     document.getElementById('unabbreviatedOutput').innerHTML = extendedOutput.html;
     extendedPlainText = extendedOutput.plainText;
-    const compactOutput = generateOutput(result, true);
+    const compactOutput = generateOutput(result, true, factionAbbreviationDBs);
     document.getElementById('compactedOutput').innerHTML = compactOutput.html;
     compactPlainText = compactOutput.plainText;
     updateCharCounts();
+});
+
+// Hotkey: Ctrl+Enter or Cmd+Enter triggers the same action as clicking 'Compact this list'
+document.addEventListener('keydown', (e) => {
+    // Accept Ctrl+Enter (Windows/Linux) and Meta(Cmd)+Enter (macOS)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        const btn = document.getElementById('parseButton');
+        if (btn && !btn.disabled) {
+            // Prevent default to avoid submitting forms or other side effects
+            e.preventDefault();
+            btn.click();
+        }
+    }
 });
 
 document.getElementById('resetButton').addEventListener('click', () => {
@@ -612,8 +622,7 @@ function parseWtcCompact(lines) {
                 quantity, 
                 name, 
                 points: parseInt(points, 10), 
-                items: [],
-                isComplex: !unitMatch.groups.wargearblock
+                items: []
             };
 
             const sectionKey = (currentSection === 'CHARACTER' || charid) ? 'CHARACTER' : 'OTHER DATASHEETS';
@@ -691,18 +700,16 @@ function parseWtcCompact(lines) {
     for (const section in result) {
         if (Array.isArray(result[section])) {
             result[section].forEach(unit => {
-                if (unit.isComplex) {
+                // If the unit contains subunits (items with points or explicit type 'subunit'), sum their quantities
+                const hasSubunits = unit.items && unit.items.some(it => it && (it.points !== undefined || it.type === 'subunit'));
+                if (hasSubunits) {
                     let totalQuantity = 0;
                     unit.items.forEach(item => {
-                        // A subunit is an item that has a 'points' property. Wargear does not.
-                        if (item.points !== undefined) {
+                        if (item && (item.points !== undefined || item.type === 'subunit')) {
                             totalQuantity += parseInt(item.quantity.replace('x', ''), 10) || 0;
                         }
                     });
-
-                    if (totalQuantity > 0) {
-                        unit.quantity = `${totalQuantity}x`;
-                    }
+                    if (totalQuantity > 0) unit.quantity = `${totalQuantity}x`;
                 }
             });
         }
@@ -875,7 +882,8 @@ function updateCharCounts() {
     const extendedSize = extendedPlainText.trim().length;
     const compactSize = compactPlainText.trim().length;
     
-    document.getElementById('inputCharCount').textContent = `Characters: ${originalSize}`;
+                                            const hasSubunits = Array.isArray(unit.items) && unit.items.some(it => it && (it.points !== undefined || it.type === 'subunit'));
+                                            if (hasSubunits) quantityDisplay = '';
 
     if (originalSize > 0) {
         const extendedRatioPercent = ((extendedSize / originalSize) * 100).toFixed(1);
@@ -969,9 +977,9 @@ function generateDiscordText(data, plain, useAbbreviations = true) {
         data[section].forEach(unit => {
             const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
             let quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
-            if (unit.isComplex) {
-                quantityDisplay = '';
-            }
+            // If unit has subunits, don't show aggregated top-level quantity inline
+            const hasSubunits = Array.isArray(unit.items) && unit.items.some(it => it && (it.points !== undefined || it.type === 'subunit'));
+            if (hasSubunits) quantityDisplay = '';
             const unitName = `${quantityDisplay}${unit.name}`;
             const points = `${unit.points}`;
             const topLevelItems = unit.items.filter(item => item.points === undefined);
@@ -1019,21 +1027,21 @@ document.getElementById('copyExtendedButton').addEventListener('click', () => {
 
 document.getElementById('copyCompactButton').addEventListener('click', () => {
     if (parsedData) {
-        const textToCopy = generateDiscordText(parsedData, false, true);
+    const textToCopy = generateDiscordText(parsedData, false, true, factionAbbreviationDBs);
         copyTextToClipboard(textToCopy);
     }
 });
 
 document.getElementById('copyExtendedDiscordButton').addEventListener('click', () => {
     if (parsedData) {
-        const textToCopy = generateDiscordText(parsedData, false, false);
+    const textToCopy = generateDiscordText(parsedData, false, false, factionAbbreviationDBs);
         copyTextToClipboard(textToCopy);
     }
 });
 
 document.getElementById('copyPlainDiscordButton').addEventListener('click', () => {
     if (parsedData) {
-        const textToCopy = generateDiscordText(parsedData, true);
+    const textToCopy = generateDiscordText(parsedData, true, true, factionAbbreviationDBs);
         copyTextToClipboard(textToCopy.trim());
     }
 });

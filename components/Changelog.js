@@ -15,6 +15,9 @@ export function Changelog() {
       h('div', { class: 'changelog-entry' },
         h('h4', null, 'Changelog'),
         h('div', { class: 'changelog-version-entry' },
+          h('h5', null, "Version 1.1.1: Thats not a wargear, that's my wife!"),
+          h('p', null, 'Minor parser and rendering fixes.')),
+        h('div', { class: 'changelog-version-entry' },
           h('h5', null, 'Version 0.0.4: T\'au Season!'),
           h('p', null, 'Numerous parser fixes and abbreviation updates for T\'au Empire lists. Improved wargear filtering to prevent redundant items from appearing in the compact list.')
         ),
