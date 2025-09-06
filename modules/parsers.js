@@ -31,12 +31,18 @@ function addItemToTarget(target, itemString, unitContextName, factionKeyword, it
 }
 
 function parseAndAddEnhancement(content, target, factionKeyword) {
-    if (!content) return;
+    if (!content || !target) return;
     target.items = target.items || [];
     const raw = content.trim();
     const mPts = raw.match(/\(([^)]+)\)$/);
     const pts = mPts ? ` (${mPts[1]})` : '';
     const base = raw.replace(/\s*\([^)]+\)$/, '').trim();
+
+    // Deduplicate: if target already has an enhancement with the same base, skip
+    const normBase = normalizeForComparison(base);
+    const already = (target.items || []).some(it => it && it.type === 'special' && normalizeForComparison((it.name || '').replace(/^Enhancement:\s*/i, '')) === normBase);
+    if (already) return;
+
     const abbr = base.split(/\s+/).map(w => w[0] ? w[0].toUpperCase() : '').join('');
     const nameshort = `E: ${abbr}${pts}`.trim();
     const item = { quantity: '1x', name: `Enhancement: ${base}`, nameshort, items: [], type: 'special' };
