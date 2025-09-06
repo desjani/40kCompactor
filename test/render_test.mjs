@@ -18,7 +18,6 @@ function makeKhorneSample() {
                 quantity: '10x',
                 name: 'Khorne Berzerkers',
                 points: 200,
-                isComplex: true,
                 items: [
                     // subunit with wargear
                     { quantity: '1x', name: 'Khorne Berzerker Champion', points: 15, items: [
@@ -43,8 +42,9 @@ async function run() {
     const text = generateDiscordText(parsed, true, true, null, true, skippable);
     console.log('--- Render Output ---');
     console.log(text);
-    if (!/Bolt Pistol|Chainaxe/.test(text)) {
-        console.error('ERROR: expected inline wargear (Bolt Pistol or Chainaxe) not found');
+    // Accept either full names or abbreviations (BP, CH) depending on renderer abbreviation map
+    if (!/(Bolt Pistol|Chainaxe|\bBP\b|\bCH\b)/.test(text)) {
+        console.error('ERROR: expected inline wargear (Bolt Pistol / Chainaxe / BP / CH) not found');
         process.exitCode = 2;
     } else {
         console.log('OK: inline wargear found');

@@ -13,6 +13,71 @@ function smartTitleCase(s) {
     }).join(' ');
 }
 
+// Normalize SUMMARY to a canonical shape used by renderers/tests.
+function normalizeSummary(summary) {
+    if (!summary || typeof summary !== 'object') return;
+    // remove fields we deliberately do not use
+    delete summary.WARLORD;
+    delete summary.ENHANCEMENT;
+    delete summary.SECONDARY;
+
+    const asStr = v => (v === null || v === undefined) ? '' : String(v).trim();
+    summary.FACTION_KEYWORD = asStr(summary.FACTION_KEYWORD);
+    summary.DETACHMENT = asStr(summary.DETACHMENT);
+    summary.LIST_TITLE = asStr(summary.LIST_TITLE);
+    // Remove trailing '(NNN points)' or '(NNN pts)' from the list title
+    try {
+        summary.LIST_TITLE = summary.LIST_TITLE.replace(/\s*\(\s*\d{1,5}\s*(?:pts|points)?\s*\)\s*$/i, '').trim();
+    } catch (e) {
+        // ignore
+    }
+    summary.DISPLAY_FACTION = asStr(summary.DISPLAY_FACTION);
+
+    // If DISPLAY_FACTION missing, compose from LIST_TITLE and FACTION_KEYWORD
+    if (!summary.DISPLAY_FACTION) {
+        const parts = [summary.LIST_TITLE, summary.FACTION_KEYWORD].filter(Boolean);
+        summary.DISPLAY_FACTION = parts.join(' - ');
+    }
+
+    // Normalize TOTAL_ARMY_POINTS to 'NNNNpts' if possible
+    const extractPoints = s => {
+        if (!s) return '';
+        const m = String(s).match(/\(\s*(\d+)\s*points\)/i) || String(s).match(/(\d{3,5})\s*(?:pts|points)?/i) || String(s).match(/(\d{3,5})/);
+        if (m) return `${m[1].replace(/\s+/g,'')}pts`;
+        return '';
+    };
+    if (summary.TOTAL_ARMY_POINTS) summary.TOTAL_ARMY_POINTS = extractPoints(summary.TOTAL_ARMY_POINTS) || asStr(summary.TOTAL_ARMY_POINTS);
+    else summary.TOTAL_ARMY_POINTS = extractPoints(summary.LIST_TITLE) || extractPoints(summary.DISPLAY_FACTION) || '';
+
+    // Ensure NUMBER_OF_UNITS is a string
+    summary.NUMBER_OF_UNITS = (summary.NUMBER_OF_UNITS === undefined || summary.NUMBER_OF_UNITS === null) ? '' : String(summary.NUMBER_OF_UNITS);
+
+    // Ensure FACTION_KEYWORD is the short faction (as used in skippable_wargear.json)
+    try {
+        let short = '';
+        if (summary.FACTION_KEYWORD) short = String(summary.FACTION_KEYWORD).split(' - ').pop().trim();
+        if (!short && summary.DISPLAY_FACTION) short = String(summary.DISPLAY_FACTION).split(' - ').pop().trim();
+        if (!short && summary.LIST_TITLE) {
+            // fallback: try to find a wordy faction at end of list title
+            short = String(summary.LIST_TITLE).split(' - ').pop().trim();
+        }
+        if (short) summary.FACTION_KEYWORD = short;
+
+        // Use FAMILY_MAP to build DISPLAY_FACTION as 'FAMILY - FACTION_KEYWORD'
+        const family = FAMILY_MAP[summary.FACTION_KEYWORD] || FAMILY_MAP[summary.DISPLAY_FACTION] || FAMILY_MAP[summary.FACTION_KEYWORD.split('-').pop()?.trim()];
+        if (family) summary.DISPLAY_FACTION = `${family} - ${summary.FACTION_KEYWORD}`;
+        else if (!summary.DISPLAY_FACTION) summary.DISPLAY_FACTION = summary.FACTION_KEYWORD;
+    } catch (e) {
+        // non-fatal
+    }
+
+    // Final coercion to ensure types are strings for canonical keys
+    for (const k of ['FACTION_KEYWORD','DETACHMENT','TOTAL_ARMY_POINTS','LIST_TITLE','DISPLAY_FACTION','NUMBER_OF_UNITS']) {
+        if (summary[k] === undefined || summary[k] === null) summary[k] = '';
+        else summary[k] = String(summary[k]);
+    }
+}
+
 function addItemToTarget(target, itemString, unitContextName, factionKeyword, itemType = 'wargear', parentQuantity = 1) {
     if (!target) return;
     target.items = target.items || [];
@@ -34,8 +99,15 @@ function parseAndAddEnhancement(content, target, factionKeyword) {
     if (!content || !target) return;
     target.items = target.items || [];
     const raw = content.trim();
-    const mPts = raw.match(/\(([^)]+)\)$/);
-    const pts = mPts ? ` (${mPts[1]})` : '';
+    // Extract any trailing parenthetical points (e.g. '(+20 pts)' or '(+20)')
+    const mPts = raw.match(/\(([^)]+)\)\s*$/);
+    let enhPts = '';
+    if (mPts) {
+        const inner = String(mPts[1] || '').trim();
+        const numM = inner.match(/([+-]?\d+)/);
+        if (numM) enhPts = (String(numM[1]).startsWith('+') ? String(numM[1]) : `+${String(numM[1])}`);
+        else enhPts = inner.replace(/\s*pts\s*/i, '').trim();
+    }
     const base = raw.replace(/\s*\([^)]+\)$/, '').trim();
 
     // Deduplicate: if target already has an enhancement with the same base, skip
@@ -44,9 +116,56 @@ function parseAndAddEnhancement(content, target, factionKeyword) {
     if (already) return;
 
     const abbr = base.split(/\s+/).map(w => w[0] ? w[0].toUpperCase() : '').join('');
-    const nameshort = `E: ${abbr}${pts}`.trim();
+    const nameshort = `E: ${abbr}`.trim();
     const item = { quantity: '1x', name: `Enhancement: ${base}`, nameshort, items: [], type: 'special' };
+    if (enhPts) item.enhancementPoints = enhPts; // store as '+NN' or raw token
     target.items.push(item);
+}
+
+// (Removed enhancement points map: enhancements will no longer include point values.)
+
+function ensurePropsLocal(obj, parentName) {
+    if (!obj || typeof obj !== 'object') return;
+    if (typeof obj.name !== 'string') obj.name = '';
+    if (typeof obj.quantity !== 'string') obj.quantity = obj.quantity ? String(obj.quantity) : '1x';
+    if (typeof obj.type !== 'string') obj.type = obj.type || 'wargear';
+    if (typeof obj.nameshort !== 'string') obj.nameshort = obj.nameshort || '';
+    if (!Array.isArray(obj.items)) obj.items = [];
+
+    if (/^Enhancement:/i.test(obj.name)) {
+        const content = obj.name.replace(/^Enhancement:\s*/i, '').trim();
+        obj.type = 'special';
+        obj.nameshort = obj.nameshort || (() => {
+            const m = content.match(/\(([^)]+)\)$/);
+            let pts = '';
+            if (m) {
+                const numM = String(m[1]).match(/([+-]?\d+)/);
+                if (numM) pts = ` (+${String(numM[1]).replace(/^\+?/, '')})`;
+                else pts = ` (${m[1]})`;
+            }
+            const base = content.replace(/\s*\([^)]+\)$/, '').trim();
+            const abbr = base.split(/\s+/).map(w => w[0] ? w[0].toUpperCase() : '').join('');
+            return `E: ${abbr}${pts}`.trim();
+        })();
+        obj.name = `Enhancement: ${smartTitleCase(content.replace(/\s*\([^)]+\)$/, '').trim())}`;
+    } else {
+        obj.name = parentName ? obj.name : smartTitleCase(obj.name);
+    }
+
+    if (normalizeForComparison(obj.name) === 'warlord') obj.type = 'special';
+
+    obj.items = (obj.items || []).map(it => {
+        if (!it) return null;
+        if (typeof it === 'string') {
+            const coerced = { quantity: '1x', name: it.trim(), items: [], type: /^Enhancement:/i.test(it) ? 'special' : 'wargear', nameshort: '' };
+            ensurePropsLocal(coerced, obj.name);
+            if (coerced.name) coerced.name = smartTitleCase(coerced.name);
+            return coerced;
+        }
+        ensurePropsLocal(it, obj.name);
+        if (it && it.name) it.name = smartTitleCase(it.name);
+        return it;
+    }).filter(Boolean);
 }
 
 export function parseWtcCompact(lines) {
@@ -86,10 +205,13 @@ export function parseWtcCompact(lines) {
         if (m) {
             const key = m[1].trim().toUpperCase();
             const val = m[2].trim();
+            // Do not parse SUMMARY keys that aren't useful, but capture WARLORD raw for later
+            if (key === 'WARLORD') { result.SUMMARY._WARLORD_RAW = val; continue; }
+            const skipKeys = new Set(['ENHANCEMENT', 'SECONDARY']);
+            if (skipKeys.has(key)) continue;
             if (key === 'FACTION KEYWORD') result.SUMMARY.FACTION_KEYWORD = val;
             else if (key === 'DETACHMENT') result.SUMMARY.DETACHMENT = val;
             else if (key === 'TOTAL ARMY POINTS') result.SUMMARY.TOTAL_ARMY_POINTS = val;
-            else if (key === 'WARLORD') result.SUMMARY.WARLORD = val;
             else if (key === 'NUMBER OF UNITS') result.SUMMARY.NUMBER_OF_UNITS = val;
             else result.SUMMARY[key] = val;
         }
@@ -123,14 +245,17 @@ export function parseWtcCompact(lines) {
             const pts = parseInt(um[4], 10) || 0;
             const inline = um[5];
 
-            const unit = { quantity: qty, name, points: pts, items: [], isComplex: false, nameshort: '' };
+            const unit = { quantity: qty, name, points: pts, items: [], nameshort: '' };
             if (charId) {
+                unit._charId = charId;
                 result.CHARACTER.push(unit);
                 lastCharUnit = unit;
             } else {
                 result['OTHER DATASHEETS'] = result['OTHER DATASHEETS'] || [];
                 result['OTHER DATASHEETS'].push(unit);
             }
+            // normalize props for the new unit
+            try { ensurePropsLocal(unit); } catch (e) {}
             currentUnit = unit;
 
             if (inline) {
@@ -161,6 +286,8 @@ export function parseWtcCompact(lines) {
                 const rest = subColonMatch[3] || '';
                 const sub = { quantity: sq, name: sname, items: [], type: 'subunit' };
                 currentUnit.items = currentUnit.items || [];
+                // ensure subunit has standardized properties
+                sub.nameshort = sub.nameshort || '';
                 currentUnit.items.push(sub);
                 if (rest) rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(sub, it, sub.name, result.SUMMARY.FACTION_KEYWORD || ''));
                 continue;
@@ -168,8 +295,42 @@ export function parseWtcCompact(lines) {
 
             const subMatch = content.match(/^(\d+x?)\s+(.*)$/i);
             if (subMatch && currentUnit) {
-                const sub = { quantity: subMatch[1], name: subMatch[2].trim(), items: [], type: 'subunit' };
+                const subQty = subMatch[1];
+                const subName = subMatch[2].trim();
+
+                // Structural heuristic: if the following indented block exists, inspect it.
+                // If the block contains multiple lines or any bulleted lines, treat as a subunit.
+                // Otherwise it's likely a quantityed wargear line (e.g. "3x Ectoplasma cannon").
+                // Find the next non-blank line after the current line
+                let nextLine = '';
+                for (let k = i + 1; k < lines.length; k++) {
+                    if ((lines[k] || '').trim() === '') continue;
+                    nextLine = lines[k];
+                    break;
+                }
+                const nextLineIsMoreIndented = nextLine && getIndent(nextLine) > getIndent(raw);
+                if (nextLineIsMoreIndented) {
+                    const blockLines = [];
+                    for (let j = i + 1; j < lines.length; j++) {
+                        const lineJ = lines[j] || '';
+                        if (lineJ.trim() === '') break;
+                        if (getIndent(lineJ) > getIndent(raw)) {
+                            blockLines.push(lineJ.trim());
+                        } else {
+                            break;
+                        }
+                    }
+                    const hasBulletInBlock = blockLines.some(bl => bulletRegex.test(bl));
+                    if (!hasBulletInBlock && blockLines.length <= 1) {
+                        // Likely wargear listed as a quantityed bullet; attach to unit instead.
+                        addItemToTarget(currentUnit, content, currentUnit.name, result.SUMMARY.FACTION_KEYWORD || '');
+                        continue;
+                    }
+                }
+
+                const sub = { quantity: subQty, name: subName, items: [], type: 'subunit' };
                 currentUnit.items = currentUnit.items || [];
+                sub.nameshort = sub.nameshort || '';
                 currentUnit.items.push(sub);
                 continue;
             }
@@ -207,9 +368,291 @@ export function parseWtcCompact(lines) {
     for (const k of Object.keys(headerEnhancements)) {
         const enh = headerEnhancements[k];
         const found = allUnits.find(u => normalize(u.name).includes(normalize(k)) || normalize(`${u.quantity} ${u.name}`).includes(normalize(k)));
-        if (found) parseAndAddEnhancement(enh, found, result.SUMMARY.FACTION_KEYWORD || '');
+    if (found) parseAndAddEnhancement(enh, found, result.SUMMARY.FACTION_KEYWORD || '');
     }
 
+    // Reorder CHARACTER entries for WTC output to match GW App ordering:
+    // prefer header 'CharN' reference, otherwise locate a unit containing an item named 'Warlord'.
+    try {
+        if (Array.isArray(result.CHARACTER) && result.CHARACTER.length > 0) {
+            const chars = result.CHARACTER.slice();
+            let warlordUnit = null;
+            const rawW = result.SUMMARY && result.SUMMARY._WARLORD_RAW ? String(result.SUMMARY._WARLORD_RAW) : '';
+            const m = rawW.match(/(Char\d+)/i);
+            if (m) {
+                const cid = m[1].toUpperCase();
+                const idx = chars.findIndex(u => u._charId && u._charId.toUpperCase() === cid);
+                if (idx >= 0) warlordUnit = chars.splice(idx, 1)[0];
+            }
+            if (!warlordUnit) {
+                const warlordIdx = chars.findIndex(u => Array.isArray(u.items) && u.items.some(it => it && normalizeForComparison(it.name || '') === 'warlord'));
+                if (warlordIdx >= 0) warlordUnit = chars.splice(warlordIdx, 1)[0];
+            }
+            chars.sort((a, b) => {
+                const an = normalizeForComparison(a && a.name || '');
+                const bn = normalizeForComparison(b && b.name || '');
+                if (an < bn) return -1;
+                if (an > bn) return 1;
+                return 0;
+            });
+            if (warlordUnit) chars.unshift(warlordUnit);
+            result.CHARACTER = chars;
+            // Clean temporary markers
+            for (const c of result.CHARACTER) delete c._charId;
+            if (result.SUMMARY) delete result.SUMMARY._WARLORD_RAW;
+        }
+    } catch (e) {
+        // non-fatal
+    }
+
+    // Ensure all units and nested items have been coerced to canonical shapes
+    try {
+        const allUnits2 = [...(result.CHARACTER||[]), ...(result['OTHER DATASHEETS']||[])];
+        for (const u of allUnits2) {
+            ensurePropsLocal(u);
+        }
+    } catch (e) {
+        // non-fatal
+    }
+
+    // Compute top-level quantities from subunits for OTHER DATASHEETS when present
+    try {
+        const ods = result['OTHER DATASHEETS'] || [];
+        for (const unit of ods) {
+            if (!unit || !Array.isArray(unit.items)) continue;
+            // Coerce any plain-string children into normal wargear objects.
+            // Do NOT automatically turn quantity-prefixed strings into subunits here;
+            // GW App's strict rule requires explicit bulleted subunit bodies. Leaving
+            // strings as wargear prevents false-positive subunit classification.
+            for (let idx = 0; idx < unit.items.length; idx++) {
+                const it = unit.items[idx];
+                if (!it) continue;
+                if (typeof it === 'string') {
+                    const coerced = { quantity: '1x', name: it.trim(), items: [], type: 'wargear', nameshort: '' };
+                    ensurePropsLocal(coerced, unit.name);
+                    unit.items[idx] = coerced;
+                    continue;
+                }
+                // Objects produced by the main parsing passes are left as-is.
+            }
+
+            const subunits = unit.items.filter(it => it && (it.type === 'subunit' || normalizeForComparison(it.type || '') === 'subunit'));
+            if (subunits.length > 0) {
+                let total = 0;
+                for (const su of subunits) {
+                    const q = parseInt(String(su.quantity || '1x').replace(/x/i, ''), 10);
+                    total += (isNaN(q) ? 1 : q);
+                }
+                unit.quantity = `${total}x`;
+            }
+        }
+    } catch (e) {
+        // non-fatal
+    }
+
+    // Enforce strict typing rules across all top-level units and their children:
+    // - Top-level units (CHARACTER and OTHER DATASHEETS entries) must have type 'unit'
+    // - Direct children of a unit are either 'subunit', 'wargear', or 'special'
+    // - A child is a 'subunit' only when its normalized name is clearly the unit member (e.g., 'Khorne Berzerker' under 'Khorne Berzerkers')
+    // - Subunits are only one level deep; anything under a subunit is always 'wargear'
+    try {
+        const normalize = s => normalizeForComparison(String(s||''));
+        const allTop = [...(result.CHARACTER||[]), ...(result['OTHER DATASHEETS']||[])];
+        for (const unit of allTop) {
+            if (!unit || typeof unit !== 'object') continue;
+            unit.type = 'unit';
+            unit.items = unit.items || [];
+
+            const unitKey = normalize(unit.name).replace(/s$/,'');
+
+            for (let i = 0; i < unit.items.length; i++) {
+                const child = unit.items[i];
+                if (!child) continue;
+                // Strings -> coerce into objects
+                if (typeof child === 'string') {
+                    unit.items[i] = { quantity: '1x', name: child.trim(), items: [], type: 'wargear', nameshort: '' };
+                    ensurePropsLocal(unit.items[i], unit.name);
+                }
+                const c = unit.items[i];
+                // Special items: Warlord or Enhancement
+                const cNameNorm = normalize(c.name || '');
+                if (cNameNorm === 'warlord' || /^enhancement:/i.test(c.name || '')) {
+                    c.type = 'special';
+                    continue;
+                }
+                // Decide subunit vs wargear: subunit when child name relates to unit name
+                const childKey = normalize(c.name || '').replace(/s$/,'');
+                // Structural heuristic: prefer explicit structural evidence of subunitness.
+                // If the child already has nested items or its items include bullets / multiple lines,
+                // it's a subunit. Otherwise fall back to name similarity as a tiebreaker.
+                const hasNested = Array.isArray(c.items) && c.items.length > 0;
+                let likelySubunit = false;
+                if (hasNested) {
+                    // If nested items contain more than one entry or any appear to be bulleted (strings with bullets),
+                    // it's almost certainly a subunit block.
+                    const nestedCount = c.items.length;
+                    const nestedHasBullets = c.items.some(it => typeof it === 'string' && bulletRegex.test(it));
+                    if (nestedCount > 1 || nestedHasBullets) likelySubunit = true;
+                }
+                if (!likelySubunit) {
+                    // fallback: name similarity but require multiple quantity (>1) or exact name match
+                    const num = parseInt(String(c.quantity || '').replace(/x/i, ''), 10) || 0;
+                    const looksLikeSubunit = (childKey && unitKey && (childKey.includes(unitKey) || unitKey.includes(childKey)) && (num > 1 || childKey === unitKey));
+                    likelySubunit = looksLikeSubunit;
+                }
+
+                if (likelySubunit) {
+                    c.type = 'subunit';
+                    c.items = c.items || [];
+                    // Ensure anything under a subunit is wargear
+                    for (const it of c.items) {
+                        if (!it) continue;
+                        if (typeof it === 'string') {
+                            // coerce
+                            const coerced = { quantity: '1x', name: String(it).trim(), items: [], type: 'wargear', nameshort: '' };
+                            ensurePropsLocal(coerced, c.name);
+                            // replace in place
+                            const idx = c.items.indexOf(it);
+                            if (idx >= 0) c.items[idx] = coerced;
+                        } else {
+                            it.type = 'wargear';
+                            ensurePropsLocal(it, c.name);
+                        }
+                    }
+                } else {
+                    // Not a subunit: must be wargear (or special already handled)
+                    c.type = c.type || 'wargear';
+                    c.items = c.items || [];
+                    // Normalize nested items to wargear as well
+                    for (let j = 0; j < c.items.length; j++) {
+                        const it = c.items[j];
+                        if (!it) continue;
+                        if (typeof it === 'string') {
+                            const coerced = { quantity: '1x', name: String(it).trim(), items: [], type: 'wargear', nameshort: '' };
+                            ensurePropsLocal(coerced, c.name);
+                            c.items[j] = coerced;
+                        } else {
+                            it.type = 'wargear';
+                            ensurePropsLocal(it, c.name);
+                        }
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        // non-fatal
+    }
+
+    // Normalize summary to canonical shape
+    // Final strict enforcement pass to guarantee invariants:
+    try {
+        const allTop = [...(result.CHARACTER||[]), ...(result['OTHER DATASHEETS']||[])];
+        for (const unit of allTop) {
+            if (!unit || typeof unit !== 'object') continue;
+            unit.type = 'unit';
+            unit.items = unit.items || [];
+            for (let ci = 0; ci < unit.items.length; ci++) {
+                const c = unit.items[ci];
+                if (!c || typeof c !== 'object') continue;
+                // Special allowed only at direct children of unit
+                if (c.type === 'special' || /^Enhancement:/i.test(c.name || '') || normalizeForComparison(c.name || '') === 'warlord') {
+                    c.type = 'special';
+                    c.items = c.items || [];
+                    // ensure specials don't have nested subunits; coerce nested into wargear
+                    for (let k = 0; k < c.items.length; k++) {
+                        const it = c.items[k];
+                        if (!it) continue;
+                        it.type = 'wargear';
+                        ensurePropsLocal(it, c.name);
+                    }
+                    continue;
+                }
+                // If child looks like a subunit, enforce subunit rules
+                if (c.type === 'subunit' || normalizeForComparison(c.name || '') === normalizeForComparison(unit.name || '')) {
+                    c.type = 'subunit';
+                    c.items = c.items || [];
+                    // Everything under a subunit must be wargear
+                    for (let k = 0; k < c.items.length; k++) {
+                        const it = c.items[k];
+                        if (!it) continue;
+                        it.type = 'wargear';
+                        ensurePropsLocal(it, c.name);
+                    }
+                    continue;
+                }
+                // Otherwise it's wargear; ensure nested items are wargear too
+                c.type = 'wargear';
+                c.items = c.items || [];
+                for (let k = 0; k < c.items.length; k++) {
+                    const it = c.items[k];
+                    if (!it) continue;
+                    it.type = 'wargear';
+                    ensurePropsLocal(it, c.name);
+                }
+            }
+        }
+    } catch (e) {
+        // non-fatal
+    }
+
+    // Cleanup pass: discard any wargear whose name exactly matches (case-insensitive)
+    // either its top-level unit name or the subunit it's nested under.
+    try {
+        const allTop = [...(result.CHARACTER||[]), ...(result['OTHER DATASHEETS']||[])];
+        const norm = s => normalizeForComparison(String(s||''));
+        for (const unit of allTop) {
+            if (!unit || typeof unit !== 'object') continue;
+            const unitNorm = norm(unit.name);
+            unit.items = (unit.items || []).filter(child => {
+                if (!child || typeof child !== 'object') return true;
+                // If a top-level wargear exactly matches the unit name, drop it
+                if ((child.type === 'wargear' || normalizeForComparison(child.type||'') === 'wargear') && norm(child.name) === unitNorm) return false;
+                return true;
+            });
+
+            // For subunits, remove nested wargear that exactly matches the subunit or top-level unit
+            for (const child of unit.items) {
+                if (!child || typeof child !== 'object') continue;
+                if ((child.type === 'subunit' || normalizeForComparison(child.type||'') === 'subunit')) {
+                    const subNorm = norm(child.name);
+                    child.items = (child.items || []).filter(it => {
+                        if (!it || typeof it !== 'object') return true;
+                        if ((it.type === 'wargear' || normalizeForComparison(it.type||'') === 'wargear')) {
+                            const itNorm = norm(it.name);
+                            if (itNorm === subNorm || itNorm === unitNorm) return false;
+                        }
+                        return true;
+                    });
+                }
+            }
+        }
+    } catch (e) {
+        // non-fatal
+    }
+    // Sort items and nested items by descending numeric quantity (stable deterministic tie-break by name)
+    try {
+        const qtyNum = q => { if (!q) return 0; const m = String(q).match(/(\d+)/); return m ? parseInt(m[1],10) : 0; };
+        const allTop = [...(result.CHARACTER||[]), ...(result['OTHER DATASHEETS']||[])];
+        for (const unit of allTop) {
+            if (!unit || !Array.isArray(unit.items)) continue;
+            unit.items.sort((a,b)=>{
+                const aq = qtyNum(a && a.quantity); const bq = qtyNum(b && b.quantity);
+                if (bq !== aq) return bq - aq;
+                const an = String(a && a.name || '').toLowerCase(); const bn = String(b && b.name || '').toLowerCase();
+                if (an < bn) return -1; if (an > bn) return 1; return 0;
+            });
+            for (const c of unit.items) {
+                if (!c || !Array.isArray(c.items)) continue;
+                c.items.sort((x,y)=>{
+                    const xq = qtyNum(x && x.quantity); const yq = qtyNum(y && y.quantity);
+                    if (yq !== xq) return yq - xq;
+                    const xn = String(x && x.name || '').toLowerCase(); const yn = String(y && y.name || '').toLowerCase();
+                    if (xn < yn) return -1; if (xn > yn) return 1; return 0;
+                });
+            }
+        }
+    } catch (e) {}
+    normalizeSummary(result.SUMMARY);
     return result;
 }
 export function parseGwAppV2(lines) {
@@ -221,11 +664,32 @@ export function parseGwAppV2(lines) {
     if (headerLines.length > 0) {
         result.SUMMARY.DETACHMENT = headerLines.pop().replace(/\s+/g, '\u00A0');
         if (headerLines.length > 0) {
-            const fullFaction = headerLines.join(' - ');
-            const shortFaction = fullFaction.split('-').pop().trim();
-            result.SUMMARY.FACTION_KEYWORD = shortFaction;
-            const family = FAMILY_MAP[shortFaction] || FAMILY_MAP[fullFaction];
-            result.SUMMARY.DISPLAY_FACTION = family ? `${family} - ${fullFaction}` : fullFaction;
+            // Detect title (contains total points), game size (Strike Force, etc.), and faction line.
+            const list = headerLines.slice();
+            let listTitle = null;
+            let gameSize = null;
+            const factionCandidates = [];
+            const pointsRe = /\(\s*\d+\s*points\s*\)/i;
+            const gameSizeRe = /^(Combat Patrol|Incursion|Strike Force|Onslaught)/i;
+            for (const ln of list) {
+                if (pointsRe.test(ln) && !listTitle) {
+                    listTitle = ln;
+                    continue;
+                }
+                if (gameSizeRe.test(ln) || (pointsRe.test(ln) && gameSizeRe.test(ln))) {
+                    gameSize = ln;
+                    continue;
+                }
+                factionCandidates.push(ln);
+            }
+
+            const shortFaction = (factionCandidates.length > 0) ? factionCandidates[factionCandidates.length - 1].trim() : (listTitle || '').trim();
+            const fullFaction = [listTitle, shortFaction, gameSize].filter(Boolean).join(' - ');
+
+            const family = FAMILY_MAP[shortFaction] || FAMILY_MAP[fullFaction] || FAMILY_MAP[shortFaction.split('-').pop()?.trim()];
+            result.SUMMARY.FACTION_KEYWORD = family ? `${family} - ${shortFaction}` : shortFaction;
+            result.SUMMARY.DISPLAY_FACTION = fullFaction || shortFaction;
+            if (listTitle) result.SUMMARY.LIST_TITLE = listTitle;
         }
     }
 
@@ -250,7 +714,7 @@ export function parseGwAppV2(lines) {
             let unitName = nameRaw;
             const leadingQty = nameRaw.match(/^([0-9]+x?)\s+(.*)$/i);
             if (leadingQty) { quantity = leadingQty[1].toLowerCase(); unitName = leadingQty[2].trim(); }
-            const unit = { quantity, name: unitName, points: pts, items: [], isComplex: false, nameshort: '' };
+            const unit = { quantity, name: unitName, points: pts, items: [], nameshort: '' };
             const sectionKey = currentSection === 'CHARACTER' ? 'CHARACTER' : 'OTHER DATASHEETS';
             result[sectionKey] = result[sectionKey] || [];
             result[sectionKey].push(unit);
@@ -291,17 +755,34 @@ export function parseGwAppV2(lines) {
                 const t = line.trim();
                 const b = line.match(bulletRegex);
                 const indent = getIndent(line);
-                if (b) {
-                    const content = b[1].trim();
-                    if (/^Enhancement:/i.test(content)) {
-                        parseAndAddEnhancement(content.replace(/^Enhancement:\s*/i, '').trim(), unit, result.SUMMARY.FACTION_KEYWORD || '');
-                        continue;
-                    }
-                    if (blockIsComplex && currentSection !== 'CHARACTER') {
-                        currentSubunit = null;
-                        const subMatch = content.match(/^(\d+x?)\s+(.*)$/i);
-                        const subQty = subMatch ? subMatch[1] : '1x';
-                        const subName = subMatch ? subMatch[2].trim() : content;
+                // Treat both bulleted and indented non-bulleted lines the same: extract content
+                const content = b ? b[1].trim() : t;
+                if (!content) continue;
+                if (/^Enhancement:/i.test(content)) {
+                    parseAndAddEnhancement(content.replace(/^Enhancement:\s*/i, '').trim(), unit, result.SUMMARY.FACTION_KEYWORD || '');
+                    continue;
+                }
+                // Only create a new subunit when this line is at the subunit indentation level
+                // (i.e. no currentSubunit yet, or this line is not more indented than the current subunit)
+                if (blockIsComplex && currentSection !== 'CHARACTER' && (currentSubunit === null || indent <= currentSubIndent)) {
+                    // Determine if this line is a subunit header per strict GW App rules:
+                    // - must be a bulleted (or otherwise matched) line
+                    // - the very next line in the file (immediate, not skipping blanks) must be further indented
+                    //   and must contain a bullet. If that is not true, this is not a subunit.
+                    const subMatch = content.match(/^(\d+x?)\s+(.*)$/i);
+                    const nextImmediate = (bi + 1 < blockLines.length) ? blockLines[bi + 1] : null;
+
+                    const nextImmediateIsSubunitBody = (() => {
+                        if (!nextImmediate) return false;
+                        const nextIndent = getIndent(nextImmediate);
+                        if (nextIndent <= indent) return false;
+                        // The next immediate line must itself be a bulleted line
+                        return bulletRegex.test(nextImmediate);
+                    })();
+
+                    if (subMatch && nextImmediateIsSubunitBody) {
+                        const subQty = subMatch[1];
+                        const subName = subMatch[2].trim();
                         const subunit = { quantity: subQty, name: subName, items: [], type: 'subunit' };
                         unit.items = unit.items || [];
                         unit.items.push(subunit);
@@ -309,14 +790,16 @@ export function parseGwAppV2(lines) {
                         currentSubIndent = indent;
                         continue;
                     }
-                    addItemToTarget(unit, content, unit.name, result.SUMMARY.FACTION_KEYWORD || '', 'wargear', 1);
-                    continue;
+                    // Not a subunit header by strict rules; fall through to treat as wargear below
                 }
+                // If this line is deeper than the current subunit indent, attach it to the current subunit
                 if (currentSubunit && indent > currentSubIndent) {
-                    addItemToTarget(currentSubunit, t, currentSubunit.name, result.SUMMARY.FACTION_KEYWORD || '', 'wargear', 1);
+                    addItemToTarget(currentSubunit, content, currentSubunit.name, result.SUMMARY.FACTION_KEYWORD || '', 'wargear', 1);
                     continue;
                 }
-                addItemToTarget(unit, t, unit.name, result.SUMMARY.FACTION_KEYWORD || '', 'wargear', 1);
+                // Otherwise, attach as wargear to the unit itself
+                addItemToTarget(unit, content, unit.name, result.SUMMARY.FACTION_KEYWORD || '', 'wargear', 1);
+                continue;
             }
 
             i = j - 1;
@@ -394,18 +877,176 @@ export function parseGwAppV2(lines) {
                     }
                     unit.items = Array.from(agg.values());
                     if (total > 0) unit.quantity = `${total}x`;
-                    unit.isComplex = false;
+                    // unit considered non-aggregated; subunits were merged into top-level wargear
                 } else {
                     const total = subunits.reduce((acc, it) => acc + (parseInt(String(it.quantity || '1x').replace(/x/i, ''), 10) || 0), 0);
                     if (total > 0) unit.quantity = `${total}x`;
-                    unit.isComplex = true;
+                    // unit considered complex (has distinct subunits)
                 }
             } else {
-                unit.isComplex = false;
+                // no subunits present
             }
         }
     }
 
+    // Enforce strict typing rules for GW parse to match WTC expectations
+    try {
+        const normalize = s => normalizeForComparison(String(s||''));
+        const allTop = [...(result.CHARACTER||[]), ...(result['OTHER DATASHEETS']||[])];
+        for (const unit of allTop) {
+            if (!unit || typeof unit !== 'object') continue;
+            unit.type = 'unit';
+            unit.items = unit.items || [];
+            const unitKey = normalize(unit.name).replace(/s$/,'');
+            for (let i = 0; i < unit.items.length; i++) {
+                const child = unit.items[i];
+                if (!child) continue;
+                if (typeof child === 'string') {
+                    unit.items[i] = { quantity: '1x', name: child.trim(), items: [], type: 'wargear', nameshort: '' };
+                    ensurePropsLocal(unit.items[i], unit.name);
+                }
+                const c = unit.items[i];
+                const cNameNorm = normalize(c.name || '');
+                if (cNameNorm === 'warlord' || /^enhancement:/i.test(c.name || '')) {
+                    c.type = 'special';
+                    continue;
+                }
+                const childKey = normalize(c.name || '').replace(/s$/,'');
+                // Structural heuristic: prefer explicit structural evidence of subunitness.
+                const hasNested = Array.isArray(c.items) && c.items.length > 0;
+                let likelySubunit = false;
+                if (hasNested) {
+                    const nestedCount = c.items.length;
+                    const nestedHasBullets = c.items.some(it => typeof it === 'string' && bulletRegex.test(it));
+                    if (nestedCount > 1 || nestedHasBullets) likelySubunit = true;
+                }
+                if (!likelySubunit) {
+                    // Fallback: name similarity but require multiple quantity (>1) or exact name match
+                    const num = parseInt(String(c.quantity || '').replace(/x/i, ''), 10) || 0;
+                    const looksLikeSubunit = (childKey && unitKey && (childKey.includes(unitKey) || unitKey.includes(childKey)) && (num > 1 || childKey === unitKey));
+                    likelySubunit = looksLikeSubunit;
+                }
+                if (likelySubunit) {
+                    c.type = 'subunit';
+                    c.items = c.items || [];
+                    for (let k = 0; k < c.items.length; k++) {
+                        const it = c.items[k];
+                        if (!it) continue;
+                        if (typeof it === 'string') {
+                            const coerced = { quantity: '1x', name: String(it).trim(), items: [], type: 'wargear', nameshort: '' };
+                            ensurePropsLocal(coerced, c.name);
+                            c.items[k] = coerced;
+                        } else {
+                            it.type = 'wargear';
+                            ensurePropsLocal(it, c.name);
+                        }
+                    }
+                } else {
+                    c.type = c.type || 'wargear';
+                    c.items = c.items || [];
+                    for (let j = 0; j < c.items.length; j++) {
+                        const it = c.items[j];
+                        if (!it) continue;
+                        if (typeof it === 'string') {
+                            const coerced = { quantity: '1x', name: String(it).trim(), items: [], type: 'wargear', nameshort: '' };
+                            ensurePropsLocal(coerced, c.name);
+                            c.items[j] = coerced;
+                        } else {
+                            it.type = 'wargear';
+                            ensurePropsLocal(it, c.name);
+                        }
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        // non-fatal
+    }
+
+    // Reorder CHARACTER entries: GW App places the unit containing the 'Warlord'
+    // marker first, then the remaining characters in alphabetical order.
+    try {
+        if (Array.isArray(result.CHARACTER) && result.CHARACTER.length > 0) {
+            const chars = result.CHARACTER.slice();
+            // Prefer header WARLORD reference like 'Char2: Daemon Prince of Khorne'
+            let warlordUnit = null;
+            const rawW = result.SUMMARY && result.SUMMARY._WARLORD_RAW ? String(result.SUMMARY._WARLORD_RAW) : '';
+            const m = rawW.match(/(Char\d+)/i);
+            if (m) {
+                const cid = m[1].toUpperCase();
+                const idx = chars.findIndex(u => u._charId && u._charId.toUpperCase() === cid);
+                if (idx >= 0) warlordUnit = chars.splice(idx, 1)[0];
+            }
+            // Fallback: find a unit which has an item named 'Warlord'
+            if (!warlordUnit) {
+                const warlordIdx = chars.findIndex(u => Array.isArray(u.items) && u.items.some(it => it && normalizeForComparison(it.name || '') === 'warlord'));
+                if (warlordIdx >= 0) warlordUnit = chars.splice(warlordIdx, 1)[0];
+            }
+            chars.sort((a, b) => {
+                const an = normalizeForComparison(a && a.name || '');
+                const bn = normalizeForComparison(b && b.name || '');
+                if (an < bn) return -1;
+                if (an > bn) return 1;
+                return 0;
+            });
+            if (warlordUnit) chars.unshift(warlordUnit);
+            // remove internal marker
+            for (const c of chars) delete c._charId;
+            if (result.SUMMARY) delete result.SUMMARY._WARLORD_RAW;
+            result.CHARACTER = chars;
+        }
+    } catch (e) {
+        // non-fatal ordering failure; keep original order
+    }
+
+    // --- Synthesize header summary fields from parsed content ---
+    try {
+        // TOTAL_ARMY_POINTS: try to extract from LIST_TITLE if present (e.g. 'Chainblades go BRRRR (1995 points)')
+        if (result.SUMMARY && result.SUMMARY.LIST_TITLE) {
+            const m = String(result.SUMMARY.LIST_TITLE).match(/\((\s*\d+\s*)points\)/i) || String(result.SUMMARY.LIST_TITLE).match(/\((\s*\d+\s*)points\)/i);
+            const m2 = String(result.SUMMARY.LIST_TITLE).match(/\((\s*\d+\s*)points\)/i);
+            const ptsMatch = m2 || m;
+            if (ptsMatch) {
+                const num = ptsMatch[1].replace(/\s+/g, '');
+                result.SUMMARY.TOTAL_ARMY_POINTS = `${num}pts`;
+            }
+        }
+
+    // (Intentionally do not synthesize WARLORD or ENHANCEMENT summary fields)
+
+        // NUMBER_OF_UNITS: count items in CHARACTER + OTHER DATASHEETS
+        const totalUnits = (Array.isArray(result.CHARACTER)?result.CHARACTER.length:0) + (Array.isArray(result['OTHER DATASHEETS'])?result['OTHER DATASHEETS'].length:0);
+        result.SUMMARY.NUMBER_OF_UNITS = String(totalUnits);
+    } catch (e) {
+        // non-fatal
+    }
+
+    // Sort items and nested items by descending numeric quantity (stable deterministic tie-break by name)
+    try {
+        const qtyNum = q => { if (!q) return 0; const m = String(q).match(/(\d+)/); return m ? parseInt(m[1],10) : 0; };
+        const allTop = [...(result.CHARACTER||[]), ...(result['OTHER DATASHEETS']||[])];
+        for (const unit of allTop) {
+            if (!unit || !Array.isArray(unit.items)) continue;
+            unit.items.sort((a,b)=>{
+                const aq = qtyNum(a && a.quantity); const bq = qtyNum(b && b.quantity);
+                if (bq !== aq) return bq - aq;
+                const an = String(a && a.name || '').toLowerCase(); const bn = String(b && b.name || '').toLowerCase();
+                if (an < bn) return -1; if (an > bn) return 1; return 0;
+            });
+            for (const c of unit.items) {
+                if (!c || !Array.isArray(c.items)) continue;
+                c.items.sort((x,y)=>{
+                    const xq = qtyNum(x && x.quantity); const yq = qtyNum(y && y.quantity);
+                    if (yq !== xq) return yq - xq;
+                    const xn = String(x && x.name || '').toLowerCase(); const yn = String(y && y.name || '').toLowerCase();
+                    if (xn < yn) return -1; if (xn > yn) return 1; return 0;
+                });
+            }
+        }
+    } catch (e) {}
+
+    // Normalize the summary so GWApp and WTC produce the same canonical keys/types
+    normalizeSummary(result.SUMMARY);
     return result;
 }
 

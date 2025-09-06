@@ -1,24 +1,30 @@
 // --- UI Elements ---
-const inputText = document.getElementById('inputText');
-const unabbreviatedOutput = document.getElementById('unabbreviatedOutput');
-const compactedOutput = document.getElementById('compactedOutput');
-const markdownPreviewOutput = document.getElementById('markdownPreviewOutput'); // New element
-const debugOutput = document.getElementById('debugOutput');
-const parseButton = document.getElementById('parseButton');
-const resetButton = document.getElementById('resetButton');
-const toggleDebugButton = document.getElementById('toggleDebugButton');
-const copyExtendedButton = document.getElementById('copyExtendedButton');
-const outputFormatSelect = document.getElementById('outputFormatSelect');
-const copyPreviewButton = document.getElementById('copyPreviewButton');
-const customColorPickers = document.getElementById('customColorPickers');
-const inputCharCount = document.getElementById('inputCharCount');
-const extendedCharCount = document.getElementById('extendedCharCount'); // Corrected ID
-const compactCharCount = document.getElementById('compactCharCount');
-const markdownPreviewCharCount = document.getElementById('markdownPreviewCharCount'); // New element
-const copyPopup = document.getElementById('copyPopup');
+const _hasDocument = (typeof document !== 'undefined' && document && typeof document.getElementById === 'function');
+const inputText = _hasDocument ? document.getElementById('inputText') : null;
+const unabbreviatedOutput = _hasDocument ? document.getElementById('unabbreviatedOutput') : null;
+const compactedOutput = _hasDocument ? document.getElementById('compactedOutput') : null;
+const markdownPreviewOutput = _hasDocument ? document.getElementById('markdownPreviewOutput') : null; // New element
+const debugOutput = _hasDocument ? document.getElementById('debugOutput') : null;
+const parseButton = _hasDocument ? document.getElementById('parseButton') : null;
+const resetButton = _hasDocument ? document.getElementById('resetButton') : null;
+const toggleDebugButton = _hasDocument ? document.getElementById('toggleDebugButton') : null;
+const copyExtendedButton = _hasDocument ? document.getElementById('copyExtendedButton') : null;
+const outputFormatSelect = _hasDocument ? document.getElementById('outputFormatSelect') : null;
+const copyPreviewButton = _hasDocument ? document.getElementById('copyPreviewButton') : null;
+const customColorPickers = _hasDocument ? document.getElementById('customColorPickers') : null;
+const inputCharCount = _hasDocument ? document.getElementById('inputCharCount') : null;
+const extendedCharCount = _hasDocument ? document.getElementById('extendedCharCount') : null; // Corrected ID
+const compactCharCount = _hasDocument ? document.getElementById('compactCharCount') : null;
+const markdownPreviewCharCount = _hasDocument ? document.getElementById('markdownPreviewCharCount') : null; // New element
+const copyPopup = _hasDocument ? document.getElementById('copyPopup') : null;
 
-// Initialize ansi_up
-const ansi_up = new AnsiUp();
+// Initialize ansi_up if available (guard for CLI tests)
+let ansi_up = null;
+try {
+    if (typeof AnsiUp !== 'undefined') ansi_up = new AnsiUp();
+} catch (e) {
+    ansi_up = null;
+}
 
 export function getHideSubunitsState() {
     const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');

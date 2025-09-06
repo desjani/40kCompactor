@@ -15,12 +15,14 @@ async function main(){
   // Helper: push comparison tasks but treat OTHER DATASHEETS specially by matching
   // entries by normalized name instead of by array index (order-insensitive).
   function enqueueCompare(a, b, path) {
-    // If both are arrays, and they contain objects with 'name', match by normalized name
+    // If both are arrays, handle them specially.
     if (Array.isArray(a) && Array.isArray(b)) {
-      const hasNamedObjects = a.some(x => x && typeof x === 'object' && 'name' in x) && b.some(x => x && typeof x === 'object' && 'name' in x);
-      if (hasNamedObjects) {
+      const normalize = s => (String(s||'')).toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+      const aHasNamed = a.some(x => x && typeof x === 'object' && 'name' in x);
+      const bHasNamed = b.some(x => x && typeof x === 'object' && 'name' in x);
+      // If both arrays contain named objects, match elements by normalized name (order-insensitive)
+      if (aHasNamed && bHasNamed) {
         const used = new Set();
-        const normalize = s => (String(s||'')).toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
         for (let i = 0; i < a.length; i++) {
           const an = a[i];
           const aname = normalize(an && an.name);
@@ -42,6 +44,10 @@ async function main(){
         for (let j = 0; j < b.length; j++) if (!used.has(j)) q.push({ a: undefined, b: b[j], path: path + '[UNMATCHED:' + (b[j] && b[j].name ? b[j].name : j) + ']' });
         return;
       }
+      // Fallback: compare arrays index-by-index for primitives or non-named objects
+      const maxLen = Math.max(a.length, b.length);
+      for (let i = 0; i < maxLen; i++) q.push({ a: a[i], b: b[i], path: path + '[' + i + ']' });
+      return;
     }
 
     q.push({ a, b, path });
@@ -68,6 +74,8 @@ async function main(){
     }
     const keys = new Set([...Object.keys(a||{}), ...Object.keys(b||{})]);
     for(const k of keys){
+  // Ignore parser-only metadata that shouldn't count as a semantic diff
+  if (k === 'enhancementPoints') continue;
       // Skip LIST_TITLE differences on purpose (semantic toleration)
       if (k === 'LIST_TITLE') continue;
       // If the key points to OTHER DATASHEETS arrays, handle specially

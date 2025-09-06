@@ -210,6 +210,19 @@ document.getElementById('parseButton').addEventListener('click', () => {
     updateCharCounts();
 });
 
+// Hotkey: Ctrl+Enter or Cmd+Enter triggers the same action as clicking 'Compact this list'
+document.addEventListener('keydown', (e) => {
+    // Accept Ctrl+Enter (Windows/Linux) and Meta(Cmd)+Enter (macOS)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        const btn = document.getElementById('parseButton');
+        if (btn && !btn.disabled) {
+            // Prevent default to avoid submitting forms or other side effects
+            e.preventDefault();
+            btn.click();
+        }
+    }
+});
+
 document.getElementById('resetButton').addEventListener('click', () => {
     document.getElementById('inputText').value = '';
     document.getElementById('unabbreviatedOutput').innerHTML = '';
@@ -609,8 +622,7 @@ function parseWtcCompact(lines) {
                 quantity, 
                 name, 
                 points: parseInt(points, 10), 
-                items: [],
-                isComplex: !unitMatch.groups.wargearblock
+                items: []
             };
 
             const sectionKey = (currentSection === 'CHARACTER' || charid) ? 'CHARACTER' : 'OTHER DATASHEETS';
@@ -688,18 +700,16 @@ function parseWtcCompact(lines) {
     for (const section in result) {
         if (Array.isArray(result[section])) {
             result[section].forEach(unit => {
-                if (unit.isComplex) {
+                // If the unit contains subunits (items with points or explicit type 'subunit'), sum their quantities
+                const hasSubunits = unit.items && unit.items.some(it => it && (it.points !== undefined || it.type === 'subunit'));
+                if (hasSubunits) {
                     let totalQuantity = 0;
                     unit.items.forEach(item => {
-                        // A subunit is an item that has a 'points' property. Wargear does not.
-                        if (item.points !== undefined) {
+                        if (item && (item.points !== undefined || item.type === 'subunit')) {
                             totalQuantity += parseInt(item.quantity.replace('x', ''), 10) || 0;
                         }
                     });
-
-                    if (totalQuantity > 0) {
-                        unit.quantity = `${totalQuantity}x`;
-                    }
+                    if (totalQuantity > 0) unit.quantity = `${totalQuantity}x`;
                 }
             });
         }
@@ -872,7 +882,8 @@ function updateCharCounts() {
     const extendedSize = extendedPlainText.trim().length;
     const compactSize = compactPlainText.trim().length;
     
-    document.getElementById('inputCharCount').textContent = `Characters: ${originalSize}`;
+                                            const hasSubunits = Array.isArray(unit.items) && unit.items.some(it => it && (it.points !== undefined || it.type === 'subunit'));
+                                            if (hasSubunits) quantityDisplay = '';
 
     if (originalSize > 0) {
         const extendedRatioPercent = ((extendedSize / originalSize) * 100).toFixed(1);
@@ -966,9 +977,9 @@ function generateDiscordText(data, plain, useAbbreviations = true) {
         data[section].forEach(unit => {
             const numericQuantity = parseInt(unit.quantity.replace('x', ''), 10);
             let quantityDisplay = numericQuantity > 1 ? `${numericQuantity} ` : '';
-            if (unit.isComplex) {
-                quantityDisplay = '';
-            }
+            // If unit has subunits, don't show aggregated top-level quantity inline
+            const hasSubunits = Array.isArray(unit.items) && unit.items.some(it => it && (it.points !== undefined || it.type === 'subunit'));
+            if (hasSubunits) quantityDisplay = '';
             const unitName = `${quantityDisplay}${unit.name}`;
             const points = `${unit.points}`;
             const topLevelItems = unit.items.filter(item => item.points === undefined);

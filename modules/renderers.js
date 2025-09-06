@@ -33,6 +33,28 @@ function aggregateWargear(unit) {
     return [...specials, ...wargearList];
 }
 
+function formatEnhancementPoints(raw) {
+    if (!raw) return '';
+    const s = String(raw || '').trim();
+    if (!s) return '';
+    if (s.startsWith('(') && s.endsWith(')')) return s;
+    if (s.startsWith('+')) return `(${s})`;
+    return `(+${s})`;
+}
+
+function getDisplayName(item) {
+    if (!item) return '';
+    let name = item.name || '';
+    if (item.type === 'special') {
+        const raw = item.enhancementPoints || null;
+        const pts = formatEnhancementPoints(raw);
+        if (pts) return `${name} ${pts}`;
+        const m = name.match(/^(.*)\s*\(([^)]+)\)\s*$/);
+        if (m) return `${m[1].trim()} (${m[2].trim()})`;
+    }
+    return name;
+}
+
 function findAbbreviationForItem(itemName, wargearAbbrMap, dataSummary) {
     if (!wargearAbbrMap) return null;
     const nameLower = (itemName || '').toLowerCase();
@@ -92,21 +114,28 @@ function getInlineItemsString(items, useAbbreviations, wargearAbbrMap, dataSumma
             return;
         }
         if (n.toString().startsWith && n.toString().startsWith('Enhancement:')) {
-            // strip prefix and extract parenthetical points if present
+            // strip prefix
             const stripped = n.toString().replace(/^Enhancement:\s*/i, '').trim();
-            // find parenthetical like '(+20 pts)' or '(+20)'
-            const parenMatch = /\(([^)]+)\)/.exec(stripped);
-            let pts = '';
-            if (parenMatch) {
-                pts = parenMatch[1].replace(/\s*pts\s*/i, '').trim();
-                pts = pts.startsWith('+') ? `(${pts})` : `(${pts})`;
-            }
             const baseName = stripped.replace(/\(.*?\)/g, '').trim();
             // attempt to find abbreviation via map first, otherwise use central helper
             let abbr = null;
             if (useAbbreviations) abbr = findAbbreviationForItem(stripped, wargearAbbrMap, dataSummary) || findAbbreviationForItem(baseName, wargearAbbrMap, dataSummary);
             if (!abbr && useAbbreviations) abbr = makeAbbrevForName(baseName || stripped);
-            const display = `E: ${abbr || baseName}${pts}`;
+
+            // prefer explicit enhancement.enhancementPoints stored on the item if present
+            let pts = '';
+            try {
+                if (i && i.enhancementPoints) {
+                    pts = formatEnhancementPoints(i.enhancementPoints);
+                } else {
+                    const parenMatch = /\(([^)]+)\)/.exec(stripped);
+                    if (parenMatch) {
+                        pts = formatEnhancementPoints(parenMatch[1].replace(/\s*pts\s*/i, '').trim());
+                    }
+                }
+            } catch (e) {}
+
+            const display = pts ? `E: ${abbr || baseName} ${pts}` : `E: ${abbr || baseName}`;
             special.push(display);
             return;
         }
@@ -274,7 +303,17 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                 const topLevelItems = itemsArr.filter(i => i.type === 'wargear' || i.type === 'special');
                 const skippableTop = useAbbreviations ? findSkippableForUnit(skippableWargearMap, data.SUMMARY, unit.name) : [];
                 const filteredTop = topLevelItems.filter(it => { if (it.type === 'special') return true; if (skippableTop.includes(HIDE_ALL)) return false; return skippableTop.length === 0 || !skippableTop.includes(it.name.toLowerCase()); });
-                if (filteredTop.length > 0) { html += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`; filteredTop.forEach(item => { const itemNumericQty = parseInt((item.quantity || '1').toString().replace('x',''), 10) || 1; const itemQtyDisplay = itemNumericQty > 1 ? `${item.quantity} ` : ''; html += `<p style="margin:0;">${itemQtyDisplay}${item.name}</p>`; plainText += `  - ${itemQtyDisplay}${item.name}\n`; }); html += `</div>`; }
+                if (filteredTop.length > 0) {
+                    html += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`;
+                    filteredTop.forEach(item => {
+                        const itemNumericQty = parseInt((item.quantity || '1').toString().replace('x',''), 10) || 1;
+                        const itemQtyDisplay = itemNumericQty > 1 ? `${item.quantity} ` : '';
+                        const displayName = (item.type === 'special') ? getDisplayName(item) : item.name;
+                        html += `<p style="margin:0;">${itemQtyDisplay}${displayName}</p>`;
+                        plainText += `  - ${itemQtyDisplay}${displayName}\n`;
+                    });
+                    html += `</div>`;
+                }
                 const subunitItems = itemsArr.filter(i => i.type === 'subunit' || (i.items && i.items.length > 0)).sort((a,b)=> { const aq = parseInt((a.quantity||'1').toString().replace('x',''),10) || 1; const bq = parseInt((b.quantity||'1').toString().replace('x',''),10) || 1; return aq - bq; });
                 if (subunitItems.length > 0) {
                     html += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`;

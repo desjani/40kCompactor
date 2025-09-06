@@ -79,7 +79,7 @@ function handleParse() {
     parsedData = result;
     // Build dynamic abbreviation index from parsed data
     try {
-        wargearAbbrDB = buildAbbreviationIndex(result);
+        wargearAbbrDB = buildAbbreviationIndex(result, skippableWargearMap);
     } catch (e) {
         console.warn('Failed to build dynamic abbreviation index', e);
         wargearAbbrDB = { __flat_abbr: {} };
