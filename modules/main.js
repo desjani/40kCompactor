@@ -1,5 +1,5 @@
 import { detectFormat, parseGwApp, parseWtcCompact } from './parsers.js';
-import { generateOutput, generateDiscordText, resolveFactionColors } from './renderers.js';
+import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic } from './ui.js';
 
@@ -61,7 +61,11 @@ function updateFactionDiagnostic() {
             clearFactionColorDiagnostic();
             return;
         }
-        const fm = resolveFactionColors(parsedData, skippableWargearMap);
+        // Long-term: call the exported buildFactionColorMap directly so bundlers
+        // include the symbol and we don't rely on fragile global fallbacks.
+        const factionMap = buildFactionColorMap(skippableWargearMap || {});
+        const fk = (parsedData.SUMMARY && (parsedData.SUMMARY.FACTION_KEY || parsedData.SUMMARY.FACTION_KEYWORD || parsedData.SUMMARY.DISPLAY_FACTION)) || null;
+        const fm = fk ? (factionMap[fk] || factionMap[fk.toString().toLowerCase()]) : null;
         if (!fm) {
             setFactionColorDiagnostic('No faction mapping found for parsed FACTION_KEYWORD/DISPLAY_FACTION');
             return;

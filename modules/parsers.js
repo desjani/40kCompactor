@@ -91,7 +91,8 @@ export function parseWtcCompact(lines) {
                 const parts = val.split(' - ');
                 result.SUMMARY.FACTION_KEYWORD = parts[parts.length - 1].trim();
             } else if (key === 'DETACHMENT') {
-                result.SUMMARY.DETACHMENT = val;
+                // Normalize non-breaking spaces to regular spaces
+                result.SUMMARY.DETACHMENT = val.replace(/\u00A0/g, ' ');
             } else if (key === 'TOTAL ARMY POINTS') {
                 result.SUMMARY.TOTAL_ARMY_POINTS = val;
             }
@@ -109,6 +110,8 @@ export function parseWtcCompact(lines) {
         const family = familyKey ? FAMILY_MAP[familyKey] : null;
         if (family) result.SUMMARY.DISPLAY_FACTION = `${family} - ${fk}`;
         else result.SUMMARY.DISPLAY_FACTION = fk + (result.SUMMARY.DETACHMENT ? ` - ${result.SUMMARY.DETACHMENT}` : '');
+        // Canonical lowercased key for downstream consumers
+        try { result.SUMMARY.FACTION_KEY = fk.toString().toLowerCase(); } catch (e) {}
     }
 
     // --- Pass 2: Body parsing
@@ -304,6 +307,7 @@ export function parseGwAppV2(lines) {
             const family = familyKey ? FAMILY_MAP[familyKey] : null;
             if (family) result.SUMMARY.DISPLAY_FACTION = `${family} - ${factionCandidate}`;
             else result.SUMMARY.DISPLAY_FACTION = factionCandidate + (detachmentCandidate ? ` - ${detachmentCandidate}` : '');
+            try { result.SUMMARY.FACTION_KEY = factionCandidate.toString().toLowerCase(); } catch (e) {}
         }
     }
 

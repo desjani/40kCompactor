@@ -18,7 +18,7 @@ const findClosestAnsi = (hex) => { const rgb = hexToRgb(hex); if (!rgb) return 3
 // Build a mapping of faction -> { unit, subunit, wargear, points } using only colors
 // available in ansiPalette. Prefer explicit mapping from `modules/faction_colors.js`,
 // fall back to a heuristic.
-function buildFactionColorMap(skippableMap) {
+export function buildFactionColorMap(skippableMap) {
     const fallback = (map) => {
         const codes = [...new Set(ansiPalette.map(p => p.code))];
         const out = {};
@@ -489,3 +489,7 @@ export function resolveFactionColors(data, skippableWargearMap) {
     const fm = factionMap[factionKey] || factionMap[factionKey && factionKey.toString().toLowerCase()];
     return fm || null;
 }
+
+// Note: do NOT attach buildFactionColorMap to globalThis here; callers should
+// import it directly (main.js now imports it). The previous global fallback
+// hid bundling issues and caused runtime ReferenceErrors in some environments.
