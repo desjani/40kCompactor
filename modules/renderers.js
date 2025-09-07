@@ -6,6 +6,49 @@ import { getMultilineHeaderState } from './ui.js';
 import { makeAbbrevForName } from './abbreviations.js';
 import factionColors from './faction_colors.js';
 
+// ANSI palette and helpers available at module scope so multiple functions can use them
+const ansiPalette = [
+    { hex: '#000000', code: 30 }, { hex: '#FF0000', code: 31 }, { hex: '#00FF00', code: 32 },
+    { hex: '#FFFF00', code: 33 }, { hex: '#0000FF', code: 34 }, { hex: '#FF00FF', code: 35 },
+    { hex: '#00FFFF', code: 36 }, { hex: '#FFFFFF', code: 37 }, { hex: '#808080', code: 30 }
+];
+const hexToRgb = (hex) => { const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : null; };
+const findClosestAnsi = (hex) => { const rgb = hexToRgb(hex); if (!rgb) return 37; let best = 37; let bestD = Infinity; for (const c of ansiPalette) { const cr = hexToRgb(c.hex); const d = Math.pow(rgb.r - cr.r, 2) + Math.pow(rgb.g - cr.g, 2) + Math.pow(rgb.b - cr.b, 2); if (d < bestD) { bestD = d; best = c.code; } } return best; };
+
+// Build a mapping of faction -> { unit, subunit, wargear, points } using only colors
+// available in ansiPalette. Prefer explicit mapping from `modules/faction_colors.js`,
+// fall back to a heuristic.
+function buildFactionColorMap(skippableMap) {
+    const fallback = (map) => {
+        const codes = [...new Set(ansiPalette.map(p => p.code))];
+        const out = {};
+        for (const k of Object.keys(map || {})) {
+            const fk = k || '';
+            const idx = Math.abs(Array.from(fk).reduce((a,c)=>a*31 + c.charCodeAt(0),0)) % codes.length;
+            const unitCode = codes[idx];
+            const pickDifferent = (forbidden) => codes.find(c => !forbidden.includes(c)) || codes[0];
+            const subunitCode = pickDifferent([unitCode]);
+            const wargearCode = pickDifferent([subunitCode]);
+            const pointsCode = pickDifferent([wargearCode]);
+            const codeToHex = (code) => {
+                const e = ansiPalette.find(p => p.code === code);
+                return e ? e.hex : '#FFFFFF';
+            };
+            out[fk] = { unit: codeToHex(unitCode), subunit: codeToHex(subunitCode), wargear: codeToHex(wargearCode), points: codeToHex(pointsCode) };
+        }
+        return out;
+    };
+    const explicit = factionColors || {};
+    const fromSkippable = fallback(skippableMap || {});
+    const merged = { ...fromSkippable, ...explicit };
+    const normalized = {};
+    for (const [k, v] of Object.entries(merged)) {
+        normalized[k] = v;
+        try { normalized[k.toString().toLowerCase()] = v; } catch (e) {}
+    }
+    return normalized;
+}
+
 // Sentinel returned from findSkippableForUnit to indicate hide-all behavior
 export const HIDE_ALL = '__HIDE_ALL_WARGEARS__';
 
@@ -265,16 +308,12 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
             const itemsArr = unit.items || [];
             if (hideSubunits) {
                     let aggregated = aggregateWargear(unit);
-                    const skippableTop = findSkippableForUnit(skippableWargearMap, data.SUMMARY, unit.name);
-                    aggregated = aggregated.filter(i => {
-                        if (skippableTop.includes(HIDE_ALL)) return false;
-                        return skippableTop.length === 0 || !skippableTop.includes(i.name.toLowerCase());
-                    });
+                    // For full text (non-compact), we do NOT apply skippable filtering — show all aggregated wargear
                     if (aggregated.length > 0) { html += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`; aggregated.forEach(it => { const qtyDisplay = it.quantity ? `${it.quantity} ` : ''; html += `<p style="margin:0;">${qtyDisplay}${it.name}</p>`; plainText += `  - ${qtyDisplay}${it.name}\n`; }); html += `</div>`; }
             } else {
                 const topLevelItems = itemsArr.filter(i => i.type === 'wargear' || i.type === 'special');
-                const skippableTop = findSkippableForUnit(skippableWargearMap, data.SUMMARY, unit.name);
-                const filteredTop = topLevelItems.filter(it => { if (it.type === 'special') return true; if (skippableTop.includes(HIDE_ALL)) return false; return skippableTop.length === 0 || !skippableTop.includes(it.name.toLowerCase()); });
+                // For full text view do NOT apply skippable hiding; show all top-level items
+                const filteredTop = topLevelItems;
                 if (filteredTop.length > 0) { html += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`; filteredTop.forEach(item => { const itemNumericQty = parseInt((item.quantity || '1').toString().replace('x',''), 10) || 1; const itemQtyDisplay = itemNumericQty > 1 ? `${item.quantity} ` : '';
                     // For Full Text view, show Enhancement points clearly and with a space before the points
                     let displayItemName = item.name;
@@ -310,12 +349,10 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                         const itemNumericQty = parseInt((sub.quantity || '1').toString().replace('x',''), 10) || 1;
                         const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
                         const subunitNameText = `${itemQtyDisplay}${sub.name}`;
-                        // Determine visible inner wargear for this subunit
-                        const subSkippable = findSkippableForUnit(skippableWargearMap, data.SUMMARY, sub.name);
-                        const fallbackSkippable = (subSkippable.length === 0) ? skippableTop : subSkippable;
-                        const collated = aggregateWargear(sub).filter(ci => { if (fallbackSkippable.includes(HIDE_ALL)) return false; return fallbackSkippable.length === 0 || !fallbackSkippable.includes(ci.name.toLowerCase()); });
-                        // If the subunit has no visible inner items and no specials, skip printing it
-                        const hasVisibleSpecials = (sub.items || []).some(si => si.type === 'special' && (fallbackSkippable.length === 0 || !fallbackSkippable.includes(si.name.toLowerCase())));
+                        // For full text view, do not apply skippable filtering to inner items
+                        const collated = aggregateWargear(sub);
+                        // If the subunit has no inner items and no specials, skip printing it
+                        const hasVisibleSpecials = (sub.items || []).some(si => si.type === 'special');
                         if (collated.length === 0 && !hasVisibleSpecials) return;
                         html += `<p style="font-weight:500;color:var(--color-text-primary);margin:0;">${subunitNameText}</p>`;
                         plainText += `  * ${subunitNameText}\n`;
@@ -338,52 +375,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
     let useColor = false;
     const defaultColors = { unit: '#FFFFFF', subunit: '#808080', wargear: '#FFFFFF', points: '#FFFF00', header: '#FFFF00' };
     const colors = { ...defaultColors };
-    // ANSI palette and helpers must be available before any function that references them
-    const ansiPalette = [
-        { hex: '#000000', code: 30 }, { hex: '#FF0000', code: 31 }, { hex: '#00FF00', code: 32 },
-        { hex: '#FFFF00', code: 33 }, { hex: '#0000FF', code: 34 }, { hex: '#FF00FF', code: 35 },
-        { hex: '#00FFFF', code: 36 }, { hex: '#FFFFFF', code: 37 }, { hex: '#808080', code: 30 }
-    ];
-    const hexToRgb = (hex) => { const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : null; };
-    const findClosestAnsi = (hex) => { const rgb = hexToRgb(hex); if (!rgb) return 37; let best = 37; let bestD = Infinity; for (const c of ansiPalette) { const cr = hexToRgb(c.hex); const d = Math.pow(rgb.r - cr.r, 2) + Math.pow(rgb.g - cr.g, 2) + Math.pow(rgb.b - cr.b, 2); if (d < bestD) { bestD = d; best = c.code; } } return best; };
-
-    // Build a mapping of faction -> { unit, subunit, wargear, points } using only colors
-    // available in ansiPalette. Heuristics pick sensible defaults for common factions.
-    // Prefer explicit mapping from `modules/faction_colors.js`. If an explicit mapping
-    // for a given faction is absent, fallback to a light heuristic using the ansiPalette.
-    const buildFactionColorMap = (skippableMap) => {
-        const fallback = (map) => {
-            // ...existing heuristic behavior compressed to a simple, safe default:
-            const codes = [...new Set(ansiPalette.map(p => p.code))];
-            const out = {};
-            for (const k of Object.keys(map || {})) {
-                const fk = k || '';
-                const idx = Math.abs(Array.from(fk).reduce((a,c)=>a*31 + c.charCodeAt(0),0)) % codes.length;
-                const unitCode = codes[idx];
-                const pickDifferent = (forbidden) => codes.find(c => !forbidden.includes(c)) || codes[0];
-                const subunitCode = pickDifferent([unitCode]);
-                const wargearCode = pickDifferent([subunitCode]);
-                const pointsCode = pickDifferent([wargearCode]);
-                const codeToHex = (code) => {
-                    const e = ansiPalette.find(p => p.code === code);
-                    return e ? e.hex : '#FFFFFF';
-                };
-                out[fk] = { unit: codeToHex(unitCode), subunit: codeToHex(subunitCode), wargear: codeToHex(wargearCode), points: codeToHex(pointsCode) };
-            }
-            return out;
-        };
-        // Merge explicit table with fallback heuristics; explicit mapping wins.
-        const explicit = factionColors || {};
-        const fromSkippable = fallback(skippableMap || {});
-        const merged = { ...fromSkippable, ...explicit };
-        // Also expose lower-cased keys for robust lookup (FACTION_KEYWORD may be lower-case or mixed)
-        const normalized = {};
-        for (const [k, v] of Object.entries(merged)) {
-            normalized[k] = v;
-            try { normalized[k.toString().toLowerCase()] = v; } catch (e) {}
-        }
-        return normalized;
-    };
+    // `buildFactionColorMap` and palette helpers are defined at module scope.
     if (!plain && hasDOM) {
         const modeEl = document.querySelector('input[name="colorMode"]:checked');
         const mode = modeEl ? modeEl.value : 'none';

@@ -86,13 +86,29 @@ export function parseWtcCompact(lines) {
         if (m) {
             const key = m[1].trim().toUpperCase();
             const val = m[2].trim();
-            if (key === 'FACTION KEYWORD') result.SUMMARY.FACTION_KEYWORD = val;
-            else if (key === 'DETACHMENT') result.SUMMARY.DETACHMENT = val;
-            else if (key === 'TOTAL ARMY POINTS') result.SUMMARY.TOTAL_ARMY_POINTS = val;
-            else if (key === 'WARLORD') result.SUMMARY.WARLORD = val;
-            else if (key === 'NUMBER OF UNITS') result.SUMMARY.NUMBER_OF_UNITS = val;
-            else result.SUMMARY[key] = val;
+            if (key === 'FACTION KEYWORD') {
+                // Use the text after the last ' - ' on the header line
+                const parts = val.split(' - ');
+                result.SUMMARY.FACTION_KEYWORD = parts[parts.length - 1].trim();
+            } else if (key === 'DETACHMENT') {
+                result.SUMMARY.DETACHMENT = val;
+            } else if (key === 'TOTAL ARMY POINTS') {
+                result.SUMMARY.TOTAL_ARMY_POINTS = val;
+            }
+            // intentionally ignore other header keys
         }
+    }
+
+    // WTC-Compact lists do not contain a list title; define LIST_TITLE as an empty string
+    result.SUMMARY.LIST_TITLE = '';
+
+    // Build DISPLAY_FACTION from FACTION_KEYWORD using FAMILY_MAP when possible
+    if (result.SUMMARY && result.SUMMARY.FACTION_KEYWORD) {
+        const fk = result.SUMMARY.FACTION_KEYWORD;
+        const familyKey = Object.keys(FAMILY_MAP).find(k => k.toLowerCase() === (fk || '').toString().toLowerCase());
+        const family = familyKey ? FAMILY_MAP[familyKey] : null;
+        if (family) result.SUMMARY.DISPLAY_FACTION = `${family} - ${fk}`;
+        else result.SUMMARY.DISPLAY_FACTION = fk + (result.SUMMARY.DETACHMENT ? ` - ${result.SUMMARY.DETACHMENT}` : '');
     }
 
     // --- Pass 2: Body parsing

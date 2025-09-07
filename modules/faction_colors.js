@@ -10,7 +10,7 @@
 // - Wargear != Points
 // - Treat '#000000' and '#808080' as equivalent for uniqueness purposes
 export default {
-    "World Eaters":        { unit: '#FF0000', subunit: '#808080', wargear: '#00FF00', points: '#FFFF00' },
+    "World Eaters":        { unit: '#FF0000', subunit: '#808080', wargear: '#FFFF00', points: '#00FF00' },
     "Adepta Sororitas":    { unit: '#FFFFFF', subunit: '#808080', wargear: '#0000FF', points: '#FFFF00' },
     "Adeptus Custodes":    { unit: '#FFFFFF', subunit: '#808080', wargear: '#FF00FF', points: '#FFFF00' },
     "Adeptus Mechanicus":  { unit: '#FF00FF', subunit: '#808080', wargear: '#FFFFFF', points: '#FFFF00' },
@@ -31,7 +31,7 @@ export default {
     "Grey Knights":        { unit: '#FFFFFF', subunit: '#808080', wargear: '#0000FF', points: '#FFFF00' },
     "Imperial Fists":      { unit: '#FFFF00', subunit: '#808080', wargear: '#0000FF', points: '#FFFF00' },
     "Imperial Knights":    { unit: '#FFFFFF', subunit: '#808080', wargear: '#0000FF', points: '#FFFF00' },
-    "Iron Hands":          { unit: '#0000FF', subunit: '#808080', wargear: '#FFFFFF', points: '#FFFF00' },
+    "Iron Hands":          { unit: '#808080', subunit: '#ffffff', wargear: '#808080', points: '#FFFFFF' },
     "Leagues of Votann":   { unit: '#FFFFFF', subunit: '#808080', wargear: '#0000FF', points: '#FFFF00' },
     "Necrons":             { unit: '#00FF00', subunit: '#808080', wargear: '#0000FF', points: '#FFFF00' },
     "Orks":                { unit: '#00FF00', subunit: '#808080', wargear: '#0000FF', points: '#FFFF00' },
@@ -43,7 +43,7 @@ export default {
     "Thousand Sons":       { unit: '#FF00FF', subunit: '#808080', wargear: '#0000FF', points: '#FFFF00' },
     "Tyranids":            { unit: '#00FFFF', subunit: '#808080', wargear: '#00FF00', points: '#FFFF00' },
     "Ultramarines":        { unit: '#0000FF', subunit: '#808080', wargear: '#FFFFFF', points: '#FFFF00' },
-    "White Scars":         { unit: '#0000FF', subunit: '#808080', wargear: '#FFFFFF', points: '#FFFF00' },
+    "White Scars":         { unit: '#FFFFFF', subunit: '#808080', wargear: '#FF0000', points: '#FFFF00' },
     "Agents of the Imperium": { unit: '#FFFFFF', subunit: '#808080', wargear: '#0000FF', points: '#FFFF00' }
 };
 
