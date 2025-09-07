@@ -176,6 +176,17 @@
                     <div id="factionColorDiagnostic" style="margin-top:0.5rem;font-size:0.75rem;color:var(--color-text-secondary);"></div>
                 </div>
             </div>
+            
+            <!-- Debug Toggle and Output Section (moved above changelog) -->
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button id="toggleDebugButton" class="btn" style="background-color: black; color: white; border: 1px solid #444;">Show Debug Log</button>
+            </div>
+
+            <div id="debugContainer" style="margin-top: 0.5rem; display: none; width: 100%;">
+                <div style="display:flex; justify-content:center;">
+                    <div id="debugOutput" class="io-box" style="width:80%; max-width:1100px; height: 400px; margin: 0 auto; overflow-y: auto; background-color: #282c34; color: #abb2bf; font-family: monospace; font-size: 0.75rem; line-height: 1.4; box-sizing: border-box;"></div>
+                </div>
+            </div>
 
             <!-- Changelog and Roadmap Section -->
             <div class="changelog-section">
@@ -184,7 +195,6 @@
                     <ul>
                         <li>.ROSZ file format support</li>
                         <li>Mobile-friendly version</li>
-                        <li>Individual faction compacting rule adjustments (skippable wargear)</li>
                         <li>Ongoing bugfixes and performance improvements</li>
                     </ul>
                 </div>
@@ -192,7 +202,9 @@
                     <h4>Changelog</h4>
                     <div class="changelog-version-entry">
                         <h5>Version 1.1.1: Thats not a wargear, that's my wife!</h5>
-                        <p>Minor parser and rendering fixes.</p>
+                        <ul>
+                            <li>Minor parser and rendering fixes.</li>
+                        </ul>
                     </div>
                     <div class="changelog-version-entry">
                         <h5>Version 1.0.0: TOTAL OVERHAUL!</h5>
@@ -255,20 +267,13 @@
                         <h5>Version 0.0.1: Initial Beta Release</h5>
                         <p>The first version is live! Basic list parsing and abbreviation for most major factions is included. More features and polish to come.</p>
                     </div>
+                    <div style="text-align:center; margin-top:0.5rem;">
+                        <button id="changelog-toggle" class="btn" style="background-color: black; color: white; border: 1px solid #444;">Show more</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Debug Toggle and Output Section -->
-            <div style="text-align: center; margin-top: 1.5rem;">
-                <button id="toggleDebugButton" class="btn" style="background-color: black; color: white; border: 1px solid #444;">Show Debug Log</button>
-            </div>
-
-            <div id="debugContainer" class="changelog-section" style="margin-top: 0.5rem; display: none;">
-                <div class="changelog-entry">
-                    <h4>Debug Log</h4>
-                    <div id="debugOutput" class="io-box" style="max-height: 200px; overflow-y: auto; background-color: #282c34; color: #abb2bf; font-family: monospace; font-size: 0.75rem; line-height: 1.4;"></div>
-                </div>
-            </div>
+            
 
         </div>
     </div>
@@ -277,6 +282,25 @@
 
     <script src="https://cdn.jsdelivr.net/npm/ansi_up@5.1.0/ansi_up.min.js"></script>
     <script type="module" src="./modules/main.js"></script>
+    <script>
+        // Collapse changelog entries after the first 3 and wire a toggle button
+        (function () {
+            const entries = Array.from(document.querySelectorAll('.changelog-entry .changelog-version-entry'));
+            if (!entries.length) return;
+            const visibleCount = 3;
+            const hidden = entries.slice(visibleCount);
+            hidden.forEach(e => e.style.display = 'none');
+
+            const btn = document.getElementById('changelog-toggle');
+            if (!btn) return;
+            let open = false;
+            btn.addEventListener('click', () => {
+                open = !open;
+                hidden.forEach(e => e.style.display = open ? '' : 'none');
+                btn.textContent = open ? 'Show less' : 'Show more';
+            });
+        })();
+    </script>
 
 </body>
 </html>
