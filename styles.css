@@ -93,6 +93,12 @@
             background-color: rgba(255,255,255,0.02);
             box-sizing: border-box;
         }
+        /* Left-align content inside options box */
+        .options-box, .options-box * {
+            text-align: left;
+        }
+        .color-options { display: flex; gap: 1rem; align-items: center; margin-bottom: 0.5rem; }
+        .color-options label { margin-right: 0.5rem; }
 
         /* --- Header --- */
         .header {
@@ -330,6 +336,62 @@ div[style*="margin-bottom: 0.5rem;"] > label {
     align-items: center;
     width: 100%; /* Ensure label takes full width */
 }
+
+/* Checkbox labels that should have the checkbox directly after the text */
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Ensure checkbox-label doesn't get stretched by the generic label rule and sits to the right */
+div[style*="margin-bottom: 0.5rem;"] > label.checkbox-label {
+    display: inline-flex !important;
+    justify-content: flex-start !important;
+    width: auto !important;
+    margin-left: auto; /* push the label+switch to the right side of the row */
+}
+
+/* Toggle switch styling */
+.checkbox-label { white-space: nowrap; }
+.switch-input { 
+    appearance: none;
+    -webkit-appearance: none;
+    width: 44px;
+    height: 24px;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+}
+.switch-slider {
+    width: 44px;
+    height: 24px;
+    background: var(--color-border);
+    border-radius: 999px;
+    display: inline-block;
+    position: relative;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25);
+    transition: background 150ms ease;
+}
+.switch-slider::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 150ms ease;
+}
+.switch-input:checked + .switch-slider {
+    background: var(--color-action);
+}
+.switch-input:checked + .switch-slider::after {
+    transform: translateX(20px);
+}
+.checkbox-label input[type="checkbox"] { display: none; }
 
 /* Ensure checkbox inputs align to the right within labels */
 div[style*="margin-bottom: 0.5rem;"] > label > input[type="checkbox"] {
