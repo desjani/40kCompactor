@@ -4,8 +4,9 @@ export function ColorOptions() {
   return (
     h('div', { class: 'color-options-container', style: 'margin-top: 1rem; text-align: center;' },
       h('div', { class: 'color-options' },
-        h('label', null, h('input', { type: 'radio', name: 'colorMode', value: 'none', checked: true }), ' No Color'),
-        h('label', null, h('input', { type: 'radio', name: 'colorMode', value: 'custom' }), ' Custom Colors')
+  h('label', null, h('input', { type: 'radio', name: 'colorMode', value: 'none', checked: true }), ' No Color'),
+  h('label', null, h('input', { type: 'radio', name: 'colorMode', value: 'faction' }), ' Faction Colors'),
+  h('label', null, h('input', { type: 'radio', name: 'colorMode', value: 'custom' }), ' Custom Colors')
       ),
       h('div', { id: 'customColorPickers', style: 'display: none; margin-top: 0.5rem; text-align: center;' },
         h('div', { style: 'margin-bottom: 0.5rem;' },

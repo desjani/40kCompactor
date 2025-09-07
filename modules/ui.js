@@ -1,24 +1,25 @@
 // --- UI Elements ---
-const inputText = document.getElementById('inputText');
-const unabbreviatedOutput = document.getElementById('unabbreviatedOutput');
-const compactedOutput = document.getElementById('compactedOutput');
-const markdownPreviewOutput = document.getElementById('markdownPreviewOutput'); // New element
-const debugOutput = document.getElementById('debugOutput');
-const parseButton = document.getElementById('parseButton');
-const resetButton = document.getElementById('resetButton');
-const toggleDebugButton = document.getElementById('toggleDebugButton');
-const copyExtendedButton = document.getElementById('copyExtendedButton');
-const outputFormatSelect = document.getElementById('outputFormatSelect');
-const copyPreviewButton = document.getElementById('copyPreviewButton');
-const customColorPickers = document.getElementById('customColorPickers');
-const inputCharCount = document.getElementById('inputCharCount');
-const extendedCharCount = document.getElementById('extendedCharCount'); // Corrected ID
-const compactCharCount = document.getElementById('compactCharCount');
-const markdownPreviewCharCount = document.getElementById('markdownPreviewCharCount'); // New element
-const copyPopup = document.getElementById('copyPopup');
+const isBrowser = (typeof document !== 'undefined' && document);
+const inputText = isBrowser ? document.getElementById('inputText') : null;
+const unabbreviatedOutput = isBrowser ? document.getElementById('unabbreviatedOutput') : null;
+const compactedOutput = isBrowser ? document.getElementById('compactedOutput') : null;
+const markdownPreviewOutput = isBrowser ? document.getElementById('markdownPreviewOutput') : null; // New element
+const debugOutput = isBrowser ? document.getElementById('debugOutput') : null;
+const parseButton = isBrowser ? document.getElementById('parseButton') : null;
+const resetButton = isBrowser ? document.getElementById('resetButton') : null;
+const toggleDebugButton = isBrowser ? document.getElementById('toggleDebugButton') : null;
+const copyExtendedButton = isBrowser ? document.getElementById('copyExtendedButton') : null;
+const outputFormatSelect = isBrowser ? document.getElementById('outputFormatSelect') : null;
+const copyPreviewButton = isBrowser ? document.getElementById('copyPreviewButton') : null;
+const customColorPickers = isBrowser ? document.getElementById('customColorPickers') : null;
+const inputCharCount = isBrowser ? document.getElementById('inputCharCount') : null;
+const extendedCharCount = isBrowser ? document.getElementById('extendedCharCount') : null; // Corrected ID
+const compactCharCount = isBrowser ? document.getElementById('compactCharCount') : null;
+const markdownPreviewCharCount = isBrowser ? document.getElementById('markdownPreviewCharCount') : null; // New element
+const copyPopup = isBrowser ? document.getElementById('copyPopup') : null;
 
-// Initialize ansi_up
-const ansi_up = new AnsiUp();
+// Initialize ansi_up (use a no-op shim in non-browser environments)
+const ansi_up = (typeof AnsiUp !== 'undefined') ? new AnsiUp() : { ansi_to_html: (s) => s };
 
 export function getHideSubunitsState() {
     const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');
@@ -37,43 +38,47 @@ export function initializeUI(callbacks) {
         parseButton.textContent = 'Loading DB...';
     }
 
-    document.querySelectorAll('input[name="colorMode"]').forEach(el => { // Modified to only target colorMode
-        el.addEventListener('change', (e) => {
-            if (e.target.name === 'colorMode') {
-                if (customColorPickers) {
-                    customColorPickers.style.display = e.target.value === 'custom' ? 'block' : 'none';
+    if (isBrowser) {
+        document.querySelectorAll('input[name="colorMode"]').forEach(el => { // Modified to only target colorMode
+            el.addEventListener('change', (e) => {
+                if (e.target.name === 'colorMode') {
+                    if (customColorPickers) {
+                        customColorPickers.style.display = e.target.value === 'custom' ? 'block' : 'none';
+                    }
                 }
-            }
-            if (callbacks.onColorChange) {
-                callbacks.onColorChange();
-            }
+                if (callbacks.onColorChange) {
+                    callbacks.onColorChange();
+                }
+            });
         });
-    });
 
-    // New event listeners for color pickers
-    document.querySelectorAll('#unitColor, #subunitColor, #pointsColor, #headerColor, #wargearColor').forEach(el => {
-        el.addEventListener('change', () => {
-            if (callbacks.onColorChange) {
-                callbacks.onColorChange();
-            }
+        // New event listeners for color pickers
+        document.querySelectorAll('#unitColor, #subunitColor, #pointsColor, #headerColor, #wargearColor').forEach(el => {
+            el.addEventListener('change', () => {
+                if (callbacks.onColorChange) {
+                    callbacks.onColorChange();
+                }
+            });
         });
-    });
+    }
 
     if (parseButton) parseButton.addEventListener('click', callbacks.onParse);
     if (resetButton) resetButton.addEventListener('click', callbacks.onReset);
-    if (toggleDebugButton) toggleDebugButton.addEventListener('click', toggleDebug);
+    if (isBrowser && toggleDebugButton) toggleDebugButton.addEventListener('click', toggleDebug);
     if (copyExtendedButton) copyExtendedButton.addEventListener('click', callbacks.onCopyExtended);
     if (outputFormatSelect) outputFormatSelect.addEventListener('change', callbacks.onOutputFormatChange);
     if (copyPreviewButton) copyPreviewButton.addEventListener('click', callbacks.onCopyPreview);
     
-    const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');
-    if (hideSubunitsCheckbox) {
-        hideSubunitsCheckbox.addEventListener('change', callbacks.onHideSubunitsChange);
-    }
+    if (isBrowser) {
+        const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');
+        if (hideSubunitsCheckbox) {
+            hideSubunitsCheckbox.addEventListener('change', callbacks.onHideSubunitsChange);
+        }
 
-    const multilineHeaderCheckbox = document.getElementById('multilineHeaderCheckbox'); // New checkbox event listener
-    if (multilineHeaderCheckbox) {
-        multilineHeaderCheckbox.addEventListener('change', callbacks.onMultilineHeaderChange);
+        const multilineHeaderCheckbox = document.getElementById('multilineHeaderCheckbox'); // New checkbox event listener
+        if (multilineHeaderCheckbox) {
+            multilineHeaderCheckbox.addEventListener('change', callbacks.onMultilineHeaderChange);
+        }
     }
 }
 
@@ -137,6 +142,7 @@ export function resetUI() {
 }
 
 function toggleDebug() {
+    if (!isBrowser) return;
     const debugContainer = document.getElementById('debugContainer');
     if (debugContainer) {
         if (debugContainer.style.display === 'none') {
@@ -188,4 +194,13 @@ export async function copyTextToClipboard(text) {
     } catch (err) {
         console.error('Failed to copy text: ', err);
     }
+}
+
+export function setFactionColorDiagnostic(text) {
+    const el = isBrowser ? document.getElementById('factionColorDiagnostic') : null;
+    if (el) el.textContent = text || '';
+}
+
+export function clearFactionColorDiagnostic() {
+    setFactionColorDiagnostic('');
 }

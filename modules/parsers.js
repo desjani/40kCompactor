@@ -217,15 +217,77 @@ export function parseGwAppV2(lines) {
     const sectionHeaderRegex = /^(CHARACTERS|CHARACTER|BATTLELINE|OTHER DATASHEETS|ALLIED UNITS|DEDICATED TRANSPORTS)$/i;
     const firstSectionIndex = lines.findIndex(line => sectionHeaderRegex.test((line||'').trim().toUpperCase()));
     const headerLinesRaw = firstSectionIndex === -1 ? lines.slice(0, 0) : lines.slice(0, firstSectionIndex);
+    // Normalize header lines and drop export footer lines
     let headerLines = headerLinesRaw.map(l => (l||'').trim()).filter(l => l && !l.startsWith('Exported with'));
-    if (headerLines.length > 0) {
-        result.SUMMARY.DETACHMENT = headerLines.pop().replace(/\s+/g, '\u00A0');
-        if (headerLines.length > 0) {
-            const fullFaction = headerLines.join(' - ');
-            const shortFaction = fullFaction.split('-').pop().trim();
-            result.SUMMARY.FACTION_KEYWORD = shortFaction;
-            const family = FAMILY_MAP[shortFaction] || FAMILY_MAP[fullFaction];
-            result.SUMMARY.DISPLAY_FACTION = family ? `${family} - ${fullFaction}` : fullFaction;
+
+    // RULE: LIST_TITLE is always the first non-empty line
+    const firstNonEmpty = headerLines.findIndex(l => l && l.trim() !== '');
+    if (firstNonEmpty !== -1) {
+        const LIST_TITLE_LINE = headerLines[firstNonEmpty];
+        // Extract LIST_TITLE (text before parentheses) and TOTAL_ARMY_POINTS
+        const listTitleMatch = LIST_TITLE_LINE.match(/^(.*?)\s*\((\s*\d+\s*(?:pts|points)\s*)\)\s*$/i);
+        if (listTitleMatch) {
+            result.SUMMARY.LIST_TITLE = listTitleMatch[1].trim();
+            const digits = (listTitleMatch[2].match(/(\d+)/) || [])[1] || '';
+            if (digits) result.SUMMARY.TOTAL_ARMY_POINTS = `${digits}pts`;
+        } else {
+            result.SUMMARY.LIST_TITLE = LIST_TITLE_LINE;
+        }
+
+        // Build candidates: lines after LIST_TITLE up to first section header
+        const candidates = [];
+        for (let i = firstNonEmpty + 1; i < headerLines.length; i++) {
+            const t = headerLines[i];
+            if (!t) continue;
+            candidates.push(t);
+        }
+
+        // Ignore game-size indicator rows: they must contain one of the keywords and a parenthetical
+        const gameSizeKeywords = ['Combat Patrol', 'Incursion', 'Strike Force', 'Onslaught'];
+        const isGameSize = (s) => {
+            if (!s) return false;
+            if (!/\(/.test(s)) return false;
+            for (const k of gameSizeKeywords) if (new RegExp(k, 'i').test(s)) return true;
+            return false;
+        };
+
+        // Eliminate any rows that equal any family value from FAMILY_MAP (case-insensitive)
+        const familyValues = new Set(Object.values(FAMILY_MAP).map(v => (v || '').toString().toLowerCase()));
+
+        const filtered = candidates.filter(r => {
+            if (!r) return false;
+            if (isGameSize(r)) return false;
+            if (familyValues.has(r.toLowerCase())) return false;
+            return true;
+        });
+
+        // From remaining rows pick the faction and detachment. Prefer a faction that matches a key
+        // in FAMILY_MAP (case-insensitive). If none match, fall back to the last candidate as faction.
+        let factionCandidate = null;
+        let detachmentCandidate = null;
+        const factionKeyLower = Object.keys(FAMILY_MAP).map(k => k.toLowerCase());
+        for (const r of filtered) {
+            if (factionKeyLower.includes((r || '').toString().toLowerCase())) {
+                factionCandidate = r;
+            } else if (!detachmentCandidate) {
+                detachmentCandidate = r;
+            }
+        }
+        if (!factionCandidate && filtered.length > 0) {
+            // prefer first filtered as faction if no explicit match
+            factionCandidate = filtered[0];
+            detachmentCandidate = filtered.length > 1 ? filtered[1] : detachmentCandidate;
+        }
+
+        if (factionCandidate) result.SUMMARY.FACTION_KEYWORD = factionCandidate;
+        if (detachmentCandidate) result.SUMMARY.DETACHMENT = detachmentCandidate;
+
+        // Build DISPLAY_FACTION as 'Family - Faction' when family known
+        if (factionCandidate) {
+            const familyKey = Object.keys(FAMILY_MAP).find(k => k.toLowerCase() === factionCandidate.toLowerCase());
+            const family = familyKey ? FAMILY_MAP[familyKey] : null;
+            if (family) result.SUMMARY.DISPLAY_FACTION = `${family} - ${factionCandidate}`;
+            else result.SUMMARY.DISPLAY_FACTION = factionCandidate + (detachmentCandidate ? ` - ${detachmentCandidate}` : '');
         }
     }
 

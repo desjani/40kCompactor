@@ -1,7 +1,7 @@
 import { detectFormat, parseGwApp, parseWtcCompact } from './parsers.js';
-import { generateOutput, generateDiscordText } from './renderers.js';
+import { generateOutput, generateDiscordText, resolveFactionColors } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
-import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState } from './ui.js';
+import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 compactPlainText = compactOutput.plainText;
                 // Also update the markdown preview on color change
                 updatePreview();
+                updateFactionDiagnostic();
             }
         },
         onHideSubunitsChange: () => updatePreview(),
@@ -46,6 +47,36 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     enableParseButton();
 });
+
+function updateFactionDiagnostic() {
+    try {
+        if (typeof document === 'undefined') return;
+        const modeEl = document.querySelector('input[name="colorMode"]:checked');
+        const mode = modeEl ? modeEl.value : 'none';
+        if (mode !== 'faction') {
+            clearFactionColorDiagnostic();
+            return;
+        }
+        if (!parsedData) {
+            clearFactionColorDiagnostic();
+            return;
+        }
+        const fm = resolveFactionColors(parsedData, skippableWargearMap);
+        if (!fm) {
+            setFactionColorDiagnostic('No faction mapping found for parsed FACTION_KEYWORD/DISPLAY_FACTION');
+            return;
+        }
+        const parts = [];
+        if (fm.unit) parts.push(`unit: ${fm.unit}`);
+        if (fm.subunit) parts.push(`subunit: ${fm.subunit}`);
+        if (fm.wargear) parts.push(`wargear: ${fm.wargear}`);
+        if (fm.points) parts.push(`points: ${fm.points}`);
+        setFactionColorDiagnostic(parts.join(' | '));
+    } catch (e) {
+        // swallow errors in diagnostic to avoid breaking UI
+        console.warn('Failed to update faction diagnostic', e);
+    }
+}
 
 function handleParse() {
     setDebugOutput(''); // Clear debug output

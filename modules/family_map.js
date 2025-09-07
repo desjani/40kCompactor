@@ -18,12 +18,12 @@ export const FAMILY_MAP = {
 
     "Adepta Sororitas": "Imperium",
     "Astra Militarum": "Imperium",
-    "Imperial Fists": "Imperium",
-    "Dark Angels": "Imperium",
-    "Blood Angels": "Imperium",
-    "Raven Guard": "Imperium",
-    "Black Templars": "Imperium",
-    "Deathwatch": "Imperium",
+    "Imperial Fists": "Space Marines",
+    "Dark Angels": "Space Marines",
+    "Blood Angels": "Space Marines",
+    "Raven Guard": "Space Marines",
+    "Black Templars": "Space Marines",
+    "Deathwatch": "Space Marines",
     "Grey Knights": "Imperium",
     "Imperial Knights": "Imperium",
     "Adeptus Custodes": "Imperium",
@@ -31,20 +31,20 @@ export const FAMILY_MAP = {
     "Adeptus Mechanicus": "Imperium",
     "Agents of the Imperium": "Imperium",
 
-    "Aeldari": "Aeldari",
-    "Drukhari": "Aeldari",
-    "Ynnari": "Aeldari",
-    "Harlequins": "Aeldari",
+    "Aeldari": "Xenos",
+    "Drukhari": "Xenos",
+    "Ynnari": "Xenos",
+    "Harlequins": "Xenos",
 
-    "Necrons": "Necrons",
-    "Orks": "Orks",
-    "Tyranids": "Tyranids",
-    "T'au Empire": "T'au Empire",
-    "Tau": "T'au Empire",
-    "T'au": "T'au Empire",
+    "Necrons": "Xenos",
+    "Orks": "Xenos",
+    "Tyranids": "Xenos",
+    "T'au Empire": "Xenos",
+    "Tau": "Xenos",
+    "T'au": "Xenos",
 
-    "Genestealer Cults": "Genestealer Cults",
-    "Leagues of Votann": "Leagues of Votann"
+    "Genestealer Cults": "Xenos",
+    "Leagues of Votann": "Xenos"
 };
 
 export default FAMILY_MAP;
