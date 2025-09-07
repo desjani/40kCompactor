@@ -39,6 +39,9 @@ export function initializeUI(callbacks) {
     }
 
     if (isBrowser) {
+        // Set initial visibility of custom color pickers based on checked radio
+        const checked = document.querySelector('input[name="colorMode"]:checked');
+        if (customColorPickers) customColorPickers.style.display = (checked && checked.value === 'custom') ? 'block' : 'none';
         document.querySelectorAll('input[name="colorMode"]').forEach(el => { // Modified to only target colorMode
             el.addEventListener('change', (e) => {
                 if (e.target.name === 'colorMode') {

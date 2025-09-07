@@ -37,7 +37,8 @@
 
                 <!-- Dropdowns Column -->
                 <div class="dropdowns-column">
-                    <h3>List Options</h3>
+                    <h3 class="io-label">List Options</h3>
+                    <div class="options-box">
                     <div style="margin-bottom: 0.5rem;">
                         <label>List Style: 
                             <select id="outputFormatSelect">
@@ -50,20 +51,20 @@
                     </div>
                     <div style="margin-bottom: 0.5rem;">
                         <label>
-                            <input type="checkbox" id="hideSubunitsCheckbox"> Hide Subunits
+                            Hide Subunits <input type="checkbox" id="hideSubunitsCheckbox">
                         </label>
                     </div>
                     <div style="margin-bottom: 0.5rem;">
                         <label>
-                            <input type="checkbox" id="multilineHeaderCheckbox"> Multiline Header
+                            Multiline Header <input type="checkbox" id="multilineHeaderCheckbox">
                         </label>
                     </div>
                     <!-- Color Options Section -->
                     <div class="color-options-container" style="margin-top: 1rem; text-align: center;">
                         <div class="color-options">
-                            <label><input type="radio" name="colorMode" value="custom" checked> Custom Colors</label>
-                            <label><input type="radio" name="colorMode" value="faction"> Faction Colors</label>
+                            <label><input type="radio" name="colorMode" value="faction" checked> Faction Colors</label>
                             <label><input type="radio" name="colorMode" value="none"> No Color</label>
+                            <label><input type="radio" name="colorMode" value="custom"> Custom Colors</label>
                         </div>
                         <div id="customColorPickers" style="margin-top: 0.5rem; text-align: center;">
                             <div style="margin-bottom: 0.5rem;">
@@ -137,6 +138,8 @@
                                 </label>
                             </div>
                         </div>
+                    </div>
+                    <!-- close options-box -->
                     </div>
                 </div>
             </div>

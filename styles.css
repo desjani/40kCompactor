@@ -81,7 +81,17 @@
             flex-direction: column;
             gap: 1rem; /* Space between dropdowns and color options */
             align-items: center;
-            padding-top: 1.5rem; /* Align with input box top */
+            /* padding-top: 1.5rem; /* Align with input box top */
+        }
+
+        /* Boxed appearance for the List Options area to match other sections */
+        .options-box {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.5rem;
+            background-color: rgba(255,255,255,0.02);
+            box-sizing: border-box;
         }
 
         /* --- Header --- */
@@ -319,6 +329,12 @@ div[style*="margin-bottom: 0.5rem;"] > label {
     justify-content: space-between;
     align-items: center;
     width: 100%; /* Ensure label takes full width */
+}
+
+/* Ensure checkbox inputs align to the right within labels */
+div[style*="margin-bottom: 0.5rem;"] > label > input[type="checkbox"] {
+    margin-left: 0.5rem;
+    width: auto;
 }
 
 div[style*="margin-bottom: 0.5rem;"] > label > select {
