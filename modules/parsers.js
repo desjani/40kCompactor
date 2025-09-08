@@ -13,13 +13,22 @@ function smartTitleCase(s) {
     }).join(' ');
 }
 
-function addItemToTarget(target, itemString, unitContextName, factionKeyword, itemType = 'wargear', parentQuantity = 1) {
+function addItemToTarget(target, itemString, unitContextName, factionKeyword, unitTopName = '', skipIfMatchesUnitName = false, itemType = 'wargear', parentQuantity = 1) {
     if (!target) return;
     target.items = target.items || [];
     const parsed = parseItemString(String(itemString || '').trim());
     const qty = parsed.quantity ? String(parsed.quantity) : '1x';
     const name = parsed.name || '';
     const key = normalizeForComparison(name);
+    // If requested, ignore wargear whose name matches the current unit/subunit context.
+    if (skipIfMatchesUnitName) {
+        const ctx = String(unitContextName || '');
+        const top = String(unitTopName || '');
+        // Only skip when the normalized names are exactly equal (case/whitespace-insensitive)
+        if (normalizeForComparison(ctx) === normalizeForComparison(name) || (top && normalizeForComparison(top) === normalizeForComparison(name))) {
+            return; // disregard self-referential wargear against subunit or top-level unit
+        }
+    }
     const existing = target.items.find(it => normalizeForComparison(it.name || '') === key);
     if (existing) {
         const exQ = parseInt(String(existing.quantity || '1x').replace(/x/i, ''), 10) || 0;
@@ -153,7 +162,7 @@ export function parseWtcCompact(lines) {
             currentUnit = unit;
 
             if (inline) {
-                inline.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(unit, it, unit.name, result.SUMMARY.FACTION_KEYWORD || ''));
+                    inline.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(unit, it, unit.name, result.SUMMARY.FACTION_KEYWORD || '', unit.name, true));
             }
             continue;
         }
@@ -168,7 +177,7 @@ export function parseWtcCompact(lines) {
                 const n = parseInt(withMatch[1], 10) || 1;
                 const rest = withMatch[2];
                 const target = (currentUnit.items && currentUnit.items.length > 0) ? currentUnit.items[currentUnit.items.length - 1] : currentUnit;
-                rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(target, `${n}x ${it}`, target.name, result.SUMMARY.FACTION_KEYWORD || ''));
+                    rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(target, `${n}x ${it}`, target.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true));
                 continue;
             }
 
@@ -181,7 +190,17 @@ export function parseWtcCompact(lines) {
                 const sub = { quantity: sq, name: sname, items: [], type: 'subunit' };
                 currentUnit.items = currentUnit.items || [];
                 currentUnit.items.push(sub);
-                if (rest) rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(sub, it, sub.name, result.SUMMARY.FACTION_KEYWORD || ''));
+                if (rest) {
+                    // If the rest begins with an inline quantity like '2 with A, B', apply that quantity to each listed item
+                    const withInline = rest.match(/^(\d+)\s+with\s+(.*)$/i);
+                    if (withInline) {
+                        const n = parseInt(withInline[1], 10) || 1;
+                        const list = withInline[2];
+                        list.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(sub, `${n}x ${it}`, sub.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true));
+                    } else {
+                        rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(sub, it, sub.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true));
+                    }
+                }
                 continue;
             }
 
@@ -195,7 +214,7 @@ export function parseWtcCompact(lines) {
 
             // 3) Plain wargear bullet: add to current unit
             if (currentUnit) {
-                addItemToTarget(currentUnit, content, currentUnit.name, result.SUMMARY.FACTION_KEYWORD || '');
+                    addItemToTarget(currentUnit, content, currentUnit.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true);
                 continue;
             }
             continue;
@@ -207,7 +226,7 @@ export function parseWtcCompact(lines) {
             const n = parseInt(indentedWith[1], 10) || 1;
             const rest = indentedWith[2];
             const target = (currentUnit.items && currentUnit.items.length > 0) ? currentUnit.items[currentUnit.items.length - 1] : currentUnit;
-            rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(target, `${n}x ${it}`, target.name, result.SUMMARY.FACTION_KEYWORD || ''));
+                rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(target, `${n}x ${it}`, target.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true));
             continue;
         }
 
@@ -215,7 +234,7 @@ export function parseWtcCompact(lines) {
         const fallbackColon = trimmed.match(/^(.*?):\s*(.*)$/);
         if (fallbackColon && currentUnit) {
             const rest = fallbackColon[2] || '';
-            rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(currentUnit, it, currentUnit.name, result.SUMMARY.FACTION_KEYWORD || ''));
+                rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(currentUnit, it, currentUnit.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true));
             continue;
         }
     }
