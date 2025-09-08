@@ -280,6 +280,87 @@
 
     <div id="copyPopup" class="copy-popup">Copied to Clipboard!</div>
 
+    <!-- Build info for bug reports (populated at runtime from build_meta.json if available) -->
+    <div style="text-align:center;font-size:0.75rem;color:var(--color-text-secondary);margin-top:0.5rem;">
+        Commit: <span id="buildCommit">0731dd7</span> — <span id="buildTime">2025-09-08T11:11:36-06:00</span>
+    </div>
+    <script>
+        // Populate build info dynamically: prefer the page Last-Modified header for timestamp,
+        // fall back to build_meta.json, then to the static fallback values.
+        (function () {
+            const commitEl = document.getElementById('buildCommit');
+            const timeEl = document.getElementById('buildTime');
+            if (!commitEl && !timeEl) return;
+
+            const fallbackCommit = commitEl ? commitEl.textContent : '';
+            const fallbackTime = timeEl ? timeEl.textContent : '';
+
+            function setCommit(short) { if (commitEl && short) commitEl.textContent = short; }
+            function setTime(ts) { if (timeEl && ts) timeEl.textContent = ts; }
+
+            // Fetch build_meta.json and the page Last-Modified header in parallel, then show the newer timestamp.
+            const metaPromise = fetch('./build_meta.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
+            const headPromise = fetch('./index.html', { method: 'HEAD', cache: 'no-store' }).then(r => r.headers.get('last-modified')).catch(() => null);
+
+            Promise.all([metaPromise, headPromise]).then(([meta, lm]) => {
+                // Commit short from build_meta.json if available
+                if (meta && meta.commitShort) setCommit(meta.commitShort);
+
+                // Parse timestamps (if present) into Dates
+                let metaDate = null;
+                if (meta && meta.timestamp) {
+                    const m = new Date(meta.timestamp);
+                    if (!isNaN(m)) metaDate = m;
+                }
+
+                let lmDate = null;
+                if (lm) {
+                    const l = new Date(lm);
+                    if (!isNaN(l)) lmDate = l;
+                }
+
+                if (metaDate || lmDate) {
+                    // Choose the newer of the two
+                    if (metaDate && lmDate) {
+                        setTime((metaDate >= lmDate) ? metaDate.toLocaleString() : lmDate.toLocaleString());
+                    } else if (metaDate) {
+                        setTime(metaDate.toLocaleString());
+                    } else {
+                        setTime(lmDate.toLocaleString());
+                    }
+                } else {
+                    // If parsing failed, prefer raw meta timestamp text (if present), otherwise raw Last-Modified, otherwise fallback
+                    if (meta && meta.timestamp) setTime(meta.timestamp);
+                    else if (lm) setTime(lm);
+                    else setTime(fallbackTime || 'unknown');
+                }
+            }).catch(() => {
+                // Last-resort fallbacks: try meta, then head, then static fallback
+                metaPromise.then(meta => {
+                    if (meta && meta.commitShort) setCommit(meta.commitShort);
+                    if (meta && meta.timestamp) {
+                        const m = new Date(meta.timestamp);
+                        if (!isNaN(m)) setTime(m.toLocaleString()); else setTime(meta.timestamp);
+                        return;
+                    }
+                    // try HEAD
+                    fetch('./index.html', { method: 'HEAD', cache: 'no-store' }).then(r => {
+                        const lm2 = r.headers.get('last-modified');
+                        if (lm2) {
+                            const d2 = new Date(lm2);
+                            if (!isNaN(d2)) setTime(d2.toLocaleString()); else setTime(lm2);
+                        } else {
+                            setTime(fallbackTime || 'unknown');
+                        }
+                    }).catch(() => setTime(fallbackTime || 'unknown'));
+                }).catch(() => {
+                    setCommit(fallbackCommit || 'unknown');
+                    setTime(fallbackTime || 'unknown');
+                });
+            });
+        })();
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/ansi_up@5.1.0/ansi_up.min.js"></script>
     <script type="module" src="./modules/main.js"></script>
     <script>

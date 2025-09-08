@@ -12,6 +12,11 @@ const ansiPalette = [
     { hex: '#FFFF00', code: 33 }, { hex: '#0000FF', code: 34 }, { hex: '#FF00FF', code: 35 },
     { hex: '#00FFFF', code: 36 }, { hex: '#FFFFFF', code: 37 }, { hex: '#808080', code: 30 }
 ];
+// Map simple color names used in faction_colors.js to allowed hex values
+const colorNameToHex = {
+    black: '#000000', red: '#FF0000', green: '#00FF00', yellow: '#FFFF00', blue: '#0000FF',
+    magenta: '#FF00FF', cyan: '#00FFFF', white: '#FFFFFF', grey: '#808080'
+};
 const hexToRgb = (hex) => { const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : null; };
 const findClosestAnsi = (hex) => { const rgb = hexToRgb(hex); if (!rgb) return 37; let best = 37; let bestD = Infinity; for (const c of ansiPalette) { const cr = hexToRgb(c.hex); const d = Math.pow(rgb.r - cr.r, 2) + Math.pow(rgb.g - cr.g, 2) + Math.pow(rgb.b - cr.b, 2); if (d < bestD) { bestD = d; best = c.code; } } return best; };
 
@@ -43,8 +48,17 @@ export function buildFactionColorMap(skippableMap) {
     const merged = { ...fromSkippable, ...explicit };
     const normalized = {};
     for (const [k, v] of Object.entries(merged)) {
-        normalized[k] = v;
-        try { normalized[k.toString().toLowerCase()] = v; } catch (e) {}
+        // Resolve any named colors to hex using colorNameToHex. If the value is already a hex, keep it.
+        const resolved = {};
+        ['unit','subunit','wargear','points','header'].forEach(prop => {
+            if (!v || v[prop] === undefined) return;
+            const raw = v[prop];
+            if (typeof raw === 'string' && raw.startsWith('#')) resolved[prop] = raw;
+            else if (typeof raw === 'string' && colorNameToHex[raw.toString().toLowerCase()]) resolved[prop] = colorNameToHex[raw.toString().toLowerCase()];
+            else resolved[prop] = raw;
+        });
+        normalized[k] = resolved;
+        try { normalized[k.toString().toLowerCase()] = resolved; } catch (e) {}
     }
     return normalized;
 }
@@ -278,7 +292,20 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
         if (displayFaction) parts.push(displayFaction);
         if (data.SUMMARY.DETACHMENT) parts.push(data.SUMMARY.DETACHMENT);
         if (data.SUMMARY.TOTAL_ARMY_POINTS) parts.push(data.SUMMARY.TOTAL_ARMY_POINTS);
-        if (parts.length) { const summaryText = parts.join(' | '); html += `<div style="padding-bottom:0.5rem;border-bottom:1px solid var(--color-border);"><p style="font-size:0.75rem;margin-bottom:0.25rem;color:var(--color-text-secondary);font-weight:600;">${summaryText}</p></div>`; plainText += summaryText + '\n\n'; }
+        if (parts.length) {
+            const summaryText = parts.join(' | ');
+            // Try to resolve header color from faction mapping when available
+            let headerColor = null;
+            try {
+                const fm = buildFactionColorMap(skippableWargearMap || {});
+                const fk = (data.SUMMARY && (data.SUMMARY.FACTION_KEY || data.SUMMARY.FACTION_KEYWORD || data.SUMMARY.DISPLAY_FACTION)) || null;
+                const fmEntry = fk ? (fm[fk] || fm[fk.toString().toLowerCase()]) : null;
+                if (fmEntry && fmEntry.header) headerColor = fmEntry.header;
+            } catch (e) { /* ignore */ }
+            const styleColor = headerColor ? `color:${headerColor};` : 'color:var(--color-text-secondary);';
+            html += `<div style="padding-bottom:0.5rem;border-bottom:1px solid var(--color-border);"><p style="font-size:0.75rem;margin-bottom:0.25rem;${styleColor}font-weight:600;">${summaryText}</p></div>`;
+            plainText += summaryText + '\n\n';
+        }
     }
     html += `<div style="margin-top:0.5rem;">`;
     for (const section in data) {
