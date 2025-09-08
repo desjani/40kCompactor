@@ -76,6 +76,8 @@ export function buildAbbreviationIndex(parsedData) {
                 if (!it || !it.name) continue;
                 const name = it.name.toString().trim();
                 const key = name.toLowerCase();
+                // Never generate an abbreviation for 'Warlord' - it's always displayed verbatim
+                if (key === 'warlord') continue;
                 // If this is an Enhancement special, reserve an abbreviation for the
                 // stripped enhancement name (without the prefix). We also store the
                 // abbreviation under the stripped and stripped-without-paren keys so

@@ -93,6 +93,8 @@ function aggregateWargear(unit) {
 
 function findAbbreviationForItem(itemName, wargearAbbrMap, dataSummary) {
     if (!wargearAbbrMap) return null;
+    if (!itemName) return null;
+    if (itemName.toString().trim().toLowerCase() === 'warlord') return null;
     const nameLower = (itemName || '').toLowerCase();
     const extractAbbr = (val) => {
         if (!val) return null;
@@ -177,11 +179,11 @@ function getInlineItemsString(items, useAbbreviations, wargearAbbrMap, dataSumma
         let abbr = null;
         if (useAbbreviations) abbr = findAbbreviationForItem(i.name, wargearAbbrMap, dataSummary);
         if (abbr === 'NULL') return;
-        // If no abbreviation found, try nameshort, then fallback initials generator.
+    // If no abbreviation found, try nameshort, then fallback initials generator.
     if (!abbr && useAbbreviations && i.nameshort) abbr = i.nameshort;
     if (!abbr && useAbbreviations) abbr = makeAbbrevForName(i.name);
-        const displayName = (useAbbreviations && abbr) ? abbr : i.name;
-        wargear.push(`${qtyPrefix}${displayName}`);
+    const displayName = (useAbbreviations && abbr) ? abbr : i.name;
+    wargear.push(`${qtyPrefix}${displayName}`);
     });
     const all = [...special, ...wargear].filter(Boolean);
     return all.length ? ` (${all.join(', ')})` : '';

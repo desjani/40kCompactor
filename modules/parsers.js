@@ -35,7 +35,9 @@ function addItemToTarget(target, itemString, unitContextName, factionKeyword, un
         const addQ = parseInt(String(qty || '1x').replace(/x/i, ''), 10) || 0;
         existing.quantity = `${exQ + addQ}x`;
     } else {
-        target.items.push({ quantity: qty, name: name, items: [], type: itemType, nameshort: '' });
+    // Ensure literal 'Warlord' is treated as a special, not as generic wargear
+    const forcedType = (normalizeForComparison(name) === 'warlord') ? 'special' : itemType;
+    target.items.push({ quantity: qty, name: name, items: [], type: forcedType, nameshort: '' });
     }
 }
 
