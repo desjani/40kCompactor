@@ -47,6 +47,23 @@ export function buildFactionColorMap(skippableMap) {
     const fromSkippable = fallback(skippableMap || {});
     const merged = { ...fromSkippable, ...explicit };
     const normalized = {};
+    // Normalization helper: remove diacritics, map fancy apostrophes to ASCII, strip
+    // stray punctuation and lowercase. This makes lookups robust to parser
+    // variations (e.g. curly apostrophe vs straight). Mirrors normalizeKey used
+    // elsewhere in the codebase.
+    const normalizeKey = (s) => {
+        if (!s) return '';
+        try {
+            return s.toString().normalize('NFD')
+                .replace(/\p{M}/gu, '')
+                .replace(/[\u2018\u2019\u201B\u2032]/g, "'")
+                .replace(/[^\w\s'\-]/g, '')
+                .toLowerCase().trim();
+        } catch (e) {
+            return s.toString().toLowerCase().trim();
+        }
+    };
+
     for (const [k, v] of Object.entries(merged)) {
         // Resolve any named colors to hex using colorNameToHex. If the value is already a hex, keep it.
         const resolved = {};
@@ -57,8 +74,9 @@ export function buildFactionColorMap(skippableMap) {
             else if (typeof raw === 'string' && colorNameToHex[raw.toString().toLowerCase()]) resolved[prop] = colorNameToHex[raw.toString().toLowerCase()];
             else resolved[prop] = raw;
         });
-        normalized[k] = resolved;
-        try { normalized[k.toString().toLowerCase()] = resolved; } catch (e) {}
+    normalized[k] = resolved;
+    try { normalized[k.toString().toLowerCase()] = resolved; } catch (e) {}
+    try { normalized[normalizeKey(k)] = resolved; } catch (e) {}
     }
     return normalized;
 }
@@ -301,7 +319,11 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
             try {
                 const fm = buildFactionColorMap(skippableWargearMap || {});
                 const fk = (data.SUMMARY && (data.SUMMARY.FACTION_KEY || data.SUMMARY.FACTION_KEYWORD || data.SUMMARY.DISPLAY_FACTION)) || null;
-                const fmEntry = fk ? (fm[fk] || fm[fk.toString().toLowerCase()]) : null;
+                const normalizeKeyLookup = (s) => {
+                    if (!s) return null;
+                    try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
+                };
+                const fmEntry = fk ? (fm[fk] || fm[fk.toString().toLowerCase()] || fm[normalizeKeyLookup(fk)]) : null;
                 if (fmEntry && fmEntry.header) headerColor = fmEntry.header;
             } catch (e) { /* ignore */ }
             const styleColor = headerColor ? `color:${headerColor};` : 'color:var(--color-text-secondary);';
@@ -430,8 +452,13 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
             const factionMap = buildFactionColorMap(skippableWargearMap || {});
             // Prefer parser-provided FACTION_KEYWORD for deterministic mapping; fall back to DISPLAY_FACTION.
             const factionKey = (data.SUMMARY && (data.SUMMARY.FACTION_KEYWORD || data.SUMMARY.DISPLAY_FACTION)) || null;
-            if (factionKey && factionMap[factionKey]) {
-                const fm = factionMap[factionKey];
+            const normalizeKeyLookup = (s) => {
+                if (!s) return null;
+                try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
+            };
+            const nfk = factionKey ? normalizeKeyLookup(factionKey) : null;
+            if (factionKey && (factionMap[factionKey] || factionMap[factionKey.toString().toLowerCase()] || (nfk && factionMap[nfk]))) {
+                const fm = factionMap[factionKey] || factionMap[factionKey.toString().toLowerCase()] || factionMap[nfk];
                 if (fm.unit) colors.unit = fm.unit;
                 if (fm.subunit) colors.subunit = fm.subunit;
                 if (fm.wargear) colors.wargear = fm.wargear;
@@ -521,7 +548,12 @@ export function resolveFactionColors(data, skippableWargearMap) {
     const factionMap = buildFactionColorMap(skippableWargearMap || {});
     const factionKey = (data.SUMMARY && (data.SUMMARY.FACTION_KEYWORD || data.SUMMARY.DISPLAY_FACTION)) || null;
     if (!factionKey) return null;
-    const fm = factionMap[factionKey] || factionMap[factionKey && factionKey.toString().toLowerCase()];
+    const normalizeKeyLookup = (s) => {
+        if (!s) return null;
+        try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
+    };
+    const nfk = normalizeKeyLookup(factionKey);
+    const fm = factionMap[factionKey] || factionMap[factionKey && factionKey.toString().toLowerCase()] || (nfk && factionMap[nfk]);
     return fm || null;
 }
 

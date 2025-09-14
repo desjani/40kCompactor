@@ -65,7 +65,12 @@ function updateFactionDiagnostic() {
         // include the symbol and we don't rely on fragile global fallbacks.
         const factionMap = buildFactionColorMap(skippableWargearMap || {});
         const fk = (parsedData.SUMMARY && (parsedData.SUMMARY.FACTION_KEY || parsedData.SUMMARY.FACTION_KEYWORD || parsedData.SUMMARY.DISPLAY_FACTION)) || null;
-        const fm = fk ? (factionMap[fk] || factionMap[fk.toString().toLowerCase()]) : null;
+        const normalizeKey = (s) => {
+            if (!s) return null;
+            try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
+        };
+        const nfk = normalizeKey(fk);
+        const fm = fk ? (factionMap[fk] || factionMap[fk.toString().toLowerCase()] || (nfk && factionMap[nfk])) : null;
         if (!fm) {
             setFactionColorDiagnostic('No faction mapping found for parsed FACTION_KEYWORD/DISPLAY_FACTION');
             return;
