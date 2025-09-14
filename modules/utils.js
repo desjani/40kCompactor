@@ -28,3 +28,20 @@ export function flexibleNameMatch(name1, name2) {
 
     return normName1.includes(normName2) || normName2.includes(normName1);
 }
+
+// Sort wargear/special item arrays in-place: descending numeric quantity, then by name (A-Z)
+export function sortItemsByQuantityThenName(items) {
+    if (!Array.isArray(items)) return items;
+    items.sort((a, b) => {
+        const aq = parseInt(String((a && a.quantity) || '1x').replace(/x/i, ''), 10) || 1;
+        const bq = parseInt(String((b && b.quantity) || '1x').replace(/x/i, ''), 10) || 1;
+        // descending quantity
+        if (aq !== bq) return bq - aq;
+        const an = (a && a.name) ? a.name.toString().toLowerCase() : '';
+        const bn = (b && b.name) ? b.name.toString().toLowerCase() : '';
+        if (an < bn) return -1;
+        if (an > bn) return 1;
+        return 0;
+    });
+    return items;
+}

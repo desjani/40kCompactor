@@ -1,4 +1,4 @@
-import { normalizeForComparison, parseItemString } from '../utils.js';
+import { normalizeForComparison, parseItemString, sortItemsByQuantityThenName } from '../utils.js';
 import FAMILY_MAP from '../family_map.js';
 import { standardizeSummary } from '../summary.js';
 
@@ -208,6 +208,13 @@ export function parseWtcCompact(lines) {
         const enh = headerEnhancements[k];
         const found = allUnits.find(u => normalize(u.name).includes(normalize(k)) || normalize(`${u.quantity} ${u.name}`).includes(normalize(k)));
         if (found) parseAndAddEnhancement(enh, found);
+    }
+
+    // Ensure deterministic ordering: sort top-level items and subunit items
+    for (const u of allUnits) {
+        if (u && Array.isArray(u.items) && u.items.length > 0) sortItemsByQuantityThenName(u.items);
+        const subs = (u && Array.isArray(u.items)) ? u.items.filter(it => it && it.type === 'subunit') : [];
+        for (const su of subs) if (su && Array.isArray(su.items) && su.items.length > 0) sortItemsByQuantityThenName(su.items);
     }
 
     standardizeSummary(result);

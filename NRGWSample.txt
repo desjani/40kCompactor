@@ -1,38 +1,37 @@
 +++++++++++++++++++++++++++++++++++++++++++++++
 + FACTION KEYWORD: Xenos - T'au Empire
 + DETACHMENT: Retaliation Cadre
-+ TOTAL ARMY POINTS: 2070pts
++ TOTAL ARMY POINTS: 2000pts
 +
-+ ENHANCEMENT: Starflare Ignition System (on Char3: Commander in Enforcer Battlesuit)
-+ NUMBER OF UNITS: 18
-+ SECONDARY: - Bring It Down: (10x2) + (4x4) - Assassination: 4 Characters
++ ENHANCEMENT: Internal Grenade Racks (on Char1: Commander in Coldstar Battlesuit)
+& Prototype Weapon System (on Char2: Commander in Coldstar Battlesuit)
+& Starflare Ignition System (on Char3: Commander in Enforcer Battlesuit)
++ NUMBER OF UNITS: 17
++ SECONDARY: - Bring It Down: (10x2) + (5x4) - Assassination: 4 Characters
 +++++++++++++++++++++++++++++++++++++++++++++++
 
 CHARACTER
 
-1x Commander Farsight (95 pts)
+1x Commander Farsight (85 pts)
 • 1x Dawn Blade
 • 1x High-intensity plasma rifle
 
-1x Commander in Coldstar Battlesuit (95 pts)
-• 1x Fusion blaster
-• 3x Fusion blaster
+1x Commander in Coldstar Battlesuit (115 pts)
+• 4x Fusion blaster
 • 1x Battlesuit fists
 • 2x Shield Drone
+• Internal Grenade Racks (+20 pts)
 
-1x Commander in Coldstar Battlesuit (95 pts)
-• 1x Burst cannon
-• 1x Burst cannon
+1x Commander in Coldstar Battlesuit (110 pts)
+• 2x Burst cannon
 • 1x Cyclic ion blaster
 • 1x High-output burst cannon
 • 1x Battlesuit fists
 • 2x Shield Drone
+• Prototype Weapon System (+15 pts)
 
 1x Commander in Enforcer Battlesuit (100 pts)
-• 1x Missile pod
-• 1x Missile pod
-• 1x Missile pod
-• 1x Missile pod
+• 4x Missile pod
 • 1x Battlesuit fists
 • Starflare Ignition System (+20 pts)
 
@@ -58,25 +57,7 @@ OTHER DATASHEETS
     • 2x Burst cannon
     • 2x Stealth Shas'ui
 
-3x Stealth Battlesuits (80 pts)
-• 1x Stealth Shas'vre
-    • 1x Battlesuit fists
-    • 1x Fusion blaster
-    • Battlesuit support system, Homing beacon, Marker Drone, Shield Drone, Stealth Shas'vre (Shield Drone)
-• 2x Stealth Shas'ui
-    • 2x Battlesuit fists
-    • 2x Burst cannon
-    • 2x Stealth Shas'ui
-
-5x Vespid Stingwings (65 pts)
-• 1x Vespid Strain Leader
-    • 1x Neutron blaster
-    • 1x Stingwing claws
-• 4x Vespid Stingwings
-    • 4x Neutron blaster
-    • 4x Stingwing claws
-
-1x Broadside Battlesuits (90 pts)
+1x Broadside Battlesuits (80 pts)
 • 1x Broadside Shas’vre
     • 1x Crushing bulk
     • 2x Missile pod
@@ -84,7 +65,7 @@ OTHER DATASHEETS
     • 1x Twin smart missile system
     • Weapon support system, Broadside Shas’vre
 
-1x Broadside Battlesuits (90 pts)
+1x Broadside Battlesuits (80 pts)
 • 1x Broadside Shas’vre
     • 1x Crushing bulk
     • 2x Missile pod
@@ -92,7 +73,7 @@ OTHER DATASHEETS
     • 1x Twin smart missile system
     • Weapon support system, Broadside Shas’vre
 
-1x Broadside Battlesuits (90 pts)
+1x Broadside Battlesuits (80 pts)
 • 1x Broadside Shas’vre
     • 1x Crushing bulk
     • 2x Missile pod
@@ -100,7 +81,7 @@ OTHER DATASHEETS
     • 1x Twin smart missile system
     • Weapon support system, Broadside Shas’vre
 
-3x Crisis Fireknife Battlesuits (130 pts)
+3x Crisis Fireknife Battlesuits (120 pts)
 • 1x Crisis Fireknife Shas’vre
     • 2x Missile pod
     • 1x Battlesuit fists
@@ -124,7 +105,18 @@ OTHER DATASHEETS
     • 2x Twin pulse carbine
     • 2x Shield Drone, 2x Crisis Starscythe Shas’ui (Shield Drone)
 
-3x Crisis Sunforge Battlesuits (150 pts)
+3x Crisis Starscythe Battlesuits (110 pts)
+• 1x Crisis Starscythe Shas’vre
+    • 2x T'au flamer
+    • 1x Battlesuit fists
+    • Marker Drone, Shield Drone, Crisis Starscythe Shas’vre (Shield Drone)
+• 2x Crisis Starscythe Shas’ui
+    • 4x T'au flamer
+    • 2x Battlesuit fists
+    • 2x Twin pulse carbine
+    • 2x Shield Drone, 2x Crisis Starscythe Shas’ui (Shield Drone)
+
+3x Crisis Sunforge Battlesuits (140 pts)
 • 1x Crisis Sunforge Shas’vre
     • 2x Fusion blaster
     • 1x Battlesuit fists
@@ -136,7 +128,7 @@ OTHER DATASHEETS
     • 2x Twin pulse carbine
     • 2x Shield Drone, 2x Crisis Sunforge Shas’ui (Shield Drone)
 
-3x Crisis Sunforge Battlesuits (150 pts)
+3x Crisis Sunforge Battlesuits (140 pts)
 • 1x Crisis Sunforge Shas’vre
     • 2x Fusion blaster
     • 1x Battlesuit fists

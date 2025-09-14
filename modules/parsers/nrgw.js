@@ -1,4 +1,4 @@
-import { getIndent, normalizeForComparison, parseItemString } from '../utils.js';
+import { getIndent, normalizeForComparison, parseItemString, sortItemsByQuantityThenName } from '../utils.js';
 import FAMILY_MAP from '../family_map.js';
 import { standardizeSummary } from '../summary.js';
 
@@ -417,6 +417,10 @@ function parseGwLikeBody(lines) {
                     }
                 }
             }
+            // Ensure deterministic ordering of top-level items and subunit items
+            if (Array.isArray(unit.items) && unit.items.length > 0) sortItemsByQuantityThenName(unit.items);
+            const subsAfter = (unit.items || []).filter(it => it && it.type === 'subunit');
+            for (const su of subsAfter) if (Array.isArray(su.items) && su.items.length > 0) sortItemsByQuantityThenName(su.items);
         }
     }
 
@@ -494,14 +498,33 @@ export function parseNrGw(lines) {
         if (!he || !he.enh) continue;
         let found = null;
         const normalize = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
-        if (he.target) {
-            found = allUnits.find(u => normalize(u.name).includes(normalize(he.target)) || normalize(`${u.quantity} ${u.name}`).includes(normalize(he.target)));
-        }
-        if (!found && he.charId) {
-            const idx = parseInt(String(he.charId).replace(/[^0-9]/g, ''), 10) - 1;
-            if (!Number.isNaN(idx) && Array.isArray(bodyResult.CHARACTER) && bodyResult.CHARACTER[idx]) {
-                found = bodyResult.CHARACTER[idx];
+        // Prefer explicit character index (CharN) when present - it's more
+        // precise than fuzzy text matching when multiple units share the same
+        // name. Fall back to fuzzy `target` matching if charId lookup fails.
+        if (he.charId) {
+            const idx = parseInt(String(he.charId).replace(/[^0-9]/g, ''), 10);
+            if (!Number.isNaN(idx) && idx > 0) {
+                if (he.target) {
+                    const matches = allUnits.filter(u => normalize(u.name).includes(normalize(he.target)) || normalize(`${u.quantity} ${u.name}`).includes(normalize(he.target)));
+                    if (matches && matches.length > 0) {
+                        // If idx refers to a larger number than available matches,
+                        // prefer the last match rather than falling back to an
+                        // unrelated absolute CHARACTER index which often causes
+                        // mis-assignment when the file's CharN numbering is
+                        // inconsistent.
+                        const pick = Math.min(idx - 1, matches.length - 1);
+                        found = matches[pick];
+                    }
+                } else {
+                    // No textual target provided; use absolute CHARACTER index.
+                    if (Array.isArray(bodyResult.CHARACTER) && bodyResult.CHARACTER[idx - 1]) {
+                        found = bodyResult.CHARACTER[idx - 1];
+                    }
+                }
             }
+        }
+        if (!found && he.target) {
+            found = allUnits.find(u => normalize(u.name).includes(normalize(he.target)) || normalize(`${u.quantity} ${u.name}`).includes(normalize(he.target)));
         }
         if (!found && allUnits.length === 1) found = allUnits[0];
         if (found) parseAndAddEnhancement(he.enh, found, bodyResult.SUMMARY.FACTION_KEYWORD || '');

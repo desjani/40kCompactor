@@ -1,4 +1,4 @@
-import { getIndent, normalizeForComparison, parseItemString } from '../utils.js';
+import { getIndent, normalizeForComparison, parseItemString, sortItemsByQuantityThenName } from '../utils.js';
 import FAMILY_MAP from '../family_map.js';
 import { standardizeSummary } from '../summary.js';
 
@@ -298,6 +298,8 @@ export function parseGwAppV2(lines) {
             } else {
                 unit.isComplex = false;
             }
+            // Ensure deterministic ordering: sort items by descending quantity then name
+            if (Array.isArray(unit.items) && unit.items.length > 0) sortItemsByQuantityThenName(unit.items);
         }
     }
 

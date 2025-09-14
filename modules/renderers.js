@@ -5,6 +5,7 @@
 import { getMultilineHeaderState } from './ui.js';
 import { makeAbbrevForName } from './abbreviations.js';
 import factionColors from './faction_colors.js';
+import { sortItemsByQuantityThenName } from './utils.js';
 
 // ANSI palette and helpers available at module scope so multiple functions can use them
 const ansiPalette = [
@@ -106,7 +107,14 @@ function aggregateWargear(unit) {
 
     walk(unit);
     const wargearList = Array.from(aggregated.values()).map(i => ({ ...i, quantity: `${i.quantity}x` }));
-    return [...specials, ...wargearList];
+    const combined = [...specials, ...wargearList];
+    // Sort aggregated wargear portion (leave specials at front but ensure wargear entries
+    // are ordered by quantity desc then name). Specials should remain in the order
+    // they were encountered.
+    const specialOnly = combined.filter(c => c.type === 'special');
+    const wargearOnly = combined.filter(c => c.type === 'wargear');
+    sortItemsByQuantityThenName(wargearOnly);
+    return [...specialOnly, ...wargearOnly];
 }
 
 function findAbbreviationForItem(itemName, wargearAbbrMap, dataSummary) {
@@ -366,7 +374,7 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
             if (hideSubunits) {
                     let aggregated = aggregateWargear(unit);
                     // For full text (non-compact), we do NOT apply skippable filtering — show all aggregated wargear
-                    if (aggregated.length > 0) { html += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`; aggregated.forEach(it => { const qtyDisplay = it.quantity ? `${it.quantity} ` : ''; html += `<p style="margin:0;">${qtyDisplay}${it.name}</p>`; plainText += `  - ${qtyDisplay}${it.name}\n`; }); html += `</div>`; }
+                    if (aggregated.length > 0) { html += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`; aggregated.forEach(it => { const iq = parseInt((it.quantity || '1').toString().replace('x',''), 10) || 1; const qtyDisplay = iq > 1 ? `${it.quantity} ` : ''; html += `<p style="margin:0;">${qtyDisplay}${it.name}</p>`; plainText += `  - ${qtyDisplay}${it.name}\n`; }); html += `</div>`; }
             } else {
                 const topLevelItems = itemsArr.filter(i => i.type === 'wargear' || i.type === 'special');
                 // For full text view do NOT apply skippable hiding; show all top-level items
@@ -413,7 +421,7 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                         if (collated.length === 0 && !hasVisibleSpecials) return;
                         html += `<p style="font-weight:500;color:var(--color-text-primary);margin:0;">${subunitNameText}</p>`;
                         plainText += `  * ${subunitNameText}\n`;
-                        if (collated.length > 0) { collated.forEach(ci => { const ciQty = ci.quantity ? `${ci.quantity} ` : ''; html += `<p style="margin:0 0 0.125rem 1rem;">${ciQty}${ci.name}</p>`; plainText += `    - ${ciQty}${ci.name}\n`; }); }
+                        if (collated.length > 0) { collated.forEach(ci => { const ciQtyNum = parseInt((ci.quantity || '1').toString().replace('x',''), 10) || 1; const ciQty = ciQtyNum > 1 ? `${ci.quantity} ` : ''; html += `<p style="margin:0 0 0.125rem 1rem;">${ciQty}${ci.name}</p>`; plainText += `    - ${ciQty}${ci.name}\n`; }); }
                     });
                     html += `</div>`;
                 }
