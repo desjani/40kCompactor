@@ -1,52 +1,174 @@
-+++++++++++++++++++++++++++++++++++++++++++++++
-+ FACTION KEYWORD: Chaos - World Eaters
-+ DETACHMENT: Berzerker Warband
-+ TOTAL ARMY POINTS: 1995pts
-+
-+ WARLORD: Char2: Daemon Prince of Khorne
-+ ENHANCEMENT: Helm of Brazen Ire (on Char1: Daemon Prince of Khorne)
-& Berzerker Glaive (on Char2: Master of Executions)
-& Favoured of Khorne (on Char3: Slaughterbound)
-+ NUMBER OF UNITS: 16
-+ SECONDARY: - Bring It Down: (7x2) - Assassination: 4 Characters
-+++++++++++++++++++++++++++++++++++++++++++++++
+Black Tie Affair (2000 points)
 
-Char1: 1x Khârn the Betrayer (85 pts): Gorechild, Plasma pistol
-Char2: 1x Daemon Prince of Khorne (220 pts): Warlord, Hellforged weapons, Infernal cannon
-Enhancement: Helm of Brazen Ire (+20 pts)
-Char3: 1x Master of Executions (85 pts): Axe of dismemberment, Bolt pistol
-Enhancement: Berzerker Glaive (+25 pts)
-Char4: 1x Slaughterbound (100 pts): Lacerator and daemonic claw
-Enhancement: Favoured of Khorne (+15 pts)
+T’au Empire
+Strike Force (2000 points)
+Retaliation Cadre
 
-10x Khorne Berzerkers (180 pts)
-• 9x Khorne Berzerker
-    5 with Bolt pistol, Chainblade
-    2 with Chainblade, Plasma pistol
-    2 with Bolt pistol, Khornate eviscerator
-• 1x Khorne Berzerker Champion: Icon of Khorne, Chainblade, Plasma pistol
-10x Khorne Berzerkers (180 pts)
-• 9x Khorne Berzerker
-    5 with Bolt pistol, Chainblade
-    2 with Chainblade, Plasma pistol
-    2 with Bolt pistol, Khornate eviscerator
-• 1x Khorne Berzerker Champion: Icon of Khorne, Chainblade, Plasma pistol
 
-3x Eightbound (150 pts)
-• 1x Eightbound Champion: Chainblades
-• 2x Eightbound: 2 with Chainblades
-10x Jakhals (65 pts)
-• 8x Jakhal
-    6 with Autopistol, Chainblades
-    1 with Icon of Khorne, Autopistol, Chainblades
-    1 with Autopistol, Mauler chainblade
-• 1x Jakhal Pack Leader: Autopistol, Chainblades
-• 1x Dishonoured: Skullsmasher and mangler
-2x Chaos Spawn (80 pts): 2 with Hideous Mutations
-2x Chaos Spawn (80 pts): 2 with Hideous Mutations
-1x Forgefiend (150 pts): 2x Ectoplasma cannon, Ectoplasma cannon, Forgefiend claws
-1x Forgefiend (150 pts): 2x Ectoplasma cannon, Ectoplasma cannon, Forgefiend claws
-1x Maulerfiend (150 pts): Maulerfiend fists, 2x Magma cutter
-1x Maulerfiend (150 pts): Maulerfiend fists, 2x Magma cutter
-1x Chaos Rhino (85 pts): Armoured tracks, Combi-bolter, Havoc launcher, Combi-bolter
-1x Chaos Rhino (85 pts): Armoured tracks, Combi-bolter, Havoc launcher, Combi-bolter
+CHARACTERS
+
+Commander Farsight (95 points)
+  • Warlord
+  • 1x Dawn Blade
+    1x High-intensity plasma rifle
+
+Commander in Coldstar Battlesuit (95 points)
+  • 1x Battlesuit fists
+    2x Burst cannon
+    1x Cyclic ion blaster
+    1x High-output burst cannon
+    2x Shield Drone
+
+Commander in Coldstar Battlesuit (95 points)
+  • 1x Battlesuit fists
+    4x Fusion blaster
+    2x Shield Drone
+
+Commander in Enforcer Battlesuit (100 points)
+  • 1x Battlesuit fists
+    4x Missile pod
+    2x Shield Drone
+  • Enhancement: Starflare Ignition System
+
+
+OTHER DATASHEETS
+
+Crisis Fireknife Battlesuits (130 points)
+  • 1x Crisis Fireknife Shas’vre
+    • 1x Battlesuit fists
+      1x Gun Drone
+      2x Missile pod
+      1x Shield Drone
+  • 2x Crisis Fireknife Shas’ui
+    • 2x Battlesuit fists
+      2x Gun Drone
+      4x Missile pod
+      2x Shield Drone
+
+Crisis Starscythe Battlesuits (110 points)
+  • 1x Crisis Starscythe Shas’vre
+    • 1x Battlesuit fists
+      2x Burst cannon
+      1x Gun Drone
+      1x Shield Drone
+  • 2x Crisis Starscythe Shas’ui
+    • 2x Battlesuit fists
+      4x Burst cannon
+      2x Gun Drone
+      2x Shield Drone
+
+Crisis Starscythe Battlesuits (110 points)
+  • 1x Crisis Starscythe Shas’vre
+    • 1x Battlesuit fists
+      1x Marker Drone
+      1x Shield Drone
+      2x T’au flamer
+  • 2x Crisis Starscythe Shas’ui
+    • 2x Battlesuit fists
+      2x Gun Drone
+      2x Shield Drone
+      4x T’au flamer
+
+Crisis Sunforge Battlesuits (150 points)
+  • 1x Crisis Sunforge Shas’vre
+    • 1x Battlesuit fists
+      2x Fusion blaster
+      1x Gun Drone
+      1x Shield Drone
+  • 2x Crisis Sunforge Shas’ui
+    • 2x Battlesuit fists
+      4x Fusion blaster
+      2x Gun Drone
+      2x Shield Drone
+
+Crisis Sunforge Battlesuits (150 points)
+  • 1x Crisis Sunforge Shas’vre
+    • 1x Battlesuit fists
+      2x Fusion blaster
+      1x Gun Drone
+      1x Shield Drone
+  • 2x Crisis Sunforge Shas’ui
+    • 2x Battlesuit fists
+      4x Fusion blaster
+      2x Gun Drone
+      2x Shield Drone
+
+Kroot Carnivores (65 points)
+  • 1x Long-quill
+    • 1x Close combat weapon
+      1x Kroot pistol
+      1x Kroot rifle
+  • 9x Kroot Carnivore
+    • 9x Close combat weapon
+      8x Kroot rifle
+      1x Tanglebomb launcher
+
+Pathfinder Team (90 points)
+  • 1x Pathfinder Shas’ui
+    • 1x Close combat weapon
+      2x Gun Drone
+      1x Pulse carbine
+      1x Pulse pistol
+      1x Recon Drone
+  • 9x Pathfinder
+    • 9x Close combat weapon
+      3x Ion rifle
+      6x Pulse carbine
+      9x Pulse pistol
+      1x Semi-automatic grenade launcher
+
+Riptide Battlesuit (190 points)
+  • 1x Ion accelerator
+    2x Missile Drone
+    1x Riptide fists
+    1x Twin smart missile system
+
+Riptide Battlesuit (190 points)
+  • 1x Ion accelerator
+    2x Missile Drone
+    1x Riptide fists
+    1x Twin smart missile system
+
+Riptide Battlesuit (190 points)
+  • 1x Ion accelerator
+    2x Missile Drone
+    1x Riptide fists
+    1x Twin smart missile system
+
+Stealth Battlesuits (80 points)
+  • 1x Stealth Shas’vre
+    • 1x Battlesuit Support System
+      1x Battlesuit fists
+      1x Fusion blaster
+      1x Homing Beacon
+      1x Marker Drone
+      1x Shield Drone
+  • 2x Stealth Shas’ui
+    • 2x Battlesuit fists
+      2x Burst cannon
+
+Stealth Battlesuits (80 points)
+  • 1x Stealth Shas’vre
+    • 1x Battlesuit Support System
+      1x Battlesuit fists
+      1x Fusion blaster
+      1x Homing Beacon
+      1x Marker Drone
+      1x Shield Drone
+  • 2x Stealth Shas’ui
+    • 2x Battlesuit fists
+      2x Burst cannon
+
+Stealth Battlesuits (80 points)
+  • 1x Stealth Shas’vre
+    • 1x Battlesuit Support System
+      1x Battlesuit fists
+      1x Fusion blaster
+      1x Homing Beacon
+      1x Marker Drone
+      1x Shield Drone
+  • 2x Stealth Shas’ui
+    • 2x Battlesuit fists
+      2x Burst cannon
+
+Exported with App Version: v1.40.1 (97), Data Version: v686

@@ -401,6 +401,17 @@ export function parseGwAppV2(lines) {
                         continue;
                     }
                     if (blockIsComplex && currentSection !== 'CHARACTER') {
+                        // If we already have a current subunit and this bullet is more indented,
+                        // treat it as a nested item of the existing subunit rather than creating
+                        // a new sibling subunit. This handles patterns like:
+                        //  • 1x Crisis Shas'vre
+                        //    • 1x Battlesuit fists
+                        //      2x Fusion blaster
+                        if (currentSubunit && typeof currentSubIndent === 'number' && indent > currentSubIndent) {
+                            // Add the bullet content as an item under the current subunit
+                            addItemToTarget(currentSubunit, content, currentSubunit.name, result.SUMMARY.FACTION_KEYWORD || '', unit.name, false);
+                            continue;
+                        }
                         currentSubunit = null;
                         const subMatch = content.match(/^(\d+x?)\s+(.*)$/i);
                         const subQty = subMatch ? subMatch[1] : '1x';
