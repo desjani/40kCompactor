@@ -310,6 +310,8 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
         }
     }
     html += `<div style="margin-top:0.5rem;">`;
+    const UNIT_BULLET = '•';
+    const SUB_BULLET = '◦';
     for (const section in data) {
         if (section === 'SUMMARY' || !Array.isArray(data[section])) continue;
         data[section].forEach(unit => {
@@ -328,12 +330,12 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                 const itemsString = getInlineItemsString(visible, useAbbreviations, wargearAbbrMap, data.SUMMARY);
                 const unitText = `${qtyDisplay}${unit.name}${itemsString} [${unit.points}]`;
                 html += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p></div>`;
-                plainText += `* ${unitText}\n`;
+                plainText += `${UNIT_BULLET} ${unitText}\n`;
                 return;
             }
             const unitText = `${qtyDisplay}${unit.name} [${unit.points}]`;
             html += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p>`;
-            plainText += `* ${unitText}\n`;
+            plainText += `${UNIT_BULLET} ${unitText}\n`;
             const itemsArr = unit.items || [];
             if (hideSubunits) {
                     let aggregated = aggregateWargear(unit);
@@ -446,6 +448,10 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
 
     const toAnsi = (txt, hex, bold = false) => { if (!useColor || !hex) return txt; const code = findClosestAnsi(hex); const boldPart = bold ? '1;' : ''; return `\u001b[${boldPart}${code}m${txt}\u001b[0m`; };
 
+    // Choose bullet symbols for plain text vs. other outputs
+    const UNIT_BULLET = plain ? '•' : '*';
+    const SUB_BULLET = plain ? '◦' : '+';
+
     let out = '';
     if (!plain) out += useColor ? '```ansi\n' : '```\n';
     if (data.SUMMARY) {
@@ -478,7 +484,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
             const pointsRaw = `[${unit.points}]`;
             const pointsText = useColor ? toAnsi(pointsRaw, colors.points, true) : pointsRaw;
 
-            out += `* ${unitText}${itemsText} ${pointsText}\n`;
+            out += `${UNIT_BULLET} ${unitText}${itemsText} ${pointsText}\n`;
 
             if (!hideSubunits && Array.isArray(unit.items)) {
                 const subs = unit.items.filter(i => i.type === 'subunit' || (i.items && i.items.length > 0));
@@ -500,7 +506,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
                     if (filteredItems.length === 0 && !hasVisibleSpecials) return; // hide empty subunit
                     const subItems = getInlineItemsString(filteredItems, useAbbreviations, wargearAbbrMap, data.SUMMARY);
                     const subItemsText = (useColor && subItems) ? toAnsi(subItems, colors.wargear, false) : subItems;
-                    out += `  + ${subName}${subItemsText}\n`;
+                    out += `  ${SUB_BULLET} ${subName}${subItemsText}\n`;
                 });
             }
         });
