@@ -1,4 +1,4 @@
-import { detectFormat, parseGwApp, parseWtcCompact } from './parsers.js';
+import { detectFormat, parseGwApp, parseWtcCompact, parseNrGw } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic } from './ui.js';
@@ -6,6 +6,7 @@ import { initializeUI, enableParseButton, setParseButtonError, getInputText, set
 let parsedData = null;
 let extendedPlainText = '';
 let compactPlainText = '';
+let detectedFormat = null;
 // let wargearAbbrMap = null; // DEPRECATED
 let skippableWargearMap = null;
 let wargearAbbrDB = null; // dynamic abbreviations built from parsed data
@@ -33,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         onColorChange: () => {
             if (parsedData) {
                 const hideSubunits = getHideSubunitsState();
-                const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap);
+                const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true);
                 setCompactedOutput(compactOutput.html);
                 compactPlainText = compactOutput.plainText;
                 // Also update the markdown preview on color change
@@ -95,7 +96,8 @@ function handleParse() {
     const format = detectFormat(lines);
     const parser = {
         GW_APP: parseGwApp,
-        WTC_COMPACT: parseWtcCompact
+        WTC_COMPACT: parseWtcCompact,
+        NR_GW: parseNrGw
     }[format];
 
     if (!parser) {
@@ -117,6 +119,8 @@ function handleParse() {
     setDebugOutput(JSON.stringify(result, null, 2));
 
     parsedData = result;
+    // remember the detected format for the UI so we can show an indicator next to counts
+    detectedFormat = format;
     // Build dynamic abbreviation index from parsed data
     try {
         wargearAbbrDB = buildAbbreviationIndex(result);
@@ -125,15 +129,17 @@ function handleParse() {
         wargearAbbrDB = { __flat_abbr: {} };
     }
     const hideSubunits = getHideSubunitsState();
-    const extendedOutput = generateOutput(result, false, wargearAbbrDB, hideSubunits, skippableWargearMap);
+    const extendedOutput = generateOutput(result, false, wargearAbbrDB, hideSubunits, skippableWargearMap, false);
     setUnabbreviatedOutput(extendedOutput.html);
     extendedPlainText = extendedOutput.plainText;
-    const compactOutput = generateOutput(result, true, wargearAbbrDB, hideSubunits, skippableWargearMap);
+    const compactOutput = generateOutput(result, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true);
     setCompactedOutput(compactOutput.html);
     compactPlainText = compactOutput.plainText;
 
     // Generate and set Discord Compact Preview
     updatePreview();
+    // update character counts with format label
+    updateCharCounts(getInputText(), extendedPlainText, compactPlainText, currentPreviewText, detectedFormat);
 }
 
 function handleReset() {
@@ -141,6 +147,7 @@ function handleReset() {
     parsedData = null;
     extendedPlainText = '';
     compactPlainText = '';
+    detectedFormat = null;
     // wargearAbbrMap = null;
 }
 
@@ -172,5 +179,5 @@ function updatePreview() {
     }
     setMarkdownPreviewOutput(previewText);
     currentPreviewText = previewText; // Store for copying
-    updateCharCounts(getInputText(), extendedPlainText, compactPlainText, currentPreviewText);
+    updateCharCounts(getInputText(), extendedPlainText, compactPlainText, currentPreviewText, detectedFormat);
 }

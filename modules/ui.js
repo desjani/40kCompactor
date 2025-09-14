@@ -158,13 +158,28 @@ function toggleDebug() {
     }
 }
 
-export function updateCharCounts(original, extended, compact, markdownPreview) {
+// Add an optional detectedFormat parameter (string) so callers can show a small
+// "format detected" indicator beside the input character count.
+export function updateCharCounts(original, extended, compact, markdownPreview, detectedFormat) {
     const originalSize = original.length;
     const extendedSize = extended.trim().length;
     const compactSize = compact.trim().length;
     const markdownPreviewSize = markdownPreview.trim().length; // New line
 
-    if (inputCharCount) inputCharCount.textContent = `Characters: ${originalSize}`;
+    // Map internal format codes to user-friendly labels
+    const formatLabelMap = {
+        'GW_APP': 'GW Official App',
+        'WTC_COMPACT': "New Recruit - WTC-Compact",
+        'NR_GW': 'New Recruit - GW'
+    };
+
+    let inputTextContent = `Characters: ${originalSize}`;
+    if (detectedFormat) {
+        const friendly = formatLabelMap[detectedFormat] || detectedFormat;
+        inputTextContent += ` | ${friendly} format Detected!`;
+    }
+
+    if (inputCharCount) inputCharCount.textContent = inputTextContent;
 
     if (originalSize > 0) {
         const extendedRatioPercent = ((extendedSize / originalSize) * 100).toFixed(1);

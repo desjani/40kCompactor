@@ -1,0 +1,167 @@
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Xenos - T'au Empire
++ DETACHMENT: Retaliation Cadre
++ TOTAL ARMY POINTS: 2070pts
++
++ ENHANCEMENT: Starflare Ignition System (on Char3: Commander in Enforcer Battlesuit)
++ NUMBER OF UNITS: 18
++ SECONDARY: - Bring It Down: (10x2) + (4x4) - Assassination: 4 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+CHARACTER
+
+1x Commander Farsight (95 pts)
+• 1x Dawn Blade
+• 1x High-intensity plasma rifle
+
+1x Commander in Coldstar Battlesuit (95 pts)
+• 1x Fusion blaster
+• 3x Fusion blaster
+• 1x Battlesuit fists
+• 2x Shield Drone
+
+1x Commander in Coldstar Battlesuit (95 pts)
+• 1x Burst cannon
+• 1x Burst cannon
+• 1x Cyclic ion blaster
+• 1x High-output burst cannon
+• 1x Battlesuit fists
+• 2x Shield Drone
+
+1x Commander in Enforcer Battlesuit (100 pts)
+• 1x Missile pod
+• 1x Missile pod
+• 1x Missile pod
+• 1x Missile pod
+• 1x Battlesuit fists
+• Starflare Ignition System (+20 pts)
+
+OTHER DATASHEETS
+
+3x Stealth Battlesuits (80 pts)
+• 1x Stealth Shas'vre
+    • 1x Battlesuit fists
+    • 1x Fusion blaster
+    • Battlesuit support system, Homing beacon, Marker Drone, Shield Drone, Stealth Shas'vre (Shield Drone)
+• 2x Stealth Shas'ui
+    • 2x Battlesuit fists
+    • 2x Burst cannon
+    • 2x Stealth Shas'ui
+
+3x Stealth Battlesuits (80 pts)
+• 1x Stealth Shas'vre
+    • 1x Battlesuit fists
+    • 1x Fusion blaster
+    • Battlesuit support system, Homing beacon, Marker Drone, Shield Drone, Stealth Shas'vre (Shield Drone)
+• 2x Stealth Shas'ui
+    • 2x Battlesuit fists
+    • 2x Burst cannon
+    • 2x Stealth Shas'ui
+
+3x Stealth Battlesuits (80 pts)
+• 1x Stealth Shas'vre
+    • 1x Battlesuit fists
+    • 1x Fusion blaster
+    • Battlesuit support system, Homing beacon, Marker Drone, Shield Drone, Stealth Shas'vre (Shield Drone)
+• 2x Stealth Shas'ui
+    • 2x Battlesuit fists
+    • 2x Burst cannon
+    • 2x Stealth Shas'ui
+
+5x Vespid Stingwings (65 pts)
+• 1x Vespid Strain Leader
+    • 1x Neutron blaster
+    • 1x Stingwing claws
+• 4x Vespid Stingwings
+    • 4x Neutron blaster
+    • 4x Stingwing claws
+
+1x Broadside Battlesuits (90 pts)
+• 1x Broadside Shas’vre
+    • 1x Crushing bulk
+    • 2x Missile pod
+    • 1x Heavy rail rifle
+    • 1x Twin smart missile system
+    • Weapon support system, Broadside Shas’vre
+
+1x Broadside Battlesuits (90 pts)
+• 1x Broadside Shas’vre
+    • 1x Crushing bulk
+    • 2x Missile pod
+    • 1x Heavy rail rifle
+    • 1x Twin smart missile system
+    • Weapon support system, Broadside Shas’vre
+
+1x Broadside Battlesuits (90 pts)
+• 1x Broadside Shas’vre
+    • 1x Crushing bulk
+    • 2x Missile pod
+    • 1x Heavy rail rifle
+    • 1x Twin smart missile system
+    • Weapon support system, Broadside Shas’vre
+
+3x Crisis Fireknife Battlesuits (130 pts)
+• 1x Crisis Fireknife Shas’vre
+    • 2x Missile pod
+    • 1x Battlesuit fists
+    • 1x Twin pulse carbine
+    • Shield Drone, Crisis Fireknife Shas’vre (Shield Drone)
+• 2x Crisis Fireknife Shas’ui
+    • 2x Battlesuit fists
+    • 4x Missile pod
+    • 2x Twin pulse carbine
+    • 2x Shield Drone, 2x Crisis Fireknife Shas’ui (Shield Drone)
+
+3x Crisis Starscythe Battlesuits (110 pts)
+• 1x Crisis Starscythe Shas’vre
+    • 2x Burst cannon
+    • 1x Battlesuit fists
+    • 1x Twin pulse carbine
+    • Shield Drone, Crisis Starscythe Shas’vre (Shield Drone)
+• 2x Crisis Starscythe Shas’ui
+    • 4x Burst cannon
+    • 2x Battlesuit fists
+    • 2x Twin pulse carbine
+    • 2x Shield Drone, 2x Crisis Starscythe Shas’ui (Shield Drone)
+
+3x Crisis Sunforge Battlesuits (150 pts)
+• 1x Crisis Sunforge Shas’vre
+    • 2x Fusion blaster
+    • 1x Battlesuit fists
+    • 1x Twin pulse carbine
+    • Shield Drone, Crisis Sunforge Shas’vre (Shield Drone)
+• 2x Crisis Sunforge Shas’ui
+    • 2x Battlesuit fists
+    • 4x Fusion blaster
+    • 2x Twin pulse carbine
+    • 2x Shield Drone, 2x Crisis Sunforge Shas’ui (Shield Drone)
+
+3x Crisis Sunforge Battlesuits (150 pts)
+• 1x Crisis Sunforge Shas’vre
+    • 2x Fusion blaster
+    • 1x Battlesuit fists
+    • 1x Twin pulse carbine
+    • Shield Drone, Crisis Sunforge Shas’vre (Shield Drone)
+• 2x Crisis Sunforge Shas’ui
+    • 2x Battlesuit fists
+    • 4x Fusion blaster
+    • 2x Twin pulse carbine
+    • 2x Shield Drone, 2x Crisis Sunforge Shas’ui (Shield Drone)
+
+1x Riptide Battlesuit (190 pts)
+• 1x Riptide fists
+• 1x Ion accelerator
+• 2x Missile pod
+• 1x Twin smart missile system
+
+1x Riptide Battlesuit (190 pts)
+• 1x Riptide fists
+• 1x Ion accelerator
+• 2x Missile pod
+• 1x Twin smart missile system
+
+1x Riptide Battlesuit (190 pts)
+• 1x Riptide fists
+• 1x Ion accelerator
+• 2x Missile pod
+• 1x Twin smart missile system

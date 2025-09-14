@@ -303,7 +303,7 @@ function findSkippableForUnit(skippableWargearMap, dataSummary, unitName) {
     return [];
 }
 
-export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap) {
+export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap, applyHeaderColor = true) {
     let html = '', plainText = '';
     const displayFaction = data.SUMMARY?.DISPLAY_FACTION || (data.SUMMARY?.FACTION_KEYWORD || '');
     if (data.SUMMARY) {
@@ -314,19 +314,23 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
         if (data.SUMMARY.TOTAL_ARMY_POINTS) parts.push(data.SUMMARY.TOTAL_ARMY_POINTS);
         if (parts.length) {
             const summaryText = parts.join(' | ');
-            // Try to resolve header color from faction mapping when available
-            let headerColor = null;
-            try {
-                const fm = buildFactionColorMap(skippableWargearMap || {});
-                const fk = (data.SUMMARY && (data.SUMMARY.FACTION_KEY || data.SUMMARY.FACTION_KEYWORD || data.SUMMARY.DISPLAY_FACTION)) || null;
-                const normalizeKeyLookup = (s) => {
-                    if (!s) return null;
-                    try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
-                };
-                const fmEntry = fk ? (fm[fk] || fm[fk.toString().toLowerCase()] || fm[normalizeKeyLookup(fk)]) : null;
-                if (fmEntry && fmEntry.header) headerColor = fmEntry.header;
-            } catch (e) { /* ignore */ }
-            const styleColor = headerColor ? `color:${headerColor};` : 'color:var(--color-text-secondary);';
+            // Determine header color only when caller requests it (avoid coloring Full Text)
+            let styleColor = 'color:var(--color-text-secondary);';
+            if (applyHeaderColor) {
+                // Try to resolve header color from faction mapping when available
+                let headerColor = null;
+                try {
+                    const fm = buildFactionColorMap(skippableWargearMap || {});
+                    const fk = (data.SUMMARY && (data.SUMMARY.FACTION_KEY || data.SUMMARY.FACTION_KEYWORD || data.SUMMARY.DISPLAY_FACTION)) || null;
+                    const normalizeKeyLookup = (s) => {
+                        if (!s) return null;
+                        try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
+                    };
+                    const fmEntry = fk ? (fm[fk] || fm[fk.toString().toLowerCase()] || fm[normalizeKeyLookup(fk)]) : null;
+                    if (fmEntry && fmEntry.header) headerColor = fmEntry.header;
+                } catch (e) { /* ignore */ }
+                styleColor = headerColor ? `color:${headerColor};` : 'color:var(--color-text-secondary);';
+            }
             html += `<div style="padding-bottom:0.5rem;border-bottom:1px solid var(--color-border);"><p style="font-size:0.75rem;margin-bottom:0.25rem;${styleColor}font-weight:600;">${summaryText}</p></div>`;
             plainText += summaryText + '\n\n';
         }
@@ -463,12 +467,14 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
                 if (fm.subunit) colors.subunit = fm.subunit;
                 if (fm.wargear) colors.wargear = fm.wargear;
                 if (fm.points) colors.points = fm.points;
+                if (fm.header) colors.header = fm.header;
             } else if (factionKey && factionMap[factionKey.toString().toLowerCase()]) {
                 const fm = factionMap[factionKey.toString().toLowerCase()];
                 if (fm.unit) colors.unit = fm.unit;
                 if (fm.subunit) colors.subunit = fm.subunit;
                 if (fm.wargear) colors.wargear = fm.wargear;
                 if (fm.points) colors.points = fm.points;
+                if (fm.header) colors.header = fm.header;
             }
         }
     }

@@ -1,52 +1,48 @@
 +++++++++++++++++++++++++++++++++++++++++++++++
-+ FACTION KEYWORD: Chaos - World Eaters
-+ DETACHMENT: Berzerker Warband
-+ TOTAL ARMY POINTS: 1995pts
++ FACTION KEYWORD: Xenos - T'au Empire
++ DETACHMENT: Retaliation Cadre
++ TOTAL ARMY POINTS: 2070pts
 +
-+ WARLORD: Char2: Daemon Prince of Khorne
-+ ENHANCEMENT: Helm of Brazen Ire (on Char1: Daemon Prince of Khorne)
-& Berzerker Glaive (on Char2: Master of Executions)
-& Favoured of Khorne (on Char3: Slaughterbound)
-+ NUMBER OF UNITS: 16
-+ SECONDARY: - Bring It Down: (7x2) - Assassination: 4 Characters
++ ENHANCEMENT: Starflare Ignition System (on Char3: Commander in Enforcer Battlesuit)
++ NUMBER OF UNITS: 18
++ SECONDARY: - Bring It Down: (10x2) + (4x4) - Assassination: 4 Characters
 +++++++++++++++++++++++++++++++++++++++++++++++
 
-Char1: 1x Khârn the Betrayer (85 pts): Gorechild, Plasma pistol
-Char2: 1x Daemon Prince of Khorne (220 pts): Warlord, Hellforged weapons, Infernal cannon
-Enhancement: Helm of Brazen Ire (+20 pts)
-Char3: 1x Master of Executions (85 pts): Axe of dismemberment, Bolt pistol
-Enhancement: Berzerker Glaive (+25 pts)
-Char4: 1x Slaughterbound (100 pts): Lacerator and daemonic claw
-Enhancement: Favoured of Khorne (+15 pts)
+Char1: 1x Commander Farsight (95 pts): Dawn Blade, High-intensity plasma rifle
+Char2: 1x Commander in Coldstar Battlesuit (95 pts): 2x Shield Drone, Fusion blaster, 3x Fusion blaster, Battlesuit fists
+Char3: 1x Commander in Coldstar Battlesuit (95 pts): 2x Shield Drone, Burst cannon, Burst cannon, Cyclic ion blaster, High-output burst cannon, Battlesuit fists
+Char4: 1x Commander in Enforcer Battlesuit (100 pts): Missile pod, Missile pod, Missile pod, Missile pod, Battlesuit fists
+Enhancement: Starflare Ignition System (+20 pts)
 
-10x Khorne Berzerkers (180 pts)
-• 9x Khorne Berzerker
-    5 with Bolt pistol, Chainblade
-    2 with Chainblade, Plasma pistol
-    2 with Bolt pistol, Khornate eviscerator
-• 1x Khorne Berzerker Champion: Icon of Khorne, Chainblade, Plasma pistol
-10x Khorne Berzerkers (180 pts)
-• 9x Khorne Berzerker
-    5 with Bolt pistol, Chainblade
-    2 with Chainblade, Plasma pistol
-    2 with Bolt pistol, Khornate eviscerator
-• 1x Khorne Berzerker Champion: Icon of Khorne, Chainblade, Plasma pistol
-
-3x Eightbound (150 pts)
-• 1x Eightbound Champion: Chainblades
-• 2x Eightbound: 2 with Chainblades
-10x Jakhals (65 pts)
-• 8x Jakhal
-    6 with Autopistol, Chainblades
-    1 with Icon of Khorne, Autopistol, Chainblades
-    1 with Autopistol, Mauler chainblade
-• 1x Jakhal Pack Leader: Autopistol, Chainblades
-• 1x Dishonoured: Skullsmasher and mangler
-2x Chaos Spawn (80 pts): 2 with Hideous Mutations
-2x Chaos Spawn (80 pts): 2 with Hideous Mutations
-1x Forgefiend (150 pts): 2x Ectoplasma cannon, Ectoplasma cannon, Forgefiend claws
-1x Forgefiend (150 pts): 2x Ectoplasma cannon, Ectoplasma cannon, Forgefiend claws
-1x Maulerfiend (150 pts): Maulerfiend fists, 2x Magma cutter
-1x Maulerfiend (150 pts): Maulerfiend fists, 2x Magma cutter
-1x Chaos Rhino (85 pts): Armoured tracks, Combi-bolter, Havoc launcher, Combi-bolter
-1x Chaos Rhino (85 pts): Armoured tracks, Combi-bolter, Havoc launcher, Combi-bolter
+3x Stealth Battlesuits (80 pts)
+• 1x Stealth Shas'vre: Battlesuit support system, Homing beacon, Marker Drone, Shield Drone, Battlesuit fists, Fusion blaster
+• 2x Stealth Shas'ui: 2 with Battlesuit fists, Burst cannon
+3x Stealth Battlesuits (80 pts)
+• 1x Stealth Shas'vre: Battlesuit support system, Homing beacon, Marker Drone, Shield Drone, Battlesuit fists, Fusion blaster
+• 2x Stealth Shas'ui: 2 with Battlesuit fists, Burst cannon
+3x Stealth Battlesuits (80 pts)
+• 1x Stealth Shas'vre: Battlesuit support system, Homing beacon, Marker Drone, Shield Drone, Battlesuit fists, Fusion blaster
+• 2x Stealth Shas'ui: 2 with Battlesuit fists, Burst cannon
+5x Vespid Stingwings (65 pts)
+• 1x Vespid Strain Leader: Neutron blaster, Stingwing claws
+• 4x Vespid Stingwings: 4 with Neutron blaster, Stingwing claws
+1x Broadside Battlesuits (90 pts): Weapon support system, Crushing bulk, Missile pod, Missile pod, Heavy rail rifle, Twin smart missile system
+1x Broadside Battlesuits (90 pts): Weapon support system, Crushing bulk, 2x Missile pod, Heavy rail rifle, Twin smart missile system
+1x Broadside Battlesuits (90 pts): Weapon support system, Crushing bulk, 2x Missile pod, Heavy rail rifle, Twin smart missile system
+3x Crisis Fireknife Battlesuits (130 pts)
+• 1x Crisis Fireknife Shas’vre: Shield Drone, 2x Missile pod, Battlesuit fists, Twin pulse carbine
+• 2x Crisis Fireknife Shas’ui: 2 with Shield Drone, Battlesuit fists, 2x Missile pod, Twin pulse carbine
+3x Crisis Starscythe Battlesuits (110 pts)
+• 1x Crisis Starscythe Shas’vre: Shield Drone, 2x Burst cannon, Battlesuit fists, Twin pulse carbine
+• 2x Crisis Starscythe Shas’ui: 2 with Shield Drone, 2x Burst cannon, Battlesuit fists, Twin pulse carbine
+3x Crisis Sunforge Battlesuits (150 pts)
+• 2x Crisis Sunforge Shas’ui
+    1 with Shield Drone, Crisis Sunforge Shas’ui (Shield Drone), Battlesuit fists, 2x Fusion blaster, Twin pulse carbine
+    1 with Shield Drone, Crisis Sunforge Shas’ui (Shield Drone), Battlesuit fists, 2x Fusion blaster, Twin pulse carbine
+• 1x Crisis Sunforge Shas’vre: Shield Drone, 2x Fusion blaster, Battlesuit fists, Twin pulse carbine
+3x Crisis Sunforge Battlesuits (150 pts)
+• 1x Crisis Sunforge Shas’vre: Shield Drone, 2x Fusion blaster, Battlesuit fists, Twin pulse carbine
+• 2x Crisis Sunforge Shas’ui: 2 with Shield Drone, Battlesuit fists, 2x Fusion blaster, Twin pulse carbine
+1x Riptide Battlesuit (190 pts): Riptide fists, Ion accelerator, 2x Missile pod, Twin smart missile system
+1x Riptide Battlesuit (190 pts): Riptide fists, Ion accelerator, 2x Missile pod, Twin smart missile system
+1x Riptide Battlesuit (190 pts): Riptide fists, Ion accelerator, 2x Missile pod, Twin smart missile system

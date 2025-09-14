@@ -41,7 +41,7 @@ export default {
     "Salamanders":         { unit: 'green',  subunit: 'grey',  wargear: 'white',  points: 'yellow', header: 'green' },
     "Space Marines":       { unit: 'blue',   subunit: 'grey',  wargear: 'white',  points: 'yellow', header: 'blue' },
     "Space Wolves":        { unit: 'blue',   subunit: 'grey',  wargear: 'white',  points: 'yellow', header: 'blue' },
-    "T'au Empire":         { unit: 'yellow',   subunit: 'grey',  wargear: 'white',  points: 'cyan', header: 'cyan' },
+    "T'au Empire":         { unit: 'yellow',   subunit: 'grey',  wargear: 'white',  points: 'Cyan', header: 'cyan' },
     "Thousand Sons":       { unit: 'magenta',subunit: 'grey',  wargear: 'blue',   points: 'yellow', header: 'magenta' },
     "Tyranids":            { unit: 'cyan',   subunit: 'grey',  wargear: 'green',  points: 'yellow', header: 'cyan' },
     "Ultramarines":        { unit: 'blue',   subunit: 'grey',  wargear: 'white',  points: 'yellow', header: 'blue' },
