@@ -9,7 +9,7 @@ export const FAMILY_MAP = {
     "Chaos Knights": "Chaos",
     "Thousand Sons": "Chaos",
 
-    "Space Marines": "Space Marines",
+    "Space Marines": "Imperium",
     "Iron Hands": "Space Marines",
     "Salamanders": "Space Marines",
     "Space Wolves": "Space Marines",

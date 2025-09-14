@@ -1,6 +1,7 @@
 // Clean parsers.js implementing the requested rules
 import { getIndent, normalizeForComparison, parseItemString } from './utils.js';
 import FAMILY_MAP from './family_map.js';
+import { standardizeSummary } from './summary.js';
 
 function smartTitleCase(s) {
     if (!s) return '';
@@ -249,6 +250,9 @@ export function parseWtcCompact(lines) {
         const found = allUnits.find(u => normalize(u.name).includes(normalize(k)) || normalize(`${u.quantity} ${u.name}`).includes(normalize(k)));
         if (found) parseAndAddEnhancement(enh, found, result.SUMMARY.FACTION_KEYWORD || '');
     }
+
+    // Standardize summary fields for renderer consumption
+    standardizeSummary(result);
 
     return result;
 }
@@ -519,6 +523,9 @@ export function parseGwAppV2(lines) {
             }
         }
     }
+
+    // Standardize summary fields for renderer consumption
+    standardizeSummary(result);
 
     return result;
 }
