@@ -7,9 +7,9 @@ export function Input() {
       h('textarea', { id: 'inputText', class: 'io-box', autofocus: true }),
       h('div', { class: 'column-footer', style: 'flex-direction: column; align-items: center;' },
         h('div', { class: 'button-group' },
-          h('button', { id: 'resetButton', class: 'btn btn-danger' }, 'Start Over'),
-          h('button', { id: 'parseButton', class: 'btn btn-primary' }, 'Compact this list')
-        ),
+            h('button', { id: 'resetButton', class: 'btn btn-danger' }, 'Clear List'),
+            h('button', { id: 'parseButton', class: 'btn btn-primary', style: 'display:none;' }, 'Compact this list')
+          ),
         h('div', { id: 'inputCharCount', class: 'char-count', style: 'margin-top: 0.5rem;' })
       ),
       h('div', { style: 'margin-top: 1rem; text-align: center;' },

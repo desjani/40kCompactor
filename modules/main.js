@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeUI({
         onParse: handleParse,
         onReset: handleReset,
-        onCopyExtended: () => copyTextToClipboard(extendedPlainText.trim()),
+    onCopyExtended: () => copyTextToClipboard(extendedPlainText.trim()),
         onOutputFormatChange: () => updatePreview(),
         onCopyPreview: () => copyTextToClipboard(currentPreviewText),
         onColorChange: () => {

@@ -63,6 +63,18 @@ export function initializeUI(callbacks) {
                 }
             });
         });
+
+        // Debounced live-parse: run onParse after user stops typing for a short interval.
+        if (inputText && typeof callbacks.onParse === 'function') {
+            let debounceTimer = null;
+            const debounceMs = 100;
+            inputText.addEventListener('input', () => {
+                if (debounceTimer) clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    try { callbacks.onParse(); } catch (e) { /* swallow errors */ }
+                }, debounceMs);
+            });
+        }
     }
 
     if (parseButton) parseButton.addEventListener('click', callbacks.onParse);
@@ -87,8 +99,9 @@ export function initializeUI(callbacks) {
 
 export function enableParseButton() {
     if (parseButton) {
-        parseButton.disabled = false;
-        parseButton.textContent = 'Compact this list';
+    parseButton.disabled = false;
+    // Keep the parse button text but do not make it visible by default; visibility controlled in index.html
+    parseButton.textContent = 'Compact this list';
     }
 }
 
