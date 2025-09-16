@@ -71,7 +71,21 @@ export function initializeUI(callbacks) {
             inputText.addEventListener('input', () => {
                 if (debounceTimer) clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(() => {
-                    try { callbacks.onParse(); } catch (e) { /* swallow errors */ }
+                    try {
+                        // Add lightweight lifecycle logs so we can trace autoparse in the browser console
+                        try { console.debug('autoparse: invoking onParse'); } catch (__) {}
+                        callbacks.onParse();
+                        try { console.debug('autoparse: onParse completed'); } catch (__) {}
+                    } catch (e) {
+                        // Surface errors to the debug output so autoparse problems are visible
+                        try {
+                            const msg = (e && (e.stack || e.message)) ? (e.stack || e.message) : String(e);
+                            if (typeof callbacks.onDebugError === 'function') callbacks.onDebugError(msg);
+                            else setDebugOutput(`Autoparse error: ${msg}`);
+                        } catch (ee) {
+                            console.error('Failed to report autoparse error', ee);
+                        }
+                    }
                 }, debounceMs);
             });
         }

@@ -157,7 +157,11 @@ export function parseNrNr(lines) {
 
             const subMatch = content.match(/^(\d+x?)\s+(.*)$/i);
             if (subMatch && currentUnit) {
-                const sub = { quantity: subMatch[1], name: subMatch[2].trim(), items: [], type: 'subunit' };
+                // Normalize subunit name by trimming any trailing " w/ ..." to avoid
+                // creating distinct entries for the same subunit (e.g., "Jakhal w/ X").
+                let subName = subMatch[2].trim();
+                subName = subName.replace(/\s+w\/.*$/i, '').trim();
+                const sub = { quantity: subMatch[1], name: subName, items: [], type: 'subunit' };
                 currentUnit.items = currentUnit.items || [];
                 currentUnit.items.push(sub);
                 continue;
@@ -173,8 +177,10 @@ export function parseNrNr(lines) {
     function addItemToTarget(target, itemString, unitContextName, factionKeyword, unitTopName = '', skipIfMatchesUnitName = false, itemType = 'wargear') {
         if (!target) return;
         target.items = target.items || [];
-        const parsed = parseItemString(String(itemString || '').trim());
-        const qty = parsed.quantity ? String(parsed.quantity) : '1x';
+        const raw = String(itemString || '').trim();
+        const parsed = parseItemString(raw);
+        const qtyToken = parsed.quantity ? String(parsed.quantity) : '1x';
+        const hasExplicitQty = /^\s*\d+x?\s+/i.test(raw);
         let name = parsed.name || '';
         // Prefer inner parenthetical for Drone items: 'Missile Drone (Missile pod)' -> 'Missile pod'
         const mParen = name.match(/^(.*?)\s*\(([^)]+)\)$/);
@@ -193,14 +199,22 @@ export function parseNrNr(lines) {
                 return;
             }
         }
+        // Calculate effective quantity: for subunits, default to the subunit's
+        // quantity when no explicit quantity was provided on the item; when an
+        // explicit quantity is present, use that number directly (do not multiply).
+        const baseQty = parseInt(String(qtyToken || '1x').replace(/x/i, ''), 10) || 1;
+        let effectiveQty = baseQty;
+        if (target && target.type === 'subunit') {
+            const parentQty = parseInt(String(target.quantity || '1x').replace(/[^0-9]/g, ''), 10) || 1;
+            effectiveQty = hasExplicitQty ? baseQty : parentQty;
+        }
         const existing = target.items.find(it => normalizeForComparison(it.name || '') === key);
         if (existing) {
             const exQ = parseInt(String(existing.quantity || '1x').replace(/x/i, ''), 10) || 0;
-            const addQ = parseInt(String(qty || '1x').replace(/x/i, ''), 10) || 0;
-            existing.quantity = `${exQ + addQ}x`;
+            existing.quantity = `${exQ + effectiveQty}x`;
         } else {
             const forcedType = (normalizeForComparison(name) === 'warlord') ? 'special' : itemType;
-            target.items.push({ quantity: qty, name: name, items: [], type: forcedType, nameshort: '' });
+            target.items.push({ quantity: `${effectiveQty}x`, name: name, items: [], type: forcedType, nameshort: '' });
         }
     }
 
@@ -256,13 +270,55 @@ export function parseNrNr(lines) {
         }
     }
 
-    // Normalize ordering for items and subunits
+    // Aggregate subunits with identical names within each unit (after trimming 'w/ ...').
+    // Merge their quantities and combine/dedupe their items like other parsers.
     for (const sec of ['CHARACTER', 'OTHER DATASHEETS']) {
         if (!Array.isArray(result[sec])) continue;
         for (const u of result[sec]) {
+            if (!u || !Array.isArray(u.items) || u.items.length === 0) continue;
+            const subs = u.items.filter(it => it && it.type === 'subunit');
+            if (subs.length > 1) {
+                const byName = new Map();
+                const remainder = [];
+                for (const it of u.items) {
+                    if (!it || it.type !== 'subunit') { remainder.push(it); continue; }
+                    const key = normalizeForComparison(it.name || '');
+                    if (!byName.has(key)) {
+                        // clone subunit shallowly
+                        byName.set(key, { quantity: it.quantity || '1x', name: it.name, items: Array.isArray(it.items) ? it.items.slice() : [], type: 'subunit' });
+                    } else {
+                        const agg = byName.get(key);
+                        const aq = parseInt(String(agg.quantity || '1x').replace(/[^0-9]/g, ''), 10) || 0;
+                        const bq = parseInt(String(it.quantity || '1x').replace(/[^0-9]/g, ''), 10) || 0;
+                        agg.quantity = `${aq + bq}x`;
+                        // merge items by normalized name, summing quantities
+                        const itemMap = new Map();
+                        for (const x of agg.items || []) {
+                            const k = normalizeForComparison(x && x.name || '');
+                            if (!k) continue;
+                            itemMap.set(k, { quantity: x.quantity || '1x', name: x.name, items: [], type: x.type || 'wargear', nameshort: x.nameshort || '' });
+                        }
+                        for (const x of (it.items || [])) {
+                            const k = normalizeForComparison(x && x.name || '');
+                            if (!k) continue;
+                            if (itemMap.has(k)) {
+                                const ex = itemMap.get(k);
+                                const exq = parseInt(String(ex.quantity || '1x').replace(/[^0-9]/g, ''), 10) || 0;
+                                const addq = parseInt(String(x.quantity || '1x').replace(/[^0-9]/g, ''), 10) || 0;
+                                ex.quantity = `${exq + addq}x`;
+                            } else {
+                                itemMap.set(k, { quantity: x.quantity || '1x', name: x.name, items: [], type: x.type || 'wargear', nameshort: x.nameshort || '' });
+                            }
+                        }
+                        agg.items = Array.from(itemMap.values());
+                    }
+                }
+                u.items = [...remainder, ...Array.from(byName.values())];
+            }
+            // Normalize ordering for items and subunits
             if (u && Array.isArray(u.items) && u.items.length > 0) sortItemsByQuantityThenName(u.items);
-            const subs = (u && Array.isArray(u.items)) ? u.items.filter(it => it && it.type === 'subunit') : [];
-            for (const su of subs) if (su && Array.isArray(su.items) && su.items.length > 0) sortItemsByQuantityThenName(su.items);
+            const aggSubs = (u && Array.isArray(u.items)) ? u.items.filter(it => it && it.type === 'subunit') : [];
+            for (const su of aggSubs) if (su && Array.isArray(su.items) && su.items.length > 0) sortItemsByQuantityThenName(su.items);
         }
     }
 

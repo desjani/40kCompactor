@@ -384,39 +384,8 @@ function parseGwLikeBody(lines) {
                     unit.isComplex = false;
                 }
             }
-            // Normalize aggregated counts: if a subunit lists aggregated
-            // counts (e.g., '4x Missile pod') but the subunit itself has a
-            // quantity >1 (e.g., '2x' subunit), convert item quantities to
-            // a per-subunit quantity (4 / 2 => 2) to match WTC-Compact's style.
-            const subs = (unit.items || []).filter(it => it && it.type === 'subunit');
-            for (const su of subs) {
-                const suQty = parseInt(String(su.quantity || '1x').replace(/[^0-9]/g, ''), 10) || 1;
-                if (suQty > 1 && Array.isArray(su.items)) {
-                    for (const it of su.items) {
-                        const itQty = parseInt(String(it.quantity || '1x').replace(/[^0-9]/g, ''), 10) || 1;
-                        if (itQty > 1 && itQty % suQty === 0) {
-                            const per = Math.floor(itQty / suQty) || 1;
-                            it.quantity = `${per}x`;
-                        }
-                    }
-                }
-            }
-            // For subunits with quantity>1, items listed without explicit
-            // quantity are typically intended to be present on each
-            // subunit — represent those as the subunit quantity to match
-            // WTC-Compact's output (e.g., '2x Crisis Shas'ui' where 'Battlesuit fists'
-            // appears without qty should become '2x Battlesuit fists').
-            for (const su of subs) {
-                const suQtyStr = String(su.quantity || '1x');
-                const suQty = parseInt(suQtyStr.replace(/[^0-9]/g, ''), 10) || 1;
-                if (suQty > 1 && Array.isArray(su.items)) {
-                    for (const it of su.items) {
-                        if (!it || typeof it.quantity !== 'string') continue;
-                        const itQtyN = parseInt(String(it.quantity || '1x').replace(/[^0-9]/g, ''), 10) || 1;
-                        if (itQtyN === 1) it.quantity = `${suQty}x`;
-                    }
-                }
-            }
+            // NR-GW format already provides fully calculated item quantities.
+            // Do not adjust item quantities based on subunit size.
             // Ensure deterministic ordering of top-level items and subunit items
             if (Array.isArray(unit.items) && unit.items.length > 0) sortItemsByQuantityThenName(unit.items);
             const subsAfter = (unit.items || []).filter(it => it && it.type === 'subunit');
@@ -494,32 +463,32 @@ export function parseNrGw(lines) {
     if (parsedSummary.points) bodyResult.SUMMARY.TOTAL_ARMY_POINTS = parsedSummary.points;
 
     const allUnits = [...(bodyResult.CHARACTER || []), ...(bodyResult['OTHER DATASHEETS'] || [])];
+    // Helper to determine if an enhancement already exists anywhere in parsed body
+    const enhancementExistsAnywhere = (enhName) => {
+        const normTarget = normalizeForComparison(String(enhName || ''));
+        for (const u of allUnits) {
+            const items = (u && Array.isArray(u.items)) ? u.items : [];
+            for (const it of items) {
+                if (!it || !it.name) continue;
+                const base = String(it.name || '').replace(/^Enhancement:\s*/i, '').replace(/\s*\([^)]*\)\s*$/,'').trim();
+                if (normalizeForComparison(base) === normTarget) return true;
+            }
+        }
+        return false;
+    };
     for (const he of headerEnhancements) {
         if (!he || !he.enh) continue;
+        // If body already contains this enhancement anywhere, skip header injection to avoid duplication
+        if (enhancementExistsAnywhere(he.enh)) continue;
         let found = null;
         const normalize = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
-        // Prefer explicit character index (CharN) when present - it's more
-        // precise than fuzzy text matching when multiple units share the same
-        // name. Fall back to fuzzy `target` matching if charId lookup fails.
+        // Prefer absolute character index (CharN) when present. If out-of-range,
+        // fall back to fuzzy `target` matching.
         if (he.charId) {
             const idx = parseInt(String(he.charId).replace(/[^0-9]/g, ''), 10);
             if (!Number.isNaN(idx) && idx > 0) {
-                if (he.target) {
-                    const matches = allUnits.filter(u => normalize(u.name).includes(normalize(he.target)) || normalize(`${u.quantity} ${u.name}`).includes(normalize(he.target)));
-                    if (matches && matches.length > 0) {
-                        // If idx refers to a larger number than available matches,
-                        // prefer the last match rather than falling back to an
-                        // unrelated absolute CHARACTER index which often causes
-                        // mis-assignment when the file's CharN numbering is
-                        // inconsistent.
-                        const pick = Math.min(idx - 1, matches.length - 1);
-                        found = matches[pick];
-                    }
-                } else {
-                    // No textual target provided; use absolute CHARACTER index.
-                    if (Array.isArray(bodyResult.CHARACTER) && bodyResult.CHARACTER[idx - 1]) {
-                        found = bodyResult.CHARACTER[idx - 1];
-                    }
+                if (Array.isArray(bodyResult.CHARACTER) && bodyResult.CHARACTER[idx - 1]) {
+                    found = bodyResult.CHARACTER[idx - 1];
                 }
             }
         }

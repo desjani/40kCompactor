@@ -1,0 +1,958 @@
+{
+  "SUMMARY": {
+    "FACTION_KEYWORD": "T'au Empire",
+    "DETACHMENT": "Retaliation Cadre",
+    "TOTAL_ARMY_POINTS": "2070pts",
+    "LIST_TITLE": "",
+    "DISPLAY_FACTION": "Xenos - T'au Empire",
+    "FACTION_KEY": "t'au empire"
+  },
+  "CHARACTER": [
+    {
+      "quantity": "1x",
+      "name": "Commander Farsight",
+      "points": 95,
+      "items": [
+        {
+          "quantity": "1x",
+          "name": "Dawn Blade",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "High-intensity plasma rifle",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "1x",
+      "name": "Commander in Coldstar Battlesuit",
+      "points": 115,
+      "items": [
+        {
+          "quantity": "4x",
+          "name": "Fusion blaster",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "2x",
+          "name": "Shield Drone",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Battlesuit fists",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Enhancement: Internal Grenade Racks",
+          "nameshort": "E: IGR (+20 pts)",
+          "items": [],
+          "type": "special"
+        },
+        {
+          "quantity": "1x",
+          "name": "Enhancement: Prototype Weapon System",
+          "nameshort": "E: PWS",
+          "items": [],
+          "type": "special"
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "1x",
+      "name": "Commander in Coldstar Battlesuit",
+      "points": 110,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Burst cannon",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "2x",
+          "name": "Shield Drone",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Battlesuit fists",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Cyclic ion blaster",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Enhancement: Prototype Weapon System",
+          "nameshort": "E: PWS (+15 pts)",
+          "items": [],
+          "type": "special"
+        },
+        {
+          "quantity": "1x",
+          "name": "High-output burst cannon",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "1x",
+      "name": "Commander in Enforcer Battlesuit",
+      "points": 100,
+      "items": [
+        {
+          "quantity": "4x",
+          "name": "Missile pod",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Battlesuit fists",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Enhancement: Starflare Ignition System",
+          "nameshort": "E: SIS (+20 pts)",
+          "items": [],
+          "type": "special"
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    }
+  ],
+  "OTHER DATASHEETS": [
+    {
+      "quantity": "3x",
+      "name": "Stealth Battlesuits",
+      "points": 80,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Stealth Shas'ui",
+          "items": [
+            {
+              "quantity": "2x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Burst cannon",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        },
+        {
+          "quantity": "1x",
+          "name": "Stealth Shas'vre",
+          "items": [
+            {
+              "quantity": "1x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Battlesuit support system",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Fusion blaster",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Homing beacon",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Marker Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Shield Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "3x",
+      "name": "Stealth Battlesuits",
+      "points": 80,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Stealth Shas'ui",
+          "items": [
+            {
+              "quantity": "2x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Burst cannon",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        },
+        {
+          "quantity": "1x",
+          "name": "Stealth Shas'vre",
+          "items": [
+            {
+              "quantity": "1x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Battlesuit support system",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Fusion blaster",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Homing beacon",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Marker Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Shield Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "1x",
+      "name": "Broadside Battlesuits",
+      "points": 90,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Missile pod",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Crushing bulk",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Heavy rail rifle",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Twin smart missile system",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Weapon support system",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "1x",
+      "name": "Broadside Battlesuits",
+      "points": 90,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Missile pod",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Crushing bulk",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Heavy rail rifle",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Twin smart missile system",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Weapon support system",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "1x",
+      "name": "Broadside Battlesuits",
+      "points": 90,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Missile pod",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Crushing bulk",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Heavy rail rifle",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Twin smart missile system",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Weapon support system",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "3x",
+      "name": "Crisis Fireknife Battlesuits",
+      "points": 130,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Crisis Fireknife Shas’ui",
+          "items": [
+            {
+              "quantity": "2x",
+              "name": "2x Missile pod",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Shield Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Twin pulse carbine",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        },
+        {
+          "quantity": "1x",
+          "name": "Crisis Fireknife Shas’vre",
+          "items": [
+            {
+              "quantity": "2x",
+              "name": "Missile pod",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Shield Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Twin pulse carbine",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "3x",
+      "name": "Crisis Starscythe Battlesuits",
+      "points": 110,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Crisis Starscythe Shas’ui",
+          "items": [
+            {
+              "quantity": "2x",
+              "name": "2x Burst cannon",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Shield Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Twin pulse carbine",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        },
+        {
+          "quantity": "1x",
+          "name": "Crisis Starscythe Shas’vre",
+          "items": [
+            {
+              "quantity": "2x",
+              "name": "Burst cannon",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Shield Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Twin pulse carbine",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "3x",
+      "name": "Crisis Starscythe Battlesuits",
+      "points": 110,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Crisis Starscythe Shas’ui",
+          "items": [
+            {
+              "quantity": "2x",
+              "name": "2x T'au flamer",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Shield Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Twin pulse carbine",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        },
+        {
+          "quantity": "1x",
+          "name": "Crisis Starscythe Shas’vre",
+          "items": [
+            {
+              "quantity": "2x",
+              "name": "T'au flamer",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Marker Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Shield Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "3x",
+      "name": "Crisis Sunforge Battlesuits",
+      "points": 150,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Crisis Sunforge Shas’ui",
+          "items": [
+            {
+              "quantity": "2x",
+              "name": "2x Fusion blaster",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Shield Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Twin pulse carbine",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        },
+        {
+          "quantity": "1x",
+          "name": "Crisis Sunforge Shas’vre",
+          "items": [
+            {
+              "quantity": "2x",
+              "name": "Fusion blaster",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Shield Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Twin pulse carbine",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "3x",
+      "name": "Crisis Sunforge Battlesuits",
+      "points": 150,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Crisis Sunforge Shas’ui",
+          "items": [
+            {
+              "quantity": "2x",
+              "name": "2x Fusion blaster",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Shield Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "2x",
+              "name": "Twin pulse carbine",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        },
+        {
+          "quantity": "1x",
+          "name": "Crisis Sunforge Shas’vre",
+          "items": [
+            {
+              "quantity": "2x",
+              "name": "Fusion blaster",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Battlesuit fists",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Shield Drone",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            },
+            {
+              "quantity": "1x",
+              "name": "Twin pulse carbine",
+              "items": [],
+              "type": "wargear",
+              "nameshort": ""
+            }
+          ],
+          "type": "subunit"
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "1x",
+      "name": "Riptide Battlesuit",
+      "points": 190,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Missile pod",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Ion accelerator",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Riptide fists",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Twin smart missile system",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "1x",
+      "name": "Riptide Battlesuit",
+      "points": 190,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Missile pod",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Ion accelerator",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Riptide fists",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Twin smart missile system",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    },
+    {
+      "quantity": "1x",
+      "name": "Riptide Battlesuit",
+      "points": 190,
+      "items": [
+        {
+          "quantity": "2x",
+          "name": "Missile pod",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Ion accelerator",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Riptide fists",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        },
+        {
+          "quantity": "1x",
+          "name": "Twin smart missile system",
+          "items": [],
+          "type": "wargear",
+          "nameshort": ""
+        }
+      ],
+      "isComplex": false,
+      "nameshort": ""
+    }
+  ]
+}

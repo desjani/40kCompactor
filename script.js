@@ -172,30 +172,72 @@ function abbreviate(itemName, unitName, fullFactionKeyword) {
 }
 
 // --- Main Parsing Controller ---
-document.getElementById('parseButton').addEventListener('click', () => {
+document.getElementById('parseButton').addEventListener('click', async () => {
     const debugOutput = document.getElementById('debugOutput');
     if (debugOutput) debugOutput.innerHTML = '';
     const text = document.getElementById('inputText').value;
     const lines = text.split('\n');
 
-    const format = detectFormat(lines);
-    const parser = parsers[format];
+    // Delegate detection and parser selection to the central parsers module
+    let mods;
+    try {
+        mods = await import('./modules/parsers.js');
+    } catch (e) {
+        console.error('Failed to load parsers module', e);
+        document.getElementById('unabbreviatedOutput').innerHTML = `<p style="color: var(--color-danger);">Failed to load parser modules: ${e && e.message ? e.message : String(e)}</p>`;
+        return;
+    }
+    const detection = (() => { try { return mods.detectFormat(lines); } catch (e) { return { format: 'UNKNOWN', error: e && e.message ? e.message : String(e) }; } })();
+    if (debugOutput) {
+        const pre = document.createElement('pre');
+        pre.style.whiteSpace = 'pre-wrap';
+        pre.textContent = `Detection: ${JSON.stringify(detection, null, 2)}`;
+        debugOutput.appendChild(pre);
+    }
 
-    if (!parser) {
-        console.error("Unsupported list format.");
-        document.getElementById('unabbreviatedOutput').innerHTML = '<p style="color: var(--color-danger);">Unsupported list format. Please use GW App or WTC-Compact format.</p>';
+    let result = null;
+    let parseError = null;
+    try {
+        if (detection && detection.format === 'WTC') {
+            result = mods.parseWtc(lines);
+        } else if (detection && detection.format === 'WTC-Compact' || detection && detection.format === 'WTC_COMPACT') {
+            result = mods.parseWtcCompact(lines);
+        } else if (detection && detection.format === 'GWAPP' || detection && detection.format === 'GW_APP') {
+            result = mods.parseGwApp(lines);
+        } else if (detection && detection.format === 'NR-GW' || detection && detection.format === 'NR_GW') {
+            result = mods.parseNrGw(lines);
+        } else if (detection && detection.format === 'NRNR') {
+            result = mods.parseNrNr(lines);
+        }
+    } catch (e) {
+        console.error('Parser error', e);
+        parseError = e;
+    }
+
+    if (!result) {
+        console.error("Unsupported list format or parser failed.", detection, parseError);
+        const errHtml = [];
+        if (detection) errHtml.push(`<div style="color:var(--color-secondary);">Detected format: <strong>${detection.format || 'UNKNOWN'}</strong> (confidence: ${detection.confidence || 'n/a'})</div>`);
+        if (detection && detection.error) errHtml.push(`<div style="color:var(--color-danger);">Detector error: ${detection.error}</div>`);
+        if (parseError) errHtml.push(`<div style="color:var(--color-danger);">Parser error: ${parseError && parseError.message ? parseError.message : String(parseError)}</div>`);
+        errHtml.push('<div style="color: var(--color-danger);">Unsupported list format. Please use GW App, WTC-Compact, or NRNR format.</div>');
+        document.getElementById('unabbreviatedOutput').innerHTML = errHtml.join('');
         document.getElementById('compactedOutput').innerHTML = '';
         return;
     }
-
-    const result = parser(lines);
 
     // --- Debug Parsed Object ---
     if (debugOutput) {
         const resultEntry = document.createElement('pre');
         resultEntry.style.whiteSpace = 'pre-wrap';
         resultEntry.style.wordBreak = 'break-all';
-        resultEntry.textContent = JSON.stringify(result, null, 2);
+        // Safely stringify parser result avoiding circular _parent refs
+        const safeStringify = (obj) => JSON.stringify(obj, (k, v) => (k === '_parent' ? undefined : v), 2);
+        try {
+            resultEntry.textContent = safeStringify(result);
+        } catch (e) {
+            resultEntry.textContent = String(result);
+        }
         debugOutput.appendChild(resultEntry);
     }
 

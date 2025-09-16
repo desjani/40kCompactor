@@ -1,4 +1,4 @@
-import { detectFormat, parseGwApp, parseWtcCompact, parseNrGw, parseNrNr } from './parsers.js';
+import { detectFormat, parseGwApp, parseWtcCompact, parseWtc, parseNrGw, parseNrNr } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic } from './ui.js';
@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeUI({
         onParse: handleParse,
         onReset: handleReset,
+        onDebugError: (msg) => {
+            try { setDebugOutput(`Autoparse error: ${msg}`); } catch (e) { console.error('Failed to set debug error', e); }
+        },
     onCopyExtended: () => copyTextToClipboard(extendedPlainText.trim()),
         onOutputFormatChange: () => updatePreview(),
         onCopyPreview: () => copyTextToClipboard(currentPreviewText),
@@ -93,6 +96,7 @@ function handleParse() {
     const format = detectFormat(lines);
     const parser = {
         GW_APP: parseGwApp,
+        WTC: parseWtc,
         WTC_COMPACT: parseWtcCompact,
         NR_GW: parseNrGw,
         NRNR: parseNrNr
@@ -111,10 +115,24 @@ function handleParse() {
     // Debug: log raw parser output to console for inspection
     if (typeof window !== 'undefined') {
         window.LAST_RAW_PARSER_OUTPUT = result;
-        console.log('[DEBUG] Raw parser output:', JSON.parse(JSON.stringify(result)));
+        // Safely stringify parser output for logging by removing circular _parent refs
+        const safeStringify = (obj) => JSON.stringify(obj, (k, v) => (k === '_parent' ? undefined : v));
+        try {
+            console.log('[DEBUG] Raw parser output:', safeStringify(result));
+        } catch (e) {
+            // Fallback to logging the object directly if stringify still fails
+            console.log('[DEBUG] Raw parser output (object):', result, 'stringifyError:', e);
+        }
     }
 
-    setDebugOutput(JSON.stringify(result, null, 2));
+    // Use the same safe serializer for UI debug output to avoid circular reference errors
+    let prettyDebug = '';
+    try {
+        prettyDebug = JSON.stringify(result, (k, v) => (k === '_parent' ? undefined : v), 2);
+    } catch (e) {
+        prettyDebug = String(result);
+    }
+    setDebugOutput(prettyDebug);
 
     parsedData = result;
     // remember the detected format for the UI so we can show an indicator next to counts
