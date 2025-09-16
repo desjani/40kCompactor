@@ -70,7 +70,7 @@ function addItemToTarget(target, itemString, unitContextName, factionKeyword, un
                 const mainn = normalizeForComparison(main);
                 if (mainn === ctxn || mainn === topn || mainn.startsWith(ctxn + ' ') || mainn.startsWith(topn + ' ')) {
                     // If a subunit-style parenthetical appears in a comma list
-                    // (e.g. "Crisis Sunforge Shas'ui (Shield Drone)") the WTC
+                    // (e.g. "Crisis Sunforge Shas'ui (Shield Drone)") the WTC-Compact
                     // parser historically kept the composite string as an
                     // explicit wargear entry. To match that canonical output,
                     // add the composite name here rather than only adding the
@@ -82,7 +82,7 @@ function addItemToTarget(target, itemString, unitContextName, factionKeyword, un
                     }
                     // Prefer to extract the inner parenthetical as the wargear
                     // (e.g. '... (Shield Drone)' -> 'Shield Drone') to match the
-                    // WTC canonical output. Avoid adding if a deferred
+                    // WTC-Compact canonical output. Avoid adding if a deferred
                     // parenthetical or an explicit identical item already exists.
                     if (target && target._deferredParenthetical && normalizeForComparison(target._deferredParenthetical) === normalizeForComparison(inner)) {
                         return;
@@ -318,7 +318,7 @@ function parseGwLikeBody(lines) {
         if (typeof it === 'string') {
             const coerced = { quantity: '1x', name: it.trim(), items: [], type: /^Enhancement:/i.test(it) ? 'special' : 'wargear', nameshort: '' };
             ensurePropsLocal(coerced, obj.name);
-            // Preserve original casing for nested item names to match WTC output
+            // Preserve original casing for nested item names to match WTC-Compact output
             return coerced;
             }
             ensurePropsLocal(it, obj.name);
@@ -359,13 +359,13 @@ function parseGwLikeBody(lines) {
                         }
                         unit.items = Array.from(agg.values());
                         if (total > 0) unit.quantity = `${total}x`;
-                        // Keep isComplex false to match WTC parser's representation
+                        // Keep isComplex false to match WTC-Compact parser's representation
                         unit.isComplex = false;
                     } else {
                         const total = subunits.reduce((acc, it) => acc + (parseInt(String(it.quantity || '1x').replace(/x/i, ''), 10) || 0), 0);
                         if (total > 0) unit.quantity = `${total}x`;
                         // Even when subunits have different names, represent the unit
-                        // as not-complex to match the WTC parser output (pre-existing
+                        // as not-complex to match the WTC-Compact parser output (pre-existing
                         // golden reference).
                         unit.isComplex = false;
                     }
@@ -374,8 +374,8 @@ function parseGwLikeBody(lines) {
             }
             // If a unit contains exactly one subunit entry, but that subunit
             // itself only contains wargear items, flatten it into the parent
-            // so it matches WTC's inline-item representation (many NR-GW
-            // exports place the subunit as a separate bullet while WTC
+            // so it matches WTC-Compact's inline-item representation (many NR-GW
+            // exports place the subunit as a separate bullet while WTC-Compact
             // places the wargear inline on the unit line).
             if (Array.isArray(unit.items) && unit.items.length === 1 && unit.items[0] && unit.items[0].type === 'subunit') {
                 const su = unit.items[0];
@@ -387,7 +387,7 @@ function parseGwLikeBody(lines) {
             // Normalize aggregated counts: if a subunit lists aggregated
             // counts (e.g., '4x Missile pod') but the subunit itself has a
             // quantity >1 (e.g., '2x' subunit), convert item quantities to
-            // a per-subunit quantity (4 / 2 => 2) to match WTC's style.
+            // a per-subunit quantity (4 / 2 => 2) to match WTC-Compact's style.
             const subs = (unit.items || []).filter(it => it && it.type === 'subunit');
             for (const su of subs) {
                 const suQty = parseInt(String(su.quantity || '1x').replace(/[^0-9]/g, ''), 10) || 1;
@@ -404,7 +404,7 @@ function parseGwLikeBody(lines) {
             // For subunits with quantity>1, items listed without explicit
             // quantity are typically intended to be present on each
             // subunit — represent those as the subunit quantity to match
-            // WTC's output (e.g., '2x Crisis Shas'ui' where 'Battlesuit fists'
+            // WTC-Compact's output (e.g., '2x Crisis Shas'ui' where 'Battlesuit fists'
             // appears without qty should become '2x Battlesuit fists').
             for (const su of subs) {
                 const suQtyStr = String(su.quantity || '1x');

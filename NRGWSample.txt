@@ -1,7 +1,7 @@
 +++++++++++++++++++++++++++++++++++++++++++++++
 + FACTION KEYWORD: Xenos - T'au Empire
 + DETACHMENT: Retaliation Cadre
-+ TOTAL ARMY POINTS: 2000pts
++ TOTAL ARMY POINTS: 2070pts
 +
 + ENHANCEMENT: Internal Grenade Racks (on Char1: Commander in Coldstar Battlesuit)
 & Prototype Weapon System (on Char2: Commander in Coldstar Battlesuit)
@@ -12,7 +12,7 @@
 
 CHARACTER
 
-1x Commander Farsight (85 pts)
+1x Commander Farsight (95 pts)
 • 1x Dawn Blade
 • 1x High-intensity plasma rifle
 
@@ -57,7 +57,7 @@ OTHER DATASHEETS
     • 2x Burst cannon
     • 2x Stealth Shas'ui
 
-1x Broadside Battlesuits (80 pts)
+1x Broadside Battlesuits (90 pts)
 • 1x Broadside Shas’vre
     • 1x Crushing bulk
     • 2x Missile pod
@@ -65,7 +65,7 @@ OTHER DATASHEETS
     • 1x Twin smart missile system
     • Weapon support system, Broadside Shas’vre
 
-1x Broadside Battlesuits (80 pts)
+1x Broadside Battlesuits (90 pts)
 • 1x Broadside Shas’vre
     • 1x Crushing bulk
     • 2x Missile pod
@@ -73,7 +73,7 @@ OTHER DATASHEETS
     • 1x Twin smart missile system
     • Weapon support system, Broadside Shas’vre
 
-1x Broadside Battlesuits (80 pts)
+1x Broadside Battlesuits (90 pts)
 • 1x Broadside Shas’vre
     • 1x Crushing bulk
     • 2x Missile pod
@@ -81,7 +81,7 @@ OTHER DATASHEETS
     • 1x Twin smart missile system
     • Weapon support system, Broadside Shas’vre
 
-3x Crisis Fireknife Battlesuits (120 pts)
+3x Crisis Fireknife Battlesuits (130 pts)
 • 1x Crisis Fireknife Shas’vre
     • 2x Missile pod
     • 1x Battlesuit fists
@@ -116,7 +116,7 @@ OTHER DATASHEETS
     • 2x Twin pulse carbine
     • 2x Shield Drone, 2x Crisis Starscythe Shas’ui (Shield Drone)
 
-3x Crisis Sunforge Battlesuits (140 pts)
+3x Crisis Sunforge Battlesuits (150 pts)
 • 1x Crisis Sunforge Shas’vre
     • 2x Fusion blaster
     • 1x Battlesuit fists
@@ -128,7 +128,7 @@ OTHER DATASHEETS
     • 2x Twin pulse carbine
     • 2x Shield Drone, 2x Crisis Sunforge Shas’ui (Shield Drone)
 
-3x Crisis Sunforge Battlesuits (140 pts)
+3x Crisis Sunforge Battlesuits (150 pts)
 • 1x Crisis Sunforge Shas’vre
     • 2x Fusion blaster
     • 1x Battlesuit fists

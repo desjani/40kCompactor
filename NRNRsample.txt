@@ -1,0 +1,49 @@
+Xenos - T'au Empire - Big Suits To Fill - [2070 pts]
+
+# ++ Army Roster ++ [2070 pts]
+## Configuration
+Battle Size: Strike Force (2000 Point limit)
+Detachment: Retaliation Cadre
+Show/Hide Options
+
+## Epic Hero [95 pts]
+Commander Farsight [95 pts]: Dawn Blade, High-intensity plasma rifle
+
+## Character [325 pts]
+Commander in Coldstar Battlesuit [115 pts]: Internal Grenade Racks, 4x Fusion blaster, Battlesuit fists, 2x Shield Drone
+Commander in Coldstar Battlesuit [110 pts]: Prototype Weapon System, 2x Burst cannon, Cyclic ion blaster, High-output burst cannon, Battlesuit fists, 2x Shield Drone
+Commander in Enforcer Battlesuit [100 pts]: Starflare Ignition System, 4x Missile pod, Battlesuit fists
+
+## Infantry [160 pts]
+Stealth Battlesuits [80 pts]:
+• 1x Stealth Shas'vre: Battlesuit fists, Battlesuit support system, Homing beacon, Fusion blaster, Marker Drone, Shield Drone
+• 2x Stealth Shas'ui w/ burst cannon: Battlesuit fists, Burst cannon
+Stealth Battlesuits [80 pts]:
+• 1x Stealth Shas'vre: Battlesuit fists, Battlesuit support system, Homing beacon, Fusion blaster, Marker Drone, Shield Drone
+• 2x Stealth Shas'ui w/ burst cannon: Battlesuit fists, Burst cannon
+
+## Vehicle [1490 pts]
+Broadside Battlesuits [90 pts]:
+• 1x Broadside Shas’vre: Crushing bulk, Heavy rail rifle, Weapon support system, Twin smart missile system, 2x Missile Drone (Missile pod)
+Broadside Battlesuits [90 pts]:
+• 1x Broadside Shas’vre: Crushing bulk, Heavy rail rifle, Weapon support system, Twin smart missile system, 2x Missile Drone (Missile pod)
+Broadside Battlesuits [90 pts]:
+• 1x Broadside Shas’vre: Crushing bulk, Heavy rail rifle, Weapon support system, Twin smart missile system, 2x Missile Drone (Missile pod)
+Crisis Fireknife Battlesuits [130 pts]:
+• 1x Crisis Fireknife Shas’vre: 2x Missile pod, Battlesuit fists, Shield Drone, Gun Drone (Twin pulse carbine)
+• 2x Crisis Fireknife Shas’ui: Battlesuit fists, 2x Missile pod, Shield Drone, Gun Drone (Twin pulse carbine)
+Crisis Starscythe Battlesuits [110 pts]:
+• 1x Crisis Starscythe Shas’vre: 2x Burst cannon, Battlesuit fists, Shield Drone, Gun Drone (Twin pulse carbine)
+• 2x Crisis Starscythe Shas’ui: 2x Burst cannon, Battlesuit fists, Shield Drone, Gun Drone (Twin pulse carbine)
+Crisis Starscythe Battlesuits [110 pts]:
+• 1x Crisis Starscythe Shas’vre: 2x T'au flamer, Battlesuit fists, Marker Drone, Shield Drone
+• 2x Crisis Starscythe Shas’ui: 2x T'au flamer, Battlesuit fists, Shield Drone, Gun Drone (Twin pulse carbine)
+Crisis Sunforge Battlesuits [150 pts]:
+• 1x Crisis Sunforge Shas’vre: 2x Fusion blaster, Battlesuit fists, Shield Drone, Gun Drone (Twin pulse carbine)
+• 2x Crisis Sunforge Shas’ui: Battlesuit fists, 2x Fusion blaster, Shield Drone, Gun Drone (Twin pulse carbine)
+Crisis Sunforge Battlesuits [150 pts]:
+• 1x Crisis Sunforge Shas’vre: 2x Fusion blaster, Battlesuit fists, Shield Drone, Gun Drone (Twin pulse carbine)
+• 2x Crisis Sunforge Shas’ui: Battlesuit fists, 2x Fusion blaster, Shield Drone, Gun Drone (Twin pulse carbine)
+Riptide Battlesuit [190 pts]: Riptide fists, Ion accelerator, Twin smart missile system, 2x Missile Drone (Missile pod)
+Riptide Battlesuit [190 pts]: Riptide fists, Ion accelerator, Twin smart missile system, 2x Missile Drone (Missile pod)
+Riptide Battlesuit [190 pts]: Riptide fists, Ion accelerator, Twin smart missile system, 2x Missile Drone (Missile pod)

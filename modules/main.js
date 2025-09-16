@@ -1,4 +1,4 @@
-import { detectFormat, parseGwApp, parseWtcCompact, parseNrGw } from './parsers.js';
+import { detectFormat, parseGwApp, parseWtcCompact, parseNrGw, parseNrNr } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic } from './ui.js';
@@ -76,12 +76,9 @@ function updateFactionDiagnostic() {
             setFactionColorDiagnostic('No faction mapping found for parsed FACTION_KEYWORD/DISPLAY_FACTION');
             return;
         }
-        const parts = [];
-        if (fm.unit) parts.push(`unit: ${fm.unit}`);
-        if (fm.subunit) parts.push(`subunit: ${fm.subunit}`);
-        if (fm.wargear) parts.push(`wargear: ${fm.wargear}`);
-        if (fm.points) parts.push(`points: ${fm.points}`);
-        setFactionColorDiagnostic(parts.join(' | '));
+    // Diagnostic legend intentionally suppressed to avoid cluttering the UI.
+    // Keep the diagnostic element present but leave it empty.
+    setFactionColorDiagnostic('');
     } catch (e) {
         // swallow errors in diagnostic to avoid breaking UI
         console.warn('Failed to update faction diagnostic', e);
@@ -97,12 +94,13 @@ function handleParse() {
     const parser = {
         GW_APP: parseGwApp,
         WTC_COMPACT: parseWtcCompact,
-        NR_GW: parseNrGw
+        NR_GW: parseNrGw,
+        NRNR: parseNrNr
     }[format];
 
     if (!parser) {
         console.error("Unsupported list format.");
-        setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use GW App or WTC-Compact format.</p>');
+    setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use GW App, WTC-Compact, or NRNR format.</p>');
         setCompactedOutput('');
         setMarkdownPreviewOutput(''); // Clear new output box
         return;
