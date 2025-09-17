@@ -1,0 +1,68 @@
+{
+  "name": "40k-compactor",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate_all_formats.mjs",
+  "lint": "eslint --ext .js,.mjs modules components scripts/validate_all_formats.mjs"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.2.0"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2022": true,
+      "node": true
+    },
+    "extends": [
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "sourceType": "module"
+    },
+    "plugins": [
+      "import"
+    ],
+    "globals": {
+      "AnsiUp": "readonly"
+    },
+    "ignorePatterns": [
+      "myenv/**",
+      "legacy/**",
+      "**/node_modules/**",
+      "**/.github/**",
+      "**/test/**"
+    ],
+    "rules": {
+      "no-unused-vars": ["warn", { "args": "none" }],
+      "import/no-unused-modules": ["warn", { "unusedExports": true }],
+      "semi": "off",
+      "indent": "off",
+      "quotes": "off",
+      "quote-props": "off",
+      "space-before-function-paren": "off",
+      "arrow-spacing": "off",
+      "object-curly-spacing": "off",
+      "comma-spacing": "off",
+      "key-spacing": "off",
+      "no-useless-escape": "off",
+      "camelcase": "off",
+      "brace-style": "off",
+      "eol-last": "off",
+      "array-bracket-spacing": "off",
+      "operator-linebreak": "off",
+  "no-mixed-operators": "off",
+      "no-trailing-spaces": "off",
+  "prefer-const": "off",
+  "no-empty": "off",
+  "no-constant-condition": "off",
+  "no-undef": "off"
+    }
+  }
+}
