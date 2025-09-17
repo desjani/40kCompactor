@@ -31,6 +31,11 @@ export function getMultilineHeaderState() { // New function
     return multilineHeaderCheckbox ? multilineHeaderCheckbox.checked : false;
 }
 
+export function getCombineUnitsState() {
+    const el = document.getElementById('combineUnitsCheckbox');
+    return el ? el.checked : false;
+}
+
 // --- UI Initialization ---
 export function initializeUI(callbacks) {
     if (parseButton) {
@@ -107,6 +112,14 @@ export function initializeUI(callbacks) {
         const multilineHeaderCheckbox = document.getElementById('multilineHeaderCheckbox'); // New checkbox event listener
         if (multilineHeaderCheckbox) {
             multilineHeaderCheckbox.addEventListener('change', callbacks.onMultilineHeaderChange);
+        }
+
+        const combineUnitsCheckbox = document.getElementById('combineUnitsCheckbox');
+        if (combineUnitsCheckbox) {
+            const handler = (typeof callbacks.onCombineUnitsChange === 'function') ? callbacks.onCombineUnitsChange : callbacks.onHideSubunitsChange;
+            if (typeof handler === 'function') {
+                combineUnitsCheckbox.addEventListener('change', handler);
+            }
         }
     }
 }

@@ -1,11 +1,12 @@
 +++++++++++++++++++++++++++++++++++++++++++++++
 + FACTION KEYWORD: Chaos - World Eaters
 + DETACHMENT: Berzerker Warband
-+ TOTAL ARMY POINTS: 2000pts
++ TOTAL ARMY POINTS: 1990pts
 +
 + WARLORD: Char2: Daemon Prince of Khorne
 + ENHANCEMENT: Favoured of Khorne (on Char1: Daemon Prince of Khorne)
-& Berzerker Glaive (on Char2: Slaughterbound)
+& Berzerker Glaive (on Char2: Master of Executions)
+& Battle-lust (on Char3: Slaughterbound)
 + NUMBER OF UNITS: 16
 + SECONDARY: - Bring It Down: (6x2) - Assassination: 4 Characters
 +++++++++++++++++++++++++++++++++++++++++++++++
@@ -20,12 +21,13 @@ Char2: 1x Daemon Prince of Khorne (215 pts)
   • Warlord
 Enhancement: Favoured of Khorne (+15 pts)
 
-Char3: 1x Slaughterbound (110 pts)
-1 with Lacerator and daemonic claw
+Char3: 1x Master of Executions (85 pts)
+1 with Axe of dismemberment, Bolt pistol
 Enhancement: Berzerker Glaive (+25 pts)
 
-Char4: 1x Slaughterbound (85 pts)
+Char4: 1x Slaughterbound (95 pts)
 1 with Lacerator and daemonic claw
+Enhancement: Battle-lust (+10 pts)
 
 BATTLELINE
 
@@ -38,13 +40,16 @@ BATTLELINE
     2 with Chainblade, Plasma pistol
     2 with Bolt pistol, Khornate eviscerator
 
-OTHER DATASHEETS
+10x Khorne Berzerkers (180 pts)
+• 1x Khorne Berzerker Champion
+    1 with Chainblade, Plasma pistol
+      • Icon of Khorne, Khorne Berzerker
+• 9x Khorne Berzerker
+    5 with Bolt pistol, Chainblade
+    2 with Chainblade, Plasma pistol
+    2 with Bolt pistol, Khornate eviscerator
 
-3x Eightbound (135 pts)
-• 1x Eightbound Champion
-    1 with Chainblades
-• 2x Eightbound
-    2 with Chainblades
+OTHER DATASHEETS
 
 3x Exalted Eightbound (140 pts)
 • 1x Exalted Eightbound Champion
@@ -58,21 +63,12 @@ OTHER DATASHEETS
 • 1x Dishonoured
     1 with Skullsmasher and mangler
 • 8x Jakhal
-    6 with Autopistol, Chainblades
-    1 with Autopistol, Chainblades
-      • Icon of Khorne
+    7 with Autopistol, Chainblades
     1 with Autopistol, Mauler chainblade
 
-10x Jakhals (65 pts)
-• 1x Jakhal Pack Leader
-    1 with Autopistol, Chainblades
-• 1x Dishonoured
-    1 with Skullsmasher and mangler
-• 8x Jakhal
-    6 with Autopistol, Chainblades
-    1 with Autopistol, Chainblades
-      • Icon of Khorne
-    1 with Autopistol, Mauler chainblade
+2x Chaos Spawn (90 pts)
+• 2x Chaos Spawn
+    2 with Hideous Mutations
 
 2x Chaos Spawn (90 pts)
 • 2x Chaos Spawn
@@ -91,8 +87,8 @@ OTHER DATASHEETS
 1x Maulerfiend (150 pts)
 1 with Maulerfiend fists, 2x Magma cutter
 
-1x Maulerfiend (150 pts)
-1 with Maulerfiend fists, 2x Magma cutter
+1x Chaos Rhino (85 pts)
+1 with Armoured tracks, Combi-bolter, Havoc launcher, Combi-bolter
 
 1x Chaos Rhino (85 pts)
 1 with Armoured tracks, Combi-bolter, Havoc launcher, Combi-bolter

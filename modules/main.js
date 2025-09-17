@@ -1,7 +1,7 @@
 import { detectFormat, parseGwApp, parseWtcCompact, parseWtc, parseNrGw, parseNrNr, parseLf } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
-import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic } from './ui.js';
+import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
@@ -31,21 +31,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         onDebugError: (msg) => {
             try { setDebugOutput(`Autoparse error: ${msg}`); } catch (e) { console.error('Failed to set debug error', e); }
         },
-    onCopyExtended: () => copyTextToClipboard(extendedPlainText.trim()),
+        onCopyExtended: () => copyTextToClipboard(extendedPlainText.trim()),
         onOutputFormatChange: () => updatePreview(),
         onCopyPreview: () => copyTextToClipboard(currentPreviewText),
         onColorChange: () => {
+            // Color changes should re-render all outputs when we have parsed data
             if (parsedData) {
-                const hideSubunits = getHideSubunitsState();
-                const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true);
-                setCompactedOutput(compactOutput.html);
-                compactPlainText = compactOutput.plainText;
-                // Also update the markdown preview on color change
-                updatePreview();
-                updateFactionDiagnostic();
+                renderAllOutputsWithCurrentOptions();
             }
         },
-        onHideSubunitsChange: () => updatePreview(),
+    onHideSubunitsChange: () => renderAllOutputsWithCurrentOptions(),
+    onCombineUnitsChange: () => renderAllOutputsWithCurrentOptions(),
         onMultilineHeaderChange: () => updatePreview()
     });
 
@@ -92,17 +88,15 @@ function handleParse() {
     setDebugOutput(''); // Clear debug output
     const text = getInputText();
     const lines = text.split('\n');
-
     const format = detectFormat(lines);
     const parser = {
         GW_APP: parseGwApp,
         WTC: parseWtc,
         WTC_COMPACT: parseWtcCompact,
         NR_GW: parseNrGw,
-    NRNR: parseNrNr,
-    LF: parseLf
+        NRNR: parseNrNr,
+        LF: parseLf
     }[format];
-
     if (!parser) {
         console.error("Unsupported list format.");
         setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use GW App, New Recruit (WTC-Compact, GW, or NR formats), or ListForge (Detailed).</p>');
@@ -112,7 +106,6 @@ function handleParse() {
     }
 
     const result = parser(lines);
-
     // Debug: log raw parser output to console for inspection
     if (typeof window !== 'undefined') {
         window.LAST_RAW_PARSER_OUTPUT = result;
@@ -145,13 +138,8 @@ function handleParse() {
         console.warn('Failed to build dynamic abbreviation index', e);
         wargearAbbrDB = { __flat_abbr: {} };
     }
-    const hideSubunits = getHideSubunitsState();
-    const extendedOutput = generateOutput(result, false, wargearAbbrDB, hideSubunits, skippableWargearMap, false);
-    setUnabbreviatedOutput(extendedOutput.html);
-    extendedPlainText = extendedOutput.plainText;
-    const compactOutput = generateOutput(result, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true);
-    setCompactedOutput(compactOutput.html);
-    compactPlainText = compactOutput.plainText;
+    // Initial render of all outputs based on current toggle states
+    renderAllOutputsWithCurrentOptions();
 
     // Generate and set Discord Compact Preview
     updatePreview();
@@ -174,27 +162,51 @@ function updatePreview() {
     const outputFormatSelect = document.getElementById('outputFormatSelect');
     const selectedFormat = outputFormatSelect ? outputFormatSelect.value : 'discordCompact'; // Default to discordCompact
     const hideSubunits = getHideSubunitsState();
+    const combineUnits = getCombineUnitsState();
     console.log('UI: hideSubunits value in updatePreview', hideSubunits, 'selectedFormat', selectedFormat);
 
     let previewText = '';
     switch (selectedFormat) {
         case 'discordCompact':
-            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap);
+            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits);
             break;
         case 'discordExtended':
-            previewText = generateDiscordText(parsedData, false, false, wargearAbbrDB, hideSubunits, skippableWargearMap);
+            previewText = generateDiscordText(parsedData, false, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits);
             break;
         case 'plainText':
-            previewText = generateDiscordText(parsedData, true, true, wargearAbbrDB, hideSubunits, skippableWargearMap);
+            previewText = generateDiscordText(parsedData, true, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits);
             break;
         case 'plainTextExtended':
             // plainTextExtended uses the same logic as Discord plain but with plain=true
-            previewText = generateDiscordText(parsedData, true, false, wargearAbbrDB, hideSubunits, skippableWargearMap);
+            previewText = generateDiscordText(parsedData, true, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits);
             break;
         default:
-            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap);
+            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits);
     }
     setMarkdownPreviewOutput(previewText);
     currentPreviewText = previewText; // Store for copying
     updateCharCounts(getInputText(), extendedPlainText, compactPlainText, currentPreviewText, detectedFormat);
+}
+
+// Re-render both HTML outputs and the preview using current toggle states.
+function renderAllOutputsWithCurrentOptions() {
+    if (!parsedData) return;
+    const hideSubunits = getHideSubunitsState();
+    const combineUnits = getCombineUnitsState();
+
+    // Full text (extended)
+    // Important: Full Text must NOT be affected by toggles. Always show full structure.
+    const extendedOutput = generateOutput(parsedData, false, wargearAbbrDB, /*hideSubunits*/ false, skippableWargearMap, /*applyHeaderColor*/ false, /*combine*/ false);
+    setUnabbreviatedOutput(extendedOutput.html);
+    extendedPlainText = extendedOutput.plainText;
+
+    // Compact HTML
+    const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true, combineUnits);
+    setCompactedOutput(compactOutput.html);
+    compactPlainText = compactOutput.plainText;
+
+    // Preview text
+    updatePreview();
+    // Diagnostics dependent on color/faction modes
+    updateFactionDiagnostic();
 }

@@ -21,6 +21,20 @@ const colorNameToHex = {
 const hexToRgb = (hex) => { const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : null; };
 const findClosestAnsi = (hex) => { const rgb = hexToRgb(hex); if (!rgb) return 37; let best = 37; let bestD = Infinity; for (const c of ansiPalette) { const cr = hexToRgb(c.hex); const d = Math.pow(rgb.r - cr.r, 2) + Math.pow(rgb.g - cr.g, 2) + Math.pow(rgb.b - cr.b, 2); if (d < bestD) { bestD = d; best = c.code; } } return best; };
 
+// Deep clone an object/array while stripping parent back-references and other
+// private/internal fields that can cause cycles or noise in rendering.
+function cloneSansParent(value) {
+    if (value === null || typeof value !== 'object') return value;
+    if (Array.isArray(value)) return value.map(cloneSansParent);
+    const out = {};
+    for (const [k, v] of Object.entries(value)) {
+        if (k === '_parent') continue; // drop circular link
+        // Preserve our own injected metadata and normal fields
+        out[k] = cloneSansParent(v);
+    }
+    return out;
+}
+
 // Build a mapping of faction -> { unit, subunit, wargear, points } using only colors
 // available in ansiPalette. Prefer explicit mapping from `modules/faction_colors.js`,
 // fall back to a heuristic.
@@ -311,7 +325,58 @@ function findSkippableForUnit(skippableWargearMap, dataSummary, unitName) {
     return [];
 }
 
-export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap, applyHeaderColor = true) {
+function canonicalUnitSignature(unit, hideSubunits) {
+    const qty = parseInt((unit.quantity || '1').toString().replace('x',''),10) || 1;
+    const name = (unit.name || '').toString();
+    const points = unit.points || 0;
+    // Top-level items (wargear/specials) matter for equality
+    const top = (unit.items || []).filter(i => i.type === 'wargear' || i.type === 'special')
+        .map(i => ({ t: i.type, n: i.name, q: parseInt((i.quantity||'1').toString().replace('x',''),10)||1 }))
+        .sort((a,b)=> a.t.localeCompare(b.t) || a.n.localeCompare(b.n) || a.q - b.q);
+    // If subunits are visible, include only subunit names and quantities (ignore inner wargear)
+    let subsKey = '';
+    if (!hideSubunits) {
+        const subs = (unit.items || [])
+            .filter(i => i.type === 'subunit')
+            .map(su => ({
+                n: su.name,
+                q: parseInt((su.quantity||'1').toString().replace('x',''),10)||1
+            }))
+            .sort((a,b)=> a.n.localeCompare(b.n) || a.q - b.q);
+        subsKey = JSON.stringify(subs);
+    }
+    return JSON.stringify({ name, points, top, subsKey });
+}
+
+function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
+    if (!enable) return sectionUnits;
+    const groups = new Map();
+    for (const u of sectionUnits) {
+        const sig = canonicalUnitSignature(u, hideSubunits);
+        if (!groups.has(sig)) groups.set(sig, []);
+        groups.get(sig).push(u);
+    }
+    const combined = [];
+    for (const [sig, group] of groups.entries()) {
+        if (group.length === 1) {
+            const single = cloneSansParent(group[0]);
+            single.__groupCount = 1;
+            single.__unitSize = parseInt((single.quantity||'1').toString().replace('x',''),10) || 1;
+            combined.push(single);
+            continue;
+        }
+        // Combine: preserve per-unit size and store group count for rendering
+        const template = cloneSansParent(group[0]);
+        const unitSize = parseInt((template.quantity||'1').toString().replace('x',''),10) || 1;
+        template.__groupCount = group.length;
+        template.__unitSize = unitSize;
+        // Keep original quantity (per-unit size), do not multiply
+        combined.push(template);
+    }
+    return combined;
+}
+
+export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap, applyHeaderColor = true, combineIdenticalUnits = false) {
     let html = '', plainText = '';
     const displayFaction = data.SUMMARY?.DISPLAY_FACTION || (data.SUMMARY?.FACTION_KEYWORD || '');
     if (data.SUMMARY) {
@@ -348,9 +413,17 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
     const SUB_BULLET = '◦';
     for (const section in data) {
         if (section === 'SUMMARY' || !Array.isArray(data[section])) continue;
-        data[section].forEach(unit => {
+        // Only combine in compact output (useAbbreviations === true)
+        const units = useAbbreviations ? maybeCombineUnits(data[section], hideSubunits, combineIdenticalUnits) : data[section];
+        units.forEach(unit => {
             const qtyNum = parseInt((unit.quantity || '1').toString().replace('x', ''), 10) || 1;
-            const qtyDisplay = qtyNum > 1 ? `${qtyNum} ` : '';
+            let qtyDisplay = '';
+            if (useAbbreviations && combineIdenticalUnits && (unit.__groupCount || 0) > 1) {
+                const unitSize = unit.__unitSize || qtyNum;
+                qtyDisplay = `${unit.__groupCount}x${unitSize} `;
+            } else {
+                qtyDisplay = qtyNum > 1 ? `${qtyNum} ` : '';
+            }
             if (useAbbreviations) {
                 // Compact: only include top-level wargear/specials in inline parens.
                 // Always apply skippable hiding if a skippable map is provided.
@@ -427,13 +500,13 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                 }
             }
             html += `</div>`;
-        });
+    });
     }
     html += `</div>`;
     return { html, plainText };
 }
 
-export function generateDiscordText(data, plain, useAbbreviations = true, wargearAbbrMap, hideSubunits, skippableWargearMap) {
+export function generateDiscordText(data, plain, useAbbreviations = true, wargearAbbrMap, hideSubunits, skippableWargearMap, combineIdenticalUnits = false) {
     // Produce plain or ANSI-colored Discord text. When in browser and colorMode
     // is 'custom', emit ANSI SGR sequences approximating the selected hex colors.
     const hasDOM = (typeof document !== 'undefined' && document.querySelector);
@@ -501,14 +574,26 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
         if (data.SUMMARY.FACTION_KEYWORD) parts.push(data.SUMMARY.DISPLAY_FACTION || data.SUMMARY.FACTION_KEYWORD.split(' - ').pop());
         if (data.SUMMARY.DETACHMENT) parts.push(data.SUMMARY.DETACHMENT);
         if (data.SUMMARY.TOTAL_ARMY_POINTS) parts.push(data.SUMMARY.TOTAL_ARMY_POINTS);
-        if (parts.length) { const header = parts.join(getMultilineHeaderState() ? '\n' : ' | '); out += useColor ? toAnsi(header, colors.header, true) + '\n\n' : header + '\n\n'; }
+        if (parts.length) {
+            const hasDOM = (typeof document !== 'undefined' && document.querySelector);
+            const multiline = hasDOM ? getMultilineHeaderState() : false;
+            const header = parts.join(multiline ? '\n' : ' | ');
+            out += useColor ? toAnsi(header, colors.header, true) + '\n\n' : header + '\n\n';
+        }
     }
 
     for (const section in data) {
         if (section === 'SUMMARY' || !Array.isArray(data[section])) continue;
-        data[section].forEach(unit => {
+        const units = maybeCombineUnits(data[section], hideSubunits, combineIdenticalUnits);
+        units.forEach(unit => {
             const qtyNum = parseInt((unit.quantity || '1').toString().replace('x',''), 10) || 1;
-            const qtyDisplay = qtyNum > 1 ? `${qtyNum} ` : '';
+            let qtyDisplay = '';
+            if (combineIdenticalUnits && (unit.__groupCount || 0) > 1) {
+                const unitSize = unit.__unitSize || qtyNum;
+                qtyDisplay = `${unit.__groupCount}x${unitSize} `;
+            } else {
+                qtyDisplay = qtyNum > 1 ? `${qtyNum} ` : '';
+            }
             let itemsToRender = hideSubunits ? aggregateWargear(unit) : unit.items || [];
             // Always apply skippable hiding when a skippable map is provided
             const skippable = findSkippableForUnit(skippableWargearMap, data.SUMMARY, unit.name);
@@ -550,7 +635,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
                     out += `  ${SUB_BULLET} ${subName}${subItemsText}\n`;
                 });
             }
-        });
+    });
     }
 
     if (!plain) out += '```';
