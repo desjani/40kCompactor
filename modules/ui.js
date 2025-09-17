@@ -198,6 +198,7 @@ export function updateCharCounts(original, extended, compact, markdownPreview, d
         'GW_APP': 'GW Official App',
         'WTC_COMPACT': "New Recruit - WTC-Compact",
         'NR_GW': 'New Recruit - GW'
+    // 'LF': 'Listforge'
     };
 
     let inputTextContent = `Characters: ${originalSize}`;

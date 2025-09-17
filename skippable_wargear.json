@@ -28,6 +28,7 @@
             "Armoured Tracks"
         ],
         "Chaos Spawn": true,
+        "Daemon Prince": true,
         "Daemon Prince of Khorne": true,
         "Daemon Prince of Khorne with Wings": true,
         "Defiler": [
@@ -46,12 +47,14 @@
         ],
         "Jakhals": [
             "Autopistol",
-            "Chainblades"
+            "Chainblades",
+            "Jakhal Chainblades"
         ],
         "Khorne Berzerkers": [
             "Bolt Pistol",
             "Khorne Berzerker",
-            "Chainblade"
+            "Chainblade",
+            "Berzerker Chainblade"
         ],
         "Khorne Lord of Skulls": [
             "Great Cleaver of Khorne"

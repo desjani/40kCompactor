@@ -1,4 +1,4 @@
-import { detectFormat, parseGwApp, parseWtcCompact, parseWtc, parseNrGw, parseNrNr } from './parsers.js';
+import { detectFormat, parseGwApp, parseWtcCompact, parseWtc, parseNrGw, parseNrNr, parseLf } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic } from './ui.js';
@@ -99,12 +99,13 @@ function handleParse() {
         WTC: parseWtc,
         WTC_COMPACT: parseWtcCompact,
         NR_GW: parseNrGw,
-        NRNR: parseNrNr
+    NRNR: parseNrNr,
+    LF: parseLf
     }[format];
 
     if (!parser) {
         console.error("Unsupported list format.");
-    setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use GW App, WTC-Compact, or NRNR format.</p>');
+        setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use GW App, New Recruit (WTC-Compact, GW, or NR formats), or ListForge (Detailed).</p>');
         setCompactedOutput('');
         setMarkdownPreviewOutput(''); // Clear new output box
         return;

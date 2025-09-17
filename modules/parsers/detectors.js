@@ -18,7 +18,8 @@ export function detectFormat(textOrLines) {
   'WTC-Compact': { score: 0, breakdown: {} , maxScore: 8},
   WTC: { score: 0, breakdown: {}, maxScore: 8 },
     GWAPP: { score: 0, breakdown: {} , maxScore: 7},
-    'NR-GW': { score: 0, breakdown: {} , maxScore: 7}
+    'NR-GW': { score: 0, breakdown: {} , maxScore: 7},
+    LF: { score: 0, breakdown: {} , maxScore: 7}
   };
 
   // Shared regexes
@@ -34,6 +35,21 @@ export function detectFormat(textOrLines) {
   // "Char2: 1x Commander ... (115 pts): 2x Shield Drone, ..."
   const compactInlineUnitRe = /(^|\n)\s*Char\d+:.*\(\s*\d{1,4}\s*(?:pts|points)\s*\)\s*:\s*/i;
   const compactInlineCount = (whole.match(new RegExp(compactInlineUnitRe.source, 'gi')) || []).length;
+  // LF cues: header keys or title pattern, section headers with colon case styles, bullets with nested indents
+  const lfHeaderKeys = head.some(l => /^(List Name|Factions Used|Army Points|Detachment Rule):/i.test(l.trim()));
+  const lfTitleLine = head.some(l => /-\s*\(\s*\d+\s*Points?\s*\)\s*$/i.test(l));
+  const lfSectionColon = whole.match(/^(Epic Hero|Epic Heroes|Character|Characters|Battleline|Infantry|Beast|Vehicle|Dedicated Transport|Other Datasheets):\s*$/gmi) || [];
+  const lfEnhLines = (whole.match(/^\s*•\s*(?:E:|Enhancement:)/gmi) || []).length;
+  const lfBullets = (whole.match(/^\s*•\s+/gmi) || []).length;
+  if (lfHeaderKeys) { formats.LF.score += 4; formats.LF.breakdown.headerKeys = 4; }
+  if (lfTitleLine) { formats.LF.score += 4; formats.LF.breakdown.titleLine = 4; }
+  if (lfSectionColon.length >= 2) { formats.LF.score += 3; formats.LF.breakdown.sectionColons = lfSectionColon.length; }
+  if (lfBullets > 5) { formats.LF.score += 1; formats.LF.breakdown.bullets = lfBullets; }
+  if (lfEnhLines > 0) { formats.LF.score += 1; formats.LF.breakdown.enhancementLines = lfEnhLines; }
+  // Penalize other formats slightly when strong LF signals present
+  if (lfHeaderKeys || lfTitleLine || lfSectionColon.length >= 2) {
+    formats.NRNR.score -= 1; formats.WTC.score -= 1; formats['WTC-Compact'].score -= 1; formats.GWAPP.score -= 1; formats['NR-GW'].score -= 3;
+  }
 
   // NRNR signals
   if (bracketedPtsTitle) { formats.NRNR.score += 2; formats.NRNR.breakdown.titleWithBracketedPts = 2; }
