@@ -1,0 +1,23 @@
+name: Validate Formats
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install (dev) dependencies
+        run: |
+          if [ -f package.json ]; then npm i --no-audit --no-fund; else echo "no package.json"; fi
+      - name: Run format validator
+        run: node scripts/validate_all_formats.mjs
+      - name: Lint (optional, non-blocking)
+        run: npm run lint --if-present || true
