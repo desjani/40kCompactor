@@ -507,29 +507,38 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
     return { html, plainText };
 }
 
-export function generateDiscordText(data, plain, useAbbreviations = true, wargearAbbrMap, hideSubunits, skippableWargearMap, combineIdenticalUnits = false) {
+export function generateDiscordText(data, plain, useAbbreviations = true, wargearAbbrMap, hideSubunits, skippableWargearMap, combineIdenticalUnits = false, options) {
     // Produce plain or ANSI-colored Discord text. When in browser and colorMode
     // is 'custom', emit ANSI SGR sequences approximating the selected hex colors.
     const hasDOM = (typeof document !== 'undefined' && document.querySelector);
     let useColor = false;
     const defaultColors = { unit: '#FFFFFF', subunit: '#808080', wargear: '#FFFFFF', points: '#FFFF00', header: '#FFFF00' };
     const colors = { ...defaultColors };
-    // `buildFactionColorMap` and palette helpers are defined at module scope.
-    if (!plain && hasDOM) {
-        const modeEl = document.querySelector('input[name="colorMode"]:checked');
-        const mode = modeEl ? modeEl.value : 'none';
+    // Allow callers (e.g., mobile) to pass color mode and colors directly.
+    // Fallback to DOM extraction when not provided.
+    if (!plain) {
+        const mode = (options && options.colorMode) || (hasDOM ? ((document.querySelector('input[name="colorMode"]:checked') || {}).value || 'none') : 'none');
         useColor = mode && mode !== 'none';
         if (useColor && mode === 'custom') {
-            const u = document.getElementById('unitColor');
-            const s = document.getElementById('subunitColor');
-            const w = document.getElementById('wargearColor');
-            const p = document.getElementById('pointsColor');
-            const h = document.getElementById('headerColor');
-            if (u && u.value) colors.unit = u.value;
-            if (s && s.value) colors.subunit = s.value;
-            if (w && w.value) colors.wargear = w.value;
-            if (p && p.value) colors.points = p.value;
-            if (h && h.value) colors.header = h.value;
+            if (options && options.colors) {
+                const src = options.colors || {};
+                if (src.unit) colors.unit = src.unit;
+                if (src.subunit) colors.subunit = src.subunit;
+                if (src.wargear) colors.wargear = src.wargear;
+                if (src.points) colors.points = src.points;
+                if (src.header) colors.header = src.header;
+            } else if (hasDOM) {
+                const u = document.getElementById('unitColor');
+                const s = document.getElementById('subunitColor');
+                const w = document.getElementById('wargearColor');
+                const p = document.getElementById('pointsColor');
+                const h = document.getElementById('headerColor');
+                if (u && u.value) colors.unit = u.value;
+                if (s && s.value) colors.subunit = s.value;
+                if (w && w.value) colors.wargear = w.value;
+                if (p && p.value) colors.points = p.value;
+                if (h && h.value) colors.header = h.value;
+            }
         }
         // New 'faction' color mode: derive a faction -> color mapping from the
         // provided skippable_wargear map and color units based on the parsed faction.

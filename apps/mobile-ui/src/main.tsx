@@ -76,17 +76,18 @@ function App() {
   useEffect(() => {
     if (!parsed || !abbr) { setPreviewText(''); return }
     let t = ''
-    switch (format) {
+  const opts = { colorMode, colors } as any
+  switch (format) {
       case 'discordCompact':
-        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine); break
+    t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts); break
       case 'discordExtended':
-        t = generateDiscordText(parsed, false, false, abbr, hide, skippable as any, combine); break
+    t = generateDiscordText(parsed, false, false, abbr, hide, skippable as any, combine, opts); break
       case 'plainText':
-        t = generateDiscordText(parsed, true, true, abbr, hide, skippable as any, combine); break
+    t = generateDiscordText(parsed, true, true, abbr, hide, skippable as any, combine, opts); break
       case 'plainTextExtended':
-        t = generateDiscordText(parsed, true, false, abbr, hide, skippable as any, combine); break
+    t = generateDiscordText(parsed, true, false, abbr, hide, skippable as any, combine, opts); break
       default:
-        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine)
+    t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts)
     }
     setPreviewText(t)
   }, [parsed, abbr, hide, combine, colorMode, colors, multiline, format])
