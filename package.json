@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "validate": "node scripts/validate_all_formats.mjs",
+  "validate": "node scripts/validate_all_formats.mjs",
+  "test": "node scripts/test_runner.mjs",
   "lint": "eslint --ext .js,.mjs modules components scripts/validate_all_formats.mjs"
   },
   "devDependencies": {
