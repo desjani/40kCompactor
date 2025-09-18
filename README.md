@@ -3,14 +3,18 @@
 List compactor for Warhammer 40,000 lists to create Discord-friendly versions.
 
 This tool supports the following formats:
-*   Games Workshop App format
-*   WTC-Compact format
+* Games Workshop App (GW App)
+* New Recruit: WTC-Compact
+* New Recruit: WTC
+* New Recruit: GW/NR (aka NR-GW)
+* NRNR (markdown-style variant)
+* ListForge (Detailed)
 
 ## Features
 
-*   **Multiple Format Support:** Paste your army list from the GW App or WTC-Compact format.
+*   **Multiple Format Support:** Paste your army list from GW App, New Recruit (WTC-Compact, WTC, GW/NR), NRNR, or ListForge (Detailed).
 *   **Extended and Compact Views:** See your full list or a compacted version with abbreviations.
-*   **Discord-Friendly Output:** Copy your list in various formats for easy pasting into Discord.
+*   **Discord-Friendly Output:** Copy your list in various formats for easy pasting into Discord. Output is code-fenced for both ANSI-colored and plain text.
 *   **Customizable Colors:** Choose your own colors for the Discord output.
 *   **Smart Wargear Skipping:** Automatically hides default or redundant wargear for a cleaner compact view.
 
@@ -20,12 +24,18 @@ This tool supports the following formats:
 2.  Click "Compact this list" to see the extended and compact versions.
 3.  Use the "Copy" buttons to copy the list in your desired format.
 
+## Behavior and Output
+
+- Toggle scoping: Combine Units and Hide Subunits only affect the compact (abbreviated) output. Full Text (extended) is not affected by these toggles.
+- Discord output: Both ANSI and plain variants are emitted inside triple backtick fences. When colors are enabled, the fence is ```ansi.
+
 ## Customization
 
-The compactor's behavior can be customized by editing the JSON files in the `v2` directory.
+The compactor's behavior can be customized by editing JSON files in the repository root:
 
-Note: the old static abbreviation file has been deprecated and removed.
-The compactor now uses a dynamic wargear DB (`wargear.json`) for optional abbreviations and uses `skippable_wargear.json` to control which wargear should be hidden in compacted output.
+- `wargear.json`: dynamic wargear database used for optional abbreviations.
+- `skippable_wargear.json`: per-faction rules for hiding default/redundant wargear in the compact output.
+- `abbreviation_rules.json`: supplemental rules to steer abbreviation generation (when needed).
 
 ### `skippable_wargear.json`
 
@@ -52,3 +62,25 @@ In this example:
 *   "Bolt Pistol" and "Close Combat Weapon" will be skipped for all Space Marines units.
 *   "Bolt Rifle" will be skipped for Intercessor Squads.
 *   All wargear will be skipped for Aggressor Squads.
+
+## Development
+
+Prereqs: Node.js 20+ recommended.
+
+Run the cross-format validator (quick end-to-end sanity checks):
+
+```powershell
+pwsh -NoProfile -Command "npm run validate"
+```
+
+Run the small test suite:
+
+```powershell
+pwsh -NoProfile -Command "npm test"
+```
+
+Optional lint (warnings-only, non-blocking):
+
+```powershell
+pwsh -NoProfile -Command "npm run lint"
+```
