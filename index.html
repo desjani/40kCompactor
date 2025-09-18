@@ -217,12 +217,21 @@
                     <h4>Roadmap</h4>
                     <ul>
                         <li>.ROSZ file format support</li>
-                        <li>Mobile-friendly version</li>
                         <li>Ongoing bugfixes and performance improvements</li>
                     </ul>
                 </div>
                 <div class="changelog-entry">
                     <h4>Changelog</h4>
+                    <div class="changelog-version-entry">
+                        <h5>Version 1.3.1: Mobile Edition</h5>
+                        <ul>
+                            <li>Introduced a phone-first Mobile UI (Preact) with full-width bottom tabs, green/black styling, and a combined Compact + Preview screen.</li>
+                            <li>Auto-redirect phones/tablets to the Mobile UI; desktop override preserved via URL or preference.</li>
+                            <li>Default color mode set to Faction Color; preview uses truecolor for exact picker matching (lighter grey), ANSI 90 elsewhere.</li>
+                            <li>Plain Text outputs no longer wrapped in code fences.</li>
+                            <li>Stability: fixed ansi_up constructor issue on Android (Brave) and ensured color behavior parity.</li>
+                        </ul>
+                    </div>
                     <div class="changelog-version-entry">
                         <h5>Version 1.2.0 - I'm winning the format war, dammit!</h5>
                         <ul>
