@@ -100,7 +100,7 @@ async function main() {
       }
     }
 
-    // Discord preview text: plain=false (ANSI fences) and plain=true; sample two combos to keep it quick
+  // Discord preview text: both ANSI and plain are fenced; sample two combos to keep it quick
     const combosShort = [ renderCombos[0], renderCombos[2] ];
     for (const combo of combosShort) {
       try {
@@ -110,8 +110,8 @@ async function main() {
         failures.push({ msg: `generateDiscordText (ansi) threw: ${e && (e.stack || e.message) || e}`, ctx: { file: sample.file, combo } });
       }
       try {
-        const t2 = generateDiscordText(data, /*plain*/ true, /*useAbbrev*/ true, { __flat_abbr: {} }, combo.hide, /*skippable*/ {}, combo.combine);
-        ok(typeof t2 === 'string' && t2.length > 20 && !t2.startsWith('```'), 'discord (plain) invalid/empty', { file: sample.file, combo, len: t2.length, head: short(t2) }, failures);
+    const t2 = generateDiscordText(data, /*plain*/ true, /*useAbbrev*/ true, { __flat_abbr: {} }, combo.hide, /*skippable*/ {}, combo.combine);
+    ok(typeof t2 === 'string' && t2.length > 20 && t2.startsWith('```') && t2.trim().endsWith('```'), 'discord (plain) invalid fences/empty', { file: sample.file, combo, len: t2.length, head: short(t2) }, failures);
       } catch (e) {
         failures.push({ msg: `generateDiscordText (plain) threw: ${e && (e.stack || e.message) || e}`, ctx: { file: sample.file, combo } });
       }

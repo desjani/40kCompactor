@@ -2,6 +2,8 @@ import fs from 'fs/promises';
 import { parseWtcCompact } from '../modules/parsers.js';
 import { buildAbbreviationIndex, makeAbbrevForName } from '../modules/abbreviations.js';
 import { generateOutput } from '../modules/renderers.js';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 function assert(cond, msg) {
   if (!cond) throw new Error('Assertion failed: ' + msg);
@@ -40,3 +42,11 @@ async function runTests() {
 }
 
 runTests().catch(e=>{ console.error(e.message || e); process.exit(1); });
+
+function run(urlOrPath) {
+  const p = typeof urlOrPath === 'string' ? urlOrPath : fileURLToPath(urlOrPath);
+  const r = spawnSync(process.execPath, [p], { stdio: 'inherit' });
+  if (r.status !== 0) process.exit(r.status ?? 1);
+}
+
+run(new URL('./test_toggle_and_discord.mjs', import.meta.url));

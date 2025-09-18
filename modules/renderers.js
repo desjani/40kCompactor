@@ -414,7 +414,8 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
     for (const section in data) {
         if (section === 'SUMMARY' || !Array.isArray(data[section])) continue;
         // Only combine in compact output (useAbbreviations === true)
-        const units = useAbbreviations ? maybeCombineUnits(data[section], hideSubunits, combineIdenticalUnits) : data[section];
+            const effectiveHideSubunits = useAbbreviations ? hideSubunits : false;
+            const units = useAbbreviations ? maybeCombineUnits(data[section], effectiveHideSubunits, combineIdenticalUnits) : data[section];
         units.forEach(unit => {
             const qtyNum = parseInt((unit.quantity || '1').toString().replace('x', ''), 10) || 1;
             let qtyDisplay = '';
@@ -444,7 +445,7 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
             html += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p>`;
             plainText += `${UNIT_BULLET} ${unitText}\n`;
             const itemsArr = unit.items || [];
-            if (hideSubunits) {
+                if (effectiveHideSubunits) {
                     let aggregated = aggregateWargear(unit);
                     // For full text (non-compact), we do NOT apply skippable filtering — show all aggregated wargear
                     if (aggregated.length > 0) { html += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`; aggregated.forEach(it => { const iq = parseInt((it.quantity || '1').toString().replace('x',''), 10) || 1; const qtyDisplay = iq > 1 ? `${it.quantity} ` : ''; html += `<p style="margin:0;">${qtyDisplay}${it.name}</p>`; plainText += `  - ${qtyDisplay}${it.name}\n`; }); html += `</div>`; }
@@ -567,7 +568,8 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
     const SUB_BULLET = plain ? '◦' : '+';
 
     let out = '';
-    if (!plain) out += useColor ? '```ansi\n' : '```\n';
+    // Always fence the output for Discord/plain previews. Use ```ansi when colored.
+    out += (!plain && useColor) ? '```ansi\n' : '```\n';
     if (data.SUMMARY) {
         const parts = [];
         if (data.SUMMARY.LIST_TITLE) parts.push(data.SUMMARY.LIST_TITLE);
@@ -638,7 +640,8 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
     });
     }
 
-    if (!plain) out += '```';
+    // Always close the fence
+    out += '```';
     return out;
 }
 
