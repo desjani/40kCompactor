@@ -11,7 +11,7 @@ import { sortItemsByQuantityThenName } from './utils.js';
 const ansiPalette = [
     { hex: '#000000', code: 30 }, { hex: '#FF0000', code: 31 }, { hex: '#00FF00', code: 32 },
     { hex: '#FFFF00', code: 33 }, { hex: '#0000FF', code: 34 }, { hex: '#FF00FF', code: 35 },
-    { hex: '#00FFFF', code: 36 }, { hex: '#FFFFFF', code: 37 }, { hex: '#808080', code: 30 }
+    { hex: '#00FFFF', code: 36 }, { hex: '#FFFFFF', code: 37 }, { hex: '#808080', code: 90 } // grey -> bright black
 ];
 // Map simple color names used in faction_colors.js to allowed hex values
 const colorNameToHex = {
@@ -561,15 +561,28 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
         }
     }
 
-    const toAnsi = (txt, hex, bold = false) => { if (!useColor || !hex) return txt; const code = findClosestAnsi(hex); const boldPart = bold ? '1;' : ''; return `\u001b[${boldPart}${code}m${txt}\u001b[0m`; };
+    const toAnsi = (txt, hex, bold = false) => {
+        if (!useColor || !hex) return txt;
+        // In browser previews, use truecolor so the preview matches the exact picker color
+        const hasDOMLocal = (typeof document !== 'undefined' && document.querySelector);
+        if (hasDOMLocal) {
+            const rgb = hexToRgb(hex);
+            if (!rgb) return txt;
+            const boldPart = bold ? '1;' : '';
+            return `\u001b[${boldPart}38;2;${rgb.r};${rgb.g};${rgb.b}m${txt}\u001b[0m`;
+        }
+        const code = findClosestAnsi(hex);
+        const boldPart = bold ? '1;' : '';
+        return `\u001b[${boldPart}${code}m${txt}\u001b[0m`;
+    };
 
     // Choose bullet symbols for plain text vs. other outputs
     const UNIT_BULLET = plain ? '•' : '*';
     const SUB_BULLET = plain ? '◦' : '+';
 
     let out = '';
-    // Always fence the output for Discord/plain previews. Use ```ansi when colored.
-    out += (!plain && useColor) ? '```ansi\n' : '```\n';
+    // Fence only for Discord modes (non-plain). Use ```ansi when colored.
+    if (!plain) out += useColor ? '```ansi\n' : '```\n';
     if (data.SUMMARY) {
         const parts = [];
         if (data.SUMMARY.LIST_TITLE) parts.push(data.SUMMARY.LIST_TITLE);
@@ -640,8 +653,8 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
     });
     }
 
-    // Always close the fence
-    out += '```';
+    // Close the fence only for Discord modes
+    if (!plain) out += '```';
     return out;
 }
 

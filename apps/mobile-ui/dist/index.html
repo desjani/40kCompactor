@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>40k Compactor Mobile</title>
+    <meta name="theme-color" content="#0f1115" />
+  <link rel="icon" href="./favicon.ico" />
+    <style>
+      html, body, #app { height: 100%; margin: 0; }
+      body { background: #0f1115; color: #e6e6e6; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+      .container { display: grid; grid-template-rows: auto 1fr auto; min-height: 100%; }
+      header, footer { padding: 8px 12px; border-bottom: 1px solid #1f2330; }
+      footer { border-top: 1px solid #1f2330; border-bottom: none; opacity: 0.8; }
+  .tabs { position: sticky; bottom: 0; background: #0f1115; border-top: 1px solid #1f2330; display: flex; width: 100%; }
+  .tab { flex: 1 1 0; padding: 10px 4px; text-align: center; font-size: 12px; background: #22c55e; color: #000; border: none; }
+  .tab + .tab { border-left: 1px solid rgba(0,0,0,0.15); }
+  .tab.active { background: #16a34a; color: #000; font-weight: 700; }
+      .screen { padding: 10px; }
+  textarea { width: 100%; min-height: 34vh; background:#161b2a; color:#e6e6e6; border:1px solid #2a3147; border-radius:8px; padding:8px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+      .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+      .btn { background:#1b2236; border:1px solid #2a3147; color:#e6e6e6; padding:6px 10px; border-radius:8px; font-size: 12px; }
+  .outbox { background:#161b2a; border:1px solid #2a3147; border-radius:8px; padding:8px; white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+      .pill { border:1px solid #2a3147; border-radius:999px; padding: 2px 6px; font-size: 11px; color:#aab; }
+      .section { margin: 10px 0; }
+      .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+      label { font-size: 11px; color:#aab; }
+      input[type="checkbox"] { transform: scale(1.2); }
+    </style>
+    <script type="module" crossorigin src="./assets/index-Barlw8o3.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DJouhrK4.css">
+  </head>
+  <body>
+    <div id="app">Loading…</div>
+    <script>
+      // Minimal runtime diagnostics: show any errors on screen
+      (function(){
+        function show(msg){
+          try {
+            var el = document.getElementById('app');
+            if (!el) return;
+            var pre = document.createElement('pre');
+            pre.style.whiteSpace = 'pre-wrap';
+            pre.style.fontSize = '12px';
+            pre.style.color = '#ff8080';
+            pre.style.marginTop = '8px';
+            pre.textContent = String(msg || 'Unknown error');
+            el.appendChild(pre);
+          } catch (_) {}
+        }
+        window.addEventListener('error', function(e){
+          show('Error: ' + (e.message || e.error || e.filename || e));
+        });
+        window.addEventListener('unhandledrejection', function(e){
+          var reason = e && (e.reason && (e.reason.stack || e.reason.message) || e.reason);
+          show('Unhandled rejection: ' + (reason || 'no reason'));
+        });
+        console.log('[mobile-ui] bootstrap start');
+      })();
+    </script>
+  </body>
+</html>
