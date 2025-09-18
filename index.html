@@ -335,14 +335,17 @@
                     window.location.href = './apps/mobile-ui/dist/index.html';
                 }
                 function dismiss(){ prompt.style.display = 'none'; localStorage.setItem('uiPref','desktop'); }
-                if (isMobile && !isDesktop) {
-                    // If explicitly mobile, redirect immediately
-                    if (override === 'mobile' || pref === 'mobile') { openMobile(); return; }
-                    // Otherwise show prompt
-                    prompt.style.display = 'block';
+                // Auto-redirect phones/tablets unless desktop is explicitly requested or preferred
+                if (!isDesktop && (override === 'mobile' || pref === 'mobile' || (coarse || narrow))) {
+                    try { localStorage.setItem('uiPref','mobile'); } catch(e) {}
+                    openMobile();
+                    return;
                 }
+                // Fallback prompt (visible only if user isn't auto-redirected and no desktop override)
                 if (openBtn) openBtn.addEventListener('click', function(){ localStorage.setItem('uiPref','mobile'); openMobile(); });
                 if (dismissBtn) dismissBtn.addEventListener('click', dismiss);
+                // Only show prompt when on a small/touch device and not explicitly desktop
+                if ((coarse || narrow) && !isDesktop && prompt) prompt.style.display = 'block';
             } catch (e) { /* ignore detection errors */ }
         })();
     </script>
