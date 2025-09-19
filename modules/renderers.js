@@ -325,34 +325,40 @@ function findSkippableForUnit(skippableWargearMap, dataSummary, unitName) {
     return [];
 }
 
-function canonicalUnitSignature(unit, hideSubunits) {
-    const qty = parseInt((unit.quantity || '1').toString().replace('x',''),10) || 1;
-    const name = (unit.name || '').toString();
-    const points = unit.points || 0;
-    // Top-level items (wargear/specials) matter for equality
-    const top = (unit.items || []).filter(i => i.type === 'wargear' || i.type === 'special')
-        .map(i => ({ t: i.type, n: i.name, q: parseInt((i.quantity||'1').toString().replace('x',''),10)||1 }))
-        .sort((a,b)=> a.t.localeCompare(b.t) || a.n.localeCompare(b.n) || a.q - b.q);
-    // If subunits are visible, include only subunit names and quantities (ignore inner wargear)
-    let subsKey = '';
-    if (!hideSubunits) {
-        const subs = (unit.items || [])
-            .filter(i => i.type === 'subunit')
-            .map(su => ({
-                n: su.name,
-                q: parseInt((su.quantity||'1').toString().replace('x',''),10)||1
-            }))
-            .sort((a,b)=> a.n.localeCompare(b.n) || a.q - b.q);
-        subsKey = JSON.stringify(subs);
+function canonicalUnitSignature(unit, _hideSubunits) {
+    // Exact-match policy: only merge when the entire unit JSON (structure and wargear)
+    // is identical. Normalize to remove private fields and normalize quantities.
+    const normalize = (value) => {
+        if (value === null || typeof value !== 'object') return value;
+        if (Array.isArray(value)) return value.map(normalize);
+        const out = {};
+        for (const [k, v] of Object.entries(value)) {
+            if (k === '_parent') continue; // drop circular link
+            if (k.startsWith('__')) continue; // drop internal aggregation metadata
+            if (k === 'quantity') {
+                const q = parseInt((v ?? '1').toString().replace('x',''),10);
+                out[k] = isNaN(q) ? v : q;
+                continue;
+            }
+            out[k] = normalize(v);
+        }
+        return out;
+    };
+    try {
+        return JSON.stringify(normalize(unit));
+    } catch (e) {
+        // Fallback to name+points if stringify fails (should be rare)
+        const name = (unit && unit.name) ? unit.name.toString() : '';
+        const points = (unit && unit.points) || 0;
+        return JSON.stringify({ name, points });
     }
-    return JSON.stringify({ name, points, top, subsKey });
 }
 
 function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
     if (!enable) return sectionUnits;
     const groups = new Map();
     for (const u of sectionUnits) {
-        const sig = canonicalUnitSignature(u, hideSubunits);
+    const sig = canonicalUnitSignature(u, hideSubunits);
         if (!groups.has(sig)) groups.set(sig, []);
         groups.get(sig).push(u);
     }
