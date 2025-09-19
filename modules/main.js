@@ -33,7 +33,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         },
         onCopyExtended: () => copyTextToClipboard(extendedPlainText.trim()),
         onOutputFormatChange: () => updatePreview(),
-        onCopyPreview: () => copyTextToClipboard(currentPreviewText),
+        onCopyPreview: () => {
+            if (!parsedData) return;
+            const outputFormatSelect = document.getElementById('outputFormatSelect');
+            const selectedFormat = outputFormatSelect ? outputFormatSelect.value : 'discordCompact';
+            const hideSubunits = getHideSubunitsState();
+            const combineUnits = getCombineUnitsState();
+            const opts = { forcePalette: true };
+            let text = '';
+            switch (selectedFormat) {
+                case 'discordCompact':
+                    text = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts); break;
+                case 'discordExtended':
+                    text = generateDiscordText(parsedData, false, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts); break;
+                case 'plainText':
+                    text = generateDiscordText(parsedData, true, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts); break;
+                case 'plainTextExtended':
+                    text = generateDiscordText(parsedData, true, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts); break;
+                default:
+                    text = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts);
+            }
+            copyTextToClipboard(text);
+        },
         onColorChange: () => {
             // Color changes should re-render all outputs when we have parsed data
             if (parsedData) {

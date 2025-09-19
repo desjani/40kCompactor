@@ -94,8 +94,22 @@ function App() {
   const previewHtml = useMemo(() => au.ansi_to_html(previewText), [previewText, au])
 
   function copy(s: string) {
-    if (!s) return
-    navigator.clipboard?.writeText(s)
+    if (!s || !parsed || !abbr) { navigator.clipboard?.writeText(s || ''); return }
+    const opts: any = { colorMode, colors, forcePalette: true }
+    let t = ''
+    switch (format) {
+      case 'discordCompact':
+        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts); break
+      case 'discordExtended':
+        t = generateDiscordText(parsed, false, false, abbr, hide, skippable as any, combine, opts); break
+      case 'plainText':
+        t = generateDiscordText(parsed, true, true, abbr, hide, skippable as any, combine, opts); break
+      case 'plainTextExtended':
+        t = generateDiscordText(parsed, true, false, abbr, hide, skippable as any, combine, opts); break
+      default:
+        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts)
+    }
+    navigator.clipboard?.writeText(t)
   }
 
   return (

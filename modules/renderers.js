@@ -572,9 +572,10 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
 
     const toAnsi = (txt, hex, bold = false) => {
         if (!useColor || !hex) return txt;
-        // In browser previews, use truecolor so the preview matches the exact picker color
+        // For previews in-browser we can use truecolor, but allow callers to force palette for clipboard
         const hasDOMLocal = (typeof document !== 'undefined' && document.querySelector);
-        if (hasDOMLocal) {
+        const forcePalette = !!(options && options.forcePalette);
+        if (hasDOMLocal && !forcePalette) {
             const rgb = hexToRgb(hex);
             if (!rgb) return txt;
             const boldPart = bold ? '1;' : '';
