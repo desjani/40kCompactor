@@ -202,13 +202,14 @@ export function parseWtcCompact(lines) {
         }
     }
 
+    // Intentionally ignore header-based enhancement mappings for WTC-Compact.
+    // Per app requirements, enhancements in this format are specified on body lines
+    // immediately following the character unit (e.g., "Enhancement: Foo (+NN pts)").
+    // Applying header mappings can cause duplicates when both header and body specify
+    // the same enhancement; therefore we skip applying them here.
+
+    // Build a flat list for subsequent deterministic sorting.
     const allUnits = [...(result.CHARACTER || []), ...(result['OTHER DATASHEETS'] || [])];
-    const normalize = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
-    for (const k of Object.keys(headerEnhancements)) {
-        const enh = headerEnhancements[k];
-        const found = allUnits.find(u => normalize(u.name).includes(normalize(k)) || normalize(`${u.quantity} ${u.name}`).includes(normalize(k)));
-        if (found) parseAndAddEnhancement(enh, found);
-    }
 
     // Ensure deterministic ordering: sort top-level items and subunit items
     for (const u of allUnits) {
