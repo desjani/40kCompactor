@@ -2,7 +2,7 @@ import fs from 'fs';
 import { parseWtcCompact } from '../modules/parsers.js';
 import { generateOutput } from '../modules/renderers.js';
 
-const sample = fs.readFileSync(new URL('../WTCCompactSample.txt', import.meta.url), 'utf8');
+const sample = fs.readFileSync(new URL('../samples/WTCCompactSample.txt', import.meta.url), 'utf8');
 const lines = sample.split('\n');
 const parsed = parseWtcCompact(lines);
 const ext = generateOutput(parsed, false, null, false, {}, false);

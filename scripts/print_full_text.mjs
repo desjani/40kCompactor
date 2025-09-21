@@ -4,7 +4,7 @@ import { generateOutput, generateDiscordText } from '../modules/renderers.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 
 async function run(){
-  const txt = await fs.readFile('./WTCCompactSample.txt','utf8');
+  const txt = await fs.readFile(new URL('../samples/WTCCompactSample.txt', import.meta.url),'utf8');
   const parsed = parseWtcCompact(txt.split(/\r?\n/));
   const abbr = buildAbbreviationIndex(parsed);
   const skippable = {};

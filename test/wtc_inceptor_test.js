@@ -1,4 +1,4 @@
-import { parseWtcCompact } from './modules/parsers.js';
+import { parseWtcCompact } from '../modules/parsers.js';
 
 const sample = `+ FACTION KEYWORD: Imperium - Adeptus Astartes
 +++ 

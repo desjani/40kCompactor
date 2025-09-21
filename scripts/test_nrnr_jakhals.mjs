@@ -2,7 +2,7 @@ import fs from 'fs';
 import assert from 'assert';
 import { detectFormat, parseNrNr } from '../modules/parsers.js';
 
-const text = fs.readFileSync(new URL('../NRNRsample.txt', import.meta.url), 'utf8');
+const text = fs.readFileSync(new URL('../samples/NRNRsample.txt', import.meta.url), 'utf8');
 const lines = text.split(/\r?\n/);
 const fmt = detectFormat(lines);
 console.log('Detected format:', fmt);

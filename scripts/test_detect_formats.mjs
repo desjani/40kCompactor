@@ -2,9 +2,9 @@ import fs from 'fs';
 import { detectFormat, parseWtcCompact, parseNrGw, parseGwApp } from '../modules/parsers.js';
 
 const samples = [
-  ['WTCCompactSample.txt', parseWtcCompact],
-  ['NRGWSample.txt', parseNrGw],
-  ['GWAPPSample.txt', parseGwApp]
+  ['samples/WTCCompactSample.txt', parseWtcCompact],
+  ['samples/NRGWSample.txt', parseNrGw],
+  ['samples/GWAPPSample.txt', parseGwApp]
 ];
 
 const labelMap = {

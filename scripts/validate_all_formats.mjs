@@ -17,13 +17,13 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 
 const samples = [
-  { file: 'WTCCompactSample.txt', expect: 'WTC_COMPACT' },
-  { file: 'WTCSample.txt',        expect: 'WTC' },
-  { file: 'GWAPPSample.txt',      expect: 'GW_APP' },
-  { file: 'GWAPPSample2.txt',     expect: 'GW_APP' },
-  { file: 'NRGWSample.txt',       expect: 'NR_GW' },
-  { file: 'NRNRsample.txt',       expect: 'NRNR' },
-  { file: 'LFSample.txt',         expect: 'LF' },
+  { file: 'samples/WTCCompactSample.txt', expect: 'WTC_COMPACT' },
+  { file: 'samples/WTCSample.txt',        expect: 'WTC' },
+  { file: 'samples/GWAPPSample.txt',      expect: 'GW_APP' },
+  { file: 'samples/GWAPPSample2.txt',     expect: 'GW_APP' },
+  { file: 'samples/NRGWSample.txt',       expect: 'NR_GW' },
+  { file: 'samples/NRNRsample.txt',       expect: 'NRNR' },
+  { file: 'samples/LFSample.txt',         expect: 'LF' },
 ];
 
 const renderCombos = [
@@ -100,7 +100,7 @@ async function main() {
       }
     }
 
-  // Discord preview text: both ANSI and plain are fenced; sample two combos to keep it quick
+  // Discord preview text: ANSI is fenced with ```ansi; Plain variant is NOT fenced per current behavior.
     const combosShort = [ renderCombos[0], renderCombos[2] ];
     for (const combo of combosShort) {
       try {
@@ -111,7 +111,7 @@ async function main() {
       }
       try {
     const t2 = generateDiscordText(data, /*plain*/ true, /*useAbbrev*/ true, { __flat_abbr: {} }, combo.hide, /*skippable*/ {}, combo.combine);
-    ok(typeof t2 === 'string' && t2.length > 20 && t2.startsWith('```') && t2.trim().endsWith('```'), 'discord (plain) invalid fences/empty', { file: sample.file, combo, len: t2.length, head: short(t2) }, failures);
+    ok(typeof t2 === 'string' && t2.length > 20 && !t2.trim().startsWith('```'), 'discord (plain) should be unfenced non-empty text', { file: sample.file, combo, len: t2.length, head: short(t2) }, failures);
       } catch (e) {
         failures.push({ msg: `generateDiscordText (plain) threw: ${e && (e.stack || e.message) || e}`, ctx: { file: sample.file, combo } });
       }

@@ -2,7 +2,7 @@ import fs from 'fs';
 import assert from 'assert';
 import { parseNrGw } from '../modules/parsers.js';
 
-const text = fs.readFileSync(new URL('../NRGWSample.txt', import.meta.url), 'utf8');
+const text = fs.readFileSync(new URL('../samples/NRGWSample.txt', import.meta.url), 'utf8');
 const lines = text.split(/\r?\n/);
 const parsed = parseNrGw(lines);
 console.log('=== NR_GW parsed JSON (compact) ===');

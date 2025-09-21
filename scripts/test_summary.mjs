@@ -4,8 +4,8 @@ import FAMILY_MAP from '../modules/family_map.js';
 
 function assert(condition, msg) { if (!condition) { console.error('ASSERT FAILED:', msg); process.exit(2); } }
 
-// Load the provided test.txt (GW App sample)
-const gwText = fs.readFileSync(new URL('../test.txt', import.meta.url), 'utf8');
+// Load the provided GW App sample
+const gwText = fs.readFileSync(new URL('../samples/GWAPPSample.txt', import.meta.url), 'utf8');
 const gwLines = gwText.split(/\r?\n/);
 const gwResult = parseGwApp(gwLines);
 console.log('GW APP SUMMARY:', JSON.stringify(gwResult.SUMMARY, null, 2));
@@ -24,7 +24,7 @@ if (gwResult.SUMMARY.FACTION_KEYWORD) {
 }
 
 // Use provided WTC compact sample file shipped in the workspace
-const wtcRaw = fs.readFileSync(new URL('../WTCCompactSample.txt', import.meta.url), 'utf8');
+const wtcRaw = fs.readFileSync(new URL('../samples/WTCCompactSample.txt', import.meta.url), 'utf8');
 const wtcSample = wtcRaw.split(/\r?\n/);
 const wtcResult = parseWtcCompact(wtcSample);
 console.log('WTC COMPACT SUMMARY:', JSON.stringify(wtcResult.SUMMARY, null, 2));

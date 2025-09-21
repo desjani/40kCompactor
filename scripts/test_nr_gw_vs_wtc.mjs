@@ -91,8 +91,8 @@ function deepEqual(a,b){
   return JSON.stringify(canonicalize(a)) === JSON.stringify(canonicalize(b));
 }
 
-const wt = parseWtcCompact(linesFrom('../WTCCompactSample.txt'));
-const nr = parseNrGw(linesFrom('../NRGWSample.txt'));
+const wt = parseWtcCompact(linesFrom('../samples/WTCCompactSample.txt'));
+const nr = parseNrGw(linesFrom('../samples/NRGWSample.txt'));
 
 const ca = canonicalize(wt);
 const cb = canonicalize(nr);

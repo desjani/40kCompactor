@@ -4,7 +4,7 @@ import FAMILY_MAP from '../modules/family_map.js';
 
 async function main() {
   const inputArg = process.argv[2];
-  const fileUrl = inputArg ? pathToFileURL(inputArg) : new URL('../GWAPPSample.txt', import.meta.url);
+  const fileUrl = inputArg ? pathToFileURL(inputArg) : new URL('../samples/GWAPPSample.txt', import.meta.url);
   const txt = await fs.readFile(fileUrl, 'utf8');
   const rawLines = txt.split(/\r?\n/);
   // Normalize lines and find header block (lines before first section header)

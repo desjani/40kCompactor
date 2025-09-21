@@ -1,0 +1,32 @@
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Xenos - Necrons
++ DETACHMENT: Canoptek Court
++ TOTAL ARMY POINTS: 1995pts
++
++ WARLORD: Char1: Illuminor Szeras
++ ENHANCEMENT: Dimensional Sanctum (on Char5: Technomancer)
++ NUMBER OF UNITS: 18
++ SECONDARY: - Bring It Down: (4x2) - Assassination: 8 Characters - Cull The Horde: 1x5
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Char1: 1x Illuminor Szeras (165 pts): Warlord, Eldritch lance, Impaling legs
+Char2: 1x Imotekh the Stormlord (100 pts): Gauntlet of Fire, Staff of the Destroyer
+Char3: 1x Orikan the Diviner (80 pts): Staff of Tomorrow
+Char4: 1x Overlord with Translocation Shroud (85 pts): Resurrection orb, Overlord's blade
+Char5: 1x Overlord with Translocation Shroud (85 pts): Resurrection orb, Overlord's blade
+Char6: 1x Plasmancer (55 pts): Plasmic lance
+Char7: 1x Plasmancer (55 pts): Plasmic lance
+Char8: 1x Technomancer (100 pts): Staff of light
+Enhancement: Dimensional Sanctum (+20 pts)
+
+10x Immortals (150 pts): 10 with Close combat weapon, Tesla carbine
+10x Immortals (150 pts): 10 with Close combat weapon, Tesla carbine
+20x Necron Warriors (200 pts): 20 with Close combat weapon, Gauss flayer
+
+2x Lokhust Destroyers (60 pts): 2 with Close combat weapon, Gauss cannon
+2x Lokhust Destroyers (60 pts): 2 with Close combat weapon, Gauss cannon
+6x Canoptek Wraiths (220 pts): 6 with Particle caster, Vicious claws
+1x Canoptek Doomstalker (140 pts): Doomsday blaster, Doomstalker limbs, Twin gauss flayer
+1x Canoptek Doomstalker (140 pts): Doomsday blaster, Doomstalker limbs, Twin gauss flayer
+1x Canoptek Reanimator (75 pts): 2x Atomiser beam, Reanimator's claws
+1x Canoptek Reanimator (75 pts): 2x Atomiser beam, Reanimator's claws

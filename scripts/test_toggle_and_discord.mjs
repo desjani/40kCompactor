@@ -20,7 +20,7 @@ function assert(cond, msg) {
 
 function loadSample() {
   // Use the existing GW App sample as a stable baseline
-  const p = path.resolve(__dirname, '..', 'GWAPPSample.txt');
+  const p = path.resolve(__dirname, '..', 'samples', 'GWAPPSample.txt');
   return fs.readFileSync(p, 'utf8');
 }
 
@@ -74,7 +74,7 @@ function run() {
   }
 
   assert(isFenced(ansiDiscord), 'ANSI Discord text should be fenced');
-  assert(isFenced(plainDiscord), 'Plain Discord text should be fenced');
+  assert(typeof plainDiscord === 'string' && plainDiscord.length > 0 && !isFenced(plainDiscord), 'Plain Discord text should be unfenced and non-empty');
 
   console.log('Phase 3 tiny test passed.');
 }

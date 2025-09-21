@@ -2,8 +2,8 @@ import fs from 'fs/promises';
 import { parseWtcCompact, parseGwApp } from '../modules/parsers.js';
 
 async function show(name){
-  const w = await fs.readFile('./WTCCompactSample.txt','utf8');
-  const g = await fs.readFile('./GWAPPSample.txt','utf8');
+  const w = await fs.readFile(new URL('../samples/WTCCompactSample.txt', import.meta.url),'utf8');
+  const g = await fs.readFile(new URL('../samples/GWAPPSample.txt', import.meta.url),'utf8');
   const pa = parseWtcCompact(w.split(/\r?\n/));
   const pb = parseGwApp(g.split(/\r?\n/));
 

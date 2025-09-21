@@ -3,7 +3,7 @@ import { parseWtcCompact } from '../modules/parsers.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 
 async function run(){
-  const txt = await fs.readFile('./WTCCompactSample.txt','utf8');
+  const txt = await fs.readFile(new URL('../samples/WTCCompactSample.txt', import.meta.url),'utf8');
   const parsed = parseWtcCompact(txt.split(/\r?\n/));
   const abbr = buildAbbreviationIndex(parsed);
   const flat = abbr.__flat_abbr || {};

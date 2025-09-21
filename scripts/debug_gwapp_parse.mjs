@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { parseGwAppV2 } from '../modules/parsers.js';
 
-const txt = fs.readFileSync(new URL('../test.txt', import.meta.url), 'utf8');
+const txt = fs.readFileSync(new URL('../samples/GWAPPSample.txt', import.meta.url), 'utf8');
 const lines = txt.split(/\r?\n/);
 const parsed = parseGwAppV2(lines);
 console.log('\n=== TOP-LEVEL SECTIONS ===');

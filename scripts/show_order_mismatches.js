@@ -4,8 +4,8 @@ import { parseWtcCompact, parseGwApp } from '../modules/parsers.js';
 function norm(s){ return (s||'').toString().normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().replace(/["'()]/g,'').trim(); }
 
 async function main(){
-  const w = await fs.readFile('./WTCCompactSample.txt','utf8');
-  const g = await fs.readFile('./GWAPPSample.txt','utf8');
+  const w = await fs.readFile(new URL('../samples/WTCCompactSample.txt', import.meta.url),'utf8');
+  const g = await fs.readFile(new URL('../samples/GWAPPSample.txt', import.meta.url),'utf8');
   const pa = parseWtcCompact(w.split(/\r?\n/));
   const pb = parseGwApp(g.split(/\r?\n/));
 

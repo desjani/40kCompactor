@@ -35,7 +35,7 @@ export default {
     "Imperial Knights":    { unit: 'white',  subunit: 'grey',  wargear: 'blue',   points: 'yellow', header: 'white' },
     "Iron Hands":          { unit: 'grey',   subunit: 'white', wargear: 'grey',   points: 'white',  header: 'grey' },
     "Leagues of Votann":   { unit: 'white',  subunit: 'grey',  wargear: 'blue',   points: 'yellow', header: 'white' },
-    "Necrons":             { unit: 'green',  subunit: 'grey',  wargear: 'blue',   points: 'yellow', header: 'green' },
+    "Necrons":             { unit: 'white',  subunit: 'grey',  wargear: 'white',   points: 'green', header: 'green' },
     "Orks":                { unit: 'green',  subunit: 'grey',  wargear: 'blue',   points: 'yellow', header: 'green' },
     "Raven Guard":         { unit: 'black',  subunit: 'grey',  wargear: 'blue',   points: 'yellow', header: 'black' },
     "Salamanders":         { unit: 'green',  subunit: 'grey',  wargear: 'white',  points: 'yellow', header: 'green' },
