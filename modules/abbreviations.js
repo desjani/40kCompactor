@@ -1,5 +1,5 @@
 // Dynamic abbreviation generator: build abbreviation map from parsed list data
-// The goal: do not depend on any external JSON (wargear.json or abbreviation_rules.json).
+// The goal: do not depend on any external JSON.
 // We'll derive reasonable abbreviations by: using explicit nameshort from parsed items if
 // present, else generating a short token by taking initials of significant words.
 
@@ -62,6 +62,46 @@ export function buildAbbreviationIndex(parsedData) {
         }
     };
 
+    // Tokenize a display name (lowercase, strip parens/punct, hyphens -> spaces)
+    const tokenize = (s) => {
+        if (!s) return [];
+        const cleaned = s.replace(/\(.*?\)/g, '').replace(/[\-]/g, ' ').replace(/["'`.,;:?!]/g, '').trim();
+        if (!cleaned) return [];
+        return cleaned.split(/\s+/).filter(Boolean).map(t => t.toLowerCase());
+    };
+
+    // Remove occurrences of any full unit/subunit name (exact token sequence) from the wargear name tokens.
+    // Returns a string joined by spaces; falls back to original if removal yields empty.
+    const stripContextFromWargear = (wargearName, ctxNames) => {
+        const wgTokens = tokenize(wargearName);
+        if (wgTokens.length === 0) return wargearName;
+        const contexts = (ctxNames || [])
+            .map(n => tokenize(n))
+            .filter(arr => arr.length > 0)
+            .sort((a, b) => b.length - a.length); // longest first
+        if (contexts.length === 0) return wargearName;
+        const removeMask = new Array(wgTokens.length).fill(false);
+        for (const ctx of contexts) {
+            const L = ctx.length;
+            if (L === 0) continue;
+            for (let i = 0; i <= wgTokens.length - L; i++) {
+                let match = true;
+                for (let j = 0; j < L; j++) {
+                    if (removeMask[i + j] || wgTokens[i + j] !== ctx[j]) { match = false; break; }
+                }
+                if (match) {
+                    for (let j = 0; j < L; j++) removeMask[i + j] = true;
+                }
+            }
+        }
+        const kept = [];
+        for (let i = 0; i < wgTokens.length; i++) {
+            if (!removeMask[i]) kept.push(wgTokens[i]);
+        }
+        const result = kept.join(' ').trim();
+        return result.length > 0 ? result : wargearName;
+    };
+
     // Produce an abbreviation taking first letter uppercase + `step` more letters lowercase per significant word.
     const makeAbbrevWithStep = (name, step = 0) => {
         if (!name) return '';
@@ -110,7 +150,7 @@ export function buildAbbreviationIndex(parsedData) {
             // Compute current abbreviations for members
             const abbrMap = new Map(); // abbr -> members[]
             for (const m of grp.members) {
-                const ab = makeAbbrevWithStep(m.name, m.step);
+                const ab = makeAbbrevWithStep(m.src || m.name, m.step);
                 m.nextAbbr = ab;
                 if (!abbrMap.has(ab)) abbrMap.set(ab, []);
                 abbrMap.get(ab).push(m);
@@ -152,8 +192,8 @@ export function buildAbbreviationIndex(parsedData) {
 
         // Fallback: if still conflicted after max iterations, append numerals to force uniqueness
         const abbrCount = Object.create(null);
-        for (const m of grp.members) {
-            let ab = makeAbbrevWithStep(m.name, m.step || 0);
+    for (const m of grp.members) {
+        let ab = makeAbbrevWithStep(m.src || m.name, m.step || 0);
             if (abbrCount[ab]) {
                 abbrCount[ab] += 1;
                 ab = ab + String(abbrCount[ab]);
@@ -162,20 +202,20 @@ export function buildAbbreviationIndex(parsedData) {
             }
             if (m.abbr && m.abbr !== ab && used[m.abbr]) delete used[m.abbr];
             reassignFlatKeys(m.keys, ab);
-            used[ab] = { name: m.name, keys: m.keys, priority: m.priority };
+        used[ab] = { name: m.name, keys: m.keys, priority: m.priority };
             m.abbr = ab;
         }
         grp.members.forEach(m => { delete m.nextAbbr; delete m._conflict; });
     };
 
-    const registerInGroup = (name, key, priority, base) => {
+    const registerInGroup = (name, key, priority, base, srcName) => {
         let grp = collisionGroups[base];
         if (!grp) {
             const existing = used[base];
             if (!existing) return null; // should not happen
             grp = collisionGroups[base] = { members: [
-                { name: existing.name, keys: existing.keys || [], priority: existing.priority || 1, abbr: base, step: 0 },
-                { name, keys: [key], priority, abbr: base, step: 0 }
+        { name: existing.name, src: existing.src || existing.name, keys: existing.keys || [], priority: existing.priority || 1, abbr: base, step: 0 },
+        { name, src: srcName || name, keys: [key], priority, abbr: base, step: 0 }
             ] };
             // Remove the simplistic base entry; will be re-assigned after resolution
             delete used[base];
@@ -186,7 +226,7 @@ export function buildAbbreviationIndex(parsedData) {
         }
     // Add to existing group; reset steps so the entire set resolves fairly from the same baseline
     grp.members.forEach(m => { m.step = 0; });
-    grp.members.push({ name, keys: [key], priority, abbr: '', step: 0 });
+    grp.members.push({ name, src: srcName || name, keys: [key], priority, abbr: '', step: 0 });
         resolveGroup(base);
         const me = grp.members[grp.members.length - 1];
         return me.abbr;
@@ -195,10 +235,10 @@ export function buildAbbreviationIndex(parsedData) {
     if (!parsedData) return { __flat_abbr: flat };
 
     // Walk units recursively and collect wargear names
-    const walk = (node) => {
+    const walk = (node, contextNames) => {
         if (!node) return;
         if (Array.isArray(node)) {
-            node.forEach(n => walk(n));
+            node.forEach(n => walk(n, contextNames));
             return;
         }
         if (node.items && Array.isArray(node.items)) {
@@ -208,6 +248,13 @@ export function buildAbbreviationIndex(parsedData) {
                 const key = name.toLowerCase();
                 // Never generate an abbreviation for 'Warlord' - it's always displayed verbatim
                 if (key === 'warlord') continue;
+                // If entering a subunit, extend context with its name and recurse
+                if (it.type === 'subunit') {
+                    const nextCtx = Array.isArray(contextNames) ? contextNames.slice() : [];
+                    if (typeof it.name === 'string' && it.name.trim()) nextCtx.push(it.name);
+                    if (it.items) walk(it, nextCtx);
+                    continue;
+                }
                 // If this is an Enhancement special, reserve an abbreviation for the
                 // stripped enhancement name (without the prefix). We also store the
                 // abbreviation under the stripped and stripped-without-paren keys so
@@ -269,37 +316,29 @@ export function buildAbbreviationIndex(parsedData) {
                         used[candidate] = { name, keys: [key], priority };
                     }
                 } else if (!flat[key]) {
-                    // generate initials; on collision, expand both items per word by one letter (HaFl/HeFl).
-                    const base = makeBaseAbbreviation(name);
+            // generate initials; for wargear, first strip unit/subunit names from the source for abbreviation purposes only
+            const sourceName = it.type === 'wargear' ? stripContextFromWargear(name, contextNames) : name;
+            const base = makeBaseAbbreviation(sourceName);
                     if (base && base.toUpperCase() !== 'NULL') {
                         const priority = getPriority(it);
                         if (used[base]) {
-                            const assigned = registerInGroup(name, key, priority, base);
+                const assigned = registerInGroup(name, key, priority, base, sourceName);
                             if (assigned) {
                                 flat[key] = assigned;
                             }
                         } else if (collisionGroups[base]) {
                             // Group already established; join it.
-                            const assigned = registerInGroup(name, key, priority, base);
+                const assigned = registerInGroup(name, key, priority, base, sourceName);
                             if (assigned) flat[key] = assigned;
                         } else {
                             // No collision yet; tentatively register base
-                            // If base collides with an existing used abbr (from other base), resolve by local step increments for this single item
-                            if (used[base]) {
-                                const grp = collisionGroups[base] || (collisionGroups[base] = { members: [] });
-                                grp.members.push({ name, keys: [key], priority, abbr: '', step: 0 });
-                                resolveGroup(base);
-                                const me = grp.members[grp.members.length - 1];
-                                flat[key] = me.abbr;
-                            } else {
-                                flat[key] = base;
-                                used[base] = { name, keys: [key], priority };
-                            }
+                flat[key] = base;
+                used[base] = { name, keys: [key], priority };
                         }
                     }
                 }
                 // Recurse into nested items
-                if (it.items) walk(it.items);
+        if (it.items) walk(it.items, contextNames);
             }
         }
     };
@@ -308,7 +347,18 @@ export function buildAbbreviationIndex(parsedData) {
     for (const k of Object.keys(parsedData || {})) {
         if (k === 'SUMMARY') continue;
         const section = parsedData[k];
-        walk(section);
+        if (Array.isArray(section)) {
+            // Each entry is a unit; seed context with unit name
+            for (const unit of section) {
+                if (!unit) continue;
+                const ctx = [];
+                if (typeof unit.name === 'string' && unit.name.trim()) ctx.push(unit.name);
+                walk(unit, ctx);
+            }
+        } else {
+            // Non-array node (edge), just walk with empty context
+            walk(section, []);
+        }
     }
 
     return { __flat_abbr: flat };

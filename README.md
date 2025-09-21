@@ -35,7 +35,6 @@ The compactor's behavior can be customized by editing JSON files in the reposito
 
 - `wargear.json`: dynamic wargear database used for optional abbreviations.
 - `skippable_wargear.json`: per-faction rules for hiding default/redundant wargear in the compact output.
-- `abbreviation_rules.json`: supplemental rules to steer abbreviation generation (when needed).
 
 ### `skippable_wargear.json`
 
