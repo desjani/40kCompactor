@@ -61,6 +61,25 @@ export function parseWtcCompact(lines) {
     const headerEnhancements = {};
     const headerLines = [];
     let i = 0;
+    const hasLeadingQty = (s) => /^(\d+)x?\s+/i.test(String(s||'').trim());
+    const maybePrefixQty = (s, n) => {
+        const t = String(s || '').trim();
+        if (!t) return t;
+        // If the item already carries an explicit quantity (e.g. '2x Fusion blaster'),
+        // multiply by group count: '2 with 2x Fusion blaster' => '4x Fusion blaster'.
+        if (hasLeadingQty(t)) {
+            const m = t.match(/^(\d+)x?\s+(.*)$/i);
+            if (m) {
+                const base = parseInt(m[1], 10) || 1;
+                const rest = m[2].trim();
+                const total = Math.max(1, base * (parseInt(n, 10) || 1));
+                return `${total}x ${rest}`;
+            }
+            return t;
+        }
+        return `${n}x ${t}`;
+    };
+
     for (; i < lines.length; i++) {
         const raw = lines[i] || '';
         const t = raw.trim();
@@ -150,7 +169,10 @@ export function parseWtcCompact(lines) {
                 const n = parseInt(withMatch[1], 10) || 1;
                 const rest = withMatch[2];
                 const target = (currentUnit.items && currentUnit.items.length > 0) ? currentUnit.items[currentUnit.items.length - 1] : currentUnit;
-                rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(target, `${n}x ${it}`, target.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true));
+                rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => {
+                    const itemStr = maybePrefixQty(it, n);
+                    addItemToTarget(target, itemStr, target.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true);
+                });
                 continue;
             }
             const subColonMatch = content.match(/^(\d+x?)\s+(.*?):\s*(.*)$/i);
@@ -166,7 +188,10 @@ export function parseWtcCompact(lines) {
                     if (withInline) {
                         const n = parseInt(withInline[1], 10) || 1;
                         const list = withInline[2];
-                        list.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(sub, `${n}x ${it}`, sub.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true));
+                        list.split(',').map(s => s.trim()).filter(Boolean).forEach(it => {
+                            const itemStr = maybePrefixQty(it, n);
+                            addItemToTarget(sub, itemStr, sub.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true);
+                        });
                     } else {
                         rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(sub, it, sub.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true));
                     }
@@ -191,7 +216,10 @@ export function parseWtcCompact(lines) {
             const n = parseInt(indentedWith[1], 10) || 1;
             const rest = indentedWith[2];
             const target = (currentUnit.items && currentUnit.items.length > 0) ? currentUnit.items[currentUnit.items.length - 1] : currentUnit;
-            rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => addItemToTarget(target, `${n}x ${it}`, target.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true));
+            rest.split(',').map(s => s.trim()).filter(Boolean).forEach(it => {
+                const itemStr = maybePrefixQty(it, n);
+                addItemToTarget(target, itemStr, target.name, result.SUMMARY.FACTION_KEYWORD || '', currentUnit.name, true);
+            });
             continue;
         }
         const fallbackColon = trimmed.match(/^(.*?):\s*(.*)$/);

@@ -1,32 +1,55 @@
 +++++++++++++++++++++++++++++++++++++++++++++++
-+ FACTION KEYWORD: Xenos - Necrons
-+ DETACHMENT: Canoptek Court
++ FACTION KEYWORD: Xenos - T'au Empire
++ DETACHMENT: Retaliation Cadre
 + TOTAL ARMY POINTS: 1995pts
 +
-+ WARLORD: Char1: Illuminor Szeras
-+ ENHANCEMENT: Dimensional Sanctum (on Char5: Technomancer)
-+ NUMBER OF UNITS: 18
-+ SECONDARY: - Bring It Down: (4x2) - Assassination: 8 Characters - Cull The Horde: 1x5
++ WARLORD: Char1: Commander Farsight
++ ENHANCEMENT: Internal Grenade Racks (on Char1: Commander in Coldstar Battlesuit)
+& Prototype Weapon System (on Char2: Commander in Coldstar Battlesuit)
+& Starflare Ignition System (on Char3: Commander in Enforcer Battlesuit)
++ NUMBER OF UNITS: 17
++ SECONDARY: - Bring It Down: (8x2) + (5x4) - Assassination: 4 Characters
 +++++++++++++++++++++++++++++++++++++++++++++++
 
-Char1: 1x Illuminor Szeras (165 pts): Warlord, Eldritch lance, Impaling legs
-Char2: 1x Imotekh the Stormlord (100 pts): Gauntlet of Fire, Staff of the Destroyer
-Char3: 1x Orikan the Diviner (80 pts): Staff of Tomorrow
-Char4: 1x Overlord with Translocation Shroud (85 pts): Resurrection orb, Overlord's blade
-Char5: 1x Overlord with Translocation Shroud (85 pts): Resurrection orb, Overlord's blade
-Char6: 1x Plasmancer (55 pts): Plasmic lance
-Char7: 1x Plasmancer (55 pts): Plasmic lance
-Char8: 1x Technomancer (100 pts): Staff of light
-Enhancement: Dimensional Sanctum (+20 pts)
+Char1: 1x Commander Farsight (85 pts): Warlord, Dawn Blade, High-intensity plasma rifle
+Char2: 1x Commander in Coldstar Battlesuit (115 pts): 2x Shield Drone, 4x Fusion blaster, Battlesuit fists
+Enhancement: Internal Grenade Racks (+20 pts)
+Char3: 1x Commander in Coldstar Battlesuit (110 pts): 2x Shield Drone, 2x Burst cannon, Cyclic ion blaster, High-output burst cannon, Battlesuit fists
+Enhancement: Prototype Weapon System (+15 pts)
+Char4: 1x Commander in Enforcer Battlesuit (100 pts): 4x Missile pod, Battlesuit fists
+Enhancement: Starflare Ignition System (+20 pts)
 
-10x Immortals (150 pts): 10 with Close combat weapon, Tesla carbine
-10x Immortals (150 pts): 10 with Close combat weapon, Tesla carbine
-20x Necron Warriors (200 pts): 20 with Close combat weapon, Gauss flayer
-
-2x Lokhust Destroyers (60 pts): 2 with Close combat weapon, Gauss cannon
-2x Lokhust Destroyers (60 pts): 2 with Close combat weapon, Gauss cannon
-6x Canoptek Wraiths (220 pts): 6 with Particle caster, Vicious claws
-1x Canoptek Doomstalker (140 pts): Doomsday blaster, Doomstalker limbs, Twin gauss flayer
-1x Canoptek Doomstalker (140 pts): Doomsday blaster, Doomstalker limbs, Twin gauss flayer
-1x Canoptek Reanimator (75 pts): 2x Atomiser beam, Reanimator's claws
-1x Canoptek Reanimator (75 pts): 2x Atomiser beam, Reanimator's claws
+10x Kroot Carnivores (65 pts)
+• 1x Long-quill: Close combat weapon, Kroot pistol, Kroot rifle
+• 1x Kroot Carnivore: Close combat weapon, Tanglebomb launcher
+• 8x Kroot Carnivores: 8 with Close combat weapon, Kroot rifle
+10x Pathfinder Team (90 pts)
+• 9x Pathfinders
+    6 with Pathfinder Team, Close combat weapon, Pulse carbine, Pulse pistol
+    3 with Pathfinder Team, Close combat weapon, Ion rifle, Pulse pistol
+• 1x Pathfinder Shas'ui: Recon drone, Drone burst cannon, Close combat weapon, Pulse carbine, Pulse pistol, Semi-automatic grenade launcher, 2x Twin pulse carbine, Drone burst cannon
+3x Stealth Battlesuits (80 pts)
+• 1x Stealth Shas'vre: Battlesuit support system, Homing beacon, Marker Drone, Shield Drone, Battlesuit fists, Fusion blaster
+• 2x Stealth Shas'ui: 2 with Battlesuit fists, Burst cannon
+3x Stealth Battlesuits (80 pts)
+• 1x Stealth Shas'vre: Battlesuit support system, Homing beacon, Marker Drone, Shield Drone, Battlesuit fists, Fusion blaster
+• 2x Stealth Shas'ui: 2 with Battlesuit fists, Burst cannon
+1x Broadside Battlesuits (80 pts): Weapon support system, Crushing bulk, Heavy rail rifle, Seeker missile
+3x Crisis Fireknife Battlesuits (120 pts)
+• 1x Crisis Fireknife Shas’vre: Shield Drone, 2x Missile pod, Battlesuit fists, Twin pulse carbine
+• 2x Crisis Fireknife Shas’ui: 2 with Shield Drone, Battlesuit fists, 2x Missile pod, Twin pulse carbine
+3x Crisis Starscythe Battlesuits (110 pts)
+• 1x Crisis Starscythe Shas’vre: Shield Drone, 2x Burst cannon, Battlesuit fists, Twin pulse carbine
+• 2x Crisis Starscythe Shas’ui: 2 with Shield Drone, 2x Burst cannon, Battlesuit fists, Twin pulse carbine
+3x Crisis Starscythe Battlesuits (110 pts)
+• 1x Crisis Starscythe Shas’vre: Marker Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+• 2x Crisis Starscythe Shas’ui: 2 with Shield Drone, 2x T'au flamer, Battlesuit fists, Twin pulse carbine
+3x Crisis Sunforge Battlesuits (140 pts)
+• 1x Crisis Sunforge Shas’vre: Shield Drone, 2x Fusion blaster, Battlesuit fists, Twin pulse carbine
+• 2x Crisis Sunforge Shas’ui: 2 with Shield Drone, Battlesuit fists, 2x Fusion blaster, Twin pulse carbine
+3x Crisis Sunforge Battlesuits (140 pts)
+• 1x Crisis Sunforge Shas’vre: Shield Drone, 2x Fusion blaster, Battlesuit fists, Twin pulse carbine
+• 2x Crisis Sunforge Shas’ui: 2 with Shield Drone, Battlesuit fists, 2x Fusion blaster, Twin pulse carbine
+1x Riptide Battlesuit (190 pts): Riptide fists, Ion accelerator, 2x Missile pod, Twin smart missile system
+1x Riptide Battlesuit (190 pts): Riptide fists, Ion accelerator, 2x Missile pod, Twin smart missile system
+1x Riptide Battlesuit (190 pts): Riptide fists, Ion accelerator, 2x Missile pod, Twin smart missile system
