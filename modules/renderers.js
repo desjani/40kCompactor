@@ -382,7 +382,7 @@ function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
     return combined;
 }
 
-export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap, applyHeaderColor = true, combineIdenticalUnits = false) {
+export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap, applyHeaderColor = true, combineIdenticalUnits = false, noBullets = false) {
     let html = '', plainText = '';
     const displayFaction = data.SUMMARY?.DISPLAY_FACTION || (data.SUMMARY?.FACTION_KEYWORD || '');
     if (data.SUMMARY) {
@@ -415,8 +415,12 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
         }
     }
     html += `<div style="margin-top:0.5rem;">`;
-    const UNIT_BULLET = '•';
-    const SUB_BULLET = '◦';
+    const UNIT_BULLET = noBullets ? '' : '• ';
+    const SUB_BULLET = noBullets ? '  ' : '◦ ';
+    const itemBullet = noBullets ? '  ' : '  - ';
+    const subUnitBullet = noBullets ? '  ' : '  * ';
+    const subItemBullet = noBullets ? '    ' : '    - ';
+
     for (const section in data) {
         if (section === 'SUMMARY' || !Array.isArray(data[section])) continue;
         // Only combine in compact output (useAbbreviations === true)
@@ -444,12 +448,12 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                 const itemsString = getInlineItemsString(visible, useAbbreviations, wargearAbbrMap, data.SUMMARY);
                 const unitText = `${qtyDisplay}${unit.name}${itemsString} [${unit.points}]`;
                 html += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p></div>`;
-                plainText += `${UNIT_BULLET} ${unitText}\n`;
+                plainText += `${UNIT_BULLET}${unitText}\n`;
                 return;
             }
             const unitText = `${qtyDisplay}${unit.name} [${unit.points}]`;
             html += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p>`;
-            plainText += `${UNIT_BULLET} ${unitText}\n`;
+            plainText += `${UNIT_BULLET}${unitText}\n`;
             const itemsArr = unit.items || [];
                 if (effectiveHideSubunits) {
                     let aggregated = aggregateWargear(unit);
@@ -513,7 +517,7 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
     return { html, plainText };
 }
 
-export function generateDiscordText(data, plain, useAbbreviations = true, wargearAbbrMap, hideSubunits, skippableWargearMap, combineIdenticalUnits = false, options) {
+export function generateDiscordText(data, plain, useAbbreviations = true, wargearAbbrMap, hideSubunits, skippableWargearMap, combineIdenticalUnits = false, options, noBullets = false) {
     // Produce plain or ANSI-colored Discord text. When in browser and colorMode
     // is 'custom', emit ANSI SGR sequences approximating the selected hex colors.
     const hasDOM = (typeof document !== 'undefined' && document.querySelector);
@@ -593,8 +597,8 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
     };
 
     // Choose bullet symbols for plain text vs. other outputs
-    const UNIT_BULLET = plain ? '•' : '*';
-    const SUB_BULLET = plain ? '◦' : '+';
+    const UNIT_BULLET = noBullets ? '' : (plain ? '• ' : '* ');
+    const SUB_BULLET = noBullets ? '  ' : (plain ? '  ◦ ' : '  + ');
 
     let out = '';
     // Fence only for Discord modes (non-plain). Use ```ansi when colored.
@@ -641,7 +645,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
             const pointsRaw = `[${unit.points}]`;
             const pointsText = useColor ? toAnsi(pointsRaw, colors.points, true) : pointsRaw;
 
-            out += `${UNIT_BULLET} ${unitText}${itemsText} ${pointsText}\n`;
+            out += `${UNIT_BULLET}${unitText}${itemsText} ${pointsText}\n`;
 
             if (!hideSubunits && Array.isArray(unit.items)) {
                 const subs = unit.items.filter(i => i.type === 'subunit' || (i.items && i.items.length > 0));
@@ -663,7 +667,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
                     if (filteredItems.length === 0 && !hasVisibleSpecials) return; // hide empty subunit
                     const subItems = getInlineItemsString(filteredItems, useAbbreviations, wargearAbbrMap, data.SUMMARY);
                     const subItemsText = (useColor && subItems) ? toAnsi(subItems, colors.wargear, false) : subItems;
-                    out += `  ${SUB_BULLET} ${subName}${subItemsText}\n`;
+                    out += `${SUB_BULLET}${subName}${subItemsText}\n`;
                 });
             }
     });

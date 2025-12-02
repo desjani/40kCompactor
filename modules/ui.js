@@ -31,6 +31,11 @@ export function getMultilineHeaderState() { // New function
     return multilineHeaderCheckbox ? multilineHeaderCheckbox.checked : false;
 }
 
+export function getNoBulletsState() {
+    const el = document.getElementById('noBulletsCheckbox');
+    return el ? el.checked : false;
+}
+
 export function getCombineUnitsState() {
     const el = document.getElementById('combineUnitsCheckbox');
     return el ? el.checked : false;
@@ -120,6 +125,11 @@ export function initializeUI(callbacks) {
             if (typeof handler === 'function') {
                 combineUnitsCheckbox.addEventListener('change', handler);
             }
+        }
+
+        const noBulletsCheckbox = document.getElementById('noBulletsCheckbox');
+        if (noBulletsCheckbox) {
+            noBulletsCheckbox.addEventListener('change', callbacks.onNoBulletsChange);
         }
     }
 }

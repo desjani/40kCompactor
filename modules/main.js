@@ -1,7 +1,7 @@
 import { detectFormat, parseGwApp, parseWtcCompact, parseWtc, parseNrGw, parseNrNr, parseLf } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
-import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState } from './ui.js';
+import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
@@ -39,19 +39,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             const selectedFormat = outputFormatSelect ? outputFormatSelect.value : 'discordCompact';
             const hideSubunits = getHideSubunitsState();
             const combineUnits = getCombineUnitsState();
+            const noBullets = getNoBulletsState();
             const opts = { forcePalette: true };
             let text = '';
             switch (selectedFormat) {
                 case 'discordCompact':
-                    text = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts); break;
+                    text = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts, noBullets); break;
                 case 'discordExtended':
-                    text = generateDiscordText(parsedData, false, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts); break;
+                    text = generateDiscordText(parsedData, false, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts, noBullets); break;
                 case 'plainText':
-                    text = generateDiscordText(parsedData, true, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts); break;
+                    text = generateDiscordText(parsedData, true, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts, noBullets); break;
                 case 'plainTextExtended':
-                    text = generateDiscordText(parsedData, true, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts); break;
+                    text = generateDiscordText(parsedData, true, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts, noBullets); break;
                 default:
-                    text = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts);
+                    text = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts, noBullets);
             }
             copyTextToClipboard(text);
         },
@@ -63,6 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         },
     onHideSubunitsChange: () => renderAllOutputsWithCurrentOptions(),
     onCombineUnitsChange: () => renderAllOutputsWithCurrentOptions(),
+    onNoBulletsChange: () => renderAllOutputsWithCurrentOptions(),
         onMultilineHeaderChange: () => updatePreview()
     });
 
@@ -184,25 +186,26 @@ function updatePreview() {
     const selectedFormat = outputFormatSelect ? outputFormatSelect.value : 'discordCompact'; // Default to discordCompact
     const hideSubunits = getHideSubunitsState();
     const combineUnits = getCombineUnitsState();
+    const noBullets = getNoBulletsState();
     console.log('UI: hideSubunits value in updatePreview', hideSubunits, 'selectedFormat', selectedFormat);
 
     let previewText = '';
     switch (selectedFormat) {
         case 'discordCompact':
-            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits);
+            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, null, noBullets);
             break;
         case 'discordExtended':
-            previewText = generateDiscordText(parsedData, false, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits);
+            previewText = generateDiscordText(parsedData, false, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, null, noBullets);
             break;
         case 'plainText':
-            previewText = generateDiscordText(parsedData, true, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits);
+            previewText = generateDiscordText(parsedData, true, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, null, noBullets);
             break;
         case 'plainTextExtended':
             // plainTextExtended uses the same logic as Discord plain but with plain=true
-            previewText = generateDiscordText(parsedData, true, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits);
+            previewText = generateDiscordText(parsedData, true, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, null, noBullets);
             break;
         default:
-            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits);
+            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, null, noBullets);
     }
     setMarkdownPreviewOutput(previewText);
     currentPreviewText = previewText; // Store for copying
@@ -214,15 +217,16 @@ function renderAllOutputsWithCurrentOptions() {
     if (!parsedData) return;
     const hideSubunits = getHideSubunitsState();
     const combineUnits = getCombineUnitsState();
+    const noBullets = getNoBulletsState();
 
     // Full text (extended)
     // Important: Full Text must NOT be affected by toggles. Always show full structure.
-    const extendedOutput = generateOutput(parsedData, false, wargearAbbrDB, /*hideSubunits*/ false, skippableWargearMap, /*applyHeaderColor*/ false, /*combine*/ false);
+    const extendedOutput = generateOutput(parsedData, false, wargearAbbrDB, /*hideSubunits*/ false, skippableWargearMap, /*applyHeaderColor*/ false, /*combine*/ false, false);
     setUnabbreviatedOutput(extendedOutput.html);
     extendedPlainText = extendedOutput.plainText;
 
     // Compact HTML
-    const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true, combineUnits);
+    const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true, combineUnits, noBullets);
     setCompactedOutput(compactOutput.html);
     compactPlainText = compactOutput.plainText;
 
