@@ -2,7 +2,6 @@
 // with existing callers but no longer depends on a global abbreviation map.
 // It uses the parser-provided `nameshort` for compact output when available
 // and `skippable_wargear.json` to filter items.
-import { getMultilineHeaderState } from './ui.js';
 import { makeAbbrevForName } from './abbreviations.js';
 import factionColors from './faction_colors.js';
 import { sortItemsByQuantityThenName } from './utils.js';
@@ -612,8 +611,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
         if (data.SUMMARY.DETACHMENT) parts.push(data.SUMMARY.DETACHMENT);
         if (data.SUMMARY.TOTAL_ARMY_POINTS) parts.push(data.SUMMARY.TOTAL_ARMY_POINTS);
         if (parts.length) {
-            const hasDOM = (typeof document !== 'undefined' && document.querySelector);
-            const multiline = hasDOM ? getMultilineHeaderState() : false;
+            const multiline = (options && options.multilineHeader !== undefined) ? options.multilineHeader : false;
             const header = parts.join(multiline ? '\n' : ' | ');
             out += useColor ? toAnsi(header, colors.header, true) + '\n\n' : header + '\n\n';
         }

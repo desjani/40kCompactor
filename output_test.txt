@@ -1,0 +1,40 @@
+```ansi
+[1;36mXenos - T'au Empire | Retaliation Cadre | 1995pts[0m
+
+* [1;33mCommander Farsight[0m[37m (Warlord)[0m [1;36m[85][0m
+* [1;33mCommander in Coldstar Battlesuit[0m[37m (E: IGR, 4x FB, 2x SD)[0m [1;36m[115][0m
+* [1;33mCommander in Coldstar Battlesuit[0m[37m (E: PWS, 2x BC, 2x SD, CIB, HOBC)[0m [1;36m[110][0m
+* [1;33mCommander in Enforcer Battlesuit[0m[37m (E: SIS, 4x MP)[0m [1;36m[100][0m
+* [1;33m10 Kroot Carnivores[0m [1;36m[65][0m
+  + [90m8 Kroot Carnivores[0m[37m (8x KR)[0m
+  + [90mKroot Carnivore[0m[37m (TL)[0m
+  + [90mLong-quill[0m[37m (KR)[0m
+* [1;33m10 Pathfinder Team[0m [1;36m[90][0m
+  + [90m9 Pathfinders[0m[37m (3x IR)[0m
+  + [90mPathfinder Shas'ui[0m[37m (2x TPC, RD, SAGL)[0m
+* [1;33m3 Stealth Battlesuits[0m [1;36m[80][0m
+  + [90m2 Stealth Shas'ui[0m[37m (2x BC)[0m
+  + [90mStealth Shas'vre[0m[37m (FB, MD, SD)[0m
+* [1;33m3 Stealth Battlesuits[0m [1;36m[80][0m
+  + [90m2 Stealth Shas'ui[0m[37m (2x BC)[0m
+  + [90mStealth Shas'vre[0m[37m (FB, MD, SD)[0m
+* [1;33mBroadside Battlesuits[0m[37m (HRR, SM, WSS)[0m [1;36m[80][0m
+* [1;33m3 Crisis Fireknife Battlesuits[0m [1;36m[120][0m
+  + [90m2 Crisis Fireknife Shas’ui[0m[37m (4x MP, 2x SD, 2x TPC)[0m
+  + [90mCrisis Fireknife Shas’vre[0m[37m (2x MP, SD, TPC)[0m
+* [1;33m3 Crisis Starscythe Battlesuits[0m [1;36m[110][0m
+  + [90m2 Crisis Starscythe Shas’ui[0m[37m (4x BC, 2x SD, 2x TPC)[0m
+  + [90mCrisis Starscythe Shas’vre[0m[37m (2x BC, SD, TPC)[0m
+* [1;33m3 Crisis Starscythe Battlesuits[0m [1;36m[110][0m
+  + [90m2 Crisis Starscythe Shas’ui[0m[37m (4x TF, 2x SD, 2x TPC)[0m
+  + [90mCrisis Starscythe Shas’vre[0m[37m (2x TF, MD, SD)[0m
+* [1;33m3 Crisis Sunforge Battlesuits[0m [1;36m[140][0m
+  + [90m2 Crisis Sunforge Shas’ui[0m[37m (4x FB, 2x SD, 2x TPC)[0m
+  + [90mCrisis Sunforge Shas’vre[0m[37m (2x FB, SD, TPC)[0m
+* [1;33m3 Crisis Sunforge Battlesuits[0m [1;36m[140][0m
+  + [90m2 Crisis Sunforge Shas’ui[0m[37m (4x FB, 2x SD, 2x TPC)[0m
+  + [90mCrisis Sunforge Shas’vre[0m[37m (2x FB, SD, TPC)[0m
+* [1;33mRiptide Battlesuit[0m[37m (2x MP, IA, TSMS)[0m [1;36m[190][0m
+* [1;33mRiptide Battlesuit[0m[37m (2x MP, IA, TSMS)[0m [1;36m[190][0m
+* [1;33mRiptide Battlesuit[0m[37m (2x MP, IA, TSMS)[0m [1;36m[190][0m
+```

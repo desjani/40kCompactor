@@ -1,7 +1,13 @@
 {
   "name": "40k-compactor",
-  "private": true,
+  "version": "1.0.0",
+  "main": "index.js",
   "type": "module",
+  "files": [
+    "index.js",
+    "modules/**/*.js",
+    "skippable_wargear.json"
+  ],
   "scripts": {
   "validate": "node scripts/validate_all_formats.mjs",
   "test": "node scripts/test_runner.mjs",

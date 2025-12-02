@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const combineUnits = getCombineUnitsState();
             const noBullets = getNoBulletsState();
             const hidePoints = getHidePointsState();
-            const opts = { forcePalette: true };
+            const opts = { forcePalette: true, multilineHeader: getMultilineHeaderState() };
             let text = '';
             switch (selectedFormat) {
                 case 'discordCompact':
@@ -192,23 +192,25 @@ function updatePreview() {
     const hidePoints = getHidePointsState();
     console.log('UI: hideSubunits value in updatePreview', hideSubunits, 'selectedFormat', selectedFormat);
 
+    const opts = { multilineHeader: getMultilineHeaderState() };
+
     let previewText = '';
     switch (selectedFormat) {
         case 'discordCompact':
-            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, null, noBullets, hidePoints);
+            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts, noBullets, hidePoints);
             break;
         case 'discordExtended':
-            previewText = generateDiscordText(parsedData, false, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, null, noBullets, hidePoints);
+            previewText = generateDiscordText(parsedData, false, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts, noBullets, hidePoints);
             break;
         case 'plainText':
-            previewText = generateDiscordText(parsedData, true, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, null, noBullets, hidePoints);
+            previewText = generateDiscordText(parsedData, true, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts, noBullets, hidePoints);
             break;
         case 'plainTextExtended':
             // plainTextExtended uses the same logic as Discord plain but with plain=true
-            previewText = generateDiscordText(parsedData, true, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, null, noBullets, hidePoints);
+            previewText = generateDiscordText(parsedData, true, false, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts, noBullets, hidePoints);
             break;
         default:
-            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, null, noBullets, hidePoints);
+            previewText = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts, noBullets, hidePoints);
     }
     setMarkdownPreviewOutput(previewText);
     currentPreviewText = previewText; // Store for copying
