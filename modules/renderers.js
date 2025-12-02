@@ -382,7 +382,7 @@ function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
     return combined;
 }
 
-export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap, applyHeaderColor = true, combineIdenticalUnits = false, noBullets = false) {
+export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap, applyHeaderColor = true, combineIdenticalUnits = false, noBullets = false, hidePoints = false) {
     let html = '', plainText = '';
     const displayFaction = data.SUMMARY?.DISPLAY_FACTION || (data.SUMMARY?.FACTION_KEYWORD || '');
     if (data.SUMMARY) {
@@ -446,12 +446,14 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                     return skippable.length === 0 || !skippable.includes(i.name.toLowerCase());
                 });
                 const itemsString = getInlineItemsString(visible, useAbbreviations, wargearAbbrMap, data.SUMMARY);
-                const unitText = `${qtyDisplay}${unit.name}${itemsString} [${unit.points}]`;
+                const pointsString = hidePoints ? '' : ` [${unit.points}]`;
+                const unitText = `${qtyDisplay}${unit.name}${itemsString}${pointsString}`;
                 html += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p></div>`;
                 plainText += `${UNIT_BULLET}${unitText}\n`;
                 return;
             }
-            const unitText = `${qtyDisplay}${unit.name} [${unit.points}]`;
+            const pointsString = hidePoints ? '' : ` [${unit.points}]`;
+            const unitText = `${qtyDisplay}${unit.name}${pointsString}`;
             html += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p>`;
             plainText += `${UNIT_BULLET}${unitText}\n`;
             const itemsArr = unit.items || [];
@@ -517,7 +519,7 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
     return { html, plainText };
 }
 
-export function generateDiscordText(data, plain, useAbbreviations = true, wargearAbbrMap, hideSubunits, skippableWargearMap, combineIdenticalUnits = false, options, noBullets = false) {
+export function generateDiscordText(data, plain, useAbbreviations = true, wargearAbbrMap, hideSubunits, skippableWargearMap, combineIdenticalUnits = false, options, noBullets = false, hidePoints = false) {
     // Produce plain or ANSI-colored Discord text. When in browser and colorMode
     // is 'custom', emit ANSI SGR sequences approximating the selected hex colors.
     const hasDOM = (typeof document !== 'undefined' && document.querySelector);
@@ -645,7 +647,11 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
             const pointsRaw = `[${unit.points}]`;
             const pointsText = useColor ? toAnsi(pointsRaw, colors.points, true) : pointsRaw;
 
-            out += `${UNIT_BULLET}${unitText}${itemsText} ${pointsText}\n`;
+            let line = `${UNIT_BULLET}${unitText}${itemsText}`;
+            if (!hidePoints) {
+                line += ` ${pointsText}`;
+            }
+            out += `${line}\n`;
 
             if (!hideSubunits && Array.isArray(unit.items)) {
                 const subs = unit.items.filter(i => i.type === 'subunit' || (i.items && i.items.length > 0));

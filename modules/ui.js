@@ -41,6 +41,11 @@ export function getCombineUnitsState() {
     return el ? el.checked : false;
 }
 
+export function getHidePointsState() {
+    const el = document.getElementById('hidePointsCheckbox');
+    return el ? el.checked : false;
+}
+
 // --- UI Initialization ---
 export function initializeUI(callbacks) {
     if (parseButton) {
@@ -130,6 +135,11 @@ export function initializeUI(callbacks) {
         const noBulletsCheckbox = document.getElementById('noBulletsCheckbox');
         if (noBulletsCheckbox) {
             noBulletsCheckbox.addEventListener('change', callbacks.onNoBulletsChange);
+        }
+
+        const hidePointsCheckbox = document.getElementById('hidePointsCheckbox');
+        if (hidePointsCheckbox) {
+            hidePointsCheckbox.addEventListener('change', callbacks.onHidePointsChange);
         }
     }
 }
