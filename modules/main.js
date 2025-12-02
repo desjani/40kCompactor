@@ -1,7 +1,7 @@
 import { detectFormat, parseGwApp, parseWtcCompact, parseWtc, parseNrGw, parseNrNr, parseLf } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
-import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getMultilineHeaderState } from './ui.js';
+import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getMultilineHeaderState, getCustomAbbrs } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
@@ -158,7 +158,7 @@ function handleParse() {
     detectedFormat = format;
     // Build dynamic abbreviation index from parsed data
     try {
-        wargearAbbrDB = buildAbbreviationIndex(result);
+        wargearAbbrDB = buildAbbreviationIndex(result, getCustomAbbrs());
     } catch (e) {
         console.warn('Failed to build dynamic abbreviation index', e);
         wargearAbbrDB = { __flat_abbr: {} };

@@ -34,7 +34,7 @@ export function makeAbbrevForName(name) {
     return makeBaseAbbreviation(name);
 }
 
-export function buildAbbreviationIndex(parsedData) {
+export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
     // Build a flat map: lowercased full item name -> abbreviation string
     const flat = Object.create(null);
 
@@ -42,6 +42,30 @@ export function buildAbbreviationIndex(parsedData) {
     // detect collisions and expand later items per the requested rule.
     // Structure: used[abbr] = { name: canonicalName, keys: [k1,k2], priority }
     const used = Object.create(null);
+
+    // 1. Load Custom Abbreviations (Priority 999)
+    if (customAbbrs) {
+        for (const [name, abbr] of Object.entries(customAbbrs)) {
+            if (!name || !abbr) continue;
+            const lowerName = name.toLowerCase();
+            flat[lowerName] = abbr;
+            
+            // If multiple custom rules map to the same abbr, the last one wins in 'used' map,
+            // but 'flat' map will hold all of them.
+            // We treat custom rules as "locked".
+            if (!used[abbr]) {
+                used[abbr] = { name: name, keys: [lowerName], priority: 999 };
+            } else {
+                // If collision with another custom rule, just append key
+                if (used[abbr].priority === 999) {
+                    used[abbr].keys.push(lowerName);
+                } else {
+                    // Should not happen if we process custom first, but just in case
+                    used[abbr] = { name: name, keys: [lowerName], priority: 999 };
+                }
+            }
+        }
+    }
 
     const getPriority = (it) => {
         if (!it || !it.type) return 1;
@@ -124,10 +148,12 @@ export function buildAbbreviationIndex(parsedData) {
                 const ab = m.nextAbbr;
                 const internalConflict = (abbrMap.get(ab) || []).length > 1;
                 const external = used[ab];
+                // If external exists and is high priority (custom), we must conflict
+                const externalIsCustom = external && external.priority === 999;
                 const externalConflict = !!(external && (!external.keys || !m.keys || external.keys.some(k => !(m.keys||[]).includes(k))));
                 // Note: if external is one of our group's previous assignments for the same member, this shouldn't count as conflict
                 const externalIsSelf = external && external.name === m.name;
-                const conflict = internalConflict || (externalConflict && !externalIsSelf);
+                const conflict = internalConflict || (externalConflict && !externalIsSelf) || (externalIsCustom && !externalIsSelf);
                 m._conflict = conflict;
                 if (conflict) anyConflict = true;
             }
@@ -148,7 +174,7 @@ export function buildAbbreviationIndex(parsedData) {
 
             // Increment step for conflicting members only (per spec)
             for (const m of grp.members) {
-                if (m._conflict) m.step = (m.step || 0) + 1;
+                if (m._conflict && m.priority !== 999) m.step = (m.step || 0) + 1;
             }
         }
 
@@ -210,6 +236,13 @@ export function buildAbbreviationIndex(parsedData) {
                 const key = name.toLowerCase();
                 // Never generate an abbreviation for 'Warlord' - it's always displayed verbatim
                 if (key === 'warlord') continue;
+
+                // Check if already handled (e.g. by custom rule)
+                if (flat[key]) {
+                    console.log(`[DEBUG] Skipping '${key}', already in flat: '${flat[key]}'`);
+                    continue;
+                }
+
                 // If this is an Enhancement special, reserve an abbreviation for the
                 // stripped enhancement name (without the prefix). We also store the
                 // abbreviation under the stripped and stripped-without-paren keys so

@@ -141,7 +141,126 @@ export function initializeUI(callbacks) {
         if (hidePointsCheckbox) {
             hidePointsCheckbox.addEventListener('change', callbacks.onHidePointsChange);
         }
+
+        // Initialize Custom Abbreviations UI
+        setupCustomAbbrsUI(callbacks.onParse);
     }
+}
+
+// --- Custom Abbreviations ---
+let customAbbrs = {};
+
+export function getCustomAbbrs() {
+    return customAbbrs;
+}
+
+function loadCustomAbbrs() {
+    if (!isBrowser) return;
+    try {
+        const stored = localStorage.getItem('40kCompactor_customAbbrs');
+        if (stored) {
+            customAbbrs = JSON.parse(stored);
+        }
+    } catch (e) {
+        console.error('Failed to load custom abbreviations', e);
+    }
+}
+
+function saveCustomAbbrs() {
+    if (!isBrowser) return;
+    try {
+        localStorage.setItem('40kCompactor_customAbbrs', JSON.stringify(customAbbrs));
+    } catch (e) {
+        console.error('Failed to save custom abbreviations', e);
+    }
+}
+
+function renderCustomAbbrsUI(onUpdate) {
+    if (!isBrowser) return;
+    const list = document.getElementById('customAbbrList');
+    if (!list) return;
+    list.innerHTML = '';
+    
+    if (Object.keys(customAbbrs).length === 0) {
+        list.innerHTML = '<div style="color: #666; font-style: italic; padding: 4px;">No custom abbreviations defined.</div>';
+        return;
+    }
+
+    // Sort alphabetically by name
+    const sortedKeys = Object.keys(customAbbrs).sort((a, b) => a.localeCompare(b));
+
+    sortedKeys.forEach(name => {
+        const abbr = customAbbrs[name];
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.style.alignItems = 'center';
+        row.style.padding = '2px 0';
+        row.style.borderBottom = '1px solid #222';
+        
+        const text = document.createElement('span');
+        text.textContent = `${name} → ${abbr}`;
+        text.style.overflow = 'hidden';
+        text.style.textOverflow = 'ellipsis';
+        text.style.whiteSpace = 'nowrap';
+        text.style.marginRight = '8px';
+        
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '×';
+        delBtn.className = 'btn btn-danger';
+        delBtn.style.padding = '0 6px';
+        delBtn.style.fontSize = '14px';
+        delBtn.style.lineHeight = '1.2';
+        delBtn.style.minWidth = 'auto';
+        delBtn.onclick = () => {
+            delete customAbbrs[name];
+            saveCustomAbbrs();
+            renderCustomAbbrsUI(onUpdate);
+            if (onUpdate) onUpdate();
+        };
+        
+        row.appendChild(text);
+        row.appendChild(delBtn);
+        list.appendChild(row);
+    });
+}
+
+function setupCustomAbbrsUI(onUpdate) {
+    if (!isBrowser) return;
+    const addBtn = document.getElementById('addCustomAbbrBtn');
+    const nameInput = document.getElementById('customAbbrOriginal');
+    const abbrInput = document.getElementById('customAbbrShort');
+    
+    if (addBtn && nameInput && abbrInput) {
+        addBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            const abbr = abbrInput.value.trim();
+            
+            if (!name || !abbr) {
+                alert('Please enter both a name and an abbreviation.');
+                return;
+            }
+            
+            // Check for duplicates (case-insensitive key check)
+            // We store keys as provided but check case-insensitively
+            const existingKey = Object.keys(customAbbrs).find(k => k.toLowerCase() === name.toLowerCase());
+            if (existingKey) {
+                if (!confirm(`"${existingKey}" is already defined as "${customAbbrs[existingKey]}". Overwrite?`)) {
+                    return;
+                }
+            }
+            
+            customAbbrs[name] = abbr;
+            saveCustomAbbrs();
+            renderCustomAbbrsUI(onUpdate);
+            nameInput.value = '';
+            abbrInput.value = '';
+            if (onUpdate) onUpdate();
+        });
+    }
+    
+    loadCustomAbbrs();
+    renderCustomAbbrsUI(onUpdate);
 }
 
 export function enableParseButton() {

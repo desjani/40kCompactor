@@ -41,6 +41,7 @@ Options:
   --color-wargear <color>  Custom color for wargear
   --color-points <color>   Custom color for points
   --color-header <color>   Custom color for header
+  --abbreviations <file>   JSON file containing custom abbreviations
   --help                   Show this help message
 
 Allowed colors: ${Object.keys(colorNameToHex).join(', ')}
@@ -58,7 +59,8 @@ async function main() {
         noBullets: false,
         hidePoints: false,
         colorMode: 'faction',
-        colors: {}
+        colors: {},
+        abbreviationsFile: null
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -92,6 +94,8 @@ async function main() {
             options.colors.points = parseColor(args[++i], '--color-points');
         } else if (arg === '--color-header') {
             options.colors.header = parseColor(args[++i], '--color-header');
+        } else if (arg === '--abbreviations') {
+            options.abbreviationsFile = args[++i];
         } else if (!arg.startsWith('-') && !options.input) {
             options.input = arg;
         }
@@ -166,10 +170,22 @@ async function main() {
         return;
     }
 
+    // Load Custom Abbreviations
+    let customAbbrs = {};
+    if (options.abbreviationsFile) {
+        try {
+            const content = fs.readFileSync(options.abbreviationsFile, 'utf8');
+            customAbbrs = JSON.parse(content);
+        } catch (e) {
+            console.error(`Error reading abbreviations file: ${e.message}`);
+            process.exit(1);
+        }
+    }
+
     // Build Abbreviations
     let wargearAbbrDB = { __flat_abbr: {} };
     try {
-        wargearAbbrDB = buildAbbreviationIndex(parsedData);
+        wargearAbbrDB = buildAbbreviationIndex(parsedData, customAbbrs);
     } catch (e) {
         console.warn('Warning: Failed to build abbreviation index', e);
     }

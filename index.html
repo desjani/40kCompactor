@@ -186,6 +186,21 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Custom Abbreviations Section -->
+                    <div style="margin-top: 1rem; border-top: 1px solid #333; padding-top: 1rem;">
+                        <details>
+                            <summary class="io-label" style="cursor: pointer; margin-bottom: 0.5rem;">Custom Abbreviations</summary>
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; margin-top: 0.5rem;">
+                                <input type="text" id="customAbbrOriginal" placeholder="Name (e.g. Plasma Pistol)" class="io-box" style="flex: 2; height: 36px; min-height: 36px; padding: 4px 8px;">
+                                <input type="text" id="customAbbrShort" placeholder="Abbr (e.g. PP)" class="io-box" style="flex: 1; height: 36px; min-height: 36px; padding: 4px 8px;">
+                                <button id="addCustomAbbrBtn" class="btn btn-primary" style="padding: 4px 8px;">Add</button>
+                            </div>
+                            <div id="customAbbrList" style="max-height: 150px; overflow-y: auto; font-size: 0.85rem; border: 1px solid #333; padding: 4px;">
+                                <!-- Items will be injected here -->
+                            </div>
+                        </details>
+                    </div>
                     <!-- close options-box -->
                     </div>
                 </div>
