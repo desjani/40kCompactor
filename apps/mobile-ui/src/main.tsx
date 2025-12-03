@@ -30,9 +30,16 @@ function App() {
   const [hide, setHide] = useLocalStorage('hide', false)
   const [combine, setCombine] = useLocalStorage('combine', false)
   const [multiline, setMultiline] = useLocalStorage('multiline', false)
+  const [noBullets, setNoBullets] = useLocalStorage('noBullets', false)
+  const [hidePoints, setHidePoints] = useLocalStorage('hidePoints', false)
+  const [customAbbrs, setCustomAbbrs] = useLocalStorage<Record<string,string>>('customAbbrs', {})
   const [colorMode, setColorMode] = useLocalStorage<'none'|'custom'|'faction'>('colorMode', 'faction')
   const [colors, setColors] = useLocalStorage('colors', { unit:'#ffffff', subunit:'#808080', wargear:'#ffffff', points:'#ffff00', header:'#ffff00' })
   const [format, setFormat] = useLocalStorage<'discordCompact'|'discordExtended'|'plainText'|'plainTextExtended'>('format','discordCompact')
+
+  // Temporary state for adding new abbreviations
+  const [newAbbrName, setNewAbbrName] = useState('')
+  const [newAbbrCode, setNewAbbrCode] = useState('')
 
   const parsed = useMemo(() => {
     if (!text.trim()) return null
@@ -50,7 +57,7 @@ function App() {
     try { return parseFn(lines) } catch { return null }
   }, [text])
 
-  const abbr = useMemo(() => parsed ? buildAbbreviationIndex(parsed) : null, [parsed])
+  const abbr = useMemo(() => parsed ? buildAbbreviationIndex(parsed, customAbbrs) : null, [parsed, customAbbrs])
 
   const fullText = useMemo(() => {
     if (!parsed || !abbr) return ''
@@ -76,40 +83,53 @@ function App() {
   useEffect(() => {
     if (!parsed || !abbr) { setPreviewText(''); return }
     let t = ''
-  const opts = { colorMode, colors } as any
+  const opts = { colorMode, colors, multilineHeader: multiline } as any
   switch (format) {
       case 'discordCompact':
-    t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts); break
+    t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'discordExtended':
-    t = generateDiscordText(parsed, false, false, abbr, hide, skippable as any, combine, opts); break
+    t = generateDiscordText(parsed, false, false, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'plainText':
-    t = generateDiscordText(parsed, true, true, abbr, hide, skippable as any, combine, opts); break
+    t = generateDiscordText(parsed, true, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'plainTextExtended':
-    t = generateDiscordText(parsed, true, false, abbr, hide, skippable as any, combine, opts); break
+    t = generateDiscordText(parsed, true, false, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
       default:
-    t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts)
+    t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints)
     }
     setPreviewText(t)
-  }, [parsed, abbr, hide, combine, colorMode, colors, multiline, format])
+  }, [parsed, abbr, hide, combine, colorMode, colors, multiline, format, noBullets, hidePoints])
   const previewHtml = useMemo(() => au.ansi_to_html(previewText), [previewText, au])
 
   function copy(s: string) {
     if (!s || !parsed || !abbr) { navigator.clipboard?.writeText(s || ''); return }
-    const opts: any = { colorMode, colors, forcePalette: true }
+    const opts: any = { colorMode, colors, forcePalette: true, multilineHeader: multiline }
     let t = ''
     switch (format) {
       case 'discordCompact':
-        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts); break
+        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'discordExtended':
-        t = generateDiscordText(parsed, false, false, abbr, hide, skippable as any, combine, opts); break
+        t = generateDiscordText(parsed, false, false, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'plainText':
-        t = generateDiscordText(parsed, true, true, abbr, hide, skippable as any, combine, opts); break
+        t = generateDiscordText(parsed, true, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'plainTextExtended':
-        t = generateDiscordText(parsed, true, false, abbr, hide, skippable as any, combine, opts); break
+        t = generateDiscordText(parsed, true, false, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
       default:
-        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts)
+        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints)
     }
     navigator.clipboard?.writeText(t)
+  }
+
+  function addCustomAbbr() {
+    if (!newAbbrName.trim() || !newAbbrCode.trim()) return
+    setCustomAbbrs({ ...customAbbrs, [newAbbrName.trim()]: newAbbrCode.trim() })
+    setNewAbbrName('')
+    setNewAbbrCode('')
+  }
+
+  function removeCustomAbbr(name: string) {
+    const next = { ...customAbbrs }
+    delete next[name]
+    setCustomAbbrs(next)
   }
 
   return (
@@ -146,10 +166,12 @@ function App() {
               </label>
             </div>
 
-            <div class="row" style={{ marginBottom: '6px', justifyContent:'space-between' }}>
-              <label><input type="checkbox" checked={hide} onChange={e=>setHide((e.target as HTMLInputElement).checked)} /> Hide Subunits</label>
-              <label><input type="checkbox" checked={combine} onChange={e=>setCombine((e.target as HTMLInputElement).checked)} /> Combine like units</label>
+            <div class="row" style={{ marginBottom: '6px', justifyContent:'flex-start', flexWrap: 'wrap', gap: '10px' }}>
               <label><input id="multilineHeaderCheckbox" type="checkbox" checked={multiline} onChange={e=>setMultiline((e.target as HTMLInputElement).checked)} /> Multiline Header</label>
+              <label><input type="checkbox" checked={combine} onChange={e=>setCombine((e.target as HTMLInputElement).checked)} /> Combine like units</label>
+              <label><input type="checkbox" checked={hide} onChange={e=>setHide((e.target as HTMLInputElement).checked)} /> Hide Subunits</label>
+              <label><input type="checkbox" checked={noBullets} onChange={e=>setNoBullets((e.target as HTMLInputElement).checked)} /> Hide Bullets</label>
+              <label><input type="checkbox" checked={hidePoints} onChange={e=>setHidePoints((e.target as HTMLInputElement).checked)} /> Hide Points</label>
             </div>
 
             <div class="row" style={{ gap: '10px', alignItems: 'center', marginBottom: '6px' }}>
@@ -176,6 +198,26 @@ function App() {
                 ))}
               </div>
             )}
+
+            <div class="section" style={{ marginTop: '10px', borderTop: '1px solid #333', paddingTop: '10px' }}>
+              <details>
+                <summary style={{ cursor: 'pointer', marginBottom: '0.5rem', fontWeight: 'bold' }}>Custom Abbreviations</summary>
+                <div class="row" style={{ gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <input type="text" placeholder="Name (e.g. Plasma Pistol)" value={newAbbrName} onInput={(e:any)=>setNewAbbrName(e.currentTarget.value)} style={{ flex: 2, minHeight: '30px', padding: '4px' }} />
+                  <input type="text" placeholder="Abbr (e.g. PP)" value={newAbbrCode} onInput={(e:any)=>setNewAbbrCode(e.currentTarget.value)} style={{ flex: 1, minHeight: '30px', padding: '4px' }} />
+                  <button class="btn" onClick={addCustomAbbr} style={{ padding: '4px 8px' }}>Add</button>
+                </div>
+                <div style={{ maxHeight: '150px', overflowY: 'auto', fontSize: '0.85rem', border: '1px solid #333', padding: '4px' }}>
+                  {Object.entries(customAbbrs).length === 0 && <div style={{ color: '#666', fontStyle: 'italic' }}>No custom abbreviations</div>}
+                  {Object.entries(customAbbrs).map(([name, code]) => (
+                    <div class="row" style={{ justifyContent: 'space-between', alignItems: 'center', padding: '2px 0' }}>
+                      <span>{name} &rarr; <strong>{code}</strong></span>
+                      <button class="btn" style={{ padding: '2px 6px', fontSize: '0.75rem', background: '#dc2626' }} onClick={()=>removeCustomAbbr(name)}>X</button>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            </div>
             <div class="outbox" id="markdownPreviewOutput" dangerouslySetInnerHTML={{ __html: previewHtml }}></div>
             <div class="row" style={{ marginTop: '6px', justifyContent:'flex-end' }}>
               <button class="btn" onClick={()=>copy(previewText)}>Copy</button>
