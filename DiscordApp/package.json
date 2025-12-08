@@ -1,0 +1,15 @@
+{
+  "name": "40k-compactor-discord-bot",
+  "version": "1.0.0",
+  "description": "Discord bot for 40kCompactor",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "deploy": "node deploy-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1"
+  }
+}
