@@ -31,6 +31,13 @@ const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
                 Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
                 { body: commands },
             );
+            
+            // Clear global commands to prevent duplicates
+            console.log('Clearing global commands to prevent duplicates...');
+            await rest.put(
+                Routes.applicationCommands(process.env.CLIENT_ID),
+                { body: [] },
+            );
         } else {
             console.log('Registering global commands (may take up to 1 hour to propagate)');
             await rest.put(

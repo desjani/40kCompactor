@@ -33,24 +33,28 @@ client.once(Events.ClientReady, c => {
 });
 
 client.on(Events.InteractionCreate, async interaction => {
-    if (interaction.isChatInputCommand()) {
-        if (interaction.commandName === 'compact') {
-            const modal = new ModalBuilder()
-                .setCustomId('compactModal')
-                .setTitle('Compact Army List');
+    console.log(`Received interaction: ${interaction.type} from ${interaction.user.tag}`);
+    try {
+        if (interaction.isChatInputCommand()) {
+            if (interaction.commandName === 'compact') {
+                console.log('Handling /compact command');
+                const modal = new ModalBuilder()
+                    .setCustomId('compactModal')
+                    .setTitle('Compact Army List');
 
-            const listInput = new TextInputBuilder()
-                .setCustomId('listInput')
-                .setLabel("Paste your army list here")
-                .setStyle(TextInputStyle.Paragraph)
-                .setRequired(true);
+                const listInput = new TextInputBuilder()
+                    .setCustomId('listInput')
+                    .setLabel("Paste your army list here")
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setRequired(true);
 
-            const firstActionRow = new ActionRowBuilder().addComponents(listInput);
-            modal.addComponents(firstActionRow);
+                const firstActionRow = new ActionRowBuilder().addComponents(listInput);
+                modal.addComponents(firstActionRow);
 
-            await interaction.showModal(modal);
-        }
-    } else if (interaction.isModalSubmit()) {
+                await interaction.showModal(modal);
+                console.log('Modal shown');
+            }
+        } else if (interaction.isModalSubmit()) {
         if (interaction.customId === 'compactModal') {
             const listText = interaction.fields.getTextInputValue('listInput');
             
@@ -79,65 +83,154 @@ client.on(Events.InteractionCreate, async interaction => {
             sessions.set(response.id, { text: listText, options });
         }
     } else if (interaction.isButton() || interaction.isStringSelectMenu()) {
-        const session = sessions.get(interaction.message.id);
-        if (!session) {
-            await interaction.reply({ content: 'Session expired or not found.', ephemeral: true });
+        try {
+            // Handle stateless buttons (Edit/Delete on published messages)
+            if (interaction.customId.startsWith('delete_published_')) {
+                const ownerId = interaction.customId.split('_')[2];
+                if (interaction.user.id !== ownerId) {
+                    await interaction.reply({ content: "You cannot delete this list.", ephemeral: true });
+                    return;
+                }
+                await interaction.message.delete();
+                return;
+            }
+
+            if (interaction.customId.startsWith('edit_published_')) {
+                const ownerId = interaction.customId.split('_')[2];
+                if (interaction.user.id !== ownerId) {
+                    await interaction.reply({ content: "You cannot edit this list.", ephemeral: true });
+                    return;
+                }
+                
+                const modal = new ModalBuilder()
+                    .setCustomId('edit_published_modal')
+                    .setTitle('Edit List');
+
+                const textInput = new TextInputBuilder()
+                    .setCustomId('edited_text')
+                    .setLabel('Content')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setValue(interaction.message.content);
+
+                modal.addComponents(new ActionRowBuilder().addComponents(textInput));
+                await interaction.showModal(modal);
+                return;
+            }
+
+            const session = sessions.get(interaction.message.id);
+            if (!session) {
+                await interaction.reply({ content: 'Session expired or not found.', ephemeral: true });
+                return;
+            }
+
+            if (interaction.customId === 'publish') {
+                await interaction.deferUpdate();
+                const { content } = generateResponse(session.text, session.options);
+                
+                try {
+                    let channel = interaction.channel;
+                    if (!channel && interaction.channelId) {
+                        channel = await interaction.client.channels.fetch(interaction.channelId);
+                    }
+
+                    if (channel) {
+                        // Debug permissions
+                        if (channel.guild) {
+                            const permissions = channel.permissionsFor(interaction.client.user);
+                            console.log(`Attempting to publish to channel ${channel.id} (${channel.name})`);
+                            console.log('Bot permissions:', permissions ? permissions.toArray() : 'Unknown');
+                            
+                            if (permissions && !permissions.has('SendMessages')) {
+                                throw new Error(`Missing 'Send Messages' permission in #${channel.name}`);
+                            }
+                            if (permissions && !permissions.has('ViewChannel')) {
+                                throw new Error(`Missing 'View Channel' permission in #${channel.name}`);
+                            }
+                        }
+
+                        const row = new ActionRowBuilder()
+                            .addComponents(
+                                new ButtonBuilder()
+                                    .setCustomId(`edit_published_${interaction.user.id}`)
+                                    .setLabel('Edit')
+                                    .setStyle(ButtonStyle.Secondary),
+                                new ButtonBuilder()
+                                    .setCustomId(`delete_published_${interaction.user.id}`)
+                                    .setLabel('Delete')
+                                    .setStyle(ButtonStyle.Danger)
+                            );
+
+                        await channel.send({ content, components: [row] });
+                        await interaction.editReply({ content: 'List published to channel!', components: [] });
+                        sessions.delete(interaction.message.id);
+                    } else {
+                        throw new Error('Could not access the channel to publish.');
+                    }
+                } catch (err) {
+                    console.error('Publish error:', err);
+                    await interaction.followUp({ content: `Failed to publish: ${err.message}`, ephemeral: true });
+                }
+                return;
+            }
+
+            // Handle Option Toggles
+            const { options } = session;
+            
+            if (interaction.customId === 'toggle_combine') options.combineUnits = !options.combineUnits;
+            if (interaction.customId === 'toggle_subunits') options.hideSubunits = !options.hideSubunits;
+            if (interaction.customId === 'toggle_header') options.multilineHeader = !options.multilineHeader;
+            if (interaction.customId === 'toggle_bullets') options.noBullets = !options.noBullets;
+            if (interaction.customId === 'toggle_points') options.hidePoints = !options.hidePoints;
+            
+            if (interaction.customId === 'select_color') {
+                options.colorMode = interaction.values[0];
+            }
+
+            if (interaction.customId === 'select_format') {
+                options.format = interaction.values[0];
+            }
+
+            if (interaction.customId === 'btn_config_colors') {
+                const modal = new ModalBuilder()
+                    .setCustomId('customColorsModal')
+                    .setTitle('Configure Custom Colors');
+
+                const colors = options.customColors || { unit: '#FFFFFF', subunit: '#808080', wargear: '#FFFFFF', points: '#FFFF00', header: '#FFFF00' };
+
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_header').setLabel('Header Color (Hex or Name)').setValue(colors.header).setStyle(TextInputStyle.Short)),
+                    new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_unit').setLabel('Unit Color').setValue(colors.unit).setStyle(TextInputStyle.Short)),
+                    new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_subunit').setLabel('Subunit Color').setValue(colors.subunit).setStyle(TextInputStyle.Short)),
+                    new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_wargear').setLabel('Wargear Color').setValue(colors.wargear).setStyle(TextInputStyle.Short)),
+                    new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_points').setLabel('Points Color').setValue(colors.points).setStyle(TextInputStyle.Short))
+                );
+
+                await interaction.showModal(modal);
+                return; // Modal interaction handled, wait for submit
+            }
+
+            // Update session
+            sessions.set(interaction.message.id, { text: session.text, options });
+
+            // Re-render
+            const { content, components } = generateResponse(session.text, options);
+            await interaction.update({ content, components });
+        } catch (error) {
+            console.error('Interaction error:', error);
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({ content: 'An error occurred processing your request.', ephemeral: true });
+            }
+        }
+    } else if (interaction.isModalSubmit()) {
+        if (interaction.customId === 'edit_published_modal') {
+            const newText = interaction.fields.getTextInputValue('edited_text');
+            await interaction.message.edit({ content: newText });
+            await interaction.reply({ content: 'Updated!', ephemeral: true });
             return;
         }
 
-        if (interaction.customId === 'publish') {
-            const { content } = generateResponse(session.text, session.options);
-            // Publish to channel
-            await interaction.channel.send(content);
-            await interaction.update({ content: 'List published to channel!', components: [] });
-            sessions.delete(interaction.message.id);
-            return;
-        }
-
-        // Handle Option Toggles
-        const { options } = session;
-        
-        if (interaction.customId === 'toggle_combine') options.combineUnits = !options.combineUnits;
-        if (interaction.customId === 'toggle_subunits') options.hideSubunits = !options.hideSubunits;
-        if (interaction.customId === 'toggle_header') options.multilineHeader = !options.multilineHeader;
-        if (interaction.customId === 'toggle_bullets') options.noBullets = !options.noBullets;
-        if (interaction.customId === 'toggle_points') options.hidePoints = !options.hidePoints;
-        
-        if (interaction.customId === 'select_color') {
-            options.colorMode = interaction.values[0];
-        }
-
-        if (interaction.customId === 'select_format') {
-            options.format = interaction.values[0];
-        }
-
-        if (interaction.customId === 'btn_config_colors') {
-            const modal = new ModalBuilder()
-                .setCustomId('customColorsModal')
-                .setTitle('Configure Custom Colors');
-
-            const colors = options.customColors || { unit: '#FFFFFF', subunit: '#808080', wargear: '#FFFFFF', points: '#FFFF00', header: '#FFFF00' };
-
-            modal.addComponents(
-                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_header').setLabel('Header Color (Hex or Name)').setValue(colors.header).setStyle(TextInputStyle.Short)),
-                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_unit').setLabel('Unit Color').setValue(colors.unit).setStyle(TextInputStyle.Short)),
-                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_subunit').setLabel('Subunit Color').setValue(colors.subunit).setStyle(TextInputStyle.Short)),
-                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_wargear').setLabel('Wargear Color').setValue(colors.wargear).setStyle(TextInputStyle.Short)),
-                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_points').setLabel('Points Color').setValue(colors.points).setStyle(TextInputStyle.Short))
-            );
-
-            await interaction.showModal(modal);
-            return; // Modal interaction handled, wait for submit
-        }
-
-        // Update session
-        sessions.set(interaction.message.id, { text: session.text, options });
-
-        // Re-render
-        const { content, components } = generateResponse(session.text, options);
-        await interaction.update({ content, components });
-    } else if (interaction.isModalSubmit() && interaction.customId === 'customColorsModal') {
-        // Handle custom colors submit
+        if (interaction.customId === 'customColorsModal') {
+            // Handle custom colors submit
         // We need to find the session. Modal interactions don't have message.id directly linked to the original ephemeral message easily
         // BUT interaction.message might be null for ephemeral modals.
         // Actually, for ephemeral responses, updating the original message is tricky if we lose context.
@@ -184,6 +277,10 @@ client.on(Events.InteractionCreate, async interaction => {
         } else {
             await interaction.reply({ content: 'Session lost. Please try again.', ephemeral: true });
         }
+    }
+}
+    } catch (error) {
+        console.error('Global interaction error:', error);
     }
 });
 
