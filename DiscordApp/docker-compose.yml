@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  discord-bot:
+    container_name: 40k-compactor-bot
+    build:
+      context: ..
+      dockerfile: DiscordApp/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
