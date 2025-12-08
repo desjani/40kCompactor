@@ -3,6 +3,15 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+if (!process.env.DISCORD_TOKEN) {
+    console.error('Error: DISCORD_TOKEN is missing from .env file');
+    process.exit(1);
+}
+if (!process.env.CLIENT_ID) {
+    console.error('Error: CLIENT_ID is missing from .env file');
+    process.exit(1);
+}
+
 const commands = [
     new SlashCommandBuilder()
         .setName('compact')
@@ -16,10 +25,19 @@ const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
     try {
         console.log('Started refreshing application (/) commands.');
 
-        await rest.put(
-            Routes.applicationCommands(process.env.CLIENT_ID),
-            { body: commands },
-        );
+        if (process.env.GUILD_ID) {
+            console.log(`Registering commands to specific guild: ${process.env.GUILD_ID}`);
+            await rest.put(
+                Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+                { body: commands },
+            );
+        } else {
+            console.log('Registering global commands (may take up to 1 hour to propagate)');
+            await rest.put(
+                Routes.applicationCommands(process.env.CLIENT_ID),
+                { body: commands },
+            );
+        }
 
         console.log('Successfully reloaded application (/) commands.');
     } catch (error) {

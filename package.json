@@ -9,9 +9,9 @@
     "skippable_wargear.json"
   ],
   "scripts": {
-  "validate": "node scripts/validate_all_formats.mjs",
-  "test": "node scripts/test_runner.mjs",
-  "lint": "eslint --ext .js,.mjs modules components scripts/validate_all_formats.mjs"
+    "validate": "node scripts/validate_all_formats.mjs",
+    "test": "node scripts/test_runner.mjs",
+    "lint": "eslint --ext .js,.mjs modules components scripts/validate_all_formats.mjs"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
@@ -47,8 +47,18 @@
       "**/test/**"
     ],
     "rules": {
-      "no-unused-vars": ["warn", { "args": "none" }],
-      "import/no-unused-modules": ["warn", { "unusedExports": true }],
+      "no-unused-vars": [
+        "warn",
+        {
+          "args": "none"
+        }
+      ],
+      "import/no-unused-modules": [
+        "warn",
+        {
+          "unusedExports": true
+        }
+      ],
       "semi": "off",
       "indent": "off",
       "quotes": "off",
@@ -64,12 +74,15 @@
       "eol-last": "off",
       "array-bracket-spacing": "off",
       "operator-linebreak": "off",
-  "no-mixed-operators": "off",
+      "no-mixed-operators": "off",
       "no-trailing-spaces": "off",
-  "prefer-const": "off",
-  "no-empty": "off",
-  "no-constant-condition": "off",
-  "no-undef": "off"
+      "prefer-const": "off",
+      "no-empty": "off",
+      "no-constant-condition": "off",
+      "no-undef": "off"
     }
+  },
+  "dependencies": {
+    "discord-interactions": "^4.4.0"
   }
 }

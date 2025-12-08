@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/interactions",
+      "destination": "/api/index.js"
+    }
+  ]
+}
