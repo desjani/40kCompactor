@@ -57,6 +57,14 @@ client.on(Events.InteractionCreate, async interaction => {
         } else if (interaction.isModalSubmit()) {
         if (interaction.customId === 'compactModal') {
             const listText = interaction.fields.getTextInputValue('listInput');
+
+            if (listText.length >= 4000) {
+                await interaction.reply({
+                    content: '⚠️ **Input Limit Reached**\nDiscord has a text input limit of 4000 characters. Your list is likely truncated.\n\nPlease use the website instead: http://www.40kcompactor.com (No character limits!)',
+                    ephemeral: true
+                });
+                return;
+            }
             
             // Default options
             const options = {
@@ -65,6 +73,8 @@ client.on(Events.InteractionCreate, async interaction => {
                 multilineHeader: false,
                 noBullets: false,
                 hidePoints: false,
+                username: interaction.user.username,
+                userId: interaction.user.id,
                 colorMode: 'faction',
                 format: 'discordCompact'
             };
@@ -86,9 +96,11 @@ client.on(Events.InteractionCreate, async interaction => {
         try {
             // Handle stateless buttons (Edit/Delete on published messages)
             if (interaction.customId.startsWith('delete_published_')) {
-                const ownerId = interaction.customId.split('_')[2];
+                const ownerId = interaction.customId.replace('delete_published_', '');
+                console.log(`[Delete] Clicked by ${interaction.user.id} (${interaction.user.tag}), Owner: ${ownerId}`);
+                
                 if (interaction.user.id !== ownerId) {
-                    await interaction.reply({ content: "You cannot delete this list.", ephemeral: true });
+                    await interaction.reply({ content: "⛔ **Access Denied**\nOnly the user who published this list can delete it.", ephemeral: true });
                     return;
                 }
                 await interaction.message.delete();
@@ -96,9 +108,11 @@ client.on(Events.InteractionCreate, async interaction => {
             }
 
             if (interaction.customId.startsWith('edit_published_')) {
-                const ownerId = interaction.customId.split('_')[2];
+                const ownerId = interaction.customId.replace('edit_published_', '');
+                console.log(`[Edit] Clicked by ${interaction.user.id} (${interaction.user.tag}), Owner: ${ownerId}`);
+
                 if (interaction.user.id !== ownerId) {
-                    await interaction.reply({ content: "You cannot edit this list.", ephemeral: true });
+                    await interaction.reply({ content: "⛔ **Access Denied**\nOnly the user who published this list can edit it.", ephemeral: true });
                     return;
                 }
                 
@@ -125,6 +139,11 @@ client.on(Events.InteractionCreate, async interaction => {
 
             if (interaction.customId === 'publish') {
                 await interaction.deferUpdate();
+                
+                // Add username to options for the final render
+                session.options.username = interaction.user.username;
+                session.options.userId = interaction.user.id;
+                
                 const { content } = generateResponse(session.text, session.options);
                 
                 try {
@@ -337,6 +356,9 @@ function generateResponse(text, options) {
             options.hidePoints
         );
 
+        const userAttribution = options.userId ? `List created by <@${options.userId}>` : (options.username ? `List created by ${options.username}` : 'List created');
+        outputText += `\n*${userAttribution} with [40kCompactor](http://www.40kcompactor.com)*`;
+
     } catch (err) {
         console.error(err);
         return { content: `Error processing list: ${err.message}`, components: [] };
@@ -415,7 +437,11 @@ function generateResponse(text, options) {
             new ButtonBuilder()
                 .setCustomId('publish')
                 .setLabel('Publish to Channel')
-                .setStyle(ButtonStyle.Success)
+                .setStyle(ButtonStyle.Success),
+            new ButtonBuilder()
+                .setLabel('Support on Ko-fi')
+                .setURL('https://ko-fi.com/U7U7Z3Q0S')
+                .setStyle(ButtonStyle.Link)
         );
     components.push(rowPublish);
 
