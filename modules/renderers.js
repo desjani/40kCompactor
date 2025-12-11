@@ -7,13 +7,13 @@ import factionColors from './faction_colors.js';
 import { sortItemsByQuantityThenName } from './utils.js';
 
 // ANSI palette and helpers available at module scope so multiple functions can use them
-const ansiPalette = [
+export const ansiPalette = [
     { hex: '#000000', code: 30 }, { hex: '#FF0000', code: 31 }, { hex: '#00FF00', code: 32 },
     { hex: '#FFFF00', code: 33 }, { hex: '#0000FF', code: 34 }, { hex: '#FF00FF', code: 35 },
     { hex: '#00FFFF', code: 36 }, { hex: '#FFFFFF', code: 37 }, { hex: '#808080', code: 90 } // grey -> bright black
 ];
 // Map simple color names used in faction_colors.js to allowed hex values
-const colorNameToHex = {
+export const colorNameToHex = {
     black: '#000000', red: '#FF0000', green: '#00FF00', yellow: '#FFFF00', blue: '#0000FF',
     magenta: '#FF00FF', cyan: '#00FFFF', white: '#FFFFFF', grey: '#808080'
 };
@@ -583,6 +583,13 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
 
     const toAnsi = (txt, hex, bold = false) => {
         if (!useColor || !hex) return txt;
+
+        // Check if hex is actually an ANSI code (number or string number)
+        if (typeof hex === 'number' || (typeof hex === 'string' && /^\d+$/.test(hex))) {
+             const boldPart = bold ? '1;' : '';
+             return `\u001b[${boldPart}${hex}m${txt}\u001b[0m`;
+        }
+
         // For previews in-browser we can use truecolor, but allow callers to force palette for clipboard
         const hasDOMLocal = (typeof document !== 'undefined' && document.querySelector);
         const forcePalette = !!(options && options.forcePalette);

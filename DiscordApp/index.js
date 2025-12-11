@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 // Import core modules from parent directory
 import { detectFormat, parseGwApp, parseWtcCompact, parseWtc, parseNrGw, parseNrNr, parseLf } from '../modules/parsers.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
-import { generateDiscordText } from '../modules/renderers.js';
+import { generateDiscordText, ansiPalette, colorNameToHex } from '../modules/renderers.js';
 
 dotenv.config();
 
@@ -210,22 +210,44 @@ client.on(Events.InteractionCreate, async interaction => {
             }
 
             if (interaction.customId === 'btn_config_colors') {
-                const modal = new ModalBuilder()
-                    .setCustomId('customColorsModal')
-                    .setTitle('Configure Custom Colors');
+                const colors = options.customColors || { unit: '37', subunit: '90', wargear: '37', points: '33', header: '33' };
+                const { content, components } = generateColorConfig(colors, 'units');
+                await interaction.update({ content, components });
+                return;
+            }
 
-                const colors = options.customColors || { unit: '#FFFFFF', subunit: '#808080', wargear: '#FFFFFF', points: '#FFFF00', header: '#FFFF00' };
+            if (interaction.customId === 'btn_config_accents') {
+                const colors = options.customColors || { unit: '37', subunit: '90', wargear: '37', points: '33', header: '33' };
+                const { content, components } = generateColorConfig(colors, 'accents');
+                await interaction.update({ content, components });
+                return;
+            }
 
-                modal.addComponents(
-                    new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_header').setLabel('Header Color (Hex or Name)').setValue(colors.header).setStyle(TextInputStyle.Short)),
-                    new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_unit').setLabel('Unit Color').setValue(colors.unit).setStyle(TextInputStyle.Short)),
-                    new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_subunit').setLabel('Subunit Color').setValue(colors.subunit).setStyle(TextInputStyle.Short)),
-                    new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_wargear').setLabel('Wargear Color').setValue(colors.wargear).setStyle(TextInputStyle.Short)),
-                    new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('color_points').setLabel('Points Color').setValue(colors.points).setStyle(TextInputStyle.Short))
-                );
+            if (interaction.customId === 'btn_config_units') {
+                const colors = options.customColors || { unit: '37', subunit: '90', wargear: '37', points: '33', header: '33' };
+                const { content, components } = generateColorConfig(colors, 'units');
+                await interaction.update({ content, components });
+                return;
+            }
 
-                await interaction.showModal(modal);
-                return; // Modal interaction handled, wait for submit
+            if (interaction.customId === 'btn_config_done') {
+                const { content, components } = generateResponse(session.text, options);
+                await interaction.update({ content, components });
+                return;
+            }
+
+            if (interaction.customId.startsWith('cfg_')) {
+                const type = interaction.customId.replace('cfg_', '');
+                const colorVal = interaction.values[0];
+                
+                if (!options.customColors) options.customColors = { unit: '37', subunit: '90', wargear: '37', points: '33', header: '33' };
+                options.customColors[type] = colorVal;
+                
+                // Stay on current page
+                const page = (type === 'header' || type === 'points') ? 'accents' : 'units';
+                const { content, components } = generateColorConfig(options.customColors, page);
+                await interaction.update({ content, components });
+                return;
             }
 
             // Update session
@@ -247,61 +269,56 @@ client.on(Events.InteractionCreate, async interaction => {
             await interaction.reply({ content: 'Updated!', ephemeral: true });
             return;
         }
-
-        if (interaction.customId === 'customColorsModal') {
-            // Handle custom colors submit
-        // We need to find the session. Modal interactions don't have message.id directly linked to the original ephemeral message easily
-        // BUT interaction.message might be null for ephemeral modals.
-        // Actually, for ephemeral responses, updating the original message is tricky if we lose context.
-        // However, we can try to recover session from the interaction.message if it exists, or we might need a workaround.
-        // Wait, interaction.message is available on button clicks, but for ModalSubmit from a button on an ephemeral message?
-        // It seems interaction.message is available if the modal was shown from a component on that message.
-        
-        // Let's try to get session from interaction.message.id
-        // Note: interaction.message might be the message the button was on.
-        let session = null;
-        if (interaction.message) {
-             session = sessions.get(interaction.message.id);
-        }
-        
-        // If not found (sometimes interaction.message is null for ephemeral modals), we might be stuck.
-        // Workaround: Store session ID in customId? 'customColorsModal_<messageId>'
-        // But messageId is long.
-        // Let's assume interaction.message works for now. If not, we'll need to pass ID.
-        
-        // Actually, for ephemeral messages, the interaction.message is indeed the message the button was on.
-        
-        if (!session) {
-             // Fallback: try to find session by matching something? No.
-             // Let's try to encode messageId in the modal customId when creating it.
-             const parts = interaction.customId.split('_');
-             if (parts.length > 1) {
-                 session = sessions.get(parts[1]);
-             }
-        }
-
-        if (session) {
-            const colors = {
-                header: interaction.fields.getTextInputValue('color_header'),
-                unit: interaction.fields.getTextInputValue('color_unit'),
-                subunit: interaction.fields.getTextInputValue('color_subunit'),
-                wargear: interaction.fields.getTextInputValue('color_wargear'),
-                points: interaction.fields.getTextInputValue('color_points')
-            };
-            session.options.customColors = colors;
-            sessions.set(interaction.message.id, { text: session.text, options: session.options });
-            
-            const { content, components } = generateResponse(session.text, session.options);
-            await interaction.update({ content, components });
-        } else {
-            await interaction.reply({ content: 'Session lost. Please try again.', ephemeral: true });
-        }
     }
 }
     } catch (error) {
         console.error('Global interaction error:', error);
     }
 });
+
+function generateColorConfig(colors, page) {
+    const colorOptions = Object.entries(colorNameToHex).map(([name, hex]) => {
+        const entry = ansiPalette.find(p => p.hex.toLowerCase() === hex.toLowerCase());
+        const code = entry ? entry.code.toString() : '37';
+        return new StringSelectMenuOptionBuilder()
+            .setLabel(name.charAt(0).toUpperCase() + name.slice(1))
+            .setValue(code)
+            .setDescription(`Select ${name}`);
+    });
+
+    const components = [];
+
+    if (page === 'units') {
+        components.push(new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder().setCustomId('cfg_unit').setPlaceholder('Unit Color').addOptions(colorOptions.map(o => o.setDefault(o.data.value === colors.unit)))
+        ));
+        components.push(new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder().setCustomId('cfg_subunit').setPlaceholder('Subunit Color').addOptions(colorOptions.map(o => o.setDefault(o.data.value === colors.subunit)))
+        ));
+        components.push(new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder().setCustomId('cfg_wargear').setPlaceholder('Wargear Color').addOptions(colorOptions.map(o => o.setDefault(o.data.value === colors.wargear)))
+        ));
+        
+        components.push(new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('btn_config_accents').setLabel('Next: Accents').setStyle(ButtonStyle.Primary),
+            new ButtonBuilder().setCustomId('btn_config_done').setLabel('Done').setStyle(ButtonStyle.Success)
+        ));
+    } else {
+        components.push(new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder().setCustomId('cfg_header').setPlaceholder('Header Color').addOptions(colorOptions.map(o => o.setDefault(o.data.value === colors.header)))
+        ));
+        components.push(new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder().setCustomId('cfg_points').setPlaceholder('Points Color').addOptions(colorOptions.map(o => o.setDefault(o.data.value === colors.points)))
+        ));
+
+        components.push(new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('btn_config_units').setLabel('Back: Units').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('btn_config_done').setLabel('Done').setStyle(ButtonStyle.Success)
+        ));
+    }
+
+    return { content: `**Configure Custom Colors (${page === 'units' ? '1/2' : '2/2'})**\nSelect colors for each element below.`, components };
+}
 
 function generateResponse(text, options) {
     let outputText = '';
