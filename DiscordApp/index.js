@@ -270,33 +270,33 @@ client.on(Events.InteractionCreate, async interaction => {
             return;
         }
     }
-}
     } catch (error) {
         console.error('Global interaction error:', error);
     }
 });
 
 function generateColorConfig(colors, page) {
-    const colorOptions = Object.entries(colorNameToHex).map(([name, hex]) => {
+    const getColorOptions = (selectedVal) => Object.entries(colorNameToHex).map(([name, hex]) => {
         const entry = ansiPalette.find(p => p.hex.toLowerCase() === hex.toLowerCase());
         const code = entry ? entry.code.toString() : '37';
         return new StringSelectMenuOptionBuilder()
             .setLabel(name.charAt(0).toUpperCase() + name.slice(1))
             .setValue(code)
-            .setDescription(`Select ${name}`);
+            .setDescription(`Select ${name}`)
+            .setDefault(code === selectedVal);
     });
 
     const components = [];
 
     if (page === 'units') {
         components.push(new ActionRowBuilder().addComponents(
-            new StringSelectMenuBuilder().setCustomId('cfg_unit').setPlaceholder('Unit Color').addOptions(colorOptions.map(o => o.setDefault(o.data.value === colors.unit)))
+            new StringSelectMenuBuilder().setCustomId('cfg_unit').setPlaceholder('Unit Color').addOptions(getColorOptions(colors.unit))
         ));
         components.push(new ActionRowBuilder().addComponents(
-            new StringSelectMenuBuilder().setCustomId('cfg_subunit').setPlaceholder('Subunit Color').addOptions(colorOptions.map(o => o.setDefault(o.data.value === colors.subunit)))
+            new StringSelectMenuBuilder().setCustomId('cfg_subunit').setPlaceholder('Subunit Color').addOptions(getColorOptions(colors.subunit))
         ));
         components.push(new ActionRowBuilder().addComponents(
-            new StringSelectMenuBuilder().setCustomId('cfg_wargear').setPlaceholder('Wargear Color').addOptions(colorOptions.map(o => o.setDefault(o.data.value === colors.wargear)))
+            new StringSelectMenuBuilder().setCustomId('cfg_wargear').setPlaceholder('Wargear Color').addOptions(getColorOptions(colors.wargear))
         ));
         
         components.push(new ActionRowBuilder().addComponents(
@@ -305,10 +305,10 @@ function generateColorConfig(colors, page) {
         ));
     } else {
         components.push(new ActionRowBuilder().addComponents(
-            new StringSelectMenuBuilder().setCustomId('cfg_header').setPlaceholder('Header Color').addOptions(colorOptions.map(o => o.setDefault(o.data.value === colors.header)))
+            new StringSelectMenuBuilder().setCustomId('cfg_header').setPlaceholder('Header Color').addOptions(getColorOptions(colors.header))
         ));
         components.push(new ActionRowBuilder().addComponents(
-            new StringSelectMenuBuilder().setCustomId('cfg_points').setPlaceholder('Points Color').addOptions(colorOptions.map(o => o.setDefault(o.data.value === colors.points)))
+            new StringSelectMenuBuilder().setCustomId('cfg_points').setPlaceholder('Points Color').addOptions(getColorOptions(colors.points))
         ));
 
         components.push(new ActionRowBuilder().addComponents(
