@@ -193,6 +193,25 @@ export function parseGwAppV2(lines) {
                             addItemToTarget(currentSubunit, content, currentSubunit.name, result.SUMMARY.FACTION_KEYWORD || '', unit.name, false);
                             continue;
                         }
+                        
+                        // Check if this top-level item has children. If not, treat as wargear (e.g. Watcher in the Dark).
+                        const hasChildren = (() => {
+                            for (let k = bi + 1; k < blockLines.length; k++) {
+                                const child = blockLines[k];
+                                if (!child.trim()) break;
+                                const childIndent = getIndent(child);
+                                if (childIndent <= indent) break;
+                                if (bulletRegex.test(child)) return true;
+                            }
+                            return false;
+                        })();
+
+                        if (!hasChildren) {
+                            currentSubunit = null;
+                            addItemToTarget(unit, content, unit.name, result.SUMMARY.FACTION_KEYWORD || '', 'wargear', 1);
+                            continue;
+                        }
+
                         currentSubunit = null;
                         const subMatch = content.match(/^(\d+x?)\s+(.*)$/i);
                         const subQty = subMatch ? subMatch[1] : '1x';
