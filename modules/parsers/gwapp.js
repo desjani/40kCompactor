@@ -2,6 +2,15 @@ import { getIndent, normalizeForComparison, parseItemString, sortItemsByQuantity
 import FAMILY_MAP from '../family_map.js';
 import { standardizeSummary } from '../summary.js';
 
+function getEffectiveIndent(line) {
+    const indent = getIndent(line);
+    if (indent > 0) return indent;
+    const trimmed = (line || '').trim();
+    if (trimmed.startsWith('◦') || trimmed.startsWith('+')) return 2;
+    // • and - are usually top level (0), or indentation 0.
+    return 0;
+}
+
 function smartTitleCase(s) {
     if (!s) return '';
     const small = new Set(['of','and','the','in','to','with','for','on','a','an','by','from']);
@@ -149,7 +158,7 @@ export function parseGwAppV2(lines) {
                 if (!l.trim()) break;
                 if (sectionHeaderRegex.test(l.trim().toUpperCase())) break;
                 if (unitLineRegex.test(l.trim())) break;
-                if (!/^\s+/.test(l)) break;
+                if (!/^\s+/.test(l) && !bulletRegex.test(l)) break;
                 blockLines.push(l);
                 j++;
             }
@@ -159,11 +168,11 @@ export function parseGwAppV2(lines) {
                     const line = blockLines[bi];
                     const b = line.match(bulletRegex);
                     if (!b) continue;
-                    const indent = getIndent(line);
+                    const indent = getEffectiveIndent(line);
                     for (let k = bi + 1; k < blockLines.length; k++) {
                         const child = blockLines[k];
                         if (!child.trim()) break;
-                        const childIndent = getIndent(child);
+                        const childIndent = getEffectiveIndent(child);
                         if (childIndent <= indent) break;
                         if (bulletRegex.test(child)) return true;
                     }
@@ -177,7 +186,7 @@ export function parseGwAppV2(lines) {
                 const line = blockLines[bi];
                 const t = line.trim();
                 const b = line.match(bulletRegex);
-                const indent = getIndent(line);
+                const indent = getEffectiveIndent(line);
                 if (b) {
                     const content = b[1].trim();
                     const enhancementLike = content.match(/^(.*?)\s*\(\+?\s*\d+\s*(?:pts?|points)\)\s*$/i);
@@ -199,7 +208,7 @@ export function parseGwAppV2(lines) {
                             for (let k = bi + 1; k < blockLines.length; k++) {
                                 const child = blockLines[k];
                                 if (!child.trim()) break;
-                                const childIndent = getIndent(child);
+                                const childIndent = getEffectiveIndent(child);
                                 if (childIndent <= indent) break;
                                 if (bulletRegex.test(child)) return true;
                             }
