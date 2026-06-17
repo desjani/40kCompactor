@@ -1,0 +1,132 @@
+Khaaaarn! (2005 points)
+
+World Eaters
+Strike Force (2000 points)
+Berzerker Warband (3 Detachment Points)
+Force Dispositions: Purge the Foe
+
+Attached Units
+Attached Unit 1
+
+Slaughterbound (120 points)
+• Attached as: Leader (Character)
+  • 1x Lacerator and daemonic claw
+  • Enhancement: Battle-lust
+
+Exalted Eightbound (140 points)
+• Attached as: Bodyguard
+  • 1x Exalted Eightbound Champion
+    • 1x Chainblades
+  • 2x Exalted Eightbound
+    • 2x Chainblades
+
+Attached Unit 2
+
+Khârn the Betrayer (115 points)
+• Attached as: Leader (Character)
+  • 1x Gorechild
+    1x Plasma pistol
+
+Khorne Berzerkers (180 points)
+• Attached as: Bodyguard (Battleline)
+  • 1x Khorne Berzerker Champion
+    • 1x Chainblade
+      1x Plasma pistol
+  • 9x Khorne Berzerker
+    • 7x Bolt pistol
+      7x Chainblade
+      1x Icon of Khorne
+      2x Khornate eviscerator
+      2x Plasma pistol
+
+Attached Unit 3
+
+Master of Executions (95 points)
+• Attached as: Leader (Character)
+  • 1x Axe of dismemberment
+    1x Bolt pistol
+  • Enhancement: Berzerker Glaive
+
+Khorne Berzerkers (180 points)
+• Attached as: Bodyguard (Battleline)
+  • 1x Khorne Berzerker Champion
+    • 1x Chainblade
+      1x Plasma pistol
+  • 9x Khorne Berzerker
+    • 7x Bolt pistol
+      7x Chainblade
+      1x Icon of Khorne
+      2x Khornate eviscerator
+      2x Plasma pistol
+
+
+CHARACTERS
+
+Daemon Prince of Khorne (220 points)
+  • Warlord
+  • 1x Hellforged weapons
+    1x Infernal cannon
+  • Enhancement: Favoured of Khorne
+
+
+DEDICATED TRANSPORTS
+
+Chaos Rhino (85 points)
+  • 1x Armoured tracks
+    2x Combi-bolter
+    1x Havoc launcher
+
+Chaos Rhino (85 points)
+  • 1x Armoured tracks
+    2x Combi-bolter
+    1x Havoc launcher
+
+
+OTHER DATASHEETS
+
+Chaos Spawn (95 points)
+  • 2x Chaos Spawn
+    • 2x Hideous mutations
+
+Chaos Spawn (95 points)
+  • 2x Chaos Spawn
+    • 2x Hideous mutations
+
+Eightbound (135 points)
+  • 1x Eightbound Champion
+    • 1x Chainblades
+  • 2x Eightbound
+    • 2x Chainblades
+
+Forgefiend (160 points)
+  • 3x Ectoplasma cannon
+    1x Forgefiend claws
+
+Forgefiend (160 points)
+  • 3x Ectoplasma cannon
+    1x Forgefiend claws
+
+Goremongers (75 points)
+  • 1x Blood Herald
+    • 1x Autopistol
+      1x Chainblade
+      1x Close combat weapon
+  • 7x Goremongers
+    • 7x Autopistol
+      1x Blood harpoon
+      6x Chainblade
+      7x Close combat weapon
+
+Jakhals (65 points)
+  • 1x Jakhal Pack Leader
+    • 1x Autopistol
+      1x Chainblades
+  • 1x Dishonoured
+    • 1x Skullsmasher and mangler
+  • 8x Jakhal
+    • 8x Autopistol
+      7x Chainblades
+      1x Icon of Khorne
+      1x Mauler chainblade
+
+Exported with App Version: v2.0.0 (121), Data Version: v867

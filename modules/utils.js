@@ -45,3 +45,59 @@ export function sortItemsByQuantityThenName(items) {
     });
     return items;
 }
+
+export function isWargearSkippable(skippableWargearMap, faction, unitName, wargearName) {
+    if (!skippableWargearMap || !faction || !unitName || !wargearName) return false;
+    
+    const normalizeKey = (s) => {
+        if (!s) return '';
+        try {
+            return s.toString().normalize('NFD')
+                .replace(/\p{M}/gu, '')
+                .replace(/[\u2018\u2019\u201B\u2032]/g, "'")
+                .replace(/[^\w\s'\-]/g, '')
+                .toLowerCase().trim();
+        } catch (e) {
+            return s.toString().toLowerCase().trim();
+        }
+    };
+
+    const factionKey = normalizeKey(faction);
+    const unitKey = normalizeKey(unitName);
+    const unitAlt = unitKey.endsWith('s') ? unitKey.slice(0, -1) : unitKey + 's';
+    const wargearKey = wargearName.toLowerCase().trim();
+
+    // Find faction entry
+    let factionData = undefined;
+    for (const [k, v] of Object.entries(skippableWargearMap)) {
+        if (normalizeKey(k) === factionKey) {
+            factionData = v;
+            break;
+        }
+    }
+    if (!factionData) return false;
+
+    // Find unit entry
+    let unitData = undefined;
+    const tryUnitKeys = [unitName, unitKey, unitAlt];
+    for (const uk of tryUnitKeys) {
+        if (Object.prototype.hasOwnProperty.call(factionData, uk)) {
+            unitData = factionData[uk];
+            break;
+        }
+    }
+    if (unitData === undefined) {
+        for (const [k, v] of Object.entries(factionData)) {
+            if (normalizeKey(k) === unitKey || normalizeKey(k) === unitAlt) {
+                unitData = v;
+                break;
+            }
+        }
+    }
+
+    if (unitData === true) return true;
+    if (Array.isArray(unitData)) {
+        return unitData.map(s => (s || '').toString().toLowerCase().trim()).includes(wargearKey);
+    }
+    return false;
+}

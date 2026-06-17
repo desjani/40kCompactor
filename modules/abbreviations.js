@@ -222,128 +222,51 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
 
     if (!parsedData) return { __flat_abbr: flat };
 
-    // Walk units recursively and collect wargear names
-    const walk = (node) => {
-        if (!node) return;
-        if (Array.isArray(node)) {
-            node.forEach(n => walk(n));
-            return;
-        }
-        if (node.items && Array.isArray(node.items)) {
-            for (const it of node.items) {
-                if (!it || !it.name) continue;
-                const name = it.name.toString().trim();
-                const key = name.toLowerCase();
-                // Never generate an abbreviation for 'Warlord' - it's always displayed verbatim
-                if (key === 'warlord') continue;
+    const processItem = (name, type) => {
+        if (!name) return;
+        const key = name.toString().trim().toLowerCase();
+        if (key === 'warlord') return;
+        if (flat[key]) return;
 
-                // Check if already handled (e.g. by custom rule)
-                if (flat[key]) {
-                    console.log(`[DEBUG] Skipping '${key}', already in flat: '${flat[key]}'`);
-                    continue;
-                }
-
-                // If this is an Enhancement special, reserve an abbreviation for the
-                // stripped enhancement name (without the prefix). We also store the
-                // abbreviation under the stripped and stripped-without-paren keys so
-                // renderers can look it up in multiple forms.
-                if (it.type === 'special' && name.toLowerCase().startsWith('enhancement:')) {
-                    const stripped = name.replace(/^Enhancement:\s*/i, '').trim();
-                    const strippedNoParen = stripped.replace(/\(.*?\)/g, '').trim();
-                    // generate base abbreviation for the stripped name and register it
-                    const gen = makeBaseAbbreviation(strippedNoParen || stripped);
-                    if (gen && gen.toUpperCase() !== 'NULL') {
-                        let candidate = gen;
-                        const priority = 2; // enhancements are special-ish
-                        if (used[candidate]) {
-                            // resolve collision deterministically: prefer higher-priority items
-                            const existing = used[candidate];
-                            if (priority > existing.priority) {
-                                // promote this item to the base candidate, and give the existing a unique new candidate
-                                const newExisting = makeUniqueCandidate(candidate, existing.name);
-                                // update all flat entries that pointed to the old candidate
-                                (existing.keys || []).forEach(k => { flat[k] = newExisting; });
-                                used[newExisting] = { name: existing.name, keys: existing.keys, priority: existing.priority };
-                                // now register this candidate for current item
-                                flat[key] = candidate;
-                                used[candidate] = { name, keys: [key], priority };
-                            } else {
-                                // keep existing, assign a unique candidate for this one
-                                const uniq = makeUniqueCandidate(candidate, name);
-                                flat[key] = uniq;
-                                used[uniq] = { name, keys: [key], priority };
-                            }
-                        } else {
-                            flat[key] = candidate;
-                            used[candidate] = { name, keys: [key], priority };
-                        }
-                        if (stripped && stripped.toLowerCase() !== key) { flat[stripped.toLowerCase()] = flat[key]; used[flat[key]].keys.push(stripped.toLowerCase()); }
-                        if (strippedNoParen && strippedNoParen.toLowerCase() !== key && strippedNoParen.toLowerCase() !== stripped.toLowerCase()) { flat[strippedNoParen.toLowerCase()] = flat[key]; used[flat[key]].keys.push(strippedNoParen.toLowerCase()); }
-                    }
-                }
-                // If parser provided nameshort, prefer it
-                if (it.nameshort && typeof it.nameshort === 'string' && it.nameshort.trim().length > 0) {
-                    // honor explicit parser-provided short name, but still ensure uniqueness
-                    let candidate = it.nameshort.trim();
-                    const priority = getPriority(it);
-                    if (used[candidate]) {
-                        const existing = used[candidate];
-                        if (priority > existing.priority) {
-                            const newExisting = makeUniqueCandidate(candidate, existing.name);
-                            (existing.keys || []).forEach(k => { flat[k] = newExisting; });
-                            used[newExisting] = { name: existing.name, keys: existing.keys, priority: existing.priority };
-                            flat[key] = candidate;
-                            used[candidate] = { name, keys: [key], priority };
-                        } else {
-                            const uniq = makeUniqueCandidate(candidate, name);
-                            flat[key] = uniq;
-                            used[uniq] = { name, keys: [key], priority };
-                        }
-                    } else {
-                        flat[key] = candidate;
-                        used[candidate] = { name, keys: [key], priority };
-                    }
-                } else if (!flat[key]) {
-                    // generate initials; on collision, expand both items per word by one letter (HaFl/HeFl).
-                    const base = makeBaseAbbreviation(name);
-                    if (base && base.toUpperCase() !== 'NULL') {
-                        const priority = getPriority(it);
-                        if (used[base]) {
-                            const assigned = registerInGroup(name, key, priority, base);
-                            if (assigned) {
-                                flat[key] = assigned;
-                            }
-                        } else if (collisionGroups[base]) {
-                            // Group already established; join it.
-                            const assigned = registerInGroup(name, key, priority, base);
-                            if (assigned) flat[key] = assigned;
-                        } else {
-                            // No collision yet; tentatively register base
-                            // If base collides with an existing used abbr (from other base), resolve by local step increments for this single item
-                            if (used[base]) {
-                                const grp = collisionGroups[base] || (collisionGroups[base] = { members: [] });
-                                grp.members.push({ name, keys: [key], priority, abbr: '', step: 0 });
-                                resolveGroup(base);
-                                const me = grp.members[grp.members.length - 1];
-                                flat[key] = me.abbr;
-                            } else {
-                                flat[key] = base;
-                                used[base] = { name, keys: [key], priority };
-                            }
-                        }
-                    }
-                }
-                // Recurse into nested items
-                if (it.items) walk(it.items);
+        const base = makeBaseAbbreviation(name);
+        if (base && base.toUpperCase() !== 'NULL') {
+            const priority = getPriority({ type });
+            if (used[base]) {
+                const assigned = registerInGroup(name, key, priority, base);
+                if (assigned) flat[key] = assigned;
+            } else if (collisionGroups[base]) {
+                const assigned = registerInGroup(name, key, priority, base);
+                if (assigned) flat[key] = assigned;
+            } else {
+                flat[key] = base;
+                used[base] = { name, keys: [key], priority };
             }
         }
     };
 
-    // Top-level sections are arrays of units
-    for (const k of Object.keys(parsedData || {})) {
-        if (k === 'SUMMARY') continue;
-        const section = parsedData[k];
-        walk(section);
+    if (Array.isArray(parsedData.units)) {
+        for (const unit of parsedData.units) {
+            if (Array.isArray(unit.wargear)) {
+                for (const wg of unit.wargear) {
+                    processItem(wg.name, 'wargear');
+                }
+            }
+            if (Array.isArray(unit.enhancements)) {
+                for (const enh of unit.enhancements) {
+                    processItem(enh.name, 'special');
+                }
+            }
+            if (Array.isArray(unit.subunits)) {
+                for (const sub of unit.subunits) {
+                    processItem(sub.name, 'subunit');
+                    if (Array.isArray(sub.wargear)) {
+                        for (const wg of sub.wargear) {
+                            processItem(wg.name, 'wargear');
+                        }
+                    }
+                }
+            }
+        }
     }
 
     return { __flat_abbr: flat };

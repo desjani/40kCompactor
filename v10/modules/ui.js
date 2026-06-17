@@ -1,0 +1,404 @@
+// --- UI Elements ---
+const isBrowser = (typeof document !== 'undefined' && document);
+const inputText = isBrowser ? document.getElementById('inputText') : null;
+const unabbreviatedOutput = isBrowser ? document.getElementById('unabbreviatedOutput') : null;
+const compactedOutput = isBrowser ? document.getElementById('compactedOutput') : null;
+const markdownPreviewOutput = isBrowser ? document.getElementById('markdownPreviewOutput') : null; // New element
+const debugOutput = isBrowser ? document.getElementById('debugOutput') : null;
+const parseButton = isBrowser ? document.getElementById('parseButton') : null;
+const resetButton = isBrowser ? document.getElementById('resetButton') : null;
+const toggleDebugButton = isBrowser ? document.getElementById('toggleDebugButton') : null;
+const copyExtendedButton = isBrowser ? document.getElementById('copyExtendedButton') : null;
+const outputFormatSelect = isBrowser ? document.getElementById('outputFormatSelect') : null;
+const copyPreviewButton = isBrowser ? document.getElementById('copyPreviewButton') : null;
+const customColorPickers = isBrowser ? document.getElementById('customColorPickers') : null;
+const inputCharCount = isBrowser ? document.getElementById('inputCharCount') : null;
+const extendedCharCount = isBrowser ? document.getElementById('extendedCharCount') : null; // Corrected ID
+const compactCharCount = isBrowser ? document.getElementById('compactCharCount') : null;
+const markdownPreviewCharCount = isBrowser ? document.getElementById('markdownPreviewCharCount') : null; // New element
+const copyPopup = isBrowser ? document.getElementById('copyPopup') : null;
+
+// Initialize ansi_up (use a no-op shim in non-browser environments)
+const ansi_up = (typeof AnsiUp !== 'undefined') ? new AnsiUp() : { ansi_to_html: (s) => s };
+
+export function getHideSubunitsState() {
+    const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');
+    return hideSubunitsCheckbox ? hideSubunitsCheckbox.checked : false;
+}
+
+export function getMultilineHeaderState() { // New function
+    const multilineHeaderCheckbox = document.getElementById('multilineHeaderCheckbox');
+    return multilineHeaderCheckbox ? multilineHeaderCheckbox.checked : false;
+}
+
+export function getNoBulletsState() {
+    const el = document.getElementById('noBulletsCheckbox');
+    return el ? el.checked : false;
+}
+
+export function getCombineUnitsState() {
+    const el = document.getElementById('combineUnitsCheckbox');
+    return el ? el.checked : false;
+}
+
+export function getHidePointsState() {
+    const el = document.getElementById('hidePointsCheckbox');
+    return el ? el.checked : false;
+}
+
+// --- UI Initialization ---
+export function initializeUI(callbacks) {
+    if (parseButton) {
+        parseButton.disabled = true;
+        parseButton.textContent = 'Loading DB...';
+    }
+
+    if (isBrowser) {
+        // Set initial visibility of custom color pickers based on checked radio
+        const checked = document.querySelector('input[name="colorMode"]:checked');
+        if (customColorPickers) customColorPickers.style.display = (checked && checked.value === 'custom') ? 'block' : 'none';
+        document.querySelectorAll('input[name="colorMode"]').forEach(el => { // Modified to only target colorMode
+            el.addEventListener('change', (e) => {
+                if (e.target.name === 'colorMode') {
+                    if (customColorPickers) {
+                        customColorPickers.style.display = e.target.value === 'custom' ? 'block' : 'none';
+                    }
+                }
+                if (callbacks.onColorChange) {
+                    callbacks.onColorChange();
+                }
+            });
+        });
+
+        // New event listeners for color pickers
+        document.querySelectorAll('#unitColor, #subunitColor, #pointsColor, #headerColor, #wargearColor').forEach(el => {
+            el.addEventListener('change', () => {
+                if (callbacks.onColorChange) {
+                    callbacks.onColorChange();
+                }
+            });
+        });
+
+        // Debounced live-parse: run onParse after user stops typing for a short interval.
+        if (inputText && typeof callbacks.onParse === 'function') {
+            let debounceTimer = null;
+            const debounceMs = 100;
+            inputText.addEventListener('input', () => {
+                if (debounceTimer) clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    try {
+                        // Add lightweight lifecycle logs so we can trace autoparse in the browser console
+                        try { console.debug('autoparse: invoking onParse'); } catch (__) {}
+                        callbacks.onParse();
+                        try { console.debug('autoparse: onParse completed'); } catch (__) {}
+                    } catch (e) {
+                        // Surface errors to the debug output so autoparse problems are visible
+                        try {
+                            const msg = (e && (e.stack || e.message)) ? (e.stack || e.message) : String(e);
+                            if (typeof callbacks.onDebugError === 'function') callbacks.onDebugError(msg);
+                            else setDebugOutput(`Autoparse error: ${msg}`);
+                        } catch (ee) {
+                            console.error('Failed to report autoparse error', ee);
+                        }
+                    }
+                }, debounceMs);
+            });
+        }
+    }
+
+    if (parseButton) parseButton.addEventListener('click', callbacks.onParse);
+    if (resetButton) resetButton.addEventListener('click', callbacks.onReset);
+    if (isBrowser && toggleDebugButton) toggleDebugButton.addEventListener('click', toggleDebug);
+    if (copyExtendedButton) copyExtendedButton.addEventListener('click', callbacks.onCopyExtended);
+    if (outputFormatSelect) outputFormatSelect.addEventListener('change', callbacks.onOutputFormatChange);
+    if (copyPreviewButton) copyPreviewButton.addEventListener('click', callbacks.onCopyPreview);
+    
+    if (isBrowser) {
+        const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');
+        if (hideSubunitsCheckbox) {
+            hideSubunitsCheckbox.addEventListener('change', callbacks.onHideSubunitsChange);
+        }
+
+        const multilineHeaderCheckbox = document.getElementById('multilineHeaderCheckbox'); // New checkbox event listener
+        if (multilineHeaderCheckbox) {
+            multilineHeaderCheckbox.addEventListener('change', callbacks.onMultilineHeaderChange);
+        }
+
+        const combineUnitsCheckbox = document.getElementById('combineUnitsCheckbox');
+        if (combineUnitsCheckbox) {
+            const handler = (typeof callbacks.onCombineUnitsChange === 'function') ? callbacks.onCombineUnitsChange : callbacks.onHideSubunitsChange;
+            if (typeof handler === 'function') {
+                combineUnitsCheckbox.addEventListener('change', handler);
+            }
+        }
+
+        const noBulletsCheckbox = document.getElementById('noBulletsCheckbox');
+        if (noBulletsCheckbox) {
+            noBulletsCheckbox.addEventListener('change', callbacks.onNoBulletsChange);
+        }
+
+        const hidePointsCheckbox = document.getElementById('hidePointsCheckbox');
+        if (hidePointsCheckbox) {
+            hidePointsCheckbox.addEventListener('change', callbacks.onHidePointsChange);
+        }
+
+        // Initialize Custom Abbreviations UI
+        setupCustomAbbrsUI(callbacks.onParse);
+    }
+}
+
+// --- Custom Abbreviations ---
+let customAbbrs = {};
+
+export function getCustomAbbrs() {
+    return customAbbrs;
+}
+
+function loadCustomAbbrs() {
+    if (!isBrowser) return;
+    try {
+        const stored = localStorage.getItem('40kCompactor_customAbbrs');
+        if (stored) {
+            customAbbrs = JSON.parse(stored);
+        }
+    } catch (e) {
+        console.error('Failed to load custom abbreviations', e);
+    }
+}
+
+function saveCustomAbbrs() {
+    if (!isBrowser) return;
+    try {
+        localStorage.setItem('40kCompactor_customAbbrs', JSON.stringify(customAbbrs));
+    } catch (e) {
+        console.error('Failed to save custom abbreviations', e);
+    }
+}
+
+function renderCustomAbbrsUI(onUpdate) {
+    if (!isBrowser) return;
+    const list = document.getElementById('customAbbrList');
+    if (!list) return;
+    list.innerHTML = '';
+    
+    if (Object.keys(customAbbrs).length === 0) {
+        list.innerHTML = '<div style="color: #666; font-style: italic; padding: 4px;">No custom abbreviations defined.</div>';
+        return;
+    }
+
+    // Sort alphabetically by name
+    const sortedKeys = Object.keys(customAbbrs).sort((a, b) => a.localeCompare(b));
+
+    sortedKeys.forEach(name => {
+        const abbr = customAbbrs[name];
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.style.alignItems = 'center';
+        row.style.padding = '2px 0';
+        row.style.borderBottom = '1px solid #222';
+        
+        const text = document.createElement('span');
+        text.textContent = `${name} → ${abbr}`;
+        text.style.overflow = 'hidden';
+        text.style.textOverflow = 'ellipsis';
+        text.style.whiteSpace = 'nowrap';
+        text.style.marginRight = '8px';
+        
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '×';
+        delBtn.className = 'btn btn-danger';
+        delBtn.style.padding = '0 6px';
+        delBtn.style.fontSize = '14px';
+        delBtn.style.lineHeight = '1.2';
+        delBtn.style.minWidth = 'auto';
+        delBtn.onclick = () => {
+            delete customAbbrs[name];
+            saveCustomAbbrs();
+            renderCustomAbbrsUI(onUpdate);
+            if (onUpdate) onUpdate();
+        };
+        
+        row.appendChild(text);
+        row.appendChild(delBtn);
+        list.appendChild(row);
+    });
+}
+
+function setupCustomAbbrsUI(onUpdate) {
+    if (!isBrowser) return;
+    const addBtn = document.getElementById('addCustomAbbrBtn');
+    const nameInput = document.getElementById('customAbbrOriginal');
+    const abbrInput = document.getElementById('customAbbrShort');
+    
+    if (addBtn && nameInput && abbrInput) {
+        addBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            const abbr = abbrInput.value.trim();
+            
+            if (!name || !abbr) {
+                alert('Please enter both a name and an abbreviation.');
+                return;
+            }
+            
+            // Check for duplicates (case-insensitive key check)
+            // We store keys as provided but check case-insensitively
+            const existingKey = Object.keys(customAbbrs).find(k => k.toLowerCase() === name.toLowerCase());
+            if (existingKey) {
+                if (!confirm(`"${existingKey}" is already defined as "${customAbbrs[existingKey]}". Overwrite?`)) {
+                    return;
+                }
+            }
+            
+            customAbbrs[name] = abbr;
+            saveCustomAbbrs();
+            renderCustomAbbrsUI(onUpdate);
+            nameInput.value = '';
+            abbrInput.value = '';
+            if (onUpdate) onUpdate();
+        });
+    }
+    
+    loadCustomAbbrs();
+    renderCustomAbbrsUI(onUpdate);
+}
+
+export function enableParseButton() {
+    if (parseButton) {
+    parseButton.disabled = false;
+    // Keep the parse button text but do not make it visible by default; visibility controlled in index.html
+    parseButton.textContent = 'Compact this list';
+    }
+}
+
+export function setParseButtonError() {
+    if (parseButton) {
+        parseButton.textContent = 'Error: DB Load Failed';
+    }
+}
+
+export function getInputText() {
+    return inputText ? inputText.value : '';
+}
+
+export function setUnabbreviatedOutput(html) {
+    if (unabbreviatedOutput) {
+        unabbreviatedOutput.innerHTML = html;
+    }
+}
+
+export function setCompactedOutput(html) {
+    if (compactedOutput) {
+        compactedOutput.innerHTML = html;
+    }
+}
+
+export function setMarkdownPreviewOutput(markdownText) {
+    if (markdownPreviewOutput) {
+        // Convert ANSI to HTML directly
+        markdownPreviewOutput.innerHTML = ansi_up.ansi_to_html(markdownText);
+    }
+}
+
+export function setDebugOutput(text) {
+    if (debugOutput) {
+        const resultEntry = document.createElement('pre');
+        resultEntry.style.whiteSpace = 'pre-wrap';
+        resultEntry.style.wordBreak = 'break-all';
+        resultEntry.textContent = text;
+        debugOutput.innerHTML = ''; // Clear previous content
+        debugOutput.appendChild(resultEntry);
+    }
+}
+
+export function resetUI() {
+    if (inputText) inputText.value = '';
+    if (unabbreviatedOutput) unabbreviatedOutput.innerHTML = '';
+    if (compactedOutput) compactedOutput.innerHTML = '';
+    if (markdownPreviewOutput) markdownPreviewOutput.innerHTML = ''; // Clear new output box
+    if (debugOutput) {
+        debugOutput.innerHTML = '';
+    }
+    updateCharCounts('', '', '', ''); // Pass empty string for new output box
+    if (inputText) inputText.focus();
+}
+
+function toggleDebug() {
+    if (!isBrowser) return;
+    const debugContainer = document.getElementById('debugContainer');
+    if (debugContainer) {
+        if (debugContainer.style.display === 'none') {
+            debugContainer.style.display = 'flex';
+            if (toggleDebugButton) toggleDebugButton.textContent = 'Hide Debug Log';
+        } else {
+            debugContainer.style.display = 'none';
+            if (toggleDebugButton) toggleDebugButton.textContent = 'Show Debug Log';
+        }
+    }
+}
+
+// Add an optional detectedFormat parameter (string) so callers can show a small
+// "format detected" indicator beside the input character count.
+export function updateCharCounts(original, extended, compact, markdownPreview, detectedFormat) {
+    const originalSize = original.length;
+    const extendedSize = extended.trim().length;
+    const compactSize = compact.trim().length;
+    const markdownPreviewSize = markdownPreview.trim().length; // New line
+
+    // Map internal format codes to user-friendly labels
+    const formatLabelMap = {
+        'GW_APP': 'GW Official App',
+        'WTC_COMPACT': "New Recruit - WTC-Compact",
+        'NR_GW': 'New Recruit - GW'
+    // 'LF': 'Listforge'
+    };
+
+    let inputTextContent = `Characters: ${originalSize}`;
+    if (detectedFormat) {
+        const friendly = formatLabelMap[detectedFormat] || detectedFormat;
+        inputTextContent += ` | ${friendly} format Detected!`;
+    }
+
+    if (inputCharCount) inputCharCount.textContent = inputTextContent;
+
+    if (originalSize > 0) {
+        const extendedRatioPercent = ((extendedSize / originalSize) * 100).toFixed(1);
+        if (extendedCharCount) extendedCharCount.innerHTML = `Characters: ${extendedSize} | ${extendedRatioPercent}%`;
+
+        const compactRatioPercent = ((compactSize / originalSize) * 100).toFixed(1);
+        if (compactCharCount) compactCharCount.innerHTML = `Characters: ${compactSize} | ${compactRatioPercent}%`;
+
+        const markdownPreviewRatioPercent = ((markdownPreviewSize / originalSize) * 100).toFixed(1); // New line
+        if (markdownPreviewCharCount) markdownPreviewCharCount.innerHTML = `Characters: ${markdownPreviewSize} | ${markdownPreviewRatioPercent}%`; // New line
+    } else {
+        if (extendedCharCount) extendedCharCount.innerHTML = '';
+        if (compactCharCount) compactCharCount.innerHTML = '';
+        if (markdownPreviewCharCount) markdownPreviewCharCount.innerHTML = ''; // New line
+    }
+}
+
+export async function copyTextToClipboard(text) {
+    if (!text) return;
+    if (!navigator.clipboard) {
+        console.error('Clipboard API not available');
+        return;
+    }
+    try {
+        await navigator.clipboard.writeText(text);
+        if (copyPopup) {
+            copyPopup.classList.add('show');
+            setTimeout(() => { copyPopup.classList.remove('show'); }, 2000);
+        }
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+    }
+}
+
+export function setFactionColorDiagnostic(text) {
+    const el = isBrowser ? document.getElementById('factionColorDiagnostic') : null;
+    if (el) el.textContent = text || '';
+}
+
+export function clearFactionColorDiagnostic() {
+    setFactionColorDiagnostic('');
+}

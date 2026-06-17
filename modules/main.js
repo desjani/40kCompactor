@@ -1,7 +1,7 @@
-import { detectFormat, parseGwApp, parseWtcCompact, parseWtc, parseNrGw, parseNrNr, parseLf } from './parsers.js';
+import { detectFormat, parseV11List, parseGwAppV11 } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
-import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getMultilineHeaderState, getCustomAbbrs } from './ui.js';
+import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getMultilineHeaderState, getAbbreviateHeaderState, getShowMandatoryWargearState, getCustomAbbrs } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const combineUnits = getCombineUnitsState();
             const noBullets = getNoBulletsState();
             const hidePoints = getHidePointsState();
-            const opts = { forcePalette: true, multilineHeader: getMultilineHeaderState() };
+            const opts = { forcePalette: true, multilineHeader: getMultilineHeaderState(), abbreviateHeader: getAbbreviateHeaderState(), showMandatoryWargear: getShowMandatoryWargearState() };
             let text = '';
             switch (selectedFormat) {
                 case 'discordCompact':
@@ -67,7 +67,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     onCombineUnitsChange: () => renderAllOutputsWithCurrentOptions(),
     onNoBulletsChange: () => renderAllOutputsWithCurrentOptions(),
     onHidePointsChange: () => renderAllOutputsWithCurrentOptions(),
-        onMultilineHeaderChange: () => updatePreview()
+        onMultilineHeaderChange: () => updatePreview(),
+        onAbbreviateHeaderChange: () => renderAllOutputsWithCurrentOptions(),
+        onShowMandatoryWargearChange: () => renderAllOutputsWithCurrentOptions()
     });
 
     enableParseButton();
@@ -86,10 +88,8 @@ function updateFactionDiagnostic() {
             clearFactionColorDiagnostic();
             return;
         }
-        // Long-term: call the exported buildFactionColorMap directly so bundlers
-        // include the symbol and we don't rely on fragile global fallbacks.
         const factionMap = buildFactionColorMap(skippableWargearMap || {});
-        const fk = (parsedData.SUMMARY && (parsedData.SUMMARY.FACTION_KEY || parsedData.SUMMARY.FACTION_KEYWORD || parsedData.SUMMARY.DISPLAY_FACTION)) || null;
+        const fk = (parsedData.metadata && parsedData.metadata.faction) || null;
         const normalizeKey = (s) => {
             if (!s) return null;
             try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
@@ -97,78 +97,60 @@ function updateFactionDiagnostic() {
         const nfk = normalizeKey(fk);
         const fm = fk ? (factionMap[fk] || factionMap[fk.toString().toLowerCase()] || (nfk && factionMap[nfk])) : null;
         if (!fm) {
-            setFactionColorDiagnostic('No faction mapping found for parsed FACTION_KEYWORD/DISPLAY_FACTION');
+            setFactionColorDiagnostic('No faction mapping found for parsed faction');
             return;
         }
-    // Diagnostic legend intentionally suppressed to avoid cluttering the UI.
-    // Keep the diagnostic element present but leave it empty.
-    setFactionColorDiagnostic('');
+        setFactionColorDiagnostic('');
     } catch (e) {
-        // swallow errors in diagnostic to avoid breaking UI
         console.warn('Failed to update faction diagnostic', e);
     }
 }
 
 function handleParse() {
-    setDebugOutput(''); // Clear debug output
+    setDebugOutput('');
     const text = getInputText();
     const lines = text.split('\n');
     const format = detectFormat(lines);
     const parser = {
-        GW_APP: parseGwApp,
-        WTC: parseWtc,
-        WTC_COMPACT: parseWtcCompact,
-        NR_GW: parseNrGw,
-        NRNR: parseNrNr,
-        LF: parseLf
+        V11_GENERIC: parseV11List,
+        GW_APP_V11: parseGwAppV11
     }[format];
     if (!parser) {
         console.error("Unsupported list format.");
-        setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use GW App, New Recruit (WTC-Compact, GW, or NR formats), or ListForge (Detailed).</p>');
+        setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use the 11th Edition GW App or Generic list format.</p>');
         setCompactedOutput('');
-        setMarkdownPreviewOutput(''); // Clear new output box
+        setMarkdownPreviewOutput('');
         return;
     }
 
-    const result = parser(lines);
-    // Debug: log raw parser output to console for inspection
+    const result = parser(lines, skippableWargearMap);
     if (typeof window !== 'undefined') {
         window.LAST_RAW_PARSER_OUTPUT = result;
-        // Safely stringify parser output for logging by removing circular _parent refs
-        const safeStringify = (obj) => JSON.stringify(obj, (k, v) => (k === '_parent' ? undefined : v));
         try {
-            console.log('[DEBUG] Raw parser output:', safeStringify(result));
+            console.log('[DEBUG] Raw parser output:', JSON.stringify(result));
         } catch (e) {
-            // Fallback to logging the object directly if stringify still fails
-            console.log('[DEBUG] Raw parser output (object):', result, 'stringifyError:', e);
+            console.log('[DEBUG] Raw parser output (object):', result, 'error:', e);
         }
     }
 
-    // Use the same safe serializer for UI debug output to avoid circular reference errors
     let prettyDebug = '';
     try {
-        prettyDebug = JSON.stringify(result, (k, v) => (k === '_parent' ? undefined : v), 2);
+        prettyDebug = JSON.stringify(result, null, 2);
     } catch (e) {
         prettyDebug = String(result);
     }
     setDebugOutput(prettyDebug);
 
     parsedData = result;
-    // remember the detected format for the UI so we can show an indicator next to counts
     detectedFormat = format;
-    // Build dynamic abbreviation index from parsed data
     try {
         wargearAbbrDB = buildAbbreviationIndex(result, getCustomAbbrs());
     } catch (e) {
         console.warn('Failed to build dynamic abbreviation index', e);
         wargearAbbrDB = { __flat_abbr: {} };
     }
-    // Initial render of all outputs based on current toggle states
     renderAllOutputsWithCurrentOptions();
-
-    // Generate and set Discord Compact Preview
     updatePreview();
-    // update character counts with format label
     updateCharCounts(getInputText(), extendedPlainText, compactPlainText, currentPreviewText, detectedFormat);
 }
 
@@ -192,7 +174,7 @@ function updatePreview() {
     const hidePoints = getHidePointsState();
     console.log('UI: hideSubunits value in updatePreview', hideSubunits, 'selectedFormat', selectedFormat);
 
-    const opts = { multilineHeader: getMultilineHeaderState() };
+    const opts = { multilineHeader: getMultilineHeaderState(), abbreviateHeader: getAbbreviateHeaderState(), showMandatoryWargear: getShowMandatoryWargearState() };
 
     let previewText = '';
     switch (selectedFormat) {
@@ -227,12 +209,12 @@ function renderAllOutputsWithCurrentOptions() {
 
     // Full text (extended)
     // Important: Full Text must NOT be affected by toggles. Always show full structure.
-    const extendedOutput = generateOutput(parsedData, false, wargearAbbrDB, /*hideSubunits*/ false, skippableWargearMap, /*applyHeaderColor*/ false, /*combine*/ false, false, false);
+    const extendedOutput = generateOutput(parsedData, false, wargearAbbrDB, /*hideSubunits*/ false, skippableWargearMap, /*applyHeaderColor*/ false, /*combine*/ false, false, false, getAbbreviateHeaderState(), true);
     setUnabbreviatedOutput(extendedOutput.html);
     extendedPlainText = extendedOutput.plainText;
 
     // Compact HTML
-    const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true, combineUnits, noBullets, hidePoints);
+    const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true, combineUnits, noBullets, hidePoints, getAbbreviateHeaderState(), getShowMandatoryWargearState());
     setCompactedOutput(compactOutput.html);
     compactPlainText = compactOutput.plainText;
 

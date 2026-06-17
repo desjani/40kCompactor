@@ -1,59 +1,86 @@
-// New simplified renderers module. It keeps function signatures compatible
-// with existing callers but no longer depends on a global abbreviation map.
-// It uses the parser-provided `nameshort` for compact output when available
-// and `skippable_wargear.json` to filter items.
+// Renderers for 11th Edition JSON structure.
 import { makeAbbrevForName } from './abbreviations.js';
 import factionColors from './faction_colors.js';
 import { sortItemsByQuantityThenName } from './utils.js';
 
-// ANSI palette and helpers available at module scope so multiple functions can use them
+function abbreviateWords(str) {
+    if (!str) return '';
+    const words = str.split(/\s+/);
+    const lowercaseWords = ['the', 'of', 'in', 'on', 'at', 'for', 'a', 'an', 'to', 'by', 'with', 'and'];
+    const abbr = words.map(w => {
+        const cleaned = w.replace(/[^\w]/g, '');
+        if (!cleaned) return '';
+        const first = cleaned[0];
+        if (lowercaseWords.includes(cleaned.toLowerCase())) {
+            return first.toLowerCase();
+        }
+        return first.toUpperCase();
+    }).join('');
+    return abbr;
+}
+
+function abbreviateDetachment(detStr) {
+    if (!detStr) return '';
+    const parts = detStr.split(/\s+and\s+/i);
+    return parts.map(p => abbreviateWords(p.trim())).join(' & ');
+}
+
+function abbreviateForceDisposition(dispStr) {
+    if (!dispStr) return '';
+    const parts = dispStr.split(',');
+    return parts.map(p => abbreviateWords(p.trim())).join(', ');
+}
+
 export const ansiPalette = [
     { hex: '#000000', code: 30 }, { hex: '#FF0000', code: 31 }, { hex: '#00FF00', code: 32 },
     { hex: '#FFFF00', code: 33 }, { hex: '#0000FF', code: 34 }, { hex: '#FF00FF', code: 35 },
-    { hex: '#00FFFF', code: 36 }, { hex: '#FFFFFF', code: 37 }, { hex: '#808080', code: 90 } // grey -> bright black
+    { hex: '#00FFFF', code: 36 }, { hex: '#FFFFFF', code: 37 }, { hex: '#808080', code: 90 }
 ];
-// Map simple color names used in faction_colors.js to allowed hex values
+
 export const colorNameToHex = {
     black: '#000000', red: '#FF0000', green: '#00FF00', yellow: '#FFFF00', blue: '#0000FF',
     magenta: '#FF00FF', cyan: '#00FFFF', white: '#FFFFFF', grey: '#808080'
 };
-const hexToRgb = (hex) => { const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : null; };
-const findClosestAnsi = (hex) => { const rgb = hexToRgb(hex); if (!rgb) return 37; let best = 37; let bestD = Infinity; for (const c of ansiPalette) { const cr = hexToRgb(c.hex); const d = Math.pow(rgb.r - cr.r, 2) + Math.pow(rgb.g - cr.g, 2) + Math.pow(rgb.b - cr.b, 2); if (d < bestD) { bestD = d; best = c.code; } } return best; };
 
-// Deep clone an object/array while stripping parent back-references and other
-// private/internal fields that can cause cycles or noise in rendering.
-function cloneSansParent(value) {
-    if (value === null || typeof value !== 'object') return value;
-    if (Array.isArray(value)) return value.map(cloneSansParent);
-    const out = {};
-    for (const [k, v] of Object.entries(value)) {
-        if (k === '_parent') continue; // drop circular link
-        // Preserve our own injected metadata and normal fields
-        out[k] = cloneSansParent(v);
+const hexToRgb = (hex) => {
+    const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : null;
+};
+
+const findClosestAnsi = (hex) => {
+    const rgb = hexToRgb(hex);
+    if (!rgb) return 37;
+    let best = 37;
+    let bestD = Infinity;
+    for (const c of ansiPalette) {
+        const cr = hexToRgb(c.hex);
+        const d = Math.pow(rgb.r - cr.r, 2) + Math.pow(rgb.g - cr.g, 2) + Math.pow(rgb.b - cr.b, 2);
+        if (d < bestD) {
+            bestD = d;
+            best = c.code;
+        }
     }
-    return out;
-}
+    return best;
+};
 
-// Build a mapping of faction -> { unit, subunit, wargear, points } using only colors
-// available in ansiPalette. Prefer explicit mapping from `modules/faction_colors.js`,
-// fall back to a heuristic.
 export function buildFactionColorMap(skippableMap) {
     const fallback = (map) => {
         const codes = [...new Set(ansiPalette.map(p => p.code))];
         const out = {};
         for (const k of Object.keys(map || {})) {
             const fk = k || '';
-            const idx = Math.abs(Array.from(fk).reduce((a,c)=>a*31 + c.charCodeAt(0),0)) % codes.length;
+            const idx = Math.abs(Array.from(fk).reduce((a, c) => a * 31 + c.charCodeAt(0), 0)) % codes.length;
             const unitCode = codes[idx];
             const pickDifferent = (forbidden) => codes.find(c => !forbidden.includes(c)) || codes[0];
             const subunitCode = pickDifferent([unitCode]);
             const wargearCode = pickDifferent([subunitCode]);
             const pointsCode = pickDifferent([wargearCode]);
+            const attachedCode = pickDifferent([pointsCode]);
             const codeToHex = (code) => {
                 const e = ansiPalette.find(p => p.code === code);
                 return e ? e.hex : '#FFFFFF';
             };
-            out[fk] = { unit: codeToHex(unitCode), subunit: codeToHex(subunitCode), wargear: codeToHex(wargearCode), points: codeToHex(pointsCode) };
+            out[fk] = { unit: codeToHex(unitCode), subunit: codeToHex(subunitCode), wargear: codeToHex(wargearCode), points: codeToHex(pointsCode), attached: codeToHex(attachedCode) };
         }
         return out;
     };
@@ -61,10 +88,6 @@ export function buildFactionColorMap(skippableMap) {
     const fromSkippable = fallback(skippableMap || {});
     const merged = { ...fromSkippable, ...explicit };
     const normalized = {};
-    // Normalization helper: remove diacritics, map fancy apostrophes to ASCII, strip
-    // stray punctuation and lowercase. This makes lookups robust to parser
-    // variations (e.g. curly apostrophe vs straight). Mirrors normalizeKey used
-    // elsewhere in the codebase.
     const normalizeKey = (s) => {
         if (!s) return '';
         try {
@@ -79,62 +102,63 @@ export function buildFactionColorMap(skippableMap) {
     };
 
     for (const [k, v] of Object.entries(merged)) {
-        // Resolve any named colors to hex using colorNameToHex. If the value is already a hex, keep it.
         const resolved = {};
-        ['unit','subunit','wargear','points','header'].forEach(prop => {
+        ['unit', 'subunit', 'wargear', 'points', 'header', 'attached'].forEach(prop => {
             if (!v || v[prop] === undefined) return;
             const raw = v[prop];
             if (typeof raw === 'string' && raw.startsWith('#')) resolved[prop] = raw;
             else if (typeof raw === 'string' && colorNameToHex[raw.toString().toLowerCase()]) resolved[prop] = colorNameToHex[raw.toString().toLowerCase()];
             else resolved[prop] = raw;
         });
-    normalized[k] = resolved;
-    try { normalized[k.toString().toLowerCase()] = resolved; } catch (e) {}
-    try { normalized[normalizeKey(k)] = resolved; } catch (e) {}
+        normalized[k] = resolved;
+        try { normalized[k.toString().toLowerCase()] = resolved; } catch (e) {}
+        try { normalized[normalizeKey(k)] = resolved; } catch (e) {}
     }
     return normalized;
 }
 
-// Sentinel returned from findSkippableForUnit to indicate hide-all behavior
 export const HIDE_ALL = '__HIDE_ALL_WARGEARS__';
 
-function aggregateWargear(unit) {
+function aggregateWargear(unit, excludeSubunits = false) {
     const aggregated = new Map();
-    const specials = [];
 
-    function walk(node) {
-        if (!node || !node.items) return;
-        node.items.forEach(it => {
-            if (it.type === 'wargear') {
-                const key = it.name;
-                const qty = parseInt((it.quantity || '1').toString().replace('x', ''), 10) || 1;
-                const prev = aggregated.get(key) || { name: key, quantity: 0, type: 'wargear' };
-                prev.quantity += qty;
-                aggregated.set(key, prev);
-            } else if (it.type === 'special') {
-                specials.push(it);
-            }
-            if (it.items && Array.isArray(it.items) && it.items.length > 0) walk(it);
+    // 1. Add unit's own wargear
+    if (Array.isArray(unit.wargear)) {
+        unit.wargear.forEach(wg => {
+            const key = wg.name;
+            const qty = parseInt(wg.quantity || 1, 10);
+            const prev = aggregated.get(key) || { quantity: 0, skippable: !!wg.skippable };
+            aggregated.set(key, { quantity: prev.quantity + qty, skippable: prev.skippable || !!wg.skippable });
         });
     }
 
-    walk(unit);
-    const wargearList = Array.from(aggregated.values()).map(i => ({ ...i, quantity: `${i.quantity}x` }));
-    const combined = [...specials, ...wargearList];
-    // Sort aggregated wargear portion (leave specials at front but ensure wargear entries
-    // are ordered by quantity desc then name). Specials should remain in the order
-    // they were encountered.
-    const specialOnly = combined.filter(c => c.type === 'special');
-    const wargearOnly = combined.filter(c => c.type === 'wargear');
-    sortItemsByQuantityThenName(wargearOnly);
-    return [...specialOnly, ...wargearOnly];
+    // 2. Add subunits' wargear
+    if (!excludeSubunits && Array.isArray(unit.subunits)) {
+        unit.subunits.forEach(sub => {
+            if (Array.isArray(sub.wargear)) {
+                sub.wargear.forEach(wg => {
+                    const key = wg.name;
+                    const qty = parseInt(wg.quantity || 1, 10);
+                    const prev = aggregated.get(key) || { quantity: 0, skippable: !!wg.skippable };
+                    aggregated.set(key, { quantity: prev.quantity + qty, skippable: prev.skippable || !!wg.skippable });
+                });
+            }
+        });
+    }
+
+    const wargearList = Array.from(aggregated.entries()).map(([name, info]) => ({
+        name,
+        quantity: `${info.quantity}x`,
+        skippable: info.skippable,
+        type: 'wargear'
+    }));
+    sortItemsByQuantityThenName(wargearList);
+    return wargearList;
 }
 
 function findAbbreviationForItem(itemName, wargearAbbrMap, dataSummary) {
-    if (!wargearAbbrMap) return null;
-    if (!itemName) return null;
-    if (itemName.toString().trim().toLowerCase() === 'warlord') return null;
-    const nameLower = (itemName || '').toLowerCase();
+    if (!wargearAbbrMap || !itemName) return null;
+    const nameLower = itemName.toLowerCase();
     const extractAbbr = (val) => {
         if (!val) return null;
         if (typeof val === 'string') return val;
@@ -143,97 +167,53 @@ function findAbbreviationForItem(itemName, wargearAbbrMap, dataSummary) {
     };
     try {
         const flat = wargearAbbrMap.__flat_abbr;
-        const factionIndex = wargearAbbrMap.__faction_index;
         if (flat && flat[nameLower] !== undefined) return extractAbbr(flat[nameLower]);
-        const faction = (dataSummary && (dataSummary.DISPLAY_FACTION || dataSummary.FACTION_KEYWORD)) || null;
-        if (faction && factionIndex) {
-            const fk = faction.toString().toLowerCase();
-            const fmap = factionIndex[fk] || factionIndex[faction] || factionIndex[faction.toLowerCase()] || null;
-            if (fmap && fmap[nameLower] !== undefined) return extractAbbr(fmap[nameLower]);
-        }
     } catch (e) {}
-    if (wargearAbbrMap[nameLower]) return extractAbbr(wargearAbbrMap[nameLower]);
-    const faction = (dataSummary && (dataSummary.DISPLAY_FACTION || dataSummary.FACTION_KEYWORD)) || null;
-    if (faction) {
-        const candidates = [faction, faction.toLowerCase(), faction.toUpperCase()].map(k => wargearAbbrMap[k]).filter(Boolean);
-        for (const c of candidates) {
-            if (typeof c === 'object') {
-                if (c[nameLower]) return extractAbbr(c[nameLower]);
-                for (const k of Object.keys(c)) if (k.toLowerCase() === nameLower) return extractAbbr(c[k]);
-                if (Array.isArray(c)) for (const entry of c) if ((entry.item && entry.item.toLowerCase() === nameLower) || (entry.name && entry.name.toLowerCase() === nameLower)) return extractAbbr(entry.abbr || entry.ABBR || entry.value || entry);
-            }
-        }
-    }
-    const stack = [wargearAbbrMap];
-    while (stack.length) {
-        const node = stack.shift();
-        if (!node) continue;
-        if (Array.isArray(node)) { for (const entry of node) { if (entry && (entry.item || entry.name) && (entry.item || entry.name).toLowerCase() === nameLower) return extractAbbr(entry.abbr || entry.ABBR || entry.value || entry); } continue; }
-        if (typeof node === 'object') for (const [k, v] of Object.entries(node)) { if (k.toLowerCase() === nameLower) return extractAbbr(v); if (typeof v === 'object') stack.push(v); }
-    }
     return null;
 }
 
-function getInlineItemsString(items, useAbbreviations, wargearAbbrMap, dataSummary) {
-    if (!items || items.length === 0) return '';
-    // Use centralized abbreviation helper as fallback so abbreviations are deterministic
-    // and identical across the app.
-    const special = [];
+function getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, dataSummary, skippableWargearMap, showMandatoryWargear = false, hideSubunits = false) {
+    const specials = [];
     const wargear = [];
-    // Process specials with requested formatting rules:
-    // - If name === 'Warlord' -> do not abbreviate, keep as-is
-    // - If name starts with 'Enhancement: ' -> abbreviate and format as 'E: ABBR (+NN)'
-    //    where the parenthetical shows just (+NN) without ' pts'
-    items.filter(i => i.type === 'special').forEach(i => {
-        const n = i.name || '';
-        if (n.toString().trim().toLowerCase() === 'warlord') {
-            special.push('Warlord');
-            return;
-        }
-        if (n.toString().startsWith && n.toString().startsWith('Enhancement:')) {
-            // strip prefix and extract parenthetical points if present
-            const stripped = n.toString().replace(/^Enhancement:\s*/i, '').trim();
-            // find parenthetical like '(+20 pts)' or '(+20)'
-            const parenMatch = /\(([^)]+)\)/.exec(stripped);
-            let pts = '';
-            if (parenMatch) {
-                pts = parenMatch[1].replace(/\s*pts\s*/i, '').trim();
-                pts = pts.startsWith('+') ? `(${pts})` : `(${pts})`;
-            }
-            const baseName = stripped.replace(/\(.*?\)/g, '').trim();
-            // attempt to find abbreviation via map first, otherwise use central helper
+
+    // Process enhancements
+    if (Array.isArray(unit.enhancements)) {
+        unit.enhancements.forEach(enh => {
             let abbr = null;
-            if (useAbbreviations) abbr = findAbbreviationForItem(stripped, wargearAbbrMap, dataSummary) || findAbbreviationForItem(baseName, wargearAbbrMap, dataSummary);
-            if (!abbr && useAbbreviations) abbr = makeAbbrevForName(baseName || stripped);
-            const display = `E: ${abbr || baseName}${pts ? ' ' + pts : ''}`;
-            special.push(display);
-            return;
-        }
-        // default special handling
-        special.push(n);
+            if (useAbbreviations) {
+                abbr = findAbbreviationForItem(enh.name, wargearAbbrMap, dataSummary);
+                if (!abbr) abbr = makeAbbrevForName(enh.name);
+            }
+            const pts = enh.points ? ` (+${enh.points})` : '';
+            specials.push(`E: ${abbr || enh.name}${pts}`);
+        });
+    }
+
+    // Process wargear
+    const itemsToRender = aggregateWargear(unit, !hideSubunits);
+    const visible = itemsToRender.filter(i => {
+        if (showMandatoryWargear) return true;
+        return !i.skippable;
     });
-    items.filter(i => i.type === 'wargear').forEach(i => {
+
+    visible.forEach(i => {
         const qtyNum = parseInt((i.quantity || '1').toString().replace('x', ''), 10) || 1;
         const qtyPrefix = qtyNum > 1 ? `${i.quantity} ` : '';
         let abbr = null;
-        if (useAbbreviations) abbr = findAbbreviationForItem(i.name, wargearAbbrMap, dataSummary);
-        if (abbr === 'NULL') return;
-    // If no abbreviation found, try nameshort, then fallback initials generator.
-    if (!abbr && useAbbreviations && i.nameshort) abbr = i.nameshort;
-    if (!abbr && useAbbreviations) abbr = makeAbbrevForName(i.name);
-    const displayName = (useAbbreviations && abbr) ? abbr : i.name;
-    wargear.push(`${qtyPrefix}${displayName}`);
+        if (useAbbreviations) {
+            abbr = findAbbreviationForItem(i.name, wargearAbbrMap, dataSummary);
+            if (!abbr) abbr = makeAbbrevForName(i.name);
+        }
+        wargear.push(`${qtyPrefix}${abbr || i.name}`);
     });
-    const all = [...special, ...wargear].filter(Boolean);
+
+    const all = [...specials, ...wargear].filter(Boolean);
     return all.length ? ` (${all.join(', ')})` : '';
 }
 
 function findSkippableForUnit(skippableWargearMap, dataSummary, unitName) {
-    if (!skippableWargearMap) return [];
-    if (!unitName) return [];
-    // Prefer DISPLAY_FACTION or FACTION_KEYWORD on the provided summary object
-    const faction = (dataSummary && (dataSummary.DISPLAY_FACTION || dataSummary.FACTION_KEYWORD || dataSummary.FACTION)) || '';
-    // Normalize function: remove diacritics and lowercase for robust matching
+    if (!skippableWargearMap || !unitName) return [];
+    const faction = dataSummary?.faction || dataSummary?.DISPLAY_FACTION || dataSummary?.FACTION_KEYWORD || '';
     const normalizeKey = (s) => {
         if (!s) return '';
         try {
@@ -245,97 +225,47 @@ function findSkippableForUnit(skippableWargearMap, dataSummary, unitName) {
     const unitLower = normalizeKey(unitName);
     const unitAlt = unitLower.endsWith('s') ? unitLower.slice(0, -1) : unitLower + 's';
 
-
-    // Return a special token if the caller requested hiding all wargear for a unit.
     const normalize = (list) => {
-        // Boolean true means explicitly hide all wargear for the unit.
-        // An empty array in the skippable map should be treated as "no items listed to skip",
-        // not as a hide-all sentinel. This preserves existing explicit hide-all semantics
-        // while avoiding accidental full-hiding when an empty array is present.
         if (list === true) return [HIDE_ALL];
         if (Array.isArray(list)) {
-            if (list.length === 0) return []; // do NOT treat empty arrays as hide-all
             return list.map(s => (s || '').toString().toLowerCase());
         }
         return [];
     };
 
-    // Helper: find a nested map for a faction key using normalized matching
     const findMapForFaction = (desiredFaction) => {
         if (!desiredFaction) return undefined;
         const want = normalizeKey(desiredFaction);
-        // direct match
         if (Object.prototype.hasOwnProperty.call(skippableWargearMap, desiredFaction)) return skippableWargearMap[desiredFaction];
-        // try normalized keys
         for (const [k, v] of Object.entries(skippableWargearMap)) {
-            if (!k) continue;
             if (normalizeKey(k) === want) return v;
         }
         return undefined;
     };
 
-    if (faction) {
-        const tryKeys = [faction, (faction || '').toString()];
-        for (const k of tryKeys) {
-            const mapForFaction = findMapForFaction(k);
-            if (!mapForFaction) continue;
-            // Try many variants inside the faction map using normalized matching
-            const tryUnitKeys = [unitName, unitLower, unitAlt];
-            for (const uk of tryUnitKeys) {
-                if (uk === undefined) continue;
-                if (Object.prototype.hasOwnProperty.call(mapForFaction, uk)) return normalize(mapForFaction[uk]);
-            }
-            for (const [innerK, innerV] of Object.entries(mapForFaction)) {
-                if (!innerK) continue;
-                if (normalizeKey(innerK) === unitLower || normalizeKey(innerK) === unitAlt) return normalize(innerV);
-            }
+    const mapForFaction = findMapForFaction(faction);
+    if (mapForFaction) {
+        const tryUnitKeys = [unitName, unitLower, unitAlt];
+        for (const uk of tryUnitKeys) {
+            if (Object.prototype.hasOwnProperty.call(mapForFaction, uk)) return normalize(mapForFaction[uk]);
         }
-        if (typeof faction === 'string' && faction.includes(' - ')) {
-            const last = faction.split(' - ').pop();
-            const mapForFaction = findMapForFaction(last);
-            if (mapForFaction) {
-                for (const [innerK, innerV] of Object.entries(mapForFaction)) {
-                    if (!innerK) continue;
-                    if (normalizeKey(innerK) === unitLower || normalizeKey(innerK) === unitAlt) return normalize(innerV);
-                }
-            }
-        }
-    }
-
-    // Top-level direct matches using normalized key comparisons
-    for (const [k, v] of Object.entries(skippableWargearMap)) {
-        if (!k) continue;
-        const nk = normalizeKey(k);
-        if (nk === unitLower || nk === unitAlt) return normalize(v);
-        // check nested maps
-        if (typeof v === 'object') {
-            // try direct property matches first
-            if (Object.prototype.hasOwnProperty.call(v, unitName)) return normalize(v[unitName]);
-            if (Object.prototype.hasOwnProperty.call(v, unitLower)) return normalize(v[unitLower]);
-            if (Object.prototype.hasOwnProperty.call(v, unitAlt)) return normalize(v[unitAlt]);
-            // try normalized inner keys
-            for (const [innerK, innerV] of Object.entries(v)) {
-                if (!innerK) continue;
-                if (normalizeKey(innerK) === unitLower || normalizeKey(innerK) === unitAlt) return normalize(innerV);
-            }
+        for (const [innerK, innerV] of Object.entries(mapForFaction)) {
+            if (normalizeKey(innerK) === unitLower || normalizeKey(innerK) === unitAlt) return normalize(innerV);
         }
     }
 
     return [];
 }
 
-function canonicalUnitSignature(unit, _hideSubunits) {
-    // Exact-match policy: only merge when the entire unit JSON (structure and wargear)
-    // is identical. Normalize to remove private fields and normalize quantities.
+function canonicalUnitSignature(unit, hideSubunits) {
     const normalize = (value) => {
         if (value === null || typeof value !== 'object') return value;
         if (Array.isArray(value)) return value.map(normalize);
         const out = {};
         for (const [k, v] of Object.entries(value)) {
-            if (k === '_parent') continue; // drop circular link
-            if (k.startsWith('__')) continue; // drop internal aggregation metadata
+            if (k === '_parent' || k.startsWith('__')) continue;
             if (k === 'quantity') {
-                const q = parseInt((v ?? '1').toString().replace('x',''),10);
+                const q = parseInt((v ?? '1').toString().replace('x', ''), 10);
                 out[k] = isNaN(q) ? v : q;
                 continue;
             }
@@ -346,73 +276,117 @@ function canonicalUnitSignature(unit, _hideSubunits) {
     try {
         return JSON.stringify(normalize(unit));
     } catch (e) {
-        // Fallback to name+points if stringify fails (should be rare)
-        const name = (unit && unit.name) ? unit.name.toString() : '';
-        const points = (unit && unit.points) || 0;
-        return JSON.stringify({ name, points });
+        return JSON.stringify({ name: unit?.name, points: unit?.points });
     }
 }
 
 function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
-    if (!enable) return sectionUnits;
+    if (!enable || !Array.isArray(sectionUnits)) return sectionUnits;
     const groups = new Map();
     for (const u of sectionUnits) {
-    const sig = canonicalUnitSignature(u, hideSubunits);
+        const sig = canonicalUnitSignature(u, hideSubunits);
         if (!groups.has(sig)) groups.set(sig, []);
         groups.get(sig).push(u);
     }
     const combined = [];
     for (const [sig, group] of groups.entries()) {
         if (group.length === 1) {
-            const single = cloneSansParent(group[0]);
+            const single = { ...group[0] };
             single.__groupCount = 1;
-            single.__unitSize = parseInt((single.quantity||'1').toString().replace('x',''),10) || 1;
+            single.__unitSize = parseInt((single.quantity || '1').toString().replace('x', ''), 10) || 1;
             combined.push(single);
             continue;
         }
-        // Combine: preserve per-unit size and store group count for rendering
-        const template = cloneSansParent(group[0]);
-        const unitSize = parseInt((template.quantity||'1').toString().replace('x',''),10) || 1;
+        const template = { ...group[0] };
+        const unitSize = parseInt((template.quantity || '1').toString().replace('x', ''), 10) || 1;
         template.__groupCount = group.length;
         template.__unitSize = unitSize;
-        // Keep original quantity (per-unit size), do not multiply
         combined.push(template);
     }
     return combined;
 }
 
-export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap, applyHeaderColor = true, combineIdenticalUnits = false, noBullets = false, hidePoints = false) {
+function getRoleTag(part, index) {
+    if (!part) return '';
+    const roleLower = (part.role || '').toLowerCase();
+    const attachedLower = (part.attachedAs || '').toLowerCase();
+    const suffix = index !== undefined ? index : '';
+    if (roleLower.includes('leader') || attachedLower.includes('leader')) return `[L${suffix}]`;
+    if (roleLower.includes('support') || attachedLower.includes('support')) return `[S${suffix}]`;
+    if (roleLower.includes('bodyguard') || attachedLower.includes('bodyguard')) return `[BG${suffix}]`;
+    return '';
+}
+
+export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap, applyHeaderColor = true, combineIdenticalUnits = false, noBullets = false, hidePoints = false, abbreviateHeader = false, showMandatoryWargear = false) {
     let html = '', plainText = '';
-    const displayFaction = data.SUMMARY?.DISPLAY_FACTION || (data.SUMMARY?.FACTION_KEYWORD || '');
-    if (data.SUMMARY) {
-        const parts = [];
-        if (data.SUMMARY.LIST_TITLE) parts.push(data.SUMMARY.LIST_TITLE);
-        if (displayFaction) parts.push(displayFaction);
-        if (data.SUMMARY.DETACHMENT) parts.push(data.SUMMARY.DETACHMENT);
-        if (data.SUMMARY.TOTAL_ARMY_POINTS) parts.push(data.SUMMARY.TOTAL_ARMY_POINTS);
-        if (parts.length) {
-            const summaryText = parts.join(' | ');
-            // Determine header color only when caller requests it (avoid coloring Full Text)
-            let styleColor = 'color:var(--color-text-secondary);';
-            if (applyHeaderColor) {
-                // Try to resolve header color from faction mapping when available
-                let headerColor = null;
-                try {
-                    const fm = buildFactionColorMap(skippableWargearMap || {});
-                    const fk = (data.SUMMARY && (data.SUMMARY.FACTION_KEY || data.SUMMARY.FACTION_KEYWORD || data.SUMMARY.DISPLAY_FACTION)) || null;
-                    const normalizeKeyLookup = (s) => {
-                        if (!s) return null;
-                        try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
-                    };
-                    const fmEntry = fk ? (fm[fk] || fm[fk.toString().toLowerCase()] || fm[normalizeKeyLookup(fk)]) : null;
-                    if (fmEntry && fmEntry.header) headerColor = fmEntry.header;
-                } catch (e) { /* ignore */ }
-                styleColor = headerColor ? `color:${headerColor};` : 'color:var(--color-text-secondary);';
-            }
-            html += `<div style="padding-bottom:0.5rem;border-bottom:1px solid var(--color-border);"><p style="font-size:0.75rem;margin-bottom:0.25rem;${styleColor}font-weight:600;">${summaryText}</p></div>`;
-            plainText += summaryText + '\n\n';
+    const summary = data.metadata || {};
+    const displayFaction = summary.faction || '';
+
+    const headerParts = [];
+    const listName = summary.title || summary.armyName || '';
+    if (listName) headerParts.push(listName);
+    if (summary.faction) headerParts.push(summary.faction);
+    
+    let dets = '';
+    if (Array.isArray(summary.detachments) && summary.detachments.length > 0) {
+        if (abbreviateHeader) {
+            dets = summary.detachments.map(d => abbreviateWords(d)).join(' & ');
+        } else {
+            dets = summary.detachments.join(' and ');
+        }
+    } else if (summary.detachment) {
+        if (abbreviateHeader) {
+            dets = abbreviateDetachment(summary.detachment);
+        } else {
+            dets = summary.detachment;
         }
     }
+    if (dets) headerParts.push(dets);
+    
+    let disps = '';
+    if (Array.isArray(summary.forceDispositions) && summary.forceDispositions.length > 0) {
+        if (abbreviateHeader) {
+            disps = summary.forceDispositions.map(d => abbreviateWords(d)).join(', ');
+        } else {
+            disps = summary.forceDispositions.join(', ');
+        }
+    } else if (summary.forceDisposition) {
+        if (abbreviateHeader) {
+            disps = abbreviateForceDisposition(summary.forceDisposition);
+        } else {
+            disps = summary.forceDisposition;
+        }
+    }
+    if (disps) headerParts.push(disps);
+
+    const totalPts = summary.pointsTotal || summary.totalPoints || 0;
+    if (totalPts) {
+        const limit = summary.pointsLimit || 0;
+        const limitStr = limit ? ` / ${limit}pts` : 'pts';
+        headerParts.push(`${totalPts}${limitStr}`);
+    }
+
+    if (headerParts.length) {
+        const summaryText = headerParts.join(' | ');
+        let styleColor = 'color:var(--color-text-secondary);';
+        if (applyHeaderColor) {
+            let headerColor = null;
+            try {
+                const fm = buildFactionColorMap(skippableWargearMap || {});
+                const fk = summary.faction || null;
+                const normalizeKeyLookup = (s) => {
+                    if (!s) return null;
+                    try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
+                };
+                const fmEntry = fk ? (fm[fk] || fm[fk.toString().toLowerCase()] || fm[normalizeKeyLookup(fk)]) : null;
+                if (fmEntry && fmEntry.header) headerColor = fmEntry.header;
+            } catch (e) {}
+            styleColor = headerColor ? `color:${headerColor};` : 'color:var(--color-text-secondary);';
+        }
+        html += `<div style="padding-bottom:0.5rem;border-bottom:1px solid var(--color-border);"><p style="font-size:0.75rem;margin-bottom:0.25rem;${styleColor}font-weight:600;">${summaryText}</p></div>`;
+        plainText += summaryText + '\n\n';
+    }
+
     html += `<div style="margin-top:0.5rem;">`;
     const UNIT_BULLET = noBullets ? '' : '• ';
     const SUB_BULLET = noBullets ? '  ' : '◦ ';
@@ -420,113 +394,166 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
     const subUnitBullet = noBullets ? '  ' : '  * ';
     const subItemBullet = noBullets ? '    ' : '    - ';
 
-    for (const section in data) {
-        if (section === 'SUMMARY' || !Array.isArray(data[section])) continue;
-        // Only combine in compact output (useAbbreviations === true)
-            const effectiveHideSubunits = useAbbreviations ? hideSubunits : false;
-            const units = useAbbreviations ? maybeCombineUnits(data[section], effectiveHideSubunits, combineIdenticalUnits) : data[section];
-        units.forEach(unit => {
-            const qtyNum = parseInt((unit.quantity || '1').toString().replace('x', ''), 10) || 1;
-            let qtyDisplay = '';
-            if (useAbbreviations && combineIdenticalUnits && (unit.__groupCount || 0) > 1) {
-                const unitSize = unit.__unitSize || qtyNum;
-                qtyDisplay = `${unit.__groupCount}x${unitSize} `;
-            } else {
-                qtyDisplay = qtyNum > 1 ? `${qtyNum} ` : '';
-            }
-            if (useAbbreviations) {
-                // Compact: only include top-level wargear/specials in inline parens.
-                // Always apply skippable hiding if a skippable map is provided.
-                const skippable = findSkippableForUnit(skippableWargearMap, data.SUMMARY, unit.name);
-                const topLevelItems = (unit.items || []).filter(i => i.type === 'wargear' || i.type === 'special');
-                const visible = topLevelItems.filter(i => {
-                    if (i.type === 'special') return true;
-                    if (skippable.includes(HIDE_ALL)) return false;
-                    return skippable.length === 0 || !skippable.includes(i.name.toLowerCase());
-                });
-                const itemsString = getInlineItemsString(visible, useAbbreviations, wargearAbbrMap, data.SUMMARY);
-                const pointsString = hidePoints ? '' : ` [${unit.points}]`;
-                const unitText = `${qtyDisplay}${unit.name}${itemsString}${pointsString}`;
-                html += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p></div>`;
-                plainText += `${UNIT_BULLET}${unitText}\n`;
-                return;
-            }
+    const rawUnits = Array.isArray(data.units) ? data.units : [];
+    const units = maybeCombineUnits(rawUnits, hideSubunits, combineIdenticalUnits);
+
+    const renderUnit = (unit) => {
+        let outHtml = '', outPlain = '';
+        const qtyNum = parseInt((unit.quantity || '1').toString().replace('x', ''), 10) || 1;
+        let qtyDisplay = '';
+        if (combineIdenticalUnits && (unit.__groupCount || 0) > 1) {
+            const unitSize = unit.__unitSize || qtyNum;
+            qtyDisplay = `${unit.__groupCount}x${unitSize} `;
+        } else {
+            qtyDisplay = qtyNum > 1 ? `${qtyNum} ` : '';
+        }
+
+        const categorySuffix = '';
+
+        if (useAbbreviations) {
+            const itemsString = getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, summary, skippableWargearMap, showMandatoryWargear, hideSubunits);
             const pointsString = hidePoints ? '' : ` [${unit.points}]`;
-            const unitText = `${qtyDisplay}${unit.name}${pointsString}`;
-            html += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p>`;
-            plainText += `${UNIT_BULLET}${unitText}\n`;
-            const itemsArr = unit.items || [];
-                if (effectiveHideSubunits) {
-                    let aggregated = aggregateWargear(unit);
-                    // For full text (non-compact), we do NOT apply skippable filtering — show all aggregated wargear
-                    if (aggregated.length > 0) { html += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`; aggregated.forEach(it => { const iq = parseInt((it.quantity || '1').toString().replace('x',''), 10) || 1; const qtyDisplay = iq > 1 ? `${it.quantity} ` : ''; html += `<p style="margin:0;">${qtyDisplay}${it.name}</p>`; plainText += `  - ${qtyDisplay}${it.name}\n`; }); html += `</div>`; }
-            } else {
-                const topLevelItems = itemsArr.filter(i => i.type === 'wargear' || i.type === 'special');
-                // For full text view do NOT apply skippable hiding; show all top-level items
-                const filteredTop = topLevelItems;
-                if (filteredTop.length > 0) { html += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`; filteredTop.forEach(item => { const itemNumericQty = parseInt((item.quantity || '1').toString().replace('x',''), 10) || 1; const itemQtyDisplay = itemNumericQty > 1 ? `${item.quantity} ` : '';
-                    // For Full Text view, show Enhancement points clearly and with a space before the points
-                    let displayItemName = item.name;
-                    if (item.type === 'special' && (item.name || '').toString().startsWith && (item.name || '').toString().startsWith('Enhancement:')) {
-                        // Parser may strip the parenthetical points from item.name. Prefer extracting
-                        // the points from item.nameshort (which parsers set to include the points),
-                        // falling back to any parenthetical still present in the name.
-                        const stripped = item.name.toString().replace(/^Enhancement:\s*/i, '').trim();
-                        let pts = '';
-                        if (item.nameshort) {
-                            const m = (item.nameshort || '').toString().match(/\(([^)]+)\)/);
-                            if (m) {
-                                pts = m[1].replace(/\s*pts\s*/i, '').trim();
-                                pts = pts.startsWith('+') ? `(${pts})` : `(${pts})`;
-                            }
-                        }
-                        if (!pts) {
-                            const parenMatch = /\(([^)]+)\)/.exec(stripped);
-                            if (parenMatch) {
-                                pts = parenMatch[1].replace(/\s*pts\s*/i, '').trim();
-                                pts = pts.startsWith('+') ? `(${pts})` : `(${pts})`;
-                            }
-                        }
-                        const baseName = stripped.replace(/\(.*?\)/g, '').trim();
-                        displayItemName = `${baseName}${pts ? ' ' + pts : ''}`;
-                    }
-                    html += `<p style="margin:0;">${itemQtyDisplay}${displayItemName}</p>`;
-                    plainText += `  - ${itemQtyDisplay}${displayItemName}\n`; }); html += `</div>`; }
-                const subunitItems = itemsArr.filter(i => i.type === 'subunit' || (i.items && i.items.length > 0)).sort((a,b)=> { const aq = parseInt((a.quantity||'1').toString().replace('x',''),10) || 1; const bq = parseInt((b.quantity||'1').toString().replace('x',''),10) || 1; return aq - bq; });
-                if (subunitItems.length > 0) {
-                    html += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`;
-                    subunitItems.forEach(sub => {
-                        const itemNumericQty = parseInt((sub.quantity || '1').toString().replace('x',''), 10) || 1;
-                        const itemQtyDisplay = itemNumericQty > 1 ? `${itemNumericQty} ` : '';
-                        const subunitNameText = `${itemQtyDisplay}${sub.name}`;
-                        // For full text view, do not apply skippable filtering to inner items
-                        const collated = aggregateWargear(sub);
-                        // If the subunit has no inner items and no specials, skip printing it
-                        const hasVisibleSpecials = (sub.items || []).some(si => si.type === 'special');
-                        if (collated.length === 0 && !hasVisibleSpecials) return;
-                        html += `<p style="font-weight:500;color:var(--color-text-primary);margin:0;">${subunitNameText}</p>`;
-                        plainText += `  * ${subunitNameText}\n`;
-                        if (collated.length > 0) { collated.forEach(ci => { const ciQtyNum = parseInt((ci.quantity || '1').toString().replace('x',''), 10) || 1; const ciQty = ciQtyNum > 1 ? `${ci.quantity} ` : ''; html += `<p style="margin:0 0 0.125rem 1rem;">${ciQty}${ci.name}</p>`; plainText += `    - ${ciQty}${ci.name}\n`; }); }
+            const unitText = `${qtyDisplay}${unit.name}${categorySuffix}${itemsString}${pointsString}`;
+            outHtml += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p>`;
+            outPlain += `${UNIT_BULLET}${unitText}\n`;
+
+            if (!hideSubunits && Array.isArray(unit.subunits) && unit.subunits.length > 0) {
+                outHtml += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`;
+                unit.subunits.forEach(sub => {
+                    const subQty = parseInt((sub.quantity || '1').toString().replace('x', ''), 10) || 1;
+                    const subQtyDisplay = subQty > 1 ? `${subQty} ` : '';
+                    
+                    const filteredItems = (sub.wargear || []).filter(wg => {
+                        if (showMandatoryWargear) return true;
+                        return !wg.skippable;
                     });
-                    html += `</div>`;
+                    
+                    let subItemsText = '';
+                    if (filteredItems.length > 0) {
+                        const subItemsArr = filteredItems.map(wg => {
+                            const wgQty = parseInt(wg.quantity || 1, 10);
+                            const qtyStr = wgQty > 1 ? `${wgQty}x ` : '';
+                            let abbr = null;
+                            abbr = findAbbreviationForItem(wg.name, wargearAbbrMap, summary);
+                            if (!abbr) abbr = makeAbbrevForName(wg.name);
+                            return `${qtyStr}${abbr || wg.name}`;
+                        });
+                        subItemsText = ` (${subItemsArr.join(', ')})`;
+                    }
+                    
+                    outHtml += `<p style="font-weight:500;color:var(--color-text-primary);margin:0;">${subQtyDisplay}${sub.name}${subItemsText}</p>`;
+                    outPlain += `  * ${subQtyDisplay}${sub.name}${subItemsText}\n`;
+                });
+                outHtml += `</div>`;
+            }
+            outHtml += `</div>`;
+            return { html: outHtml, plainText: outPlain };
+        }
+
+        const pointsString = hidePoints ? '' : ` [${unit.points}]`;
+        const unitText = `${qtyDisplay}${unit.name}${categorySuffix}${pointsString}`;
+        outHtml += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p>`;
+        outPlain += `${UNIT_BULLET}${unitText}\n`;
+
+        if (hideSubunits) {
+            const aggregated = aggregateWargear(unit);
+            const visibleAggregated = aggregated.filter(it => showMandatoryWargear || !it.skippable);
+            if (visibleAggregated.length > 0) {
+                outHtml += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`;
+                visibleAggregated.forEach(it => {
+                    outHtml += `<p style="margin:0;">${it.quantity} ${it.name}</p>`;
+                    outPlain += `  - ${it.quantity} ${it.name}\n`;
+                });
+                outHtml += `</div>`;
+            }
+        } else {
+            // Render enhancements
+            if (Array.isArray(unit.enhancements) && unit.enhancements.length > 0) {
+                outHtml += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`;
+                unit.enhancements.forEach(enh => {
+                    const ptsStr = enh.points ? ` (+${enh.points})` : '';
+                    outHtml += `<p style="margin:0;">Enhancement: ${enh.name}${ptsStr}</p>`;
+                    outPlain += `  - Enhancement: ${enh.name}${ptsStr}\n`;
+                });
+                outHtml += `</div>`;
+            }
+
+            // Render top-level wargear
+            if (Array.isArray(unit.wargear) && unit.wargear.length > 0) {
+                const visibleWargear = unit.wargear.filter(wg => showMandatoryWargear || !wg.skippable);
+                if (visibleWargear.length > 0) {
+                    outHtml += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`;
+                    visibleWargear.forEach(wg => {
+                        const wgQty = parseInt(wg.quantity || 1, 10);
+                        const qtyStr = wgQty > 1 ? `${wgQty}x ` : '';
+                        outHtml += `<p style="margin:0;">${qtyStr}${wg.name}</p>`;
+                        outPlain += `  - ${qtyStr}${wg.name}\n`;
+                    });
+                    outHtml += `</div>`;
                 }
             }
-            html += `</div>`;
+
+            // Render subunits
+            if (Array.isArray(unit.subunits) && unit.subunits.length > 0) {
+                outHtml += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`;
+                unit.subunits.forEach(sub => {
+                    const subQty = parseInt(sub.quantity || 1, 10);
+                    const qtyStr = subQty > 1 ? `${subQty}x ` : '';
+                    
+                    const visibleWargear = (sub.wargear || []).filter(wg => showMandatoryWargear || !wg.skippable);
+                    
+                    outHtml += `<p style="font-weight:500;color:var(--color-text-primary);margin:0;">${qtyStr}${sub.name}</p>`;
+                    outPlain += `  * ${qtyStr}${sub.name}\n`;
+
+                    visibleWargear.forEach(wg => {
+                        const wgQty = parseInt(wg.quantity || 1, 10);
+                        const wqtyStr = wgQty > 1 ? `${wgQty}x ` : '';
+                        outHtml += `<p style="margin:0 0 0.125rem 1rem;">${wqtyStr}${wg.name}</p>`;
+                        outPlain += `    - ${wqtyStr}${wg.name}\n`;
+                    });
+                });
+                outHtml += `</div>`;
+            }
+        }
+        outHtml += `</div>`;
+        return { html: outHtml, plainText: outPlain };
+    };
+
+    let attachedIndex = 0;
+    units.forEach(unit => {
+        if (unit.isAttached) {
+            attachedIndex++;
+            unit.attachedParts.forEach(part => {
+                const tag = getRoleTag(part, attachedIndex);
+                const prefix = tag ? `${tag} ` : '';
+                const tempUnit = {
+                    ...part,
+                    name: `${prefix}${part.name}`
+                };
+                const rendered = renderUnit(tempUnit);
+                html += rendered.html;
+                plainText += rendered.plainText;
+            });
+        } else {
+            const rendered = renderUnit(unit);
+            html += rendered.html;
+            plainText += rendered.plainText;
+        }
     });
-    }
+
+
+
     html += `</div>`;
     return { html, plainText };
 }
 
 export function generateDiscordText(data, plain, useAbbreviations = true, wargearAbbrMap, hideSubunits, skippableWargearMap, combineIdenticalUnits = false, options, noBullets = false, hidePoints = false) {
-    // Produce plain or ANSI-colored Discord text. When in browser and colorMode
-    // is 'custom', emit ANSI SGR sequences approximating the selected hex colors.
     const hasDOM = (typeof document !== 'undefined' && document.querySelector);
     let useColor = false;
-    const defaultColors = { unit: '#FFFFFF', subunit: '#808080', wargear: '#FFFFFF', points: '#FFFF00', header: '#FFFF00' };
+    const defaultColors = { unit: '#FFFFFF', subunit: '#808080', wargear: '#FFFFFF', points: '#FFFF00', header: '#FFFF00', attached: '#FFFF00' };
     const colors = { ...defaultColors };
-    // Allow callers (e.g., mobile) to pass color mode and colors directly.
-    // Fallback to DOM extraction when not provided.
+    const summary = data.metadata || {};
+
     if (!plain) {
         const mode = (options && options.colorMode) || (hasDOM ? ((document.querySelector('input[name="colorMode"]:checked') || {}).value || 'none') : 'none');
         useColor = mode && mode !== 'none';
@@ -538,26 +565,25 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
                 if (src.wargear) colors.wargear = src.wargear;
                 if (src.points) colors.points = src.points;
                 if (src.header) colors.header = src.header;
+                if (src.attached) colors.attached = src.attached;
             } else if (hasDOM) {
                 const u = document.getElementById('unitColor');
                 const s = document.getElementById('subunitColor');
                 const w = document.getElementById('wargearColor');
                 const p = document.getElementById('pointsColor');
                 const h = document.getElementById('headerColor');
+                const a = document.getElementById('attachedColor');
                 if (u && u.value) colors.unit = u.value;
                 if (s && s.value) colors.subunit = s.value;
                 if (w && w.value) colors.wargear = w.value;
                 if (p && p.value) colors.points = p.value;
                 if (h && h.value) colors.header = h.value;
+                if (a && a.value) colors.attached = a.value;
             }
         }
-        // New 'faction' color mode: derive a faction -> color mapping from the
-        // provided skippable_wargear map and color units based on the parsed faction.
         if (useColor && mode === 'faction') {
-            // Build mapping only once from the skippable map passed to the renderer
             const factionMap = buildFactionColorMap(skippableWargearMap || {});
-            // Prefer parser-provided FACTION_KEYWORD for deterministic mapping; fall back to DISPLAY_FACTION.
-            const factionKey = (data.SUMMARY && (data.SUMMARY.FACTION_KEYWORD || data.SUMMARY.DISPLAY_FACTION)) || null;
+            const factionKey = summary.faction || null;
             const normalizeKeyLookup = (s) => {
                 if (!s) return null;
                 try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
@@ -570,30 +596,19 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
                 if (fm.wargear) colors.wargear = fm.wargear;
                 if (fm.points) colors.points = fm.points;
                 if (fm.header) colors.header = fm.header;
-            } else if (factionKey && factionMap[factionKey.toString().toLowerCase()]) {
-                const fm = factionMap[factionKey.toString().toLowerCase()];
-                if (fm.unit) colors.unit = fm.unit;
-                if (fm.subunit) colors.subunit = fm.subunit;
-                if (fm.wargear) colors.wargear = fm.wargear;
-                if (fm.points) colors.points = fm.points;
-                if (fm.header) colors.header = fm.header;
+                if (fm.attached) colors.attached = fm.attached;
             }
         }
     }
 
     const toAnsi = (txt, hex, bold = false) => {
         if (!useColor || !hex) return txt;
-
-        // Check if hex is actually an ANSI code (number or string number)
         if (typeof hex === 'number' || (typeof hex === 'string' && /^\d+$/.test(hex))) {
              const boldPart = bold ? '1;' : '';
              return `\u001b[${boldPart}${hex}m${txt}\u001b[0m`;
         }
-
-        // For previews in-browser we can use truecolor, but allow callers to force palette for clipboard
-        const hasDOMLocal = (typeof document !== 'undefined' && document.querySelector);
         const forcePalette = !!(options && options.forcePalette);
-        if (hasDOMLocal && !forcePalette) {
+        if (hasDOM && !forcePalette) {
             const rgb = hexToRgb(hex);
             if (!rgb) return txt;
             const boldPart = bold ? '1;' : '';
@@ -604,105 +619,160 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
         return `\u001b[${boldPart}${code}m${txt}\u001b[0m`;
     };
 
-    // Choose bullet symbols for plain text vs. other outputs
     const UNIT_BULLET = noBullets ? '' : (plain ? '• ' : '* ');
     const SUB_BULLET = noBullets ? '  ' : (plain ? '  ◦ ' : '  + ');
 
+    const abbreviateHeader = !!(options && options.abbreviateHeader);
+    const showMandatoryWargear = !!(options && options.showMandatoryWargear);
     let out = '';
-    // Fence only for Discord modes (non-plain). Use ```ansi when colored.
     if (!plain) out += useColor ? '```ansi\n' : '```\n';
-    if (data.SUMMARY) {
-        const parts = [];
-        if (data.SUMMARY.LIST_TITLE) parts.push(data.SUMMARY.LIST_TITLE);
-        if (data.SUMMARY.FACTION_KEYWORD) parts.push(data.SUMMARY.DISPLAY_FACTION || data.SUMMARY.FACTION_KEYWORD.split(' - ').pop());
-        if (data.SUMMARY.DETACHMENT) parts.push(data.SUMMARY.DETACHMENT);
-        if (data.SUMMARY.TOTAL_ARMY_POINTS) parts.push(data.SUMMARY.TOTAL_ARMY_POINTS);
-        if (parts.length) {
-            const multiline = (options && options.multilineHeader !== undefined) ? options.multilineHeader : false;
-            const header = parts.join(multiline ? '\n' : ' | ');
-            out += useColor ? toAnsi(header, colors.header, true) + '\n\n' : header + '\n\n';
+
+    const headerParts = [];
+    const listName = summary.title || summary.armyName || '';
+    if (listName) headerParts.push(listName);
+    if (summary.faction) headerParts.push(summary.faction);
+    
+    let dets = '';
+    if (Array.isArray(summary.detachments) && summary.detachments.length > 0) {
+        if (abbreviateHeader) {
+            dets = summary.detachments.map(d => abbreviateWords(d)).join(' & ');
+        } else {
+            dets = summary.detachments.join(' and ');
+        }
+    } else if (summary.detachment) {
+        if (abbreviateHeader) {
+            dets = abbreviateDetachment(summary.detachment);
+        } else {
+            dets = summary.detachment;
         }
     }
+    if (dets) headerParts.push(dets);
+    
+    let disps = '';
+    if (Array.isArray(summary.forceDispositions) && summary.forceDispositions.length > 0) {
+        if (abbreviateHeader) {
+            disps = summary.forceDispositions.map(d => abbreviateWords(d)).join(', ');
+        } else {
+            disps = summary.forceDispositions.join(', ');
+        }
+    } else if (summary.forceDisposition) {
+        if (abbreviateHeader) {
+            disps = abbreviateForceDisposition(summary.forceDisposition);
+        } else {
+            disps = summary.forceDisposition;
+        }
+    }
+    if (disps) headerParts.push(disps);
 
-    for (const section in data) {
-        if (section === 'SUMMARY' || !Array.isArray(data[section])) continue;
-        const units = maybeCombineUnits(data[section], hideSubunits, combineIdenticalUnits);
-        units.forEach(unit => {
-            const qtyNum = parseInt((unit.quantity || '1').toString().replace('x',''), 10) || 1;
-            let qtyDisplay = '';
-            if (combineIdenticalUnits && (unit.__groupCount || 0) > 1) {
-                const unitSize = unit.__unitSize || qtyNum;
-                qtyDisplay = `${unit.__groupCount}x${unitSize} `;
-            } else {
-                qtyDisplay = qtyNum > 1 ? `${qtyNum} ` : '';
-            }
-            let itemsToRender = hideSubunits ? aggregateWargear(unit) : unit.items || [];
-            // Always apply skippable hiding when a skippable map is provided
-            const skippable = findSkippableForUnit(skippableWargearMap, data.SUMMARY, unit.name);
-            const visible = itemsToRender.filter(i => {
-                if (i.type === 'special') return true;
-                if (skippable.includes(HIDE_ALL)) return false;
-                return skippable.length === 0 || !skippable.includes(i.name.toLowerCase());
-            });
-            const itemsString = getInlineItemsString(visible, useAbbreviations, wargearAbbrMap, data.SUMMARY);
-
-            const unitRaw = `${qtyDisplay}${unit.name}`;
-            const unitText = useColor ? toAnsi(unitRaw, colors.unit, true) : unitRaw;
-            const itemsText = (useColor && itemsString) ? toAnsi(itemsString, colors.wargear, false) : itemsString;
-            const pointsRaw = `[${unit.points}]`;
-            const pointsText = useColor ? toAnsi(pointsRaw, colors.points, true) : pointsRaw;
-
-            let line = `${UNIT_BULLET}${unitText}${itemsText}`;
-            if (!hidePoints) {
-                line += ` ${pointsText}`;
-            }
-            out += `${line}\n`;
-
-            if (!hideSubunits && Array.isArray(unit.items)) {
-                const subs = unit.items.filter(i => i.type === 'subunit' || (i.items && i.items.length > 0));
-                const skippableTop = findSkippableForUnit(skippableWargearMap, data.SUMMARY, unit.name);
-                subs.forEach(sub => {
-                    const subQty = parseInt((sub.quantity||'1').toString().replace('x',''),10) || 1;
-                    const subQtyDisplay = subQty > 1 ? `${subQty} ` : '';
-                    const subRaw = `${subQtyDisplay}${sub.name}`;
-                    const subName = useColor ? toAnsi(subRaw, colors.subunit, false) : subRaw;
-                    // Determine skippable set for this subunit; fallback to parent unit if subunit list is empty
-                    const subSkippable = findSkippableForUnit(skippableWargearMap, data.SUMMARY, sub.name);
-                    const fallbackSkippable = (subSkippable.length === 0) ? skippableTop : subSkippable;
-                    const filteredItems = (sub.items || []).filter(i => {
-                        if (i.type === 'special') return true;
-                        if (fallbackSkippable.includes(HIDE_ALL)) return false;
-                        return fallbackSkippable.length === 0 || !fallbackSkippable.includes(i.name.toLowerCase());
-                    });
-                    const hasVisibleSpecials = (sub.items || []).some(si => si.type === 'special' && (fallbackSkippable.length === 0 || !fallbackSkippable.includes(si.name.toLowerCase())));
-                    if (filteredItems.length === 0 && !hasVisibleSpecials) return; // hide empty subunit
-                    const subItems = getInlineItemsString(filteredItems, useAbbreviations, wargearAbbrMap, data.SUMMARY);
-                    const subItemsText = (useColor && subItems) ? toAnsi(subItems, colors.wargear, false) : subItems;
-                    out += `${SUB_BULLET}${subName}${subItemsText}\n`;
-                });
-            }
-    });
+    const totalPts = summary.pointsTotal || summary.totalPoints || 0;
+    if (totalPts) {
+        const limit = summary.pointsLimit || 0;
+        const limitStr = limit ? ` / ${limit}pts` : 'pts';
+        headerParts.push(`${totalPts}${limitStr}`);
     }
 
-    // Close the fence only for Discord modes
+    if (headerParts.length) {
+        const multiline = (options && options.multilineHeader !== undefined) ? options.multilineHeader : false;
+        const header = headerParts.join(multiline ? '\n' : ' | ');
+        out += useColor ? toAnsi(header, colors.header, true) + '\n\n' : header + '\n\n';
+    }
+
+    const rawUnits = Array.isArray(data.units) ? data.units : [];
+    const units = maybeCombineUnits(rawUnits, hideSubunits, combineIdenticalUnits);
+
+    const renderDiscordUnit = (unit, prefixText = '') => {
+        const qtyNum = parseInt((unit.quantity || '1').toString().replace('x', ''), 10) || 1;
+        let qtyDisplay = '';
+        if (combineIdenticalUnits && (unit.__groupCount || 0) > 1) {
+            const unitSize = unit.__unitSize || qtyNum;
+            qtyDisplay = `${unit.__groupCount}x${unitSize} `;
+        } else {
+            qtyDisplay = qtyNum > 1 ? `${qtyNum} ` : '';
+        }
+
+        const categorySuffix = '';
+
+        const itemsString = getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, summary, skippableWargearMap, showMandatoryWargear, hideSubunits);
+
+        const unitNameText = useColor ? toAnsi(unit.name, colors.unit, true) : unit.name;
+        const unitText = `${prefixText}${qtyDisplay}${unitNameText}${categorySuffix}`;
+        const itemsText = (useColor && itemsString) ? toAnsi(itemsString, colors.wargear, false) : itemsString;
+        const pointsRaw = `[${unit.points}]`;
+        const pointsText = useColor ? toAnsi(pointsRaw, colors.points, true) : pointsRaw;
+
+        let line = `${UNIT_BULLET}${unitText}${itemsText}`;
+        if (!hidePoints) {
+            line += ` ${pointsText}`;
+        }
+        out += `${line}\n`;
+
+        if (!hideSubunits && Array.isArray(unit.subunits)) {
+            unit.subunits.forEach(sub => {
+                const subQty = parseInt((sub.quantity || '1').toString().replace('x', ''), 10) || 1;
+                const subQtyDisplay = subQty > 1 ? `${subQty} ` : '';
+                const subRaw = `${subQtyDisplay}${sub.name}`;
+                const subName = useColor ? toAnsi(subRaw, colors.subunit, false) : subRaw;
+
+                const filteredItems = (sub.wargear || []).filter(wg => {
+                    if (showMandatoryWargear) return true;
+                    return !wg.skippable;
+                });
+
+                if (filteredItems.length === 0) {
+                    out += `${SUB_BULLET}${subName}\n`;
+                    return;
+                }
+
+                // Format subunit wargear
+                const subItemsArr = filteredItems.map(wg => {
+                    const wgQty = parseInt(wg.quantity || 1, 10);
+                    const qtyStr = wgQty > 1 ? `${wgQty}x ` : '';
+                    let abbr = null;
+                    if (useAbbreviations) {
+                        abbr = findAbbreviationForItem(wg.name, wargearAbbrMap, summary);
+                        if (!abbr) abbr = makeAbbrevForName(wg.name);
+                    }
+                    return `${qtyStr}${abbr || wg.name}`;
+                });
+                const subItems = ` (${subItemsArr.join(', ')})`;
+                const subItemsText = (useColor && subItems) ? toAnsi(subItems, colors.wargear, false) : subItems;
+                out += `${SUB_BULLET}${subName}${subItemsText}\n`;
+            });
+        }
+    };
+
+    let attachedIndex = 0;
+    units.forEach(unit => {
+        if (unit.isAttached) {
+            attachedIndex++;
+            unit.attachedParts.forEach(part => {
+                const tag = getRoleTag(part, attachedIndex);
+                const tagText = useColor ? toAnsi(tag, colors.attached, true) : tag;
+                const prefixText = tag ? `${tagText} ` : '';
+                const tempUnit = {
+                    ...part
+                };
+                renderDiscordUnit(tempUnit, prefixText);
+            });
+        } else {
+            renderDiscordUnit(unit);
+        }
+    });
+
     if (!plain) out += '```';
     return out;
 }
 
-// Expose a helper to resolve faction colors given a parsed data object and the skippable map
 export function resolveFactionColors(data, skippableWargearMap) {
     const factionMap = buildFactionColorMap(skippableWargearMap || {});
-    const factionKey = (data.SUMMARY && (data.SUMMARY.FACTION_KEYWORD || data.SUMMARY.DISPLAY_FACTION)) || null;
+    const summary = data.metadata || {};
+    const factionKey = summary.faction || null;
     if (!factionKey) return null;
     const normalizeKeyLookup = (s) => {
         if (!s) return null;
         try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
     };
     const nfk = normalizeKeyLookup(factionKey);
-    const fm = factionMap[factionKey] || factionMap[factionKey && factionKey.toString().toLowerCase()] || (nfk && factionMap[nfk]);
+    const fm = factionMap[factionKey] || factionMap[factionKey.toString().toLowerCase()] || (nfk && factionMap[nfk]);
     return fm || null;
 }
-
-// Note: do NOT attach buildFactionColorMap to globalThis here; callers should
-// import it directly (main.js now imports it). The previous global fallback
-// hid bundling issues and caused runtime ReferenceErrors in some environments.

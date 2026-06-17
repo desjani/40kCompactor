@@ -30,11 +30,13 @@ function App() {
   const [hide, setHide] = useLocalStorage('hide', false)
   const [combine, setCombine] = useLocalStorage('combine', false)
   const [multiline, setMultiline] = useLocalStorage('multiline', false)
+  const [abbrHeader, setAbbrHeader] = useLocalStorage('abbrHeader', false)
   const [noBullets, setNoBullets] = useLocalStorage('noBullets', false)
   const [hidePoints, setHidePoints] = useLocalStorage('hidePoints', false)
+  const [showMandatory, setShowMandatory] = useLocalStorage('showMandatory', false)
   const [customAbbrs, setCustomAbbrs] = useLocalStorage<Record<string,string>>('customAbbrs', {})
   const [colorMode, setColorMode] = useLocalStorage<'none'|'custom'|'faction'>('colorMode', 'faction')
-  const [colors, setColors] = useLocalStorage('colors', { unit:'#ffffff', subunit:'#808080', wargear:'#ffffff', points:'#ffff00', header:'#ffff00' })
+  const [colors, setColors] = useLocalStorage('colors', { unit:'#ffffff', subunit:'#808080', wargear:'#ffffff', points:'#ffff00', header:'#ffff00', attached:'#ffff00' })
   const [format, setFormat] = useLocalStorage<'discordCompact'|'discordExtended'|'plainText'|'plainTextExtended'>('format','discordCompact')
 
   // Temporary state for adding new abbreviations
@@ -45,29 +47,25 @@ function App() {
     if (!text.trim()) return null
     const lines = text.split(/\r?\n/)
     const fmt = parsers.detectFormat(lines)
-    const parseFn = ({
-      'GW_APP': parsers.parseGwApp,
-      'WTC_COMPACT': parsers.parseWtcCompact,
-      'WTC': parsers.parseWtc,
-      'NR_GW': parsers.parseNrGw,
-      'NRNR': parsers.parseNrNr,
-      'LF': parsers.parseLf
-    } as any)[fmt]
+    const parseFn = {
+      'V11_GENERIC': parsers.parseV11List,
+      'GW_APP_V11': parsers.parseGwAppV11
+    }[fmt]
     if (!parseFn) return null
-    try { return parseFn(lines) } catch { return null }
+    try { return parseFn(lines, skippable as any) } catch { return null }
   }, [text])
 
   const abbr = useMemo(() => parsed ? buildAbbreviationIndex(parsed, customAbbrs) : null, [parsed, customAbbrs])
 
   const fullText = useMemo(() => {
     if (!parsed || !abbr) return ''
-    return generateOutput(parsed, false, abbr, false, skippable as any, false, false).plainText
-  }, [parsed, abbr])
+    return generateOutput(parsed, false, abbr, false, skippable as any, false, false, false, false, abbrHeader, true).plainText
+  }, [parsed, abbr, abbrHeader])
 
   const compactText = useMemo(() => {
     if (!parsed || !abbr) return ''
-    return generateOutput(parsed, true, abbr, hide, skippable as any, true, combine).plainText
-  }, [parsed, abbr, hide, combine])
+    return generateOutput(parsed, true, abbr, hide, skippable as any, true, combine, noBullets, hidePoints, abbrHeader, showMandatory).plainText
+  }, [parsed, abbr, hide, combine, noBullets, hidePoints, abbrHeader, showMandatory])
 
   const [previewText, setPreviewText] = useState('')
   // Support different module export shapes across bundlers/browsers
@@ -83,7 +81,7 @@ function App() {
   useEffect(() => {
     if (!parsed || !abbr) { setPreviewText(''); return }
     let t = ''
-  const opts = { colorMode, colors, multilineHeader: multiline } as any
+    const opts = { colorMode, colors, multilineHeader: multiline, abbreviateHeader: abbrHeader, showMandatoryWargear: showMandatory } as any
   switch (format) {
       case 'discordCompact':
     t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
@@ -97,12 +95,12 @@ function App() {
     t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints)
     }
     setPreviewText(t)
-  }, [parsed, abbr, hide, combine, colorMode, colors, multiline, format, noBullets, hidePoints])
+  }, [parsed, abbr, hide, combine, colorMode, colors, multiline, format, noBullets, hidePoints, abbrHeader, showMandatory])
   const previewHtml = useMemo(() => au.ansi_to_html(previewText), [previewText, au])
 
   function copy(s: string) {
     if (!s || !parsed || !abbr) { navigator.clipboard?.writeText(s || ''); return }
-    const opts: any = { colorMode, colors, forcePalette: true, multilineHeader: multiline }
+    const opts: any = { colorMode, colors, forcePalette: true, multilineHeader: multiline, abbreviateHeader: abbrHeader, showMandatoryWargear: showMandatory }
     let t = ''
     switch (format) {
       case 'discordCompact':
@@ -139,6 +137,9 @@ function App() {
           <strong>40k Compactor</strong>
           <span class="pill">Mobile</span>
         </div>
+        <div style={{ textAlign: 'center', background: '#111', padding: '4px', fontSize: '0.75rem', borderBottom: '1px solid #333' }}>
+          <a href="../../../v10/apps/mobile-ui/dist/index.html" style={{ color: '#72a4f2', textDecoration: 'underline' }}>Switch to v10 Legacy Mobile</a>
+        </div>
       </header>
 
       <div class="screen">
@@ -168,10 +169,12 @@ function App() {
 
             <div class="row" style={{ marginBottom: '6px', justifyContent:'flex-start', flexWrap: 'wrap', gap: '10px' }}>
               <label><input id="multilineHeaderCheckbox" type="checkbox" checked={multiline} onChange={e=>setMultiline((e.target as HTMLInputElement).checked)} /> Multiline Header</label>
+              <label><input type="checkbox" checked={abbrHeader} onChange={e=>setAbbrHeader((e.target as HTMLInputElement).checked)} /> Abbreviate Header</label>
               <label><input type="checkbox" checked={combine} onChange={e=>setCombine((e.target as HTMLInputElement).checked)} /> Combine like units</label>
               <label><input type="checkbox" checked={hide} onChange={e=>setHide((e.target as HTMLInputElement).checked)} /> Hide Subunits</label>
               <label><input type="checkbox" checked={noBullets} onChange={e=>setNoBullets((e.target as HTMLInputElement).checked)} /> Hide Bullets</label>
               <label><input type="checkbox" checked={hidePoints} onChange={e=>setHidePoints((e.target as HTMLInputElement).checked)} /> Hide Points</label>
+              <label><input type="checkbox" checked={showMandatory} onChange={e=>setShowMandatory((e.target as HTMLInputElement).checked)} /> Show mandatory Wargear</label>
             </div>
 
             <div class="row" style={{ gap: '10px', alignItems: 'center', marginBottom: '6px' }}>
@@ -190,7 +193,7 @@ function App() {
             </div>
             {colorMode==='custom' && (
               <div class="grid2 section">
-                {(['unit','subunit','wargear','points','header'] as const).map(k => (
+                {(['unit','subunit','wargear','points','header','attached'] as const).map(k => (
                   <label>
                     {k} color
                     <input id={`${k}Color`} type="color" value={(colors as any)[k]} onChange={e=>setColors({...colors, [k]:(e.target as HTMLInputElement).value})} style={{ marginLeft: '6px' }} />

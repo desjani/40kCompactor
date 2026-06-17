@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 // Import core modules from parent directory
-import { detectFormat, parseGwApp, parseWtcCompact, parseWtc, parseNrGw, parseNrNr, parseLf } from '../modules/parsers.js';
+import { detectFormat, parseV11List, parseGwAppV11 } from '../modules/parsers.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 import { generateDiscordText, ansiPalette, colorNameToHex } from '../modules/renderers.js';
 
@@ -327,12 +327,8 @@ function generateResponse(text, options) {
         const format = detectFormat(lines);
         
         const parser = {
-            GW_APP: parseGwApp,
-            WTC: parseWtc,
-            WTC_COMPACT: parseWtcCompact,
-            NR_GW: parseNrGw,
-            NRNR: parseNrNr,
-            LF: parseLf
+            V11_GENERIC: parseV11List,
+            GW_APP_V11: parseGwAppV11
         }[format];
 
         if (!parser) {

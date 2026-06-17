@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warhammer 40k List Compactor</title>
+    <link rel="stylesheet" href="styles.css?v=0.0.8">
+    <!-- Explicit favicons to ensure GitHub Pages/project-site path resolution -->
+    <link rel="icon" type="image/x-icon" href="Favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="Favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="Favicons/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="Favicons/apple-touch-icon.png">
+    <link rel="manifest" href="Favicons/site.webmanifest">
+</head>
+<body>
+    <div id="app"></div>
+
+    <!-- Mobile prompt banner (appears on phones) -->
+    <div id="mobilePrompt" style="display:none;position:sticky;top:0;z-index:10;background:#0f1115;color:#e6e6e6;border-bottom:1px solid #1f2330;padding:8px 12px;font-size:14px;line-height:1.3;">
+        <span>We have a phone-optimized UI.</span>
+        <button id="openMobileUi" class="btn" style="margin-left:8px;">Open Mobile UI</button>
+        <button id="dismissMobileUi" class="btn" style="margin-left:8px;opacity:0.8;">Dismiss</button>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <header class="header">
+                <h1>Warhammer 40k List Compactor</h1>
+                <p>Paste your army list below. Supported formats: GW App, New Recruit (WTC-Compact, WTC, GW, or NR formats), and ListForge (Detailed). The tool will generate a full version and a compact, Discord-friendly version.</p>
+            </header>
+
+            <!-- App Footer with Contact Info -->
+            <footer class="app-footer">
+                <p>
+                    For feedback or questions, reach out to
+                    <a href="https://discord.com/users/Desjani" target="_blank">@Desjani</a>
+                    on Discord.
+                </p>
+                <div style="margin-top:0.25rem;">
+                    <!-- Ko-fi support button -->
+                    <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
+                    <script type='text/javascript'>kofiwidget2.init('Support me on Ko-fi', '#72a4f2', 'U7U7Z3Q0S');kofiwidget2.draw();</script>
+                </div>
+            </footer>
+
+            <div class="grid-container-two-col">
+                <!-- Input Column -->
+                <div>
+                    <label for="inputText" class="io-label">Paste List here</label>
+                    <textarea id="inputText" class="io-box" autofocus></textarea>
+                    <div class="column-footer" style="flex-direction: column; align-items: center;">
+                        <div id="inputCharCount" class="char-count" style="margin-bottom: 0.5rem;"></div>
+                        <div class="button-group">
+                            <button id="resetButton" class="btn btn-danger">Clear List</button>
+                            <button id="parseButton" class="btn btn-primary" style="display:none;">Compact this list</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dropdowns Column -->
+                <div class="dropdowns-column">
+                    <label class="io-label">List Options</label>
+                    <div class="options-box">
+                    <div style="margin-bottom: 0.5rem;">
+                        <label>List Style: 
+                            <select id="outputFormatSelect">
+                                <option value="discordCompact">Discord (Compact)</option>
+                                <option value="discordExtended">Discord (Extended)</option>
+                                <option value="plainText">Plain Text</option>
+                                <option value="plainTextExtended">Plain Text (extended)</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <label class="checkbox-label">
+                            Multiline Header
+                            <input type="checkbox" id="multilineHeaderCheckbox" class="switch-input">
+                            <span class="switch-slider" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <label class="checkbox-label">
+                            Combine Identical Units
+                            <input type="checkbox" id="combineUnitsCheckbox" class="switch-input">
+                            <span class="switch-slider" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <label class="checkbox-label">
+                            Hide Subunits
+                            <input type="checkbox" id="hideSubunitsCheckbox" class="switch-input">
+                            <span class="switch-slider" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <label class="checkbox-label">
+                            Hide Bullets
+                            <input type="checkbox" id="noBulletsCheckbox" class="switch-input">
+                            <span class="switch-slider" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <label class="checkbox-label">
+                            Hide Points
+                            <input type="checkbox" id="hidePointsCheckbox" class="switch-input">
+                            <span class="switch-slider" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                    <!-- Color Options Section -->
+                    <div class="color-options-container" style="margin-top: 1rem; text-align: left;">
+                        <div class="color-options">
+                            <label><input type="radio" name="colorMode" value="faction" checked> Faction Colors</label>
+                            <label><input type="radio" name="colorMode" value="none"> No Color</label>
+                            <label><input type="radio" name="colorMode" value="custom"> Custom Colors</label>
+                        </div>
+                        <div id="customColorPickers" style="margin-top: 0.5rem; text-align: center;">
+                            <div style="margin-bottom: 0.5rem;">
+                                <label>Header: 
+                                    <select id="headerColor">
+                                        <option value="#FFFFFF" selected>White</option>
+                                        <option value="#808080">Grey</option>
+                                        <option value="#FF0000">Red</option>
+                                        <option value="#00FF00">Green</option>
+                                        <option value="#FFFF00">Yellow</option>
+                                        <option value="#0000FF">Blue</option>
+                                        <option value="#FF00FF">Magenta</option>
+                                        <option value="#00FFFF">Cyan</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div style="margin-bottom: 0.5rem;">
+                                <label>Unit: 
+                                    <select id="unitColor">
+                                        <option value="#FFFFFF">White</option>
+                                        <option value="#808080">Grey</option>
+                                        <option value="#FF0000" selected>Red</option>
+                                        <option value="#00FF00">Green</option>
+                                        <option value="#FFFF00">Yellow</option>
+                                        <option value="#0000FF">Blue</option>
+                                        <option value="#FF00FF">Magenta</option>
+                                        <option value="#00FFFF">Cyan</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div style="margin-bottom: 0.5rem;">
+                                <label>Subunit: 
+                                    <select id="subunitColor">
+                                        <option value="#FFFFFF">White</option>
+                                        <option value="#808080" selected>Grey</option>
+                                        <option value="#FF0000">Red</option>
+                                        <option value="#00FF00">Green</option>
+                                        <option value="#FFFF00">Yellow</option>
+                                        <option value="#0000FF">Blue</option>
+                                        <option value="#FF00FF">Magenta</option>
+                                        <option value="#00FFFF">Cyan</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div style="margin-bottom: 0.5rem;">
+                                <label>Wargear: 
+                                    <select id="wargearColor">
+                                        <option value="#FFFFFF" selected>White</option>
+                                        <option value="#808080">Grey</option>
+                                        <option value="#FF0000">Red</option>
+                                        <option value="#00FF00">Green</option>
+                                        <option value="#FFFF00">Yellow</option>
+                                        <option value="#0000FF">Blue</option>
+                                        <option value="#FF00FF">Magenta</option>
+                                        <option value="#00FFFF">Cyan</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div style="margin-bottom: 0.5rem;">
+                                <label>Points: 
+                                    <select id="pointsColor">
+                                        <option value="#FFFFFF">White</option>
+                                        <option value="#808080">Grey</option>
+                                        <option value="#FF0000">Red</option>
+                                        <option value="#00FF00">Green</option>
+                                        <option value="#FFFF00" selected>Yellow</option>
+                                        <option value="#0000FF">Blue</option>
+                                        <option value="#FF00FF">Magenta</option>
+                                        <option value="#00FFFF">Cyan</option>
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Abbreviations Section -->
+                    <div style="margin-top: 1rem; border-top: 1px solid #333; padding-top: 1rem;">
+                        <details>
+                            <summary class="io-label" style="cursor: pointer; margin-bottom: 0.5rem;">Custom Abbreviations</summary>
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; margin-top: 0.5rem;">
+                                <input type="text" id="customAbbrOriginal" placeholder="Name (e.g. Plasma Pistol)" class="io-box" style="flex: 2; height: 36px; min-height: 36px; padding: 4px 8px;">
+                                <input type="text" id="customAbbrShort" placeholder="Abbr (e.g. PP)" class="io-box" style="flex: 1; height: 36px; min-height: 36px; padding: 4px 8px;">
+                                <button id="addCustomAbbrBtn" class="btn btn-primary" style="padding: 4px 8px;">Add</button>
+                            </div>
+                            <div id="customAbbrList" style="max-height: 150px; overflow-y: auto; font-size: 0.85rem; border: 1px solid #333; padding: 4px;">
+                                <!-- Items will be injected here -->
+                            </div>
+                        </details>
+                    </div>
+                    <!-- close options-box -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-container-two-col" style="margin-top: 1.5rem;">
+                <!-- Extended Output Column -->
+                <div>
+                    <label for="unabbreviatedOutput" class="io-label">Full Text</label>
+                    <div id="unabbreviatedOutput" class="io-box"></div>
+                     <div class="column-footer" style="flex-direction: column; align-items: center;">
+                        <div id="extendedCharCount" class="char-count" style="margin-bottom: 0.5rem;"></div>
+                        <button id="copyExtendedButton" class="btn btn-copy">Copy Full Text to Clipboard</button>
+                    </div>
+                </div>
+
+                <!-- Discord Preview Column -->
+                <div>
+                    <label for="markdownPreviewOutput" class="io-label">Compacted Preview</label>
+                    <div id="markdownPreviewOutput" class="io-box markdown-preview"></div>
+                    <div class="column-footer" style="flex-direction: column; align-items: center;">
+                        <div id="markdownPreviewCharCount" class="char-count" style="margin-bottom: 0.5rem;"></div>
+                        <button id="copyPreviewButton" class="btn btn-copy">Copy Preview to Clipboard</button>
+                    </div>
+                    <div id="factionColorDiagnostic" style="margin-top:0.5rem;font-size:0.75rem;color:var(--color-text-secondary);"></div>
+                </div>
+            </div>
+            
+            <!-- Debug Toggle and Output Section (moved above changelog) -->
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button id="toggleDebugButton" class="btn" style="background-color: black; color: white; border: 1px solid #444;">Show Debug Log</button>
+            </div>
+
+            <div id="debugContainer" style="margin-top: 0.5rem; display: none; width: 100%;">
+                <div style="display:flex; justify-content:center;">
+                    <div id="debugOutput" class="io-box" style="width:80%; max-width:1100px; height: 400px; margin: 0 auto; overflow-y: auto; background-color: #282c34; color: #abb2bf; font-family: monospace; font-size: 0.75rem; line-height: 1.4; box-sizing: border-box;"></div>
+                </div>
+            </div>
+
+            <!-- Changelog and Roadmap Section -->
+            <div class="changelog-section">
+                <div class="changelog-entry roadmap">
+                    <h4>Roadmap</h4>
+                    <ul>
+                        <li>.ROSZ file format support</li>
+                        <li>Ongoing bugfixes and performance improvements</li>
+                    </ul>
+                </div>
+                <div class="changelog-entry">
+                    <h4>Changelog</h4>
+                    <div class="changelog-version-entry">
+                        <h5>Version 1.3.1: Mobile Edition</h5>
+                        <ul>
+                            <li>Introduced a phone-first Mobile UI (Preact) with full-width bottom tabs, green/black styling, and a combined Compact + Preview screen.</li>
+                            <li>Auto-redirect phones/tablets to the Mobile UI; desktop override preserved via URL or preference.</li>
+                            <li>Default color mode set to Faction Color; preview uses truecolor for exact picker matching (lighter grey), ANSI 90 elsewhere.</li>
+                            <li>Plain Text outputs no longer wrapped in code fences.</li>
+                            <li>Stability: fixed ansi_up constructor issue on Android (Brave) and ensured color behavior parity.</li>
+                        </ul>
+                    </div>
+                    <div class="changelog-version-entry">
+                        <h5>Version 1.2.0 - I'm winning the format war, dammit!</h5>
+                        <ul>
+                            <li>Introduced the Autoparser to automatically detect list formats.</li>
+                            <li>Added support for ListForge (Detailed) in addition to GW App and New Recruit (WTC-Compact, GW, NR).</li>
+                            <li>Various bugfixes and parser improvements.</li>
+                        </ul>
+                    </div>
+                    <div class="changelog-version-entry">
+                        <h5>Version 1.1.1: Thats not a wargear, that's my wife!</h5>
+                        <ul>
+                            <li>Minor parser and rendering fixes.</li>
+                        </ul>
+                    </div>
+                    <div class="changelog-version-entry">
+                        <h5>Version 1.0.0: TOTAL OVERHAUL!</h5>
+                        <ul>
+                            <li>Completely re-architected the application for improved performance, maintainability, and future expansion.</li>
+                            <li>Introduced a new modular structure for better code organization.</li>
+                            <li>Enhanced parsing capabilities for even more robust list processing.</li>
+                            <li>Improved UI responsiveness and user experience.</li>
+                            <li>Added "Multiline Header" option for flexible output formatting.</li>
+                            <li>Added "Side Subunits" option for even more compact output.</li>
+                            <li>Fixed various bugs and improved overall stability.</li>
+                        </ul>
+                    </div>
+                    <div class="changelog-version-entry">
+                        <h5>Version 0.1.2: Internal Updates</h5>
+                        <ul>
+                            <li>Rolled back some experimental changes to ensure stability.</li>
+                            <li>Internal updates and stability improvements.</li>
+                        </ul>
+                    </div>
+                    <div class="changelog-version-entry">
+                        <h5>Version 0.1.1: The Ordo Spellcheck would like a word...</h5>
+                        <ul>
+                            <li>Separated "Points/Header" color option into two distinct settings: "Points" and "Header".</li>
+                            <li>Added a new color option for "Wargear" to customize its appearance in the output.</li>
+                            <li>Set the default color scheme to "Custom Colors" and adjusted the default color values for better readability.</li>
+                            <li>Rearranged the color picker order for a more logical workflow.</li>
+                            <li>Corrected a bunch of typos for all Imperium (non-Space Marine) factions.</li>
+                            <li>Updated Grey Knights to match new codex.</li>
+                            <li>Fixed a bug where wargear items were incorrectly displayed as "[object Object]" in the compact list view.</li>
+                        </ul>
+                    </div>
+                    <div class="changelog-version-entry">
+                        <h5>Version 0.1.0 - The 'No List Left Behind' Update</h5>
+                        <ul>
+                            <li><b>Overhauled GW App Parser:</b> The parser is now significantly more robust and can handle a much wider variety of list formats and quirks.</li>
+                            <li><b>Flexible Header Parsing:</b> Correctly identifies the List Title, Faction, Detachment, and Points, even if they appear in a different order.</li>
+                            <li><b>Smarter Wargear Detection:</b> Improved logic for identifying sub-units (like squad leaders) and their wargear, leading to more accurate compacting.</li>
+                            <li><b>Intelligent Name Matching:</b> The abbreviation engine now smartly handles plural vs. singular unit names (e.g., "Piranha" vs. "Piranhas").</li>
+                            <li><b>Expanded Format Support:</b> Now correctly parses point values with separators (e.g., "2,000") and more types of bullet points (•, -, ◦).</li>
+                        </ul>
+                    </div>
+                    <div class="changelog-version-entry">
+                        <h5>Version 0.0.5: Modulation Mambo</h5>
+                        <p>Refactored JavaScript into modular components for better organization and maintainability.</p>
+                    </div>
+                    <div class="changelog-version-entry">
+                        <h5>Version 0.0.4: T'au Season!</h5>
+                        <p>Numerous parser fixes and improved wargear filtering for T'au Empire lists to prevent redundant items from appearing in the compact list.</p>
+                    </div>
+                    <div class="changelog-version-entry">
+                        <h5>Version 0.0.3: Fixes, Formatting, and more!</h5>
+                        <p>Implemented a new inline compact format for easier reading. Added more 'Copy for Discord' options for greater flexibility. Numerous parser fixes for both GW App and WTC-Compact formats to improve reliability.</p>
+                    </div>
+                    <div class="changelog-version-entry">
+                        <h5>Version 0.0.2: Support for GW App and WTC-Compact formats</h5>
+                        <p>The parser now supports both major list formats, with improved reliability for complex nested units and wargear. Abbreviation logic is now consistent across both formats.</p>
+                    </div>
+                    <div class="changelog-version-entry">
+                        <h5>Version 0.0.1: Initial Beta Release</h5>
+                        <p>The first version is live! Basic list parsing and abbreviation for most major factions is included. More features and polish to come.</p>
+                    </div>
+                    <div style="text-align:center; margin-top:0.5rem;">
+                        <button id="changelog-toggle" class="btn" style="background-color: black; color: white; border: 1px solid #444;">Show more</button>
+                    </div>
+                </div>
+            </div>
+
+            
+
+        </div>
+    </div>
+
+    <div id="copyPopup" class="copy-popup">Copied to Clipboard!</div>
+
+    <!-- Build info for bug reports (populated at runtime from build_meta.json if available) -->
+    <div style="text-align:center;font-size:0.75rem;color:var(--color-text-secondary);margin-top:0.5rem;">
+        Commit: <span id="buildCommit">0731dd7</span> — <span id="buildTime">2025-09-08T11:11:36-06:00</span>
+    </div>
+    <script>
+        // Offer mobile UI automatically on small or touch devices, with override
+        (function(){
+            try {
+                const params = new URLSearchParams(location.search);
+                const override = params.get('ui'); // 'mobile' | 'desktop'
+                const pref = localStorage.getItem('uiPref');
+                const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+                const narrow = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
+                const isMobile = (override === 'mobile') || (!override && (pref === 'mobile' || (!pref && (coarse || narrow))));
+                const isDesktop = (override === 'desktop') || (!override && pref === 'desktop');
+                const prompt = document.getElementById('mobilePrompt');
+                const openBtn = document.getElementById('openMobileUi');
+                const dismissBtn = document.getElementById('dismissMobileUi');
+                function openMobile(){
+                    // Navigate directly to the built mobile UI; it uses relative asset paths
+                    // and works with simple static servers (python -m http.server, etc.).
+                    window.location.href = './apps/mobile-ui/dist/index.html';
+                }
+                function dismiss(){ prompt.style.display = 'none'; localStorage.setItem('uiPref','desktop'); }
+                // Auto-redirect phones/tablets unless desktop is explicitly requested or preferred
+                if (!isDesktop && (override === 'mobile' || pref === 'mobile' || (coarse || narrow))) {
+                    try { localStorage.setItem('uiPref','mobile'); } catch(e) {}
+                    openMobile();
+                    return;
+                }
+                // Fallback prompt (visible only if user isn't auto-redirected and no desktop override)
+                if (openBtn) openBtn.addEventListener('click', function(){ localStorage.setItem('uiPref','mobile'); openMobile(); });
+                if (dismissBtn) dismissBtn.addEventListener('click', dismiss);
+                // Only show prompt when on a small/touch device and not explicitly desktop
+                if ((coarse || narrow) && !isDesktop && prompt) prompt.style.display = 'block';
+            } catch (e) { /* ignore detection errors */ }
+        })();
+    </script>
+    <script>
+        // Populate build info dynamically: prefer the page Last-Modified header for timestamp,
+        // fall back to build_meta.json, then to the static fallback values.
+        (function () {
+            const commitEl = document.getElementById('buildCommit');
+            const timeEl = document.getElementById('buildTime');
+            if (!commitEl && !timeEl) return;
+
+            const fallbackCommit = commitEl ? commitEl.textContent : '';
+            const fallbackTime = timeEl ? timeEl.textContent : '';
+
+            function setCommit(short) { if (commitEl && short) commitEl.textContent = short; }
+            function setTime(ts) { if (timeEl && ts) timeEl.textContent = ts; }
+
+            // Fetch build_meta.json and the page Last-Modified header in parallel, then show the newer timestamp.
+            const metaPromise = fetch('./build_meta.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
+            const headPromise = fetch('./index.html', { method: 'HEAD', cache: 'no-store' }).then(r => r.headers.get('last-modified')).catch(() => null);
+
+            Promise.all([metaPromise, headPromise]).then(([meta, lm]) => {
+                // Commit short from build_meta.json if available
+                if (meta && meta.commitShort) setCommit(meta.commitShort);
+
+                // Parse timestamps (if present) into Dates
+                let metaDate = null;
+                if (meta && meta.timestamp) {
+                    const m = new Date(meta.timestamp);
+                    if (!isNaN(m)) metaDate = m;
+                }
+
+                let lmDate = null;
+                if (lm) {
+                    const l = new Date(lm);
+                    if (!isNaN(l)) lmDate = l;
+                }
+
+                if (metaDate || lmDate) {
+                    // Choose the newer of the two
+                    if (metaDate && lmDate) {
+                        setTime((metaDate >= lmDate) ? metaDate.toLocaleString() : lmDate.toLocaleString());
+                    } else if (metaDate) {
+                        setTime(metaDate.toLocaleString());
+                    } else {
+                        setTime(lmDate.toLocaleString());
+                    }
+                } else {
+                    // If parsing failed, prefer raw meta timestamp text (if present), otherwise raw Last-Modified, otherwise fallback
+                    if (meta && meta.timestamp) setTime(meta.timestamp);
+                    else if (lm) setTime(lm);
+                    else setTime(fallbackTime || 'unknown');
+                }
+            }).catch(() => {
+                // Last-resort fallbacks: try meta, then head, then static fallback
+                metaPromise.then(meta => {
+                    if (meta && meta.commitShort) setCommit(meta.commitShort);
+                    if (meta && meta.timestamp) {
+                        const m = new Date(meta.timestamp);
+                        if (!isNaN(m)) setTime(m.toLocaleString()); else setTime(meta.timestamp);
+                        return;
+                    }
+                    // try HEAD
+                    fetch('./index.html', { method: 'HEAD', cache: 'no-store' }).then(r => {
+                        const lm2 = r.headers.get('last-modified');
+                        if (lm2) {
+                            const d2 = new Date(lm2);
+                            if (!isNaN(d2)) setTime(d2.toLocaleString()); else setTime(lm2);
+                        } else {
+                            setTime(fallbackTime || 'unknown');
+                        }
+                    }).catch(() => setTime(fallbackTime || 'unknown'));
+                }).catch(() => {
+                    setCommit(fallbackCommit || 'unknown');
+                    setTime(fallbackTime || 'unknown');
+                });
+            });
+        })();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/ansi_up@5.2.1/ansi_up.min.js"></script>
+    <script type="module" src="./modules/main.js"></script>
+    <script>
+        // Collapse changelog entries after the first 3 and wire a toggle button
+        (function () {
+            const entries = Array.from(document.querySelectorAll('.changelog-entry .changelog-version-entry'));
+            if (!entries.length) return;
+            const visibleCount = 3;
+            const hidden = entries.slice(visibleCount);
+            hidden.forEach(e => e.style.display = 'none');
+
+            const btn = document.getElementById('changelog-toggle');
+            if (!btn) return;
+            let open = false;
+            btn.addEventListener('click', () => {
+                open = !open;
+                hidden.forEach(e => e.style.display = open ? '' : 'none');
+                btn.textContent = open ? 'Show less' : 'Show more';
+            });
+        })();
+    </script>
+
+</body>
+</html>

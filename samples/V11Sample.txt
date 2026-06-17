@@ -1,0 +1,21 @@
+=== 11th Edition Army List ===
+Faction: Space Marines
+Detachment: Gladius Strike Force
+Points: 1990 / 2000
+
+[Leader] Captain in Terminator Armour (95 pts)
+  - Wargear: Relic Weapon, Storm Bolter
+  - Enhancement: Artificer Armour (10 pts)
+
+[Leader] Librarian (75 pts)
+  - Wargear: Force Weapon, Bolt Pistol
+
+[Line] 5x Terminator Squad (185 pts)
+  - Models:
+    * 1x Terminator Sergeant: Power Weapon, Storm Bolter
+    * 4x Terminator: 4x Power Fist, 4x Storm Bolter
+
+[Line] 5x Terminator Squad (185 pts)
+  - Models:
+    * 1x Terminator Sergeant: Power Weapon, Storm Bolter
+    * 4x Terminator: 4x Power Fist, 4x Storm Bolter

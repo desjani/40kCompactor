@@ -31,6 +31,11 @@ export function getMultilineHeaderState() { // New function
     return multilineHeaderCheckbox ? multilineHeaderCheckbox.checked : false;
 }
 
+export function getAbbreviateHeaderState() {
+    const abbreviateHeaderCheckbox = document.getElementById('abbreviateHeaderCheckbox');
+    return abbreviateHeaderCheckbox ? abbreviateHeaderCheckbox.checked : false;
+}
+
 export function getNoBulletsState() {
     const el = document.getElementById('noBulletsCheckbox');
     return el ? el.checked : false;
@@ -43,6 +48,11 @@ export function getCombineUnitsState() {
 
 export function getHidePointsState() {
     const el = document.getElementById('hidePointsCheckbox');
+    return el ? el.checked : false;
+}
+
+export function getShowMandatoryWargearState() {
+    const el = document.getElementById('showMandatoryWargearCheckbox');
     return el ? el.checked : false;
 }
 
@@ -71,7 +81,7 @@ export function initializeUI(callbacks) {
         });
 
         // New event listeners for color pickers
-        document.querySelectorAll('#unitColor, #subunitColor, #pointsColor, #headerColor, #wargearColor').forEach(el => {
+        document.querySelectorAll('#unitColor, #subunitColor, #pointsColor, #headerColor, #wargearColor, #attachedColor').forEach(el => {
             el.addEventListener('change', () => {
                 if (callbacks.onColorChange) {
                     callbacks.onColorChange();
@@ -124,6 +134,11 @@ export function initializeUI(callbacks) {
             multilineHeaderCheckbox.addEventListener('change', callbacks.onMultilineHeaderChange);
         }
 
+        const abbreviateHeaderCheckbox = document.getElementById('abbreviateHeaderCheckbox');
+        if (abbreviateHeaderCheckbox) {
+            abbreviateHeaderCheckbox.addEventListener('change', callbacks.onAbbreviateHeaderChange);
+        }
+
         const combineUnitsCheckbox = document.getElementById('combineUnitsCheckbox');
         if (combineUnitsCheckbox) {
             const handler = (typeof callbacks.onCombineUnitsChange === 'function') ? callbacks.onCombineUnitsChange : callbacks.onHideSubunitsChange;
@@ -140,6 +155,11 @@ export function initializeUI(callbacks) {
         const hidePointsCheckbox = document.getElementById('hidePointsCheckbox');
         if (hidePointsCheckbox) {
             hidePointsCheckbox.addEventListener('change', callbacks.onHidePointsChange);
+        }
+
+        const showMandatoryWargearCheckbox = document.getElementById('showMandatoryWargearCheckbox');
+        if (showMandatoryWargearCheckbox) {
+            showMandatoryWargearCheckbox.addEventListener('change', callbacks.onShowMandatoryWargearChange);
         }
 
         // Initialize Custom Abbreviations UI
