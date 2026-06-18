@@ -16,7 +16,7 @@ import { generateOutput, generateDiscordText } from '../../../modules/renderers.
 // @ts-ignore - ambient types provided separately for JS modules
 import { buildAbbreviationIndex } from '../../../modules/abbreviations.js'
 // @ts-ignore
-import { downloadCardPng } from '../../../modules/cardRenderer.js'
+import { downloadCardPng, generateCardPngDataUrl } from '../../../modules/cardRenderer.js'
 import skippable from '../../../skippable_wargear.json'
 
 function useLocalStorage<T>(key: string, initial: T): [T, (v: T)=>void] {
@@ -44,7 +44,9 @@ function App() {
   const [customAbbrs, setCustomAbbrs] = useLocalStorage<Record<string,string>>('customAbbrs', {})
   const [colorMode, setColorMode] = useLocalStorage<'none'|'custom'|'faction'>('colorMode', 'faction')
   const [colors, setColors] = useLocalStorage('colors', { unit:'#ffffff', subunit:'#808080', wargear:'#ffffff', points:'#ffff00', header:'#ffff00', attached:'#ffff00' })
-  const [format, setFormat] = useLocalStorage<'discordCompact'|'discordExtended'|'plainText'|'plainTextExtended'>('format','discordCompact')
+  const [format, setFormat] = useLocalStorage<'discordCompact'|'discordExtended'|'plainText'|'plainTextExtended'|'imageCodex'|'imageCodexAbbr'>('format','discordCompact')
+  const [imagePreviewUrl, setImagePreviewUrl] = useState('')
+  const [renderingImage, setRenderingImage] = useState(false)
 
   // Temporary state for adding new abbreviations
   const [newAbbrName, setNewAbbrName] = useState('')
@@ -86,24 +88,62 @@ function App() {
     }
   }, [])
   useEffect(() => {
-    if (!parsed || !abbr) { setPreviewText(''); return }
+    if (!parsed || !abbr) { setPreviewText(''); setImagePreviewUrl(''); return }
+    if (format === 'imageCodex' || format === 'imageCodexAbbr') {
+      setPreviewText('');
+      setRenderingImage(true);
+      let active = true;
+      generateCardPngDataUrl(parsed, {
+        hideSubunits: hide,
+        showMandatoryWargear: showMandatory,
+        hidePoints: hidePoints,
+        combineIdenticalUnits: combine,
+        useAbbreviations: format === 'imageCodexAbbr',
+        wargearAbbrMap: abbr
+      }).then(dataUrl => {
+        if (active) {
+          setImagePreviewUrl(dataUrl);
+          setRenderingImage(false);
+        }
+      }).catch(err => {
+        console.error('Failed to render mobile image preview:', err);
+        if (active) {
+          setRenderingImage(false);
+        }
+      });
+      return () => {
+        active = false;
+      };
+    }
     let t = ''
     const opts = { colorMode, colors, multilineHeader: multiline, abbreviateHeader: abbrHeader, showMandatoryWargear: showMandatory } as any
-  switch (format) {
+    switch (format) {
       case 'discordCompact':
-    t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
+        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'discordExtended':
-    t = generateDiscordText(parsed, false, false, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
+        t = generateDiscordText(parsed, false, false, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'plainText':
-    t = generateDiscordText(parsed, true, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
+        t = generateDiscordText(parsed, true, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'plainTextExtended':
-    t = generateDiscordText(parsed, true, false, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
+        t = generateDiscordText(parsed, true, false, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
       default:
-    t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints)
+        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints)
     }
     setPreviewText(t)
   }, [parsed, abbr, hide, combine, colorMode, colors, multiline, format, noBullets, hidePoints, abbrHeader, showMandatory])
-  const previewHtml = useMemo(() => au.ansi_to_html(previewText), [previewText, au])
+
+  const previewHtml = useMemo(() => {
+    if (format === 'imageCodex' || format === 'imageCodexAbbr') {
+      if (renderingImage) {
+        return '<div style="color: #aab; text-align: center; padding: 20px;">Generating preview image...</div>';
+      }
+      if (imagePreviewUrl) {
+        return `<img src="${imagePreviewUrl}" style="max-width: 100%; height: auto; display: block; border-radius: 6px;" />`;
+      }
+      return '<div style="color: #aab; text-align: center; padding: 20px;">No preview generated.</div>';
+    }
+    return au.ansi_to_html(previewText);
+  }, [format, renderingImage, imagePreviewUrl, previewText, au]);
 
   function copy(s: string) {
     if (!s || !parsed || !abbr) { navigator.clipboard?.writeText(s || ''); return }
@@ -124,22 +164,14 @@ function App() {
     navigator.clipboard?.writeText(t)
   }
 
-  function exportImage() {
-    if (!parsed) return
-    downloadCardPng(parsed, {
-      hideSubunits: hide,
-      showMandatoryWargear: showMandatory,
-      hidePoints: hidePoints
-    })
-  }
-
-  function exportImageAbbr() {
+  function handleDownloadImage() {
     if (!parsed) return
     downloadCardPng(parsed, {
       hideSubunits: hide,
       showMandatoryWargear: showMandatory,
       hidePoints: hidePoints,
-      useAbbreviations: true,
+      combineIdenticalUnits: combine,
+      useAbbreviations: format === 'imageCodexAbbr',
       wargearAbbrMap: abbr
     })
   }
@@ -190,6 +222,8 @@ function App() {
                   <option value="discordExtended">Discord (Extended)</option>
                   <option value="plainText">Plain Text</option>
                   <option value="plainTextExtended">Plain Text (extended)</option>
+                  <option value="imageCodex">Image (Codex Card)</option>
+                  <option value="imageCodexAbbr">Image (Codex Card Abbreviated)</option>
                 </select>
               </label>
             </div>
@@ -250,9 +284,11 @@ function App() {
             </div>
             <div class="outbox" id="markdownPreviewOutput" dangerouslySetInnerHTML={{ __html: previewHtml }}></div>
             <div class="row" style={{ marginTop: '6px', justifyContent:'flex-end', gap: '8px', flexWrap: 'wrap' }}>
-              <button class="btn" onClick={()=>copy(previewText)}>Copy</button>
-              <button class="btn" style={{ backgroundColor: 'var(--color-action)' }} onClick={exportImage}>Export Image</button>
-              <button class="btn" style={{ backgroundColor: 'var(--color-discord)' }} onClick={exportImageAbbr}>Export Image (Abbr)</button>
+              {(format === 'imageCodex' || format === 'imageCodexAbbr') ? (
+                <button class="btn" style={{ backgroundColor: 'var(--color-action)' }} onClick={handleDownloadImage}>Download Image</button>
+              ) : (
+                <button class="btn" onClick={()=>copy(previewText)}>Copy</button>
+              )}
             </div>
           </div>
         )}

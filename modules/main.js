@@ -1,8 +1,8 @@
 import { detectFormat, parseV11List, parseGwAppV11 } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
-import { downloadCardPng } from './cardRenderer.js';
-import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getMultilineHeaderState, getAbbreviateHeaderState, getShowMandatoryWargearState, getCustomAbbrs } from './ui.js';
+import { downloadCardPng, generateCardPngDataUrl } from './cardRenderer.js';
+import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getMultilineHeaderState, getAbbreviateHeaderState, getShowMandatoryWargearState, getCustomAbbrs, setCopyPreviewButtonText } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
@@ -42,6 +42,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             const combineUnits = getCombineUnitsState();
             const noBullets = getNoBulletsState();
             const hidePoints = getHidePointsState();
+
+            if (selectedFormat === 'imageCodex' || selectedFormat === 'imageCodexAbbr') {
+                downloadCardPng(parsedData, {
+                    hideSubunits: hideSubunits,
+                    showMandatoryWargear: getShowMandatoryWargearState(),
+                    hidePoints: hidePoints,
+                    combineIdenticalUnits: combineUnits,
+                    useAbbreviations: selectedFormat === 'imageCodexAbbr',
+                    wargearAbbrMap: wargearAbbrDB
+                });
+                return;
+            }
+
             const opts = { forcePalette: true, multilineHeader: getMultilineHeaderState(), abbreviateHeader: getAbbreviateHeaderState(), showMandatoryWargear: getShowMandatoryWargearState() };
             let text = '';
             switch (selectedFormat) {
@@ -63,24 +76,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (parsedData) {
                 renderAllOutputsWithCurrentOptions();
             }
-        },
-        onExportImage: () => {
-            if (!parsedData) return;
-            downloadCardPng(parsedData, {
-                hideSubunits: getHideSubunitsState(),
-                showMandatoryWargear: getShowMandatoryWargearState(),
-                hidePoints: getHidePointsState()
-            });
-        },
-        onExportImageAbbr: () => {
-            if (!parsedData) return;
-            downloadCardPng(parsedData, {
-                hideSubunits: getHideSubunitsState(),
-                showMandatoryWargear: getShowMandatoryWargearState(),
-                hidePoints: getHidePointsState(),
-                useAbbreviations: true,
-                wargearAbbrMap: wargearAbbrDB
-            });
         },
     onHideSubunitsChange: () => renderAllOutputsWithCurrentOptions(),
     onCombineUnitsChange: () => renderAllOutputsWithCurrentOptions(),
@@ -182,7 +177,7 @@ function handleReset() {
     // wargearAbbrMap = null;
 }
 
-function updatePreview() {
+async function updatePreview() {
     if (!parsedData) return;
 
     const outputFormatSelect = document.getElementById('outputFormatSelect');
@@ -194,6 +189,37 @@ function updatePreview() {
     console.log('UI: hideSubunits value in updatePreview', hideSubunits, 'selectedFormat', selectedFormat);
 
     const opts = { multilineHeader: getMultilineHeaderState(), abbreviateHeader: getAbbreviateHeaderState(), showMandatoryWargear: getShowMandatoryWargearState() };
+
+    if (selectedFormat === 'imageCodex' || selectedFormat === 'imageCodexAbbr') {
+        setCopyPreviewButtonText('Download Image');
+        const markdownPreviewOutput = document.getElementById('markdownPreviewOutput');
+        if (markdownPreviewOutput) {
+            markdownPreviewOutput.innerHTML = '<div style="color: var(--color-text-secondary); text-align: center; padding: 2rem;">Generating preview image...</div>';
+        }
+        try {
+            const dataUrl = await generateCardPngDataUrl(parsedData, {
+                hideSubunits,
+                showMandatoryWargear: getShowMandatoryWargearState(),
+                hidePoints,
+                combineIdenticalUnits: combineUnits,
+                useAbbreviations: selectedFormat === 'imageCodexAbbr',
+                wargearAbbrMap: wargearAbbrDB
+            });
+            if (markdownPreviewOutput && (outputFormatSelect.value === 'imageCodex' || outputFormatSelect.value === 'imageCodexAbbr')) {
+                markdownPreviewOutput.innerHTML = `<img src="${dataUrl}" style="max-width: 100%; height: auto; display: block; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);" />`;
+            }
+        } catch (err) {
+            console.error('Failed to generate preview image:', err);
+            if (markdownPreviewOutput) {
+                markdownPreviewOutput.innerHTML = '<div style="color: red; text-align: center; padding: 2rem;">Failed to render preview.</div>';
+            }
+        }
+        currentPreviewText = '';
+        updateCharCounts(getInputText(), extendedPlainText, compactPlainText, '', detectedFormat);
+        return;
+    }
+
+    setCopyPreviewButtonText('Copy Preview to Clipboard');
 
     let previewText = '';
     switch (selectedFormat) {

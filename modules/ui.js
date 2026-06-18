@@ -11,8 +11,6 @@ const toggleDebugButton = isBrowser ? document.getElementById('toggleDebugButton
 const copyExtendedButton = isBrowser ? document.getElementById('copyExtendedButton') : null;
 const outputFormatSelect = isBrowser ? document.getElementById('outputFormatSelect') : null;
 const copyPreviewButton = isBrowser ? document.getElementById('copyPreviewButton') : null;
-const exportImageButton = isBrowser ? document.getElementById('exportImageButton') : null;
-const exportImageAbbrButton = isBrowser ? document.getElementById('exportImageAbbrButton') : null;
 const customColorPickers = isBrowser ? document.getElementById('customColorPickers') : null;
 const inputCharCount = isBrowser ? document.getElementById('inputCharCount') : null;
 const extendedCharCount = isBrowser ? document.getElementById('extendedCharCount') : null; // Corrected ID
@@ -124,8 +122,6 @@ export function initializeUI(callbacks) {
     if (copyExtendedButton) copyExtendedButton.addEventListener('click', callbacks.onCopyExtended);
     if (outputFormatSelect) outputFormatSelect.addEventListener('change', callbacks.onOutputFormatChange);
     if (copyPreviewButton) copyPreviewButton.addEventListener('click', callbacks.onCopyPreview);
-    if (exportImageButton) exportImageButton.addEventListener('click', callbacks.onExportImage);
-    if (exportImageAbbrButton) exportImageAbbrButton.addEventListener('click', callbacks.onExportImageAbbr);
     
     if (isBrowser) {
         const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');
@@ -425,4 +421,10 @@ export function setFactionColorDiagnostic(text) {
 
 export function clearFactionColorDiagnostic() {
     setFactionColorDiagnostic('');
+}
+
+export function setCopyPreviewButtonText(text) {
+    if (copyPreviewButton) {
+        copyPreviewButton.textContent = text || 'Copy Preview to Clipboard';
+    }
 }

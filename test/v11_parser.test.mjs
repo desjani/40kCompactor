@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { detectFormat, parseV11List, parseGwAppV11 } from '../modules/parsers.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 import { generateDiscordText, generateOutput } from '../modules/renderers.js';
+import { generateCardHtml } from '../modules/cardRenderer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -189,6 +190,49 @@ function runGwAppTests() {
     });
     assert.ok(customColorsOut.includes('1;32m[L1]'), 'Should color Farsight attached tag with custom attached color (green = 32)');
     console.log('✓ Discord ANSI color output tests passed');
+
+    // 6. Unit Combining Tests (both normal and attached)
+    console.log('Testing Unit Combining option (including attached units)...');
+    
+    // Normal unit combining check on World Eaters list
+    const weAbbr = buildAbbreviationIndex(parsedWe);
+    const combinedWe = generateOutput(parsedWe, false, weAbbr, false, {}, false, true, false, false, false, false);
+    assert.ok(combinedWe.plainText.includes('2x1 Chaos Rhino'), 'Should combine identical Chaos Rhinos');
+    assert.ok(combinedWe.plainText.includes('2x1 Chaos Spawn'), 'Should combine identical Chaos Spawns');
+
+    // Attached unit combining check using mocked identical attached units
+    const mockList = {
+        metadata: { faction: 'World Eaters' },
+        units: [
+            {
+                name: 'Attached Unit 1',
+                isAttached: true,
+                points: 295,
+                attachedParts: [
+                    { name: 'Khârn the Betrayer', quantity: 1, points: 115 },
+                    { name: 'Khorne Berzerkers', quantity: 10, points: 180 }
+                ]
+            },
+            {
+                name: 'Attached Unit 2',
+                isAttached: true,
+                points: 295,
+                attachedParts: [
+                    { name: 'Khârn the Betrayer', quantity: 1, points: 115 },
+                    { name: 'Khorne Berzerkers', quantity: 10, points: 180 }
+                ]
+            }
+        ]
+    };
+    const combinedMock = generateOutput(mockList, false, {}, false, {}, false, true, false, false, false, false);
+    assert.ok(combinedMock.plainText.includes('2x1 Khârn the Betrayer'), 'Should render 2x1 for combined leader in text mode');
+    assert.ok(combinedMock.plainText.includes('2x10 Khorne Berzerkers'), 'Should render 2x10 for combined bodyguard in text mode');
+
+    // HTML/Card rendering combining check
+    const cardHtml = generateCardHtml(mockList, { combineIdenticalUnits: true });
+    assert.ok(cardHtml.includes('2x1 Khârn the Betrayer'), 'HTML should render 2x1 Khârn the Betrayer');
+    assert.ok(cardHtml.includes('2x10 Khorne Berzerkers'), 'HTML should render 2x10 Khorne Berzerkers');
+    console.log('✓ Unit combining tests passed');
 
     console.log('✓ GW App v11 rendering tests passed');
 }

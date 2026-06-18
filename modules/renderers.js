@@ -264,6 +264,7 @@ function canonicalUnitSignature(unit, hideSubunits) {
         const out = {};
         for (const [k, v] of Object.entries(value)) {
             if (k === '_parent' || k.startsWith('__')) continue;
+            if (k === 'name' && value.isAttached) continue;
             if (k === 'quantity') {
                 const q = parseInt((v ?? '1').toString().replace('x', ''), 10);
                 out[k] = isNaN(q) ? v : q;
@@ -280,7 +281,7 @@ function canonicalUnitSignature(unit, hideSubunits) {
     }
 }
 
-function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
+export function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
     if (!enable || !Array.isArray(sectionUnits)) return sectionUnits;
     const groups = new Map();
     for (const u of sectionUnits) {
@@ -294,6 +295,14 @@ function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
             const single = { ...group[0] };
             single.__groupCount = 1;
             single.__unitSize = parseInt((single.quantity || '1').toString().replace('x', ''), 10) || 1;
+            if (single.isAttached && Array.isArray(single.attachedParts)) {
+                single.attachedParts = single.attachedParts.map(part => {
+                    const p = { ...part };
+                    p.__groupCount = 1;
+                    p.__unitSize = parseInt((p.quantity || '1').toString().replace('x', ''), 10) || 1;
+                    return p;
+                });
+            }
             combined.push(single);
             continue;
         }
@@ -301,6 +310,14 @@ function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
         const unitSize = parseInt((template.quantity || '1').toString().replace('x', ''), 10) || 1;
         template.__groupCount = group.length;
         template.__unitSize = unitSize;
+        if (template.isAttached && Array.isArray(template.attachedParts)) {
+            template.attachedParts = template.attachedParts.map(part => {
+                const p = { ...part };
+                p.__groupCount = group.length;
+                p.__unitSize = parseInt((p.quantity || '1').toString().replace('x', ''), 10) || 1;
+                return p;
+            });
+        }
         combined.push(template);
     }
     return combined;

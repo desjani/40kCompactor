@@ -72,6 +72,8 @@
                                 <option value="discordExtended">Discord (Extended)</option>
                                 <option value="plainText">Plain Text</option>
                                 <option value="plainTextExtended">Plain Text (extended)</option>
+                                <option value="imageCodex">Image (Codex Card)</option>
+                                <option value="imageCodexAbbr">Image (Codex Card Abbreviated)</option>
                             </select>
                         </label>
                     </div>
@@ -255,11 +257,7 @@
                     <div id="markdownPreviewOutput" class="io-box markdown-preview"></div>
                     <div class="column-footer" style="flex-direction: column; align-items: center;">
                         <div id="markdownPreviewCharCount" class="char-count" style="margin-bottom: 0.5rem;"></div>
-                        <div class="button-group">
-                            <button id="copyPreviewButton" class="btn btn-copy">Copy Preview to Clipboard</button>
-                            <button id="exportImageButton" class="btn btn-primary">Export Image</button>
-                            <button id="exportImageAbbrButton" class="btn btn-primary" style="background-color: var(--color-discord);">Export Image (Abbr)</button>
-                        </div>
+                        <button id="copyPreviewButton" class="btn btn-copy">Copy Preview to Clipboard</button>
                     </div>
                     <div id="factionColorDiagnostic" style="margin-top:0.5rem;font-size:0.75rem;color:var(--color-text-secondary);"></div>
                 </div>

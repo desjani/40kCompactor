@@ -46,6 +46,7 @@ async function generateImageBuffer(parsedData, options) {
         hideSubunits: options.hideSubunits,
         showMandatoryWargear: options.showMandatoryWargear,
         hidePoints: options.hidePoints,
+        combineIdenticalUnits: options.combineUnits,
         useAbbreviations: options.format === 'discordCompact' || options.format === 'plainText',
         wargearAbbrMap: buildAbbreviationIndex(parsedData)
     });
