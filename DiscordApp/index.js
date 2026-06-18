@@ -1,13 +1,17 @@
-import { Client, GatewayIntentBits, Events, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
+import { Client, GatewayIntentBits, Events, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, AttachmentBuilder } from 'discord.js';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { html } from 'satori-html';
+import satori from 'satori';
+import { Resvg } from '@resvg/resvg-js';
 
 // Import core modules from parent directory
 import { detectFormat, parseV11List, parseGwAppV11 } from '../modules/parsers.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 import { generateDiscordText, ansiPalette, colorNameToHex } from '../modules/renderers.js';
+import { generateCardHtml } from '../modules/cardRenderer.js';
 
 dotenv.config();
 
@@ -21,6 +25,59 @@ try {
     skippableWargear = JSON.parse(fs.readFileSync(skippablePath, 'utf8'));
 } catch (e) {
     console.error('Failed to load skippable_wargear.json', e);
+}
+
+// Load fonts for Satori rendering
+let interRegular = null;
+let interBold = null;
+try {
+    interRegular = fs.readFileSync(path.join(__dirname, 'fonts/Inter-Regular.ttf'));
+    interBold = fs.readFileSync(path.join(__dirname, 'fonts/Inter-Bold.ttf'));
+} catch (e) {
+    console.error('Failed to load Inter fonts for Satori bot rendering', e);
+}
+
+async function generateImageBuffer(parsedData, options) {
+    if (!interRegular || !interBold) {
+        throw new Error('Required fonts for image rendering are not loaded');
+    }
+
+    const cardHtml = generateCardHtml(parsedData, {
+        hideSubunits: options.hideSubunits,
+        showMandatoryWargear: options.showMandatoryWargear,
+        hidePoints: options.hidePoints
+    });
+
+    const template = html(cardHtml);
+
+    const svg = await satori(template, {
+        width: 580,
+        fonts: [
+            {
+                name: 'Inter',
+                data: interRegular,
+                weight: 400,
+                style: 'normal',
+            },
+            {
+                name: 'Inter',
+                data: interBold,
+                weight: 700,
+                style: 'normal',
+            },
+        ],
+    });
+
+    const resvg = new Resvg(svg, {
+        background: '#18181b',
+        fitTo: {
+            mode: 'width',
+            value: 580,
+        },
+    });
+
+    const pngData = resvg.render();
+    return pngData.asPng();
 }
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -190,6 +247,76 @@ client.on(Events.InteractionCreate, async interaction => {
                 } catch (err) {
                     console.error('Publish error:', err);
                     await interaction.followUp({ content: `Failed to publish: ${err.message}`, ephemeral: true });
+                }
+                return;
+            }
+
+            if (interaction.customId === 'publish_image') {
+                await interaction.deferUpdate();
+                
+                session.options.username = interaction.user.username;
+                session.options.userId = interaction.user.id;
+                
+                try {
+                    const lines = session.text.split(/\r?\n/);
+                    const format = detectFormat(lines);
+                    
+                    const parser = {
+                        V11_GENERIC: parseV11List,
+                        GW_APP_V11: parseGwAppV11
+                    }[format];
+
+                    if (!parser) {
+                        throw new Error('Unsupported or unknown list format.');
+                    }
+
+                    const parsedData = parser(lines);
+                    
+                    const pngBuffer = await generateImageBuffer(parsedData, session.options);
+                    
+                    let channel = interaction.channel;
+                    if (!channel && interaction.channelId) {
+                        channel = await interaction.client.channels.fetch(interaction.channelId);
+                    }
+
+                    if (channel) {
+                        if (channel.guild) {
+                            const permissions = channel.permissionsFor(interaction.client.user);
+                            if (permissions) {
+                                if (!permissions.has('SendMessages')) {
+                                    throw new Error(`Missing 'Send Messages' permission in #${channel.name}`);
+                                }
+                                if (!permissions.has('AttachFiles')) {
+                                    throw new Error(`Missing 'Attach Files' permission in #${channel.name}`);
+                                }
+                            }
+                        }
+
+                        const armyName = (parsedData.metadata?.title || parsedData.metadata?.armyName || 'army-list').toLowerCase().replace(/[^a-z0-9]/g, '-');
+                        const attachment = new AttachmentBuilder(pngBuffer, { name: `${armyName}-card.png` });
+                        
+                        const row = new ActionRowBuilder()
+                            .addComponents(
+                                new ButtonBuilder()
+                                    .setCustomId(`delete_published_${interaction.user.id}`)
+                                    .setLabel('Delete')
+                                    .setStyle(ButtonStyle.Danger)
+                            );
+
+                        await channel.send({
+                            content: `📊 **Image Version** of the list published by <@${interaction.user.id}>:`,
+                            files: [attachment],
+                            components: [row]
+                        });
+                        
+                        await interaction.editReply({ content: 'Image list published to channel!', components: [] });
+                        sessions.delete(interaction.message.id);
+                    } else {
+                        throw new Error('Could not access the channel to publish.');
+                    }
+                } catch (err) {
+                    console.error('Publish image error:', err);
+                    await interaction.followUp({ content: `Failed to publish image: ${err.message}`, ephemeral: true });
                 }
                 return;
             }
@@ -454,6 +581,10 @@ function generateResponse(text, options) {
         new ButtonBuilder()
             .setCustomId('publish')
             .setLabel('Publish to Channel')
+            .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
+            .setCustomId('publish_image')
+            .setLabel('Publish Image')
             .setStyle(ButtonStyle.Success)
     ];
 

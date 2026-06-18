@@ -99,7 +99,7 @@ function runGwAppTests() {
 
     const parsedWe = parseGwAppV11(weLines, skippableWargear);
     assert.strictEqual(parsedWe.metadata.armyName, 'Khaaaarn!');
-    assert.strictEqual(parsedWe.metadata.totalPoints, 2005);
+    assert.strictEqual(parsedWe.metadata.totalPoints, 1995);
     assert.strictEqual(parsedWe.metadata.faction, 'World Eaters');
     
     const daemonPrince = parsedWe.units.find(u => u.name === 'Daemon Prince of Khorne');

@@ -255,7 +255,10 @@
                     <div id="markdownPreviewOutput" class="io-box markdown-preview"></div>
                     <div class="column-footer" style="flex-direction: column; align-items: center;">
                         <div id="markdownPreviewCharCount" class="char-count" style="margin-bottom: 0.5rem;"></div>
-                        <button id="copyPreviewButton" class="btn btn-copy">Copy Preview to Clipboard</button>
+                        <div class="button-group">
+                            <button id="copyPreviewButton" class="btn btn-copy">Copy Preview to Clipboard</button>
+                            <button id="exportImageButton" class="btn btn-primary">Export Image</button>
+                        </div>
                     </div>
                     <div id="factionColorDiagnostic" style="margin-top:0.5rem;font-size:0.75rem;color:var(--color-text-secondary);"></div>
                 </div>
@@ -497,6 +500,7 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/ansi_up@5.2.1/ansi_up.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
     <script type="module" src="./modules/main.js"></script>
     <script>
         // Collapse changelog entries after the first 3 and wire a toggle button

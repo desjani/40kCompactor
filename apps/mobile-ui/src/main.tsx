@@ -1,7 +1,12 @@
 import { render } from 'preact'
 import { useEffect, useMemo, useState } from 'preact/hooks'
 import * as AnsiUpNS from 'ansi_up'
+import * as htmlToImage from 'html-to-image'
 import './style.css'
+
+if (typeof window !== 'undefined') {
+  (window as any).htmlToImage = htmlToImage;
+}
 
 // Import shared modules from repo root
 // @ts-ignore - ambient types provided separately for JS modules
@@ -10,6 +15,8 @@ import * as parsers from '../../../modules/parsers.js'
 import { generateOutput, generateDiscordText } from '../../../modules/renderers.js'
 // @ts-ignore - ambient types provided separately for JS modules
 import { buildAbbreviationIndex } from '../../../modules/abbreviations.js'
+// @ts-ignore
+import { downloadCardPng } from '../../../modules/cardRenderer.js'
 import skippable from '../../../skippable_wargear.json'
 
 function useLocalStorage<T>(key: string, initial: T): [T, (v: T)=>void] {
@@ -117,6 +124,15 @@ function App() {
     navigator.clipboard?.writeText(t)
   }
 
+  function exportImage() {
+    if (!parsed) return
+    downloadCardPng(parsed, {
+      hideSubunits: hide,
+      showMandatoryWargear: showMandatory,
+      hidePoints: hidePoints
+    })
+  }
+
   function addCustomAbbr() {
     if (!newAbbrName.trim() || !newAbbrCode.trim()) return
     setCustomAbbrs({ ...customAbbrs, [newAbbrName.trim()]: newAbbrCode.trim() })
@@ -222,8 +238,9 @@ function App() {
               </details>
             </div>
             <div class="outbox" id="markdownPreviewOutput" dangerouslySetInnerHTML={{ __html: previewHtml }}></div>
-            <div class="row" style={{ marginTop: '6px', justifyContent:'flex-end' }}>
+            <div class="row" style={{ marginTop: '6px', justifyContent:'flex-end', gap: '8px' }}>
               <button class="btn" onClick={()=>copy(previewText)}>Copy</button>
+              <button class="btn" style={{ backgroundColor: 'var(--color-action)' }} onClick={exportImage}>Export Image</button>
             </div>
           </div>
         )}

@@ -9,7 +9,10 @@
     "deploy": "node deploy-commands.js"
   },
   "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "discord.js": "^14.14.1",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "satori": "^0.26.0",
+    "satori-html": "^0.3.2"
   }
 }

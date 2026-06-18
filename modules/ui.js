@@ -11,6 +11,7 @@ const toggleDebugButton = isBrowser ? document.getElementById('toggleDebugButton
 const copyExtendedButton = isBrowser ? document.getElementById('copyExtendedButton') : null;
 const outputFormatSelect = isBrowser ? document.getElementById('outputFormatSelect') : null;
 const copyPreviewButton = isBrowser ? document.getElementById('copyPreviewButton') : null;
+const exportImageButton = isBrowser ? document.getElementById('exportImageButton') : null;
 const customColorPickers = isBrowser ? document.getElementById('customColorPickers') : null;
 const inputCharCount = isBrowser ? document.getElementById('inputCharCount') : null;
 const extendedCharCount = isBrowser ? document.getElementById('extendedCharCount') : null; // Corrected ID
@@ -122,6 +123,7 @@ export function initializeUI(callbacks) {
     if (copyExtendedButton) copyExtendedButton.addEventListener('click', callbacks.onCopyExtended);
     if (outputFormatSelect) outputFormatSelect.addEventListener('change', callbacks.onOutputFormatChange);
     if (copyPreviewButton) copyPreviewButton.addEventListener('click', callbacks.onCopyPreview);
+    if (exportImageButton) exportImageButton.addEventListener('click', callbacks.onExportImage);
     
     if (isBrowser) {
         const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');

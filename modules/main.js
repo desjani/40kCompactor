@@ -1,6 +1,7 @@
 import { detectFormat, parseV11List, parseGwAppV11 } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
+import { downloadCardPng } from './cardRenderer.js';
 import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getMultilineHeaderState, getAbbreviateHeaderState, getShowMandatoryWargearState, getCustomAbbrs } from './ui.js';
 
 let parsedData = null;
@@ -62,6 +63,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (parsedData) {
                 renderAllOutputsWithCurrentOptions();
             }
+        },
+        onExportImage: () => {
+            if (!parsedData) return;
+            downloadCardPng(parsedData, {
+                hideSubunits: getHideSubunitsState(),
+                showMandatoryWargear: getShowMandatoryWargearState(),
+                hidePoints: getHidePointsState()
+            });
         },
     onHideSubunitsChange: () => renderAllOutputsWithCurrentOptions(),
     onCombineUnitsChange: () => renderAllOutputsWithCurrentOptions(),

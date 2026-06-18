@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "ansi_up": "^5.2.1",
+    "html-to-image": "^1.11.13",
     "preact": "^10.24.3"
   },
   "devDependencies": {
