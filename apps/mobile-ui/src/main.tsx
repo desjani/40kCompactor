@@ -133,6 +133,17 @@ function App() {
     })
   }
 
+  function exportImageAbbr() {
+    if (!parsed) return
+    downloadCardPng(parsed, {
+      hideSubunits: hide,
+      showMandatoryWargear: showMandatory,
+      hidePoints: hidePoints,
+      useAbbreviations: true,
+      wargearAbbrMap: abbr
+    })
+  }
+
   function addCustomAbbr() {
     if (!newAbbrName.trim() || !newAbbrCode.trim()) return
     setCustomAbbrs({ ...customAbbrs, [newAbbrName.trim()]: newAbbrCode.trim() })
@@ -238,9 +249,10 @@ function App() {
               </details>
             </div>
             <div class="outbox" id="markdownPreviewOutput" dangerouslySetInnerHTML={{ __html: previewHtml }}></div>
-            <div class="row" style={{ marginTop: '6px', justifyContent:'flex-end', gap: '8px' }}>
+            <div class="row" style={{ marginTop: '6px', justifyContent:'flex-end', gap: '8px', flexWrap: 'wrap' }}>
               <button class="btn" onClick={()=>copy(previewText)}>Copy</button>
               <button class="btn" style={{ backgroundColor: 'var(--color-action)' }} onClick={exportImage}>Export Image</button>
+              <button class="btn" style={{ backgroundColor: 'var(--color-discord)' }} onClick={exportImageAbbr}>Export Image (Abbr)</button>
             </div>
           </div>
         )}

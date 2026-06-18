@@ -1,7 +1,5 @@
-// Graphical card rendering module for Warhammer 40k List Compactor.
-// Compatible with both browser (html-to-image) and server (Satori).
-
 import factionColors from './faction_colors.js';
+import { makeAbbrevForName } from './abbreviations.js';
 
 const colorNameToHex = {
     black: '#000000', red: '#FF0000', green: '#00FF00', yellow: '#FFFF00', blue: '#0000FF',
@@ -138,23 +136,41 @@ export function generateCardHtml(data, options = {}) {
   // Process units (combine logic if requested)
   const rawUnits = Array.isArray(data.units) ? data.units : [];
   
+  const getAbbrName = (itemName) => {
+    if (!options.useAbbreviations) return itemName;
+    if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
+      const nameLower = itemName.toLowerCase();
+      const val = options.wargearAbbrMap.__flat_abbr[nameLower];
+      if (val) {
+        if (typeof val === 'string') return val;
+        if (typeof val === 'object' && val.abbr) return val.abbr;
+      }
+    }
+    return makeAbbrevForName(itemName);
+  };
+
   const getSubunitWargearStr = (sub, showMandatory) => {
     const wgs = (sub.wargear || []).filter(w => showMandatory || !w.skippable);
     return wgs.map(w => {
       const q = parseInt(w.quantity || 1, 10);
-      return q > 1 ? `${q}x ${w.name}` : w.name;
+      const nameAbbr = getAbbrName(w.name);
+      return q > 1 ? `${q}x ${nameAbbr}` : nameAbbr;
     }).join(', ');
   };
 
   const renderUnitDetails = (unit) => {
     const parts = [];
     if (Array.isArray(unit.enhancements)) {
-      unit.enhancements.forEach(e => parts.push(`Enhancement: ${e.name}`));
+      unit.enhancements.forEach(e => {
+        const abbrName = getAbbrName(e.name);
+        parts.push(`E: ${abbrName}`);
+      });
     }
     if (Array.isArray(unit.wargear)) {
       unit.wargear.filter(w => options.showMandatoryWargear || !w.skippable).forEach(w => {
         const q = parseInt(w.quantity || 1, 10);
-        parts.push(q > 1 ? `${q}x ${w.name}` : w.name);
+        const nameAbbr = getAbbrName(w.name);
+        parts.push(q > 1 ? `${q}x ${nameAbbr}` : nameAbbr);
       });
     }
     if (!options.hideSubunits && Array.isArray(unit.subunits)) {

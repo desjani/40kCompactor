@@ -45,7 +45,9 @@ async function generateImageBuffer(parsedData, options) {
     const cardHtml = generateCardHtml(parsedData, {
         hideSubunits: options.hideSubunits,
         showMandatoryWargear: options.showMandatoryWargear,
-        hidePoints: options.hidePoints
+        hidePoints: options.hidePoints,
+        useAbbreviations: options.format === 'discordCompact' || options.format === 'plainText',
+        wargearAbbrMap: buildAbbreviationIndex(parsedData)
     });
 
     const template = html(cardHtml);

@@ -72,6 +72,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 hidePoints: getHidePointsState()
             });
         },
+        onExportImageAbbr: () => {
+            if (!parsedData) return;
+            downloadCardPng(parsedData, {
+                hideSubunits: getHideSubunitsState(),
+                showMandatoryWargear: getShowMandatoryWargearState(),
+                hidePoints: getHidePointsState(),
+                useAbbreviations: true,
+                wargearAbbrMap: wargearAbbrDB
+            });
+        },
     onHideSubunitsChange: () => renderAllOutputsWithCurrentOptions(),
     onCombineUnitsChange: () => renderAllOutputsWithCurrentOptions(),
     onNoBulletsChange: () => renderAllOutputsWithCurrentOptions(),
