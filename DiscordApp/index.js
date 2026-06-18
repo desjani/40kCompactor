@@ -73,6 +73,8 @@ client.on(Events.InteractionCreate, async interaction => {
                 multilineHeader: false,
                 noBullets: false,
                 hidePoints: false,
+                abbreviateHeader: false,
+                showMandatoryWargear: false,
                 username: interaction.user.username,
                 userId: interaction.user.id,
                 colorMode: 'faction',
@@ -200,6 +202,8 @@ client.on(Events.InteractionCreate, async interaction => {
             if (interaction.customId === 'toggle_header') options.multilineHeader = !options.multilineHeader;
             if (interaction.customId === 'toggle_bullets') options.noBullets = !options.noBullets;
             if (interaction.customId === 'toggle_points') options.hidePoints = !options.hidePoints;
+            if (interaction.customId === 'toggle_abbr_header') options.abbreviateHeader = !options.abbreviateHeader;
+            if (interaction.customId === 'toggle_mandatory') options.showMandatoryWargear = !options.showMandatoryWargear;
             
             if (interaction.customId === 'select_color') {
                 options.colorMode = interaction.values[0];
@@ -340,6 +344,8 @@ function generateResponse(text, options) {
 
         const renderOptions = {
             multilineHeader: options.multilineHeader,
+            abbreviateHeader: options.abbreviateHeader,
+            showMandatoryWargear: options.showMandatoryWargear,
             colorMode: options.colorMode,
             forcePalette: true, // Ensure we use Discord-safe colors
             colors: options.customColors
@@ -390,13 +396,21 @@ function generateResponse(text, options) {
                 .setLabel(options.multilineHeader ? 'Single Header' : 'Multi Header')
                 .setStyle(options.multilineHeader ? ButtonStyle.Primary : ButtonStyle.Secondary),
             new ButtonBuilder()
+                .setCustomId('toggle_abbr_header')
+                .setLabel(options.abbreviateHeader ? 'Full Header' : 'Abbr Header')
+                .setStyle(options.abbreviateHeader ? ButtonStyle.Primary : ButtonStyle.Secondary),
+            new ButtonBuilder()
                 .setCustomId('toggle_combine')
                 .setLabel(options.combineUnits ? 'Split Units' : 'Combine Units')
                 .setStyle(options.combineUnits ? ButtonStyle.Primary : ButtonStyle.Secondary),
             new ButtonBuilder()
                 .setCustomId('toggle_subunits')
                 .setLabel(options.hideSubunits ? 'Show Subunits' : 'Hide Subunits')
-                .setStyle(options.hideSubunits ? ButtonStyle.Primary : ButtonStyle.Secondary),
+                .setStyle(options.hideSubunits ? ButtonStyle.Primary : ButtonStyle.Secondary)
+        );
+
+    const row2 = new ActionRowBuilder()
+        .addComponents(
             new ButtonBuilder()
                 .setCustomId('toggle_bullets')
                 .setLabel(options.noBullets ? 'Show Bullets' : 'Hide Bullets')
@@ -404,10 +418,14 @@ function generateResponse(text, options) {
             new ButtonBuilder()
                 .setCustomId('toggle_points')
                 .setLabel(options.hidePoints ? 'Show Points' : 'Hide Points')
-                .setStyle(options.hidePoints ? ButtonStyle.Primary : ButtonStyle.Secondary)
+                .setStyle(options.hidePoints ? ButtonStyle.Primary : ButtonStyle.Secondary),
+            new ButtonBuilder()
+                .setCustomId('toggle_mandatory')
+                .setLabel(options.showMandatoryWargear ? 'Hide Mandatory' : 'Show Mandatory')
+                .setStyle(options.showMandatoryWargear ? ButtonStyle.Primary : ButtonStyle.Secondary)
         );
 
-    const row2 = new ActionRowBuilder()
+    const row3 = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
                 .setCustomId('select_format')
@@ -420,7 +438,7 @@ function generateResponse(text, options) {
                 )
         );
 
-    const row3 = new ActionRowBuilder()
+    const row4 = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
                 .setCustomId('select_color')
@@ -432,31 +450,32 @@ function generateResponse(text, options) {
                 )
         );
 
-    const components = [row1, row2, row3];
+    const publishButtons = [
+        new ButtonBuilder()
+            .setCustomId('publish')
+            .setLabel('Publish to Channel')
+            .setStyle(ButtonStyle.Success)
+    ];
 
     if (options.colorMode === 'custom') {
-        const row4 = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('btn_config_colors')
-                    .setLabel('Configure Colors')
-                    .setStyle(ButtonStyle.Secondary)
-            );
-        components.push(row4);
+        publishButtons.push(
+            new ButtonBuilder()
+                .setCustomId('btn_config_colors')
+                .setLabel('Configure Colors')
+                .setStyle(ButtonStyle.Secondary)
+        );
     }
 
-    const rowPublish = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('publish')
-                .setLabel('Publish to Channel')
-                .setStyle(ButtonStyle.Success),
-            new ButtonBuilder()
-                .setLabel('Support on Ko-fi')
-                .setURL('https://ko-fi.com/U7U7Z3Q0S')
-                .setStyle(ButtonStyle.Link)
-        );
-    components.push(rowPublish);
+    publishButtons.push(
+        new ButtonBuilder()
+            .setLabel('Support on Ko-fi')
+            .setURL('https://ko-fi.com/U7U7Z3Q0S')
+            .setStyle(ButtonStyle.Link)
+    );
+
+    const rowPublish = new ActionRowBuilder().addComponents(publishButtons);
+
+    const components = [row1, row2, row3, row4, rowPublish];
 
     return { content: outputText, components };
 }

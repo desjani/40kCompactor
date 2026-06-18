@@ -313,8 +313,12 @@ function getRoleTag(part, index) {
     const suffix = index !== undefined ? index : '';
     if (roleLower.includes('leader') || attachedLower.includes('leader')) return `[L${suffix}]`;
     if (roleLower.includes('support') || attachedLower.includes('support')) return `[S${suffix}]`;
-    if (roleLower.includes('bodyguard') || attachedLower.includes('bodyguard')) return `[BG${suffix}]`;
+    if (roleLower.includes('bodyguard') || attachedLower.includes('bodyguard')) return `[B${suffix}]`;
     return '';
+}
+
+function getWarlordTag(unit) {
+    return unit && unit.isWarlord ? '[W]' : '';
 }
 
 export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap, applyHeaderColor = true, combineIdenticalUnits = false, noBullets = false, hidePoints = false, abbreviateHeader = false, showMandatoryWargear = false) {
@@ -525,7 +529,9 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
             attachedIndex++;
             unit.attachedParts.forEach(part => {
                 const tag = getRoleTag(part, attachedIndex);
-                const prefix = tag ? `${tag} ` : '';
+                const wTag = getWarlordTag(part);
+                const tags = [tag, wTag].filter(Boolean).join('');
+                const prefix = tags ? `${tags} ` : '';
                 const tempUnit = {
                     ...part,
                     name: `${prefix}${part.name}`
@@ -535,7 +541,10 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                 plainText += rendered.plainText;
             });
         } else {
-            const rendered = renderUnit(unit);
+            const wTag = getWarlordTag(unit);
+            const prefix = wTag ? `${wTag} ` : '';
+            const tempUnit = wTag ? { ...unit, name: `${prefix}${unit.name}` } : unit;
+            const rendered = renderUnit(tempUnit);
             html += rendered.html;
             plainText += rendered.plainText;
         }
@@ -747,15 +756,18 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
             attachedIndex++;
             unit.attachedParts.forEach(part => {
                 const tag = getRoleTag(part, attachedIndex);
+                const wTag = getWarlordTag(part);
                 const tagText = useColor ? toAnsi(tag, colors.attached, true) : tag;
-                const prefixText = tag ? `${tagText} ` : '';
-                const tempUnit = {
-                    ...part
-                };
-                renderDiscordUnit(tempUnit, prefixText);
+                const wTagText = useColor && wTag ? toAnsi(wTag, colors.attached, true) : wTag;
+                const parts = [tagText, wTagText].filter(Boolean);
+                const prefixText = parts.length ? `${parts.join('')} ` : '';
+                renderDiscordUnit(part, prefixText);
             });
         } else {
-            renderDiscordUnit(unit);
+            const wTag = getWarlordTag(unit);
+            const wTagText = useColor && wTag ? toAnsi(wTag, colors.attached, true) : wTag;
+            const prefixText = wTag ? `${wTagText} ` : '';
+            renderDiscordUnit(unit, prefixText);
         }
     });
 

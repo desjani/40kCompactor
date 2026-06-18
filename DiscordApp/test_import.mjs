@@ -9,5 +9,5 @@ console.log('factionColors keys:', Object.keys(factionColors));
 const testHex = colorNameToHex['red'];
 const entry = ansiPalette.find(p => p.hex.toLowerCase() === testHex.toLowerCase());
 console.log('Red code:', entry ? entry.code : 'not found');
-import { detectFormat, parseGwApp } from '../modules/parsers.js';
+import { detectFormat, parseV11List, parseGwAppV11 } from '../modules/parsers.js';
 console.log('Parsers imported successfully');

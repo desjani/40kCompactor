@@ -146,31 +146,31 @@ function runGwAppTests() {
     // Verify compact attached units format (default: showMandatoryWargear = false, hideSubunits = false)
     assert.ok(htmlOut.html.includes('Commander Farsight'), 'HTML output should contain Farsight');
     assert.ok(htmlOut.plainText.includes('Commander Farsight'), 'PlainText output should contain Farsight');
-    assert.ok(htmlOut.plainText.includes('[L1] Commander Farsight [80]'), 'Should render Leader part of attached unit without mandatory wargear');
-    assert.ok(htmlOut.plainText.includes('[BG1] Crisis Sunforge Battlesuits [125]'), 'Should render Bodyguard part of attached unit without inline wargear');
+    assert.ok(htmlOut.plainText.includes('[L1][W] Commander Farsight [80]'), 'Should render Leader+Warlord part of attached unit without mandatory wargear');
+    assert.ok(htmlOut.plainText.includes('[B1] Crisis Sunforge Battlesuits [125]'), 'Should render Bodyguard part of attached unit without inline wargear');
     assert.ok(htmlOut.plainText.includes('* Crisis Sunforge Shas’vre (2x FB, MD, SD)'), 'Should render subunit 1 inline wargear');
     assert.ok(htmlOut.plainText.includes('* 2 Crisis Sunforge Shas’ui (4x FB, 2x GD, 2x SD)'), 'Should render subunit 2 inline wargear');
 
     // Verify compact attached units format when showMandatoryWargear = true, hideSubunits = false
     const htmlOutWithMandatory = generateOutput(parsedTau, true, abbrIndex, false, {}, false, false, false, false, false, true);
-    assert.ok(htmlOutWithMandatory.plainText.includes('[L1] Commander Farsight (DB, HIPR) [80]'), 'Should render Leader part with mandatory wargear');
-    assert.ok(htmlOutWithMandatory.plainText.includes('[BG1] Crisis Sunforge Battlesuits [125]'), 'Should render Bodyguard part without inline wargear');
+    assert.ok(htmlOutWithMandatory.plainText.includes('[L1][W] Commander Farsight (DB, HIPR) [80]'), 'Should render Leader+Warlord part with mandatory wargear');
+    assert.ok(htmlOutWithMandatory.plainText.includes('[B1] Crisis Sunforge Battlesuits [125]'), 'Should render Bodyguard part without inline wargear');
     assert.ok(htmlOutWithMandatory.plainText.includes('* Crisis Sunforge Shas’vre (BF, 2x FB, MD, SD)'), 'Should render subunit 1 inline wargear with mandatory');
     assert.ok(htmlOutWithMandatory.plainText.includes('* 2 Crisis Sunforge Shas’ui (2x BF, 4x FB, 2x GD, 2x SD)'), 'Should render subunit 2 inline wargear with mandatory');
 
     // Verify compact attached units format when hideSubunits = true, showMandatoryWargear = false
     const htmlOutHiddenSubunits = generateOutput(parsedTau, true, abbrIndex, true, {}, false, false, false, false, false, false);
-    assert.ok(htmlOutHiddenSubunits.plainText.includes('[BG1] Crisis Sunforge Battlesuits (6x FB, 3x SD, 2x GD, MD) [125]'), 'Should roll up wargear to unit level and not double-multiply quantities');
+    assert.ok(htmlOutHiddenSubunits.plainText.includes('[B1] Crisis Sunforge Battlesuits (6x FB, 3x SD, 2x GD, MD) [125]'), 'Should roll up wargear to unit level and not double-multiply quantities');
     assert.ok(!htmlOutHiddenSubunits.plainText.includes('Crisis Sunforge Shas’vre'), 'Should not show subunit lines');
 
     // Verify compact attached units format when hideSubunits = true, showMandatoryWargear = true
     const htmlOutHiddenSubunitsWithMandatory = generateOutput(parsedTau, true, abbrIndex, true, {}, false, false, false, false, false, true);
-    assert.ok(htmlOutHiddenSubunitsWithMandatory.plainText.includes('[BG1] Crisis Sunforge Battlesuits (6x FB, 3x BF, 3x SD, 2x GD, MD) [125]'), 'Should roll up all wargear including mandatory to unit level');
+    assert.ok(htmlOutHiddenSubunitsWithMandatory.plainText.includes('[B1] Crisis Sunforge Battlesuits (6x FB, 3x BF, 3x SD, 2x GD, MD) [125]'), 'Should roll up all wargear including mandatory to unit level');
 
     // Verify extended attached units format (always showing all wargear by passing true as the 11th param)
     const fullOut = generateOutput(parsedTau, false, abbrIndex, false, {}, false, false, false, false, false, true);
-    assert.ok(fullOut.plainText.includes('[L1] Commander Farsight [80]'), 'Extended should render Leader prefix');
-    assert.ok(fullOut.plainText.includes('[BG1] Crisis Sunforge Battlesuits [125]'), 'Extended should render Bodyguard prefix');
+    assert.ok(fullOut.plainText.includes('[L1][W] Commander Farsight [80]'), 'Extended should render Leader+Warlord prefix');
+    assert.ok(fullOut.plainText.includes('[B1] Crisis Sunforge Battlesuits [125]'), 'Extended should render Bodyguard prefix');
 
     // Verify abbreviateHeader option
     const abbrHeaderOut = generateOutput(parsedTau, true, abbrIndex, false, {}, false, false, false, false, true, false);
