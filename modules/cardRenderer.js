@@ -617,16 +617,26 @@ export function generateCardHtml(data, options = {}) {
           parts.push(q > 1 ? `${q}x ${nameAbbr}` : nameAbbr);
         });
       }
-      if (Array.isArray(unit.subunits)) {
-        unit.subunits.forEach(sub => {
-          const q = parseInt(sub.quantity || 1, 10);
-          const prefix = q > 1 ? `${q}x ` : '';
-          const wgStr = getSubunitWargearStr(sub, options.showMandatoryWargear);
-          parts.push(`${prefix}${sub.name}${wgStr ? ` (${wgStr})` : ''}`);
-        });
-      }
     }
     return parts;
+  };
+
+  const getSubunitLineHtml = (sub) => {
+    const q = parseInt(sub.quantity || 1, 10);
+    const prefix = q > 1 ? `${q}x ` : '';
+    const wgStr = getSubunitWargearStr(sub, options.showMandatoryWargear);
+    const lineText = `• ${prefix}${sub.name}${wgStr ? ` (${wgStr})` : ''}`;
+    return `
+      <div style="
+        font-size: 13px;
+        color: ${colors.textSecondary};
+        margin-top: 4px;
+        text-align: left;
+        line-height: 1.4;
+      ">
+        ${lineText}
+      </div>
+    `;
   };
 
   let unitsHtml = '';
@@ -643,9 +653,22 @@ export function generateCardHtml(data, options = {}) {
     const details = renderUnitDetails(unit);
 
     const showInlineDetails = !!options.useAbbreviations;
-    const displayName = showInlineDetails && details.length > 0
-      ? `${labelPrefix}${qtyStr}${unit.name} (${details.join(', ')})`
-      : `${labelPrefix}${qtyStr}${unit.name}`;
+
+    const subunitsBlock = (!options.hideSubunits && Array.isArray(unit.subunits) && unit.subunits.length > 0)
+      ? `
+        <div style="
+          display: flex;
+          flex-direction: column;
+          margin-top: 8px;
+          border-top: 1px dashed #3f3f46;
+          padding-top: 6px;
+          width: 100%;
+          box-sizing: border-box;
+        ">
+          ${unit.subunits.map(sub => getSubunitLineHtml(sub)).join('')}
+        </div>
+      `
+      : '';
 
     return `
       <div style="
@@ -660,9 +683,26 @@ export function generateCardHtml(data, options = {}) {
         width: 100%;
       ">
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-          <span style="font-size: 15px; font-weight: bold; color: ${colors.text}; text-align: left; flex: 1; margin-right: 12px;">
-            ${displayName}
-          </span>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: 1; margin-right: 12px; text-align: left;">
+            <span style="font-size: 15px; font-weight: bold; color: ${colors.text};">
+              ${labelPrefix}${qtyStr}${unit.name}
+            </span>
+            ${(showInlineDetails && details.length > 0) ? details.map(det => `
+              <span style="
+                padding: 2px 6px;
+                font-size: 10px;
+                font-weight: 600;
+                background-color: #3f3f46;
+                color: ${colors.textSecondary};
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                white-space: nowrap;
+              ">
+                ${det}
+              </span>
+            `).join('') : ''}
+          </div>
           <span style="font-size: 14px; font-weight: bold; color: ${colors.secondary}; text-align: right; white-space: nowrap;">
             ${pointsStr}
           </span>
@@ -684,6 +724,7 @@ export function generateCardHtml(data, options = {}) {
             `).join('')}
           </div>
         ` : ''}
+        ${subunitsBlock}
       </div>
     `;
   };

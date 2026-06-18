@@ -254,7 +254,8 @@ function runGwAppTests() {
         ]
     };
     const abbrCardHtml = generateCardHtml(weAbbrMock, { useAbbreviations: true });
-    assert.ok(abbrCardHtml.includes('Khorne Berzerkers (10x KBC)'), 'Wargear should be rendered inline next to unit name in abbreviated mode');
+    assert.ok(abbrCardHtml.includes('Khorne Berzerkers'), 'Should render unit name');
+    assert.ok(abbrCardHtml.includes('10x KBC'), 'Should render wargear as inline bubble');
     assert.ok(!abbrCardHtml.includes('padding: 3px 8px;'), 'Should not render separate detail badges in abbreviated mode');
     console.log('✓ Dynamic width and inline abbreviated layout tests passed');
 
