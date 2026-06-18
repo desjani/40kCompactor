@@ -391,6 +391,134 @@ function makeInitialsEmblem(name, colors) {
   `;
 }
 
+export function estimateCardWidth(data, options = {}) {
+  if (!data) return 580;
+  const rawUnits = Array.isArray(data.units) ? data.units : [];
+  const units = maybeCombineUnits(rawUnits, options.hideSubunits, options.combineIdenticalUnits);
+
+  let maxCharCount = 20; // fallback minimum
+
+  // Header info
+  const summary = data.metadata || {};
+  const listName = summary.title || summary.armyName || 'Warhammer 40k List';
+  const detachment = summary.detachment || (summary.detachments && summary.detachments.join(' & ')) || '';
+  const pointsTotal = summary.pointsTotal || summary.totalPoints || 0;
+  const headerPointsStr = options.hidePoints ? '' : ` [${pointsTotal} pts]`;
+  
+  maxCharCount = Math.max(maxCharCount, (listName + headerPointsStr).length * 0.9, detachment.length * 0.85);
+
+  const getAbbrName = (itemName) => {
+    if (!options.useAbbreviations) return itemName;
+    if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
+      const nameLower = itemName.toLowerCase();
+      const val = options.wargearAbbrMap.__flat_abbr[nameLower];
+      if (val) {
+        if (typeof val === 'string') return val;
+        if (typeof val === 'object' && val.abbr) return val.abbr;
+      }
+    }
+    return makeAbbrevForName(itemName);
+  };
+
+  const getSubunitWargearStr = (sub, showMandatory) => {
+    const wgs = (sub.wargear || []).filter(w => showMandatory || !w.skippable);
+    return wgs.map(w => {
+      const q = parseInt(w.quantity || 1, 10);
+      const nameAbbr = getAbbrName(w.name);
+      return q > 1 ? `${q}x ${nameAbbr}` : nameAbbr;
+    }).join(', ');
+  };
+
+  const getUnitLineLen = (unit) => {
+    let nameLen = unit.name.length;
+    
+    const qty = parseInt(unit.quantity || 1, 10);
+    if (options.combineIdenticalUnits && (unit.__groupCount || 0) > 1) {
+      nameLen += `${unit.__groupCount}x${unit.__unitSize || qty} `.length;
+    } else {
+      nameLen += qty > 1 ? `${qty}x `.length : 0;
+    }
+
+    let detailsLen = 0;
+    const parts = [];
+    if (Array.isArray(unit.enhancements)) {
+      unit.enhancements.forEach(e => {
+        parts.push(`E: ${getAbbrName(e.name)}`);
+      });
+    }
+    if (options.hideSubunits) {
+      const aggregated = new Map();
+      if (Array.isArray(unit.wargear)) {
+        unit.wargear.forEach(wg => {
+          const key = wg.name;
+          const qtyVal = parseInt(wg.quantity || 1, 10);
+          const prev = aggregated.get(key) || { quantity: 0, skippable: !!wg.skippable };
+          aggregated.set(key, { quantity: prev.quantity + qtyVal, skippable: prev.skippable || !!wg.skippable });
+        });
+      }
+      if (Array.isArray(unit.subunits)) {
+        unit.subunits.forEach(sub => {
+          if (Array.isArray(sub.wargear)) {
+            sub.wargear.forEach(wg => {
+              const key = wg.name;
+              const qtyVal = parseInt(wg.quantity || 1, 10);
+              const prev = aggregated.get(key) || { quantity: 0, skippable: !!wg.skippable };
+              aggregated.set(key, { quantity: prev.quantity + qtyVal, skippable: prev.skippable || !!wg.skippable });
+            });
+          }
+        });
+      }
+
+      const wargearList = Array.from(aggregated.entries()).map(([name, info]) => ({
+        name,
+        quantity: info.quantity,
+        skippable: info.skippable
+      }));
+      wargearList.filter(w => options.showMandatoryWargear || !w.skippable).forEach(w => {
+        const nameAbbr = getAbbrName(w.name);
+        parts.push(w.quantity > 1 ? `${w.quantity}x ${nameAbbr}` : nameAbbr);
+      });
+    } else {
+      if (Array.isArray(unit.wargear)) {
+        unit.wargear.filter(w => options.showMandatoryWargear || !w.skippable).forEach(w => {
+          const q = parseInt(w.quantity || 1, 10);
+          parts.push(q > 1 ? `${q}x ${getAbbrName(w.name)}` : getAbbrName(w.name));
+        });
+      }
+      if (Array.isArray(unit.subunits)) {
+        unit.subunits.forEach(sub => {
+          const q = parseInt(sub.quantity || 1, 10);
+          const prefix = q > 1 ? `${q}x ` : '';
+          const wgStr = getSubunitWargearStr(sub, options.showMandatoryWargear);
+          parts.push(`${prefix}${sub.name}${wgStr ? ` (${wgStr})` : ''}`);
+        });
+      }
+    }
+
+    if (parts.length > 0) {
+      if (options.useAbbreviations) {
+        detailsLen = ` (${parts.join(', ')})`.length;
+      }
+    }
+    
+    const pointsStr = options.hidePoints ? '' : ` [${unit.points} pts]`;
+    return nameLen + detailsLen + pointsStr.length;
+  };
+
+  units.forEach(unit => {
+    if (unit.isAttached && Array.isArray(unit.attachedParts)) {
+      unit.attachedParts.forEach(part => {
+        maxCharCount = Math.max(maxCharCount, getUnitLineLen(part) + 6);
+      });
+    } else {
+      maxCharCount = Math.max(maxCharCount, getUnitLineLen(unit));
+    }
+  });
+
+  const estimated = Math.ceil(maxCharCount * 8.2) + 90;
+  return Math.min(580, Math.max(380, estimated));
+}
+
 // Generate the complete HTML structure as a string with inline styles for Satori parity
 export function generateCardHtml(data, options = {}) {
   if (!data) return '';
@@ -406,6 +534,8 @@ export function generateCardHtml(data, options = {}) {
   const listName = summary.title || summary.armyName || 'Warhammer 40k List';
   const detachment = summary.detachment || (summary.detachments && summary.detachments.join(' & ')) || '';
   const pointsTotal = summary.pointsTotal || summary.totalPoints || 0;
+
+  const cardWidth = options.cardWidth || estimateCardWidth(data, options);
 
   // Process units (combine logic if requested)
   const rawUnits = Array.isArray(data.units) ? data.units : [];
@@ -512,6 +642,11 @@ export function generateCardHtml(data, options = {}) {
     const pointsStr = options.hidePoints ? '' : `[${unit.points} pts]`;
     const details = renderUnitDetails(unit);
 
+    const showInlineDetails = !!options.useAbbreviations;
+    const displayName = showInlineDetails && details.length > 0
+      ? `${labelPrefix}${qtyStr}${unit.name} (${details.join(', ')})`
+      : `${labelPrefix}${qtyStr}${unit.name}`;
+
     return `
       <div style="
         display: flex;
@@ -525,14 +660,14 @@ export function generateCardHtml(data, options = {}) {
         width: 100%;
       ">
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-          <span style="font-size: 15px; font-weight: bold; color: ${colors.text}; text-align: left;">
-            ${labelPrefix}${qtyStr}${unit.name}
+          <span style="font-size: 15px; font-weight: bold; color: ${colors.text}; text-align: left; flex: 1; margin-right: 12px;">
+            ${displayName}
           </span>
-          <span style="font-size: 14px; font-weight: bold; color: ${colors.secondary}; text-align: right;">
+          <span style="font-size: 14px; font-weight: bold; color: ${colors.secondary}; text-align: right; white-space: nowrap;">
             ${pointsStr}
           </span>
         </div>
-        ${details.length > 0 ? `
+        ${(!showInlineDetails && details.length > 0) ? `
           <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
             ${details.map(det => `
               <span style="
@@ -580,7 +715,7 @@ export function generateCardHtml(data, options = {}) {
     <div id="compactor-codex-card" style="
       display: flex;
       flex-direction: column;
-      width: 580px;
+      width: ${cardWidth}px;
       padding: 24px;
       background-color: ${colors.background};
       color: ${colors.text};

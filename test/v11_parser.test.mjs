@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import { detectFormat, parseV11List, parseGwAppV11 } from '../modules/parsers.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 import { generateDiscordText, generateOutput } from '../modules/renderers.js';
-import { generateCardHtml } from '../modules/cardRenderer.js';
+import { generateCardHtml, estimateCardWidth } from '../modules/cardRenderer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -232,7 +232,31 @@ function runGwAppTests() {
     const cardHtml = generateCardHtml(mockList, { combineIdenticalUnits: true });
     assert.ok(cardHtml.includes('2x1 Khârn the Betrayer'), 'HTML should render 2x1 Khârn the Betrayer');
     assert.ok(cardHtml.includes('2x10 Khorne Berzerkers'), 'HTML should render 2x10 Khorne Berzerkers');
-    console.log('✓ Unit combining tests passed');
+
+    // Dynamic width & Inline wargear in abbreviated mode checks
+    console.log('Testing dynamic card width estimation...');
+    const narrowWidth = estimateCardWidth(mockList, { useAbbreviations: true });
+    assert.ok(narrowWidth < 580, `Estimated width for abbreviated list should be narrow: ${narrowWidth}`);
+
+    console.log('Testing inline wargear layout for abbreviated mode...');
+    const weAbbrMock = {
+        metadata: { faction: 'World Eaters' },
+        units: [
+            {
+                name: 'Khorne Berzerkers',
+                quantity: 10,
+                points: 180,
+                wargear: [
+                    { name: 'Khorne Berzerker Chainblade', quantity: 10, skippable: false },
+                    { name: 'Bolt Pistol', quantity: 10, skippable: true }
+                ]
+            }
+        ]
+    };
+    const abbrCardHtml = generateCardHtml(weAbbrMock, { useAbbreviations: true });
+    assert.ok(abbrCardHtml.includes('Khorne Berzerkers (10x KBC)'), 'Wargear should be rendered inline next to unit name in abbreviated mode');
+    assert.ok(!abbrCardHtml.includes('padding: 3px 8px;'), 'Should not render separate detail badges in abbreviated mode');
+    console.log('✓ Dynamic width and inline abbreviated layout tests passed');
 
     console.log('✓ GW App v11 rendering tests passed');
 }

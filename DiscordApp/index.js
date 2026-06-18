@@ -11,7 +11,7 @@ import { Resvg } from '@resvg/resvg-js';
 import { detectFormat, parseV11List, parseGwAppV11 } from '../modules/parsers.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 import { generateDiscordText, ansiPalette, colorNameToHex } from '../modules/renderers.js';
-import { generateCardHtml } from '../modules/cardRenderer.js';
+import { generateCardHtml, estimateCardWidth } from '../modules/cardRenderer.js';
 
 dotenv.config();
 
@@ -42,19 +42,29 @@ async function generateImageBuffer(parsedData, options) {
         throw new Error('Required fonts for image rendering are not loaded');
     }
 
+    const useAbbreviations = options.format === 'discordCompact' || options.format === 'plainText';
+    const cardWidth = estimateCardWidth(parsedData, {
+        hideSubunits: options.hideSubunits,
+        showMandatoryWargear: options.showMandatoryWargear,
+        hidePoints: options.hidePoints,
+        combineIdenticalUnits: options.combineUnits,
+        useAbbreviations: useAbbreviations
+    });
+
     const cardHtml = generateCardHtml(parsedData, {
         hideSubunits: options.hideSubunits,
         showMandatoryWargear: options.showMandatoryWargear,
         hidePoints: options.hidePoints,
         combineIdenticalUnits: options.combineUnits,
-        useAbbreviations: options.format === 'discordCompact' || options.format === 'plainText',
-        wargearAbbrMap: buildAbbreviationIndex(parsedData)
+        useAbbreviations: useAbbreviations,
+        wargearAbbrMap: buildAbbreviationIndex(parsedData),
+        cardWidth: cardWidth
     });
 
     const template = html(cardHtml);
 
     const svg = await satori(template, {
-        width: 580,
+        width: cardWidth,
         fonts: [
             {
                 name: 'Inter',
@@ -75,7 +85,7 @@ async function generateImageBuffer(parsedData, options) {
         background: '#18181b',
         fitTo: {
             mode: 'width',
-            value: 580,
+            value: cardWidth,
         },
     });
 
