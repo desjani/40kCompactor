@@ -845,3 +845,20 @@ export async function downloadCardPng(data, options = {}) {
     alert('Failed to generate list image. Please try again.');
   }
 }
+
+export async function copyCardImageToClipboard(data, options = {}) {
+  try {
+    const dataUrl = await generateCardPngDataUrl(data, options);
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        [blob.type]: blob
+      })
+    ]);
+    return true;
+  } catch (err) {
+    console.error('Failed to copy image to clipboard:', err);
+    throw err;
+  }
+}

@@ -1,7 +1,7 @@
 import { detectFormat, parseV11List, parseGwAppV11 } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
-import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth } from './cardRenderer.js';
+import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth, copyCardImageToClipboard } from './cardRenderer.js';
 import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getMultilineHeaderState, getAbbreviateHeaderState, getWargearShowModeState, getCustomAbbrs, setCopyPreviewButtonText } from './ui.js';
 
 let parsedData = null;
@@ -84,6 +84,51 @@ document.addEventListener('DOMContentLoaded', async () => {
                     text = generateDiscordText(parsedData, false, true, wargearAbbrDB, hideSubunits, skippableWargearMap, combineUnits, opts, noBullets, hidePoints);
             }
             copyTextToClipboard(text);
+        },
+        onCopyPreviewImage: async () => {
+            if (!parsedData) return;
+            const outputFormatSelect = document.getElementById('outputFormatSelect');
+            const selectedFormat = outputFormatSelect ? outputFormatSelect.value : 'discordCompact';
+            if (selectedFormat === 'imageCodex' || selectedFormat === 'imageCodexAbbr') {
+                const colorMode = document.querySelector('input[name="colorMode"]:checked')?.value || 'none';
+                const colors = {
+                    unit: document.getElementById('unitColor')?.value,
+                    subunit: document.getElementById('subunitColor')?.value,
+                    wargear: document.getElementById('wargearColor')?.value,
+                    points: document.getElementById('pointsColor')?.value,
+                    header: document.getElementById('headerColor')?.value,
+                    attached: document.getElementById('attachedColor')?.value,
+                    icon: document.getElementById('iconColor')?.value
+                };
+                const imageOpts = {
+                    hideSubunits: getHideSubunitsState(),
+                    wargearShowMode: getWargearShowModeState(),
+                    hidePoints: getHidePointsState(),
+                    combineIdenticalUnits: getCombineUnitsState(),
+                    useAbbreviations: selectedFormat === 'imageCodexAbbr',
+                    wargearAbbrMap: wargearAbbrDB,
+                    noBullets: getNoBulletsState(),
+                    colorMode: colorMode,
+                    colors: colors,
+                    abbreviateHeader: getAbbreviateHeaderState()
+                };
+                try {
+                    const btn = document.getElementById('copyPreviewImageButton');
+                    if (btn) btn.textContent = 'Copying...';
+                    await copyCardImageToClipboard(parsedData, imageOpts);
+                    if (btn) btn.textContent = 'Copy Image to Clipboard';
+                    const popup = document.getElementById('copyPopup');
+                    if (popup) {
+                        popup.classList.add('show');
+                        setTimeout(() => { popup.classList.remove('show'); }, 2000);
+                    }
+                } catch (err) {
+                    console.error('Failed to copy image:', err);
+                    alert('Failed to copy image to clipboard. Please try again.');
+                    const btn = document.getElementById('copyPreviewImageButton');
+                    if (btn) btn.textContent = 'Copy Image to Clipboard';
+                }
+            }
         },
         onColorChange: () => {
             // Color changes should re-render all outputs when we have parsed data

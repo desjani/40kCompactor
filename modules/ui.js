@@ -11,6 +11,7 @@ const toggleDebugButton = isBrowser ? document.getElementById('toggleDebugButton
 const copyExtendedButton = isBrowser ? document.getElementById('copyExtendedButton') : null;
 const outputFormatSelect = isBrowser ? document.getElementById('outputFormatSelect') : null;
 const copyPreviewButton = isBrowser ? document.getElementById('copyPreviewButton') : null;
+const copyPreviewImageButton = isBrowser ? document.getElementById('copyPreviewImageButton') : null;
 const customColorPickers = isBrowser ? document.getElementById('customColorPickers') : null;
 const inputCharCount = isBrowser ? document.getElementById('inputCharCount') : null;
 const extendedCharCount = isBrowser ? document.getElementById('extendedCharCount') : null; // Corrected ID
@@ -132,6 +133,7 @@ export function initializeUI(callbacks) {
         });
     }
     if (copyPreviewButton) copyPreviewButton.addEventListener('click', callbacks.onCopyPreview);
+    if (copyPreviewImageButton) copyPreviewImageButton.addEventListener('click', callbacks.onCopyPreviewImage);
     
     if (isBrowser) {
         const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');
@@ -461,5 +463,8 @@ export function updateVisibilityOfOptionalControls() {
     const iconColorContainer = document.getElementById('iconColorContainer');
     if (iconColorContainer) {
         iconColorContainer.style.display = (colorMode === 'custom' && isImageMode) ? 'block' : 'none';
+    }
+    if (copyPreviewImageButton) {
+        copyPreviewImageButton.style.display = isImageMode ? 'inline-block' : 'none';
     }
 }

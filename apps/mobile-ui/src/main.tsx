@@ -16,7 +16,7 @@ import { generateOutput, generateDiscordText } from '../../../modules/renderers.
 // @ts-ignore - ambient types provided separately for JS modules
 import { buildAbbreviationIndex } from '../../../modules/abbreviations.js'
 // @ts-ignore
-import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth } from '../../../modules/cardRenderer.js'
+import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth, copyCardImageToClipboard } from '../../../modules/cardRenderer.js'
 import skippable from '../../../skippable_wargear.json'
 
 function useLocalStorage<T>(key: string, initial: T): [T, (v: T)=>void] {
@@ -57,6 +57,7 @@ function App() {
   const [format, setFormat] = useLocalStorage<'discordCompact'|'discordExtended'|'plainText'|'plainTextExtended'|'imageCodex'|'imageCodexAbbr'>('format','discordCompact')
   const [imagePreviewUrl, setImagePreviewUrl] = useState('')
   const [renderingImage, setRenderingImage] = useState(false)
+  const [copyingImage, setCopyingImage] = useState(false)
 
   // Temporary state for adding new abbreviations
   const [newAbbrName, setNewAbbrName] = useState('')
@@ -194,7 +195,7 @@ function App() {
       wargearShowMode: wargearMode,
       hidePoints: hidePoints,
       combineIdenticalUnits: combine,
-      useAbbreviations: format === 'imageCodexAbbr',
+      useAbbreviations: format === 'imageCodex' ? false : (format === 'imageCodexAbbr'),
       wargearAbbrMap: abbr,
       colorMode,
       colors: {
@@ -202,6 +203,32 @@ function App() {
         icon: (colors as any).icon || colors.header
       }
     })
+  }
+
+  async function handleCopyImage() {
+    if (!parsed) return;
+    try {
+      setCopyingImage(true);
+      await copyCardImageToClipboard(parsed, {
+        hideSubunits: hide,
+        wargearShowMode: wargearMode,
+        hidePoints: hidePoints,
+        combineIdenticalUnits: combine,
+        useAbbreviations: format === 'imageCodex' ? false : (format === 'imageCodexAbbr'),
+        wargearAbbrMap: abbr,
+        colorMode,
+        colors: {
+          ...colors,
+          icon: (colors as any).icon || colors.header
+        }
+      });
+      alert('Image copied to clipboard!');
+    } catch (err) {
+      console.error('Failed to copy image:', err);
+      alert('Failed to copy image to clipboard. Please try again.');
+    } finally {
+      setCopyingImage(false);
+    }
   }
 
   function addCustomAbbr() {
@@ -328,7 +355,10 @@ function App() {
             <div class="outbox" id="markdownPreviewOutput" dangerouslySetInnerHTML={{ __html: previewHtml }}></div>
             <div class="row" style={{ marginTop: '6px', justifyContent:'flex-end', gap: '8px', flexWrap: 'wrap' }}>
               {(format === 'imageCodex' || format === 'imageCodexAbbr') ? (
-                <button class="btn" style={{ backgroundColor: 'var(--color-action)' }} onClick={handleDownloadImage}>Download Image</button>
+                <>
+                  <button class="btn" style={{ backgroundColor: 'var(--color-action)' }} onClick={handleDownloadImage}>Download Image</button>
+                  <button class="btn" style={{ backgroundColor: 'var(--color-action)' }} onClick={handleCopyImage}>{copyingImage ? 'Copying...' : 'Copy Image'}</button>
+                </>
               ) : (
                 <button class="btn" onClick={()=>copy(previewText)}>Copy</button>
               )}
