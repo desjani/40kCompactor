@@ -4,36 +4,277 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>40k Compactor Mobile</title>
-    <meta name="theme-color" content="#0f1115" />
+    <meta name="theme-color" content="#0b0c10" />
   <link rel="icon" href="./favicon.ico" />
     <style>
       :root {
-        --color-action: #16a34a;
+        --color-action: #22c55e;
         --color-action-hover: #15803d;
-        --color-discord: #5865F2;
+        --color-accent-teal: #45f3ff;
+        --color-bg-dark: #0b0c10;
+        --color-panel-slate: #151a22;
+        --color-border-glow: #22c55e;
+        --color-text-soft: #e6e6e6;
       }
-      html, body, #app { height: 100%; margin: 0; }
-      body { background: #0f1115; color: #e6e6e6; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
-      .container { display: grid; grid-template-rows: auto 1fr auto; min-height: 100%; }
-      header, footer { padding: 8px 12px; border-bottom: 1px solid #1f2330; }
-      footer { border-top: 1px solid #1f2330; border-bottom: none; opacity: 0.8; }
-      .tabs { position: sticky; bottom: 0; background: #0f1115; border-top: 1px solid #1f2330; display: flex; width: 100%; }
-      .tab { flex: 1 1 0; padding: 10px 4px; text-align: center; font-size: 12px; background: #22c55e; color: #000; border: none; }
-      .tab + .tab { border-left: 1px solid rgba(0,0,0,0.15); }
-      .tab.active { background: #16a34a; color: #000; font-weight: 700; }
-      .screen { padding: 10px; }
-      textarea { width: 100%; min-height: 34vh; background:#161b2a; color:#e6e6e6; border:1px solid #2a3147; border-radius:8px; padding:8px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
-      .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-      .btn { background:#1b2236; border:1px solid #2a3147; color:#e6e6e6; padding:6px 10px; border-radius:8px; font-size: 12px; cursor: pointer; }
-      .btn:hover { background-color: var(--color-action-hover); }
-      .outbox { background:#161b2a; border:1px solid #2a3147; border-radius:8px; padding:8px; white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; overflow: auto; }
-      .pill { border:1px solid #2a3147; border-radius:999px; padding: 2px 6px; font-size: 11px; color:#aab; }
-      .section { margin: 10px 0; }
-      .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-      label { font-size: 11px; color:#aab; }
-      input[type="checkbox"] { transform: scale(1.2); }
+      
+      /* Reset & Global */
+      html, body, #app { 
+        height: 100%; 
+        margin: 0; 
+        background: var(--color-bg-dark); 
+        color: var(--color-text-soft); 
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      }
+      
+      .container { 
+        display: grid; 
+        grid-template-rows: auto 1fr; 
+        height: 100%; 
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+      
+      header { 
+        padding: 10px 14px; 
+        background: #11141a; 
+        border-bottom: 2px solid var(--color-border-glow); 
+        box-shadow: 0 2px 10px rgba(34, 197, 94, 0.15);
+      }
+      
+      /* Progress Tracker */
+      .progress-tracker {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        background: #151a22;
+        padding: 8px 4px;
+        margin: 10px 14px 4px 14px;
+        border: 1px solid #1f2833;
+        font-size: 11px;
+        letter-spacing: 1px;
+      }
+      .progress-step {
+        color: #4f5e71;
+        transition: color 0.3s ease, text-shadow 0.3s ease;
+      }
+      .progress-step.active {
+        color: var(--color-action);
+        text-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+        font-weight: bold;
+      }
+      .progress-arrow {
+        color: #1f2833;
+      }
+      
+      /* Viewport and Carousel Container */
+      .carousel-viewport {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+      }
+      .carousel-track {
+        display: flex;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        width: 300%;
+        height: 100%;
+        box-sizing: border-box;
+      }
+      .carousel-slide {
+        width: 33.3333%;
+        box-sizing: border-box;
+        flex-shrink: 0;
+        padding: 14px;
+        overflow-y: auto;
+        height: 100%;
+      }
+      
+      /* Panels & Containers */
+      .tactical-panel {
+        background: var(--color-panel-slate);
+        border: 1px solid var(--color-border-glow);
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.15);
+        padding: 14px;
+        border-radius: 4px;
+        margin-bottom: 12px;
+        box-sizing: border-box;
+      }
+      
+      /* Textareas & Inputs */
+      textarea, .outbox { 
+        width: 100%; 
+        box-sizing: border-box;
+        background: #161b2a; 
+        color: var(--color-text-soft); 
+        border: 1px solid #1f2833; 
+        border-radius: 4px; 
+        padding: 10px; 
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace; 
+        font-size: 12px; 
+        line-height: 1.4;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+      textarea {
+        min-height: 38vh;
+        resize: vertical;
+      }
+      textarea:focus {
+        border-color: var(--color-border-glow);
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.3), inset 0 0 6px rgba(0, 0, 0, 0.5);
+        outline: none;
+      }
+      .outbox {
+        white-space: pre-wrap; 
+        overflow: auto; 
+        min-height: 30vh;
+        max-height: 50vh;
+        border: 1px solid #1f2833;
+      }
+      
+      /* Row & Layout helpers */
+      .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .section { margin: 12px 0; }
+      
+      /* Buttons */
+      .btn { 
+        background: #151a22; 
+        border: 1px solid var(--color-border-glow); 
+        color: var(--color-border-glow); 
+        padding: 8px 14px; 
+        border-radius: 4px;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 12px; 
+        cursor: pointer; 
+        text-shadow: 0 0 4px rgba(34, 197, 94, 0.4);
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.1);
+        transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+        text-transform: uppercase;
+      }
+      .btn:hover:not(:disabled) { 
+        background: var(--color-border-glow);
+        color: var(--color-bg-dark);
+        text-shadow: none;
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        transform: translateY(-1px);
+      }
+      .btn:active:not(:disabled) {
+        transform: translateY(1px);
+      }
+      .btn:disabled {
+        border-color: #1f2833;
+        color: #4f5e71;
+        text-shadow: none;
+        box-shadow: none;
+        cursor: not-allowed;
+      }
+      
+      /* Custom Switches & Toggles */
+      .switch-container {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        user-select: none;
+        font-size: 11px;
+        color: #aab;
+        margin: 4px 0;
+      }
+      .tactical-switch {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .switch-slider {
+        position: relative;
+        display: inline-block;
+        width: 32px;
+        height: 18px;
+        background-color: #151a22;
+        border: 1px solid #1f2833;
+        border-radius: 4px;
+        transition: 0.2s;
+        flex-shrink: 0;
+      }
+      .switch-slider:before {
+        position: absolute;
+        content: "";
+        height: 10px;
+        width: 10px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #4f5e71;
+        border-radius: 2px;
+        transition: 0.2s;
+      }
+      .tactical-switch:checked + .switch-slider {
+        background-color: rgba(34, 197, 94, 0.15);
+        border-color: var(--color-border-glow);
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.3);
+      }
+      .tactical-switch:checked + .switch-slider:before {
+        transform: translateX(14px);
+        background-color: var(--color-border-glow);
+        box-shadow: 0 0 4px var(--color-border-glow);
+      }
+      
+      /* Labels & Typography */
+      label { font-size: 11px; color: #aab; }
+      .pill { 
+        border: 1px solid #1f2833; 
+        border-radius: 4px; 
+        padding: 2px 6px; 
+        font-size: 11px; 
+        color: var(--color-accent-teal); 
+        background: rgba(69, 243, 255, 0.05);
+        text-shadow: 0 0 2px rgba(69, 243, 255, 0.3);
+      }
+      
+      /* Form elements: text input, select, color picker */
+      input[type="text"], select {
+        background: #161b2a;
+        border: 1px solid #1f2833;
+        color: var(--color-text-soft);
+        padding: 6px 8px;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 12px;
+        outline: none;
+        border-radius: 4px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+      input[type="text"]:focus, select:focus {
+        border-color: var(--color-border-glow);
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.3);
+      }
+      input[type="color"] {
+        border: 1px solid #1f2833;
+        background: #161b2a;
+        padding: 0;
+        width: 32px;
+        height: 24px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      
+      /* Custom Scrollbar Styles */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0b0c10;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #1f2833;
+        border: 1px solid var(--color-border-glow);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--color-border-glow);
+      }
     </style>
-    <script type="module" crossorigin src="./assets/index-DgdPu38a.js"></script>
+    <script type="module" crossorigin src="./assets/index-DorcVZGq.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-DJouhrK4.css">
   </head>
   <body>
