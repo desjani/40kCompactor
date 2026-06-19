@@ -168,6 +168,12 @@ function runGwAppTests() {
     const htmlOutHiddenSubunitsWithMandatory = generateOutput(parsedTau, true, abbrIndex, true, {}, false, false, false, false, false, true);
     assert.ok(htmlOutHiddenSubunitsWithMandatory.plainText.includes('[B1] Crisis Sunforge Battlesuits (6x FB, 3x BF, 3x SD, 2x GD, MD) [125]'), 'Should roll up all wargear including mandatory to unit level');
 
+    // Verify compact attached units format when hideSubunits = false, wargearShowMode = 'hide-all'
+    const htmlOutHideAllWargear = generateOutput(parsedTau, true, abbrIndex, false, {}, false, false, false, false, false, false, 'hide-all');
+    assert.ok(!htmlOutHideAllWargear.plainText.includes('FB'), 'Should hide all wargear in hide-all mode (e.g. Fusion Blaster)');
+    assert.ok(!htmlOutHideAllWargear.plainText.includes('DB'), 'Should hide all wargear in hide-all mode (e.g. Dawn Blade)');
+
+
     // Verify extended attached units format (always showing all wargear by passing true as the 11th param)
     const fullOut = generateOutput(parsedTau, false, abbrIndex, false, {}, false, false, false, false, false, true);
     assert.ok(fullOut.plainText.includes('[L1][W] Commander Farsight [80]'), 'Extended should render Leader+Warlord prefix');

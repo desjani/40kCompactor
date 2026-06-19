@@ -59,12 +59,12 @@ async function generateImageBuffer(parsedData, options) {
         throw new Error('Required fonts for image rendering are not loaded');
     }
 
-    const useAbbreviations = options.format === 'discordCompact' || options.format === 'plainText';
+    const useAbbreviations = options.format === 'discordCompact' || options.format === 'plainText' || options.format === 'imageCodexAbbr' || !!options.useAbbreviations;
     const hexColors = (options.colorMode === 'custom') ? mapAnsiToHex(options.customColors) : undefined;
 
     const widthOpts = {
         hideSubunits: options.hideSubunits,
-        showMandatoryWargear: options.showMandatoryWargear,
+        wargearShowMode: options.wargearShowMode,
         hidePoints: options.hidePoints,
         combineIdenticalUnits: options.combineUnits,
         useAbbreviations: useAbbreviations,
@@ -165,19 +165,20 @@ client.on(Events.InteractionCreate, async interaction => {
                 noBullets: false,
                 hidePoints: false,
                 abbreviateHeader: false,
-                showMandatoryWargear: false,
+                wargearShowMode: 'hide-mandatory',
                 username: interaction.user.username,
                 userId: interaction.user.id,
                 colorMode: 'faction',
                 format: 'discordCompact'
             };
 
-            const { content, components } = generateResponse(listText, options);
+            const { content, components, files } = await generateResponse(listText, options);
 
             // Send ephemeral preview
             const response = await interaction.reply({
                 content: content,
                 components: components,
+                files: files || [],
                 ephemeral: true,
                 fetchReply: true
             });
@@ -237,60 +238,6 @@ client.on(Events.InteractionCreate, async interaction => {
                 session.options.username = interaction.user.username;
                 session.options.userId = interaction.user.id;
                 
-                const { content } = generateResponse(session.text, session.options);
-                
-                try {
-                    let channel = interaction.channel;
-                    if (!channel && interaction.channelId) {
-                        channel = await interaction.client.channels.fetch(interaction.channelId);
-                    }
-
-                    if (channel) {
-                        // Debug permissions
-                        if (channel.guild) {
-                            const permissions = channel.permissionsFor(interaction.client.user);
-                            console.log(`Attempting to publish to channel ${channel.id} (${channel.name})`);
-                            console.log('Bot permissions:', permissions ? permissions.toArray() : 'Unknown');
-                            
-                            if (permissions && !permissions.has('SendMessages')) {
-                                throw new Error(`Missing 'Send Messages' permission in #${channel.name}`);
-                            }
-                            if (permissions && !permissions.has('ViewChannel')) {
-                                throw new Error(`Missing 'View Channel' permission in #${channel.name}`);
-                            }
-                        }
-
-                        const row = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId(`edit_published_${interaction.user.id}`)
-                                    .setLabel('Edit')
-                                    .setStyle(ButtonStyle.Secondary),
-                                new ButtonBuilder()
-                                    .setCustomId(`delete_published_${interaction.user.id}`)
-                                    .setLabel('Delete')
-                                    .setStyle(ButtonStyle.Danger)
-                            );
-
-                        await channel.send({ content, components: [row] });
-                        await interaction.editReply({ content: 'List published to channel!', components: [] });
-                        sessions.delete(interaction.message.id);
-                    } else {
-                        throw new Error('Could not access the channel to publish.');
-                    }
-                } catch (err) {
-                    console.error('Publish error:', err);
-                    await interaction.followUp({ content: `Failed to publish: ${err.message}`, ephemeral: true });
-                }
-                return;
-            }
-
-            if (interaction.customId === 'publish_image') {
-                await interaction.deferUpdate();
-                
-                session.options.username = interaction.user.username;
-                session.options.userId = interaction.user.id;
-                
                 try {
                     const lines = session.text.split(/\r?\n/);
                     const format = detectFormat(lines);
@@ -305,8 +252,7 @@ client.on(Events.InteractionCreate, async interaction => {
                     }
 
                     const parsedData = parser(lines);
-                    
-                    const pngBuffer = await generateImageBuffer(parsedData, session.options);
+                    const isImage = session.options.format === 'imageCodex' || session.options.format === 'imageCodexAbbr';
                     
                     let channel = interaction.channel;
                     if (!channel && interaction.channelId) {
@@ -320,15 +266,12 @@ client.on(Events.InteractionCreate, async interaction => {
                                 if (!permissions.has('SendMessages')) {
                                     throw new Error(`Missing 'Send Messages' permission in #${channel.name}`);
                                 }
-                                if (!permissions.has('AttachFiles')) {
+                                if (isImage && !permissions.has('AttachFiles')) {
                                     throw new Error(`Missing 'Attach Files' permission in #${channel.name}`);
                                 }
                             }
                         }
 
-                        const armyName = (parsedData.metadata?.title || parsedData.metadata?.armyName || 'army-list').toLowerCase().replace(/[^a-z0-9]/g, '-');
-                        const attachment = new AttachmentBuilder(pngBuffer, { name: `${armyName}-card.png` });
-                        
                         const row = new ActionRowBuilder()
                             .addComponents(
                                 new ButtonBuilder()
@@ -337,20 +280,39 @@ client.on(Events.InteractionCreate, async interaction => {
                                     .setStyle(ButtonStyle.Danger)
                             );
 
-                        await channel.send({
-                            content: `📊 **Image Version** of the list published by <@${interaction.user.id}>:`,
-                            files: [attachment],
-                            components: [row]
-                        });
-                        
-                        await interaction.editReply({ content: 'Image list published to channel!', components: [] });
+                        if (isImage) {
+                            const pngBuffer = await generateImageBuffer(parsedData, session.options);
+                            const armyName = (parsedData.metadata?.title || parsedData.metadata?.armyName || 'army-list').toLowerCase().replace(/[^a-z0-9]/g, '-');
+                            const attachment = new AttachmentBuilder(pngBuffer, { name: `${armyName}-card.png` });
+                            
+                            await channel.send({
+                                content: `📊 **Image Version** of the list published by <@${interaction.user.id}>:`,
+                                files: [attachment],
+                                components: [row]
+                            });
+                        } else {
+                            const { content } = await generateResponse(session.text, session.options);
+                            const editRow = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId(`edit_published_${interaction.user.id}`)
+                                        .setLabel('Edit')
+                                        .setStyle(ButtonStyle.Secondary),
+                                    new ButtonBuilder()
+                                        .setCustomId(`delete_published_${interaction.user.id}`)
+                                        .setLabel('Delete')
+                                        .setStyle(ButtonStyle.Danger)
+                                );
+                            await channel.send({ content, components: [editRow] });
+                        }
+                        await interaction.editReply({ content: 'List published to channel!', components: [], files: [] });
                         sessions.delete(interaction.message.id);
                     } else {
                         throw new Error('Could not access the channel to publish.');
                     }
                 } catch (err) {
-                    console.error('Publish image error:', err);
-                    await interaction.followUp({ content: `Failed to publish image: ${err.message}`, ephemeral: true });
+                    console.error('Publish error:', err);
+                    await interaction.followUp({ content: `Failed to publish: ${err.message}`, ephemeral: true });
                 }
                 return;
             }
@@ -364,7 +326,17 @@ client.on(Events.InteractionCreate, async interaction => {
             if (interaction.customId === 'toggle_bullets') options.noBullets = !options.noBullets;
             if (interaction.customId === 'toggle_points') options.hidePoints = !options.hidePoints;
             if (interaction.customId === 'toggle_abbr_header') options.abbreviateHeader = !options.abbreviateHeader;
-            if (interaction.customId === 'toggle_mandatory') options.showMandatoryWargear = !options.showMandatoryWargear;
+            if (interaction.customId === 'toggle_mandatory') {
+                const cur = options.wargearShowMode || (options.showMandatoryWargear ? 'show-all' : 'hide-mandatory');
+                if (cur === 'show-all') {
+                    options.wargearShowMode = 'hide-mandatory';
+                } else if (cur === 'hide-mandatory') {
+                    options.wargearShowMode = 'hide-all';
+                } else {
+                    options.wargearShowMode = 'show-all';
+                }
+                options.showMandatoryWargear = (options.wargearShowMode === 'show-all');
+            }
             
             if (interaction.customId === 'select_color') {
                 options.colorMode = interaction.values[0];
@@ -396,8 +368,8 @@ client.on(Events.InteractionCreate, async interaction => {
             }
 
             if (interaction.customId === 'btn_config_done') {
-                const { content, components } = generateResponse(session.text, options);
-                await interaction.update({ content, components });
+                const { content, components, files } = await generateResponse(session.text, options);
+                await interaction.update({ content, components, files: files || [] });
                 return;
             }
 
@@ -419,8 +391,8 @@ client.on(Events.InteractionCreate, async interaction => {
             sessions.set(interaction.message.id, { text: session.text, options });
 
             // Re-render
-            const { content, components } = generateResponse(session.text, options);
-            await interaction.update({ content, components });
+            const { content, components, files } = await generateResponse(session.text, options);
+            await interaction.update({ content, components, files: files || [] });
         } catch (error) {
             console.error('Interaction error:', error);
             if (!interaction.replied && !interaction.deferred) {
@@ -488,8 +460,9 @@ function generateColorConfig(colors, page) {
     return { content: `**Configure Custom Colors (${page === 'units' ? '1/2' : '2/2'})**\nSelect colors for each element below.${page !== 'units' ? '\n*(Icon Color affects the faction emblem in Image mode)*' : ''}`, components };
 }
 
-function generateResponse(text, options) {
+async function generateResponse(text, options) {
     let outputText = '';
+    let files = [];
     try {
         const lines = text.split(/\r?\n/);
         const format = detectFormat(lines);
@@ -504,40 +477,67 @@ function generateResponse(text, options) {
         }
 
         const parsedData = parser(lines);
-        const abbrIndex = buildAbbreviationIndex(parsedData); // No custom abbrs for now in Discord bot
+        const isImage = options.format === 'imageCodex' || options.format === 'imageCodexAbbr';
 
-        const renderOptions = {
-            multilineHeader: options.multilineHeader,
-            abbreviateHeader: options.abbreviateHeader,
-            showMandatoryWargear: options.showMandatoryWargear,
-            colorMode: options.colorMode,
-            forcePalette: true, // Ensure we use Discord-safe colors
-            colors: options.customColors
-        };
+        if (isImage) {
+            // Generate PNG preview
+            const imageOpts = {
+                hideSubunits: options.hideSubunits,
+                wargearShowMode: options.wargearShowMode,
+                hidePoints: options.hidePoints,
+                combineIdenticalUnits: options.combineUnits,
+                useAbbreviations: options.format === 'imageCodexAbbr',
+                noBullets: options.noBullets,
+                abbreviateHeader: options.abbreviateHeader,
+                colorMode: options.colorMode || 'faction',
+                customColors: options.customColors
+            };
+            const pngBuffer = await generateImageBuffer(parsedData, imageOpts);
+            const armyName = (parsedData.metadata?.title || parsedData.metadata?.armyName || 'army-list').toLowerCase().replace(/[^a-z0-9]/g, '-');
+            const attachment = new AttachmentBuilder(pngBuffer, { name: `${armyName}-card.png` });
+            files = [attachment];
+            
+            // Text content for image mode: just a friendly header / title
+            const totalPts = parsedData.metadata?.pointsTotal || parsedData.metadata?.totalPoints || 0;
+            const faction = parsedData.metadata?.faction || '';
+            const listTitle = parsedData.metadata?.title || parsedData.metadata?.armyName || 'Army List';
+            outputText = `📊 **Codex Card Preview** for **${listTitle}** (${faction}${totalPts ? ` | ${totalPts} pts` : ''})`;
+        } else {
+            const abbrIndex = buildAbbreviationIndex(parsedData); // No custom abbrs for now in Discord bot
 
-        // Map format selection to renderer arguments
-        let plain = false;
-        let useAbbreviations = true;
-        
-        switch (options.format) {
-            case 'discordCompact': plain = false; useAbbreviations = true; break;
-            case 'discordExtended': plain = false; useAbbreviations = false; break;
-            case 'plainText': plain = true; useAbbreviations = true; break;
-            case 'plainTextExtended': plain = true; useAbbreviations = false; break;
+            const renderOptions = {
+                multilineHeader: options.multilineHeader,
+                abbreviateHeader: options.abbreviateHeader,
+                wargearShowMode: options.wargearShowMode,
+                colorMode: options.colorMode,
+                forcePalette: true, // Ensure we use Discord-safe colors
+                colors: options.customColors
+            };
+
+            // Map format selection to renderer arguments
+            let plain = false;
+            let useAbbreviations = true;
+            
+            switch (options.format) {
+                case 'discordCompact': plain = false; useAbbreviations = true; break;
+                case 'discordExtended': plain = false; useAbbreviations = false; break;
+                case 'plainText': plain = true; useAbbreviations = true; break;
+                case 'plainTextExtended': plain = true; useAbbreviations = false; break;
+            }
+
+            outputText = generateDiscordText(
+                parsedData,
+                plain,
+                useAbbreviations,
+                abbrIndex,
+                options.hideSubunits,
+                skippableWargear,
+                options.combineUnits,
+                renderOptions,
+                options.noBullets,
+                options.hidePoints
+            );
         }
-
-        outputText = generateDiscordText(
-            parsedData,
-            plain,
-            useAbbreviations,
-            abbrIndex,
-            options.hideSubunits,
-            skippableWargear,
-            options.combineUnits,
-            renderOptions,
-            options.noBullets,
-            options.hidePoints
-        );
 
         const userAttribution = options.userId ? `List created by <@${options.userId}>` : (options.username ? `List created by ${options.username}` : 'List created');
         outputText += `\n*${userAttribution} with [40kCompactor](http://www.40kcompactor.com)*`;
@@ -583,10 +583,22 @@ function generateResponse(text, options) {
                 .setCustomId('toggle_points')
                 .setLabel(options.hidePoints ? 'Show Points' : 'Hide Points')
                 .setStyle(options.hidePoints ? ButtonStyle.Primary : ButtonStyle.Secondary),
-            new ButtonBuilder()
-                .setCustomId('toggle_mandatory')
-                .setLabel(options.showMandatoryWargear ? 'Hide Mandatory' : 'Show Mandatory')
-                .setStyle(options.showMandatoryWargear ? ButtonStyle.Primary : ButtonStyle.Secondary)
+            (() => {
+                const cur = options.wargearShowMode || (options.showMandatoryWargear ? 'show-all' : 'hide-mandatory');
+                let label = 'Wargear: Hide Mand.';
+                let style = ButtonStyle.Secondary;
+                if (cur === 'show-all') {
+                    label = 'Wargear: Show All';
+                    style = ButtonStyle.Primary;
+                } else if (cur === 'hide-all') {
+                    label = 'Wargear: Hide All';
+                    style = ButtonStyle.Danger;
+                }
+                return new ButtonBuilder()
+                    .setCustomId('toggle_mandatory')
+                    .setLabel(label)
+                    .setStyle(style);
+            })()
         );
 
     const row3 = new ActionRowBuilder()
@@ -598,7 +610,9 @@ function generateResponse(text, options) {
                     new StringSelectMenuOptionBuilder().setLabel('Discord (Compact)').setValue('discordCompact').setDefault(options.format === 'discordCompact'),
                     new StringSelectMenuOptionBuilder().setLabel('Discord (Extended)').setValue('discordExtended').setDefault(options.format === 'discordExtended'),
                     new StringSelectMenuOptionBuilder().setLabel('Plain Text').setValue('plainText').setDefault(options.format === 'plainText'),
-                    new StringSelectMenuOptionBuilder().setLabel('Plain Text (Extended)').setValue('plainTextExtended').setDefault(options.format === 'plainTextExtended')
+                    new StringSelectMenuOptionBuilder().setLabel('Plain Text (Extended)').setValue('plainTextExtended').setDefault(options.format === 'plainTextExtended'),
+                    new StringSelectMenuOptionBuilder().setLabel('Image (Codex Card)').setValue('imageCodex').setDefault(options.format === 'imageCodex'),
+                    new StringSelectMenuOptionBuilder().setLabel('Image (Codex Card Abbreviated)').setValue('imageCodexAbbr').setDefault(options.format === 'imageCodexAbbr')
                 )
         );
 
@@ -618,10 +632,6 @@ function generateResponse(text, options) {
         new ButtonBuilder()
             .setCustomId('publish')
             .setLabel('Publish to Channel')
-            .setStyle(ButtonStyle.Success),
-        new ButtonBuilder()
-            .setCustomId('publish_image')
-            .setLabel('Publish Image')
             .setStyle(ButtonStyle.Success)
     ];
 
@@ -645,7 +655,7 @@ function generateResponse(text, options) {
 
     const components = [row1, row2, row3, row4, rowPublish];
 
-    return { content: outputText, components };
+    return { content: outputText, components, files };
 }
 
 client.login(process.env.DISCORD_TOKEN);

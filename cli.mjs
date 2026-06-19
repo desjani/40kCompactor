@@ -35,6 +35,8 @@ Options:
   --multiline-header       Use multiline header
   --no-bullets             Disable bullet points
   --hide-points            Hide points costs
+  --wargear-mode <mode>    Wargear visibility: show-all, hide-mandatory (default), hide-all
+  --show-mandatory-wargear (Deprecated) Shortcut for --wargear-mode show-all
   --color-mode <mode>      Color mode: none, faction (default), custom
   --color-unit <color>     Custom color for units
   --color-subunit <color>  Custom color for subunits
@@ -58,6 +60,7 @@ async function main() {
         multilineHeader: false,
         noBullets: false,
         hidePoints: false,
+        wargearShowMode: 'hide-mandatory',
         colorMode: 'faction',
         colors: {},
         abbreviationsFile: null
@@ -82,6 +85,10 @@ async function main() {
             options.noBullets = true;
         } else if (arg === '--hide-points') {
             options.hidePoints = true;
+        } else if (arg === '--wargear-mode') {
+            options.wargearShowMode = args[++i];
+        } else if (arg === '--show-mandatory-wargear') {
+            options.wargearShowMode = 'show-all';
         } else if (arg === '--color-mode') {
             options.colorMode = args[++i];
         } else if (arg === '--color-unit') {
@@ -191,6 +198,7 @@ async function main() {
         colorMode: options.colorMode,
         multilineHeader: options.multilineHeader,
         colors: options.colors,
+        wargearShowMode: options.wargearShowMode,
         forcePalette: true
     };
 

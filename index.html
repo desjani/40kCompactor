@@ -124,10 +124,12 @@
                         </label>
                     </div>
                     <div style="margin-bottom: 0.5rem;">
-                        <label class="checkbox-label">
-                            Show mandatory Wargear
-                            <input type="checkbox" id="showMandatoryWargearCheckbox" class="switch-input">
-                            <span class="switch-slider" aria-hidden="true"></span>
+                        <label>Wargear Visibility: 
+                            <select id="wargearShowModeSelect">
+                                <option value="show-all">Show All</option>
+                                <option value="hide-mandatory" selected>Hide Mandatory</option>
+                                <option value="hide-all">Hide All</option>
+                            </select>
                         </label>
                     </div>
                     <!-- Color Options Section -->

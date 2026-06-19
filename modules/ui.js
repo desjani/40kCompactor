@@ -51,9 +51,9 @@ export function getHidePointsState() {
     return el ? el.checked : false;
 }
 
-export function getShowMandatoryWargearState() {
-    const el = document.getElementById('showMandatoryWargearCheckbox');
-    return el ? el.checked : false;
+export function getWargearShowModeState() {
+    const el = document.getElementById('wargearShowModeSelect');
+    return el ? el.value : 'hide-mandatory';
 }
 
 // --- UI Initialization ---
@@ -167,9 +167,9 @@ export function initializeUI(callbacks) {
             hidePointsCheckbox.addEventListener('change', callbacks.onHidePointsChange);
         }
 
-        const showMandatoryWargearCheckbox = document.getElementById('showMandatoryWargearCheckbox');
-        if (showMandatoryWargearCheckbox) {
-            showMandatoryWargearCheckbox.addEventListener('change', callbacks.onShowMandatoryWargearChange);
+        const wargearShowModeSelect = document.getElementById('wargearShowModeSelect');
+        if (wargearShowModeSelect) {
+            wargearShowModeSelect.addEventListener('change', callbacks.onWargearShowModeChange || callbacks.onShowMandatoryWargearChange);
         }
 
         // Initialize Custom Abbreviations UI

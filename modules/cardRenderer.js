@@ -195,6 +195,9 @@ export function estimateCardWidth(data, options = {}) {
   const rawUnits = Array.isArray(data.units) ? data.units : [];
   const units = maybeCombineUnits(rawUnits, options.hideSubunits, options.combineIdenticalUnits);
 
+  const showMandatory = !!options.showMandatoryWargear;
+  const showMode = options.wargearShowMode || (showMandatory ? 'show-all' : 'hide-mandatory');
+
   let maxPixelWidth = 320; // fallback minimum content width
 
   // Header info
@@ -290,13 +293,21 @@ export function estimateCardWidth(data, options = {}) {
         if (b.quantity !== a.quantity) return b.quantity - a.quantity;
         return a.name.localeCompare(b.name);
       });
-      wargearList.filter(w => options.showMandatoryWargear || !w.skippable).forEach(w => {
+      wargearList.filter(w => {
+        if (showMode === 'show-all') return true;
+        if (showMode === 'hide-all') return false;
+        return !w.skippable;
+      }).forEach(w => {
         const nameAbbr = getAbbrName(w.name);
         parts.push(w.quantity > 1 ? `${w.quantity}x ${nameAbbr}` : nameAbbr);
       });
     } else {
       if (Array.isArray(unit.wargear)) {
-        unit.wargear.filter(w => options.showMandatoryWargear || !w.skippable).forEach(w => {
+        unit.wargear.filter(w => {
+          if (showMode === 'show-all') return true;
+          if (showMode === 'hide-all') return false;
+          return !w.skippable;
+        }).forEach(w => {
           const q = parseInt(w.quantity || 1, 10);
           parts.push(q > 1 ? `${q}x ${getAbbrName(w.name)}` : getAbbrName(w.name));
         });
@@ -360,7 +371,11 @@ export function estimateCardWidth(data, options = {}) {
         
         const subNameWidth = subNameText.length * 7.0;
 
-        const wgs = (sub.wargear || []).filter(w => options.showMandatoryWargear || !w.skippable);
+        const wgs = (sub.wargear || []).filter(w => {
+          if (showMode === 'show-all') return true;
+          if (showMode === 'hide-all') return false;
+          return !w.skippable;
+        });
         const badgesWidth = wgs.reduce((sum, w) => {
           const wq = parseInt(w.quantity || 1, 10);
           const nameAbbr = getAbbrName(w.name);
@@ -394,6 +409,8 @@ export function estimateCardWidth(data, options = {}) {
 export function generateCardHtml(data, options = {}) {
   if (!data) return '';
   const summary = data.metadata || {};
+  const showMandatory = !!options.showMandatoryWargear;
+  const showMode = options.wargearShowMode || (showMandatory ? 'show-all' : 'hide-mandatory');
   const factionName = summary.faction || '';
   const normalizedFaction = factionName.replace(/[\u2018\u2019]/g, "'");
   const colors = resolveColors(normalizedFaction, options);
@@ -454,8 +471,12 @@ export function generateCardHtml(data, options = {}) {
     return makeAbbrevForName(itemName);
   };
 
-  const getSubunitWargearStr = (sub, showMandatory) => {
-    const wgs = (sub.wargear || []).filter(w => showMandatory || !w.skippable);
+  const getSubunitWargearStr = (sub, showMode) => {
+    const wgs = (sub.wargear || []).filter(w => {
+      if (showMode === 'show-all') return true;
+      if (showMode === 'hide-all') return false;
+      return !w.skippable;
+    });
     return wgs.map(w => {
       const q = parseInt(w.quantity || 1, 10);
       const nameAbbr = getAbbrName(w.name);
@@ -505,13 +526,21 @@ export function generateCardHtml(data, options = {}) {
         return a.name.localeCompare(b.name);
       });
 
-      wargearList.filter(w => options.showMandatoryWargear || !w.skippable).forEach(w => {
+      wargearList.filter(w => {
+        if (showMode === 'show-all') return true;
+        if (showMode === 'hide-all') return false;
+        return !w.skippable;
+      }).forEach(w => {
         const nameAbbr = getAbbrName(w.name);
         parts.push(w.quantity > 1 ? `${w.quantity}x ${nameAbbr}` : nameAbbr);
       });
     } else {
       if (Array.isArray(unit.wargear)) {
-        unit.wargear.filter(w => options.showMandatoryWargear || !w.skippable).forEach(w => {
+        unit.wargear.filter(w => {
+          if (showMode === 'show-all') return true;
+          if (showMode === 'hide-all') return false;
+          return !w.skippable;
+        }).forEach(w => {
           const q = parseInt(w.quantity || 1, 10);
           const nameAbbr = getAbbrName(w.name);
           parts.push(q > 1 ? `${q}x ${nameAbbr}` : nameAbbr);
@@ -525,7 +554,11 @@ export function generateCardHtml(data, options = {}) {
     const q = parseInt(sub.quantity || 1, 10);
     const prefix = q > 1 ? `${q}x ` : '';
     const bulletChar = options.noBullets ? '' : '• ';
-    const wgs = (sub.wargear || []).filter(w => options.showMandatoryWargear || !w.skippable);
+    const wgs = (sub.wargear || []).filter(w => {
+      if (showMode === 'show-all') return true;
+      if (showMode === 'hide-all') return false;
+      return !w.skippable;
+    });
     const badgesHtml = wgs.map(w => {
       const wq = parseInt(w.quantity || 1, 10);
       const nameAbbr = getAbbrName(w.name);

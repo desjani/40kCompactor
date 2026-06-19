@@ -40,7 +40,17 @@ function App() {
   const [abbrHeader, setAbbrHeader] = useLocalStorage('abbrHeader', false)
   const [noBullets, setNoBullets] = useLocalStorage('noBullets', false)
   const [hidePoints, setHidePoints] = useLocalStorage('hidePoints', false)
-  const [showMandatory, setShowMandatory] = useLocalStorage('showMandatory', false)
+  const [wargearMode, setWargearMode] = useLocalStorage<'show-all'|'hide-mandatory'|'hide-all'>('wargearMode', (() => {
+    try {
+      const legacy = localStorage.getItem('showMandatory');
+      if (legacy !== null) {
+        const parsedLegacy = JSON.parse(legacy);
+        localStorage.removeItem('showMandatory');
+        return parsedLegacy ? 'show-all' : 'hide-mandatory';
+      }
+    } catch {}
+    return 'hide-mandatory';
+  })())
   const [customAbbrs, setCustomAbbrs] = useLocalStorage<Record<string,string>>('customAbbrs', {})
   const [colorMode, setColorMode] = useLocalStorage<'none'|'custom'|'faction'>('colorMode', 'faction')
   const [colors, setColors] = useLocalStorage('colors', { unit:'#ffffff', subunit:'#808080', wargear:'#ffffff', points:'#ffff00', header:'#ffff00', attached:'#ffff00' })
@@ -73,8 +83,8 @@ function App() {
 
   const compactText = useMemo(() => {
     if (!parsed || !abbr) return ''
-    return generateOutput(parsed, true, abbr, hide, skippable as any, true, combine, noBullets, hidePoints, abbrHeader, showMandatory).plainText
-  }, [parsed, abbr, hide, combine, noBullets, hidePoints, abbrHeader, showMandatory])
+    return generateOutput(parsed, true, abbr, hide, skippable as any, true, combine, noBullets, hidePoints, abbrHeader, false, wargearMode).plainText
+  }, [parsed, abbr, hide, combine, noBullets, hidePoints, abbrHeader, wargearMode])
 
   const [previewText, setPreviewText] = useState('')
   // Support different module export shapes across bundlers/browsers
@@ -95,7 +105,7 @@ function App() {
       let active = true;
       generateCardPngDataUrl(parsed, {
         hideSubunits: hide,
-        showMandatoryWargear: showMandatory,
+        wargearShowMode: wargearMode,
         hidePoints: hidePoints,
         combineIdenticalUnits: combine,
         useAbbreviations: format === 'imageCodexAbbr',
@@ -121,7 +131,7 @@ function App() {
       };
     }
     let t = ''
-    const opts = { colorMode, colors, multilineHeader: multiline, abbreviateHeader: abbrHeader, showMandatoryWargear: showMandatory } as any
+    const opts = { colorMode, colors, multilineHeader: multiline, abbreviateHeader: abbrHeader, wargearShowMode: wargearMode } as any
     switch (format) {
       case 'discordCompact':
         t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
@@ -135,7 +145,7 @@ function App() {
         t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints)
     }
     setPreviewText(t)
-  }, [parsed, abbr, hide, combine, colorMode, colors, multiline, format, noBullets, hidePoints, abbrHeader, showMandatory])
+  }, [parsed, abbr, hide, combine, colorMode, colors, multiline, format, noBullets, hidePoints, abbrHeader, wargearMode])
 
   const previewHtml = useMemo(() => {
     if (format === 'imageCodex' || format === 'imageCodexAbbr') {
@@ -145,7 +155,7 @@ function App() {
       if (imagePreviewUrl) {
         const cardWidth = parsed ? estimateCardWidth(parsed, {
           hideSubunits: hide,
-          showMandatoryWargear: showMandatory,
+          wargearShowMode: wargearMode,
           hidePoints: hidePoints,
           combineIdenticalUnits: combine,
           useAbbreviations: format === 'imageCodexAbbr',
@@ -156,11 +166,11 @@ function App() {
       return '<div style="color: #aab; text-align: center; padding: 20px;">No preview generated.</div>';
     }
     return au.ansi_to_html(previewText);
-  }, [format, renderingImage, imagePreviewUrl, previewText, au, parsed, hide, showMandatory, hidePoints, combine, abbr]);
+  }, [format, renderingImage, imagePreviewUrl, previewText, au, parsed, hide, wargearMode, hidePoints, combine, abbr]);
 
   function copy(s: string) {
     if (!s || !parsed || !abbr) { navigator.clipboard?.writeText(s || ''); return }
-    const opts: any = { colorMode, colors, forcePalette: true, multilineHeader: multiline, abbreviateHeader: abbrHeader, showMandatoryWargear: showMandatory }
+    const opts: any = { colorMode, colors, forcePalette: true, multilineHeader: multiline, abbreviateHeader: abbrHeader, wargearShowMode: wargearMode }
     let t = ''
     switch (format) {
       case 'discordCompact':
@@ -181,7 +191,7 @@ function App() {
     if (!parsed) return
     downloadCardPng(parsed, {
       hideSubunits: hide,
-      showMandatoryWargear: showMandatory,
+      wargearShowMode: wargearMode,
       hidePoints: hidePoints,
       combineIdenticalUnits: combine,
       useAbbreviations: format === 'imageCodexAbbr',
@@ -257,7 +267,14 @@ function App() {
                 <label><input type="checkbox" checked={noBullets} onChange={e=>setNoBullets((e.target as HTMLInputElement).checked)} /> Hide Bullets</label>
               )}
               <label><input type="checkbox" checked={hidePoints} onChange={e=>setHidePoints((e.target as HTMLInputElement).checked)} /> Hide Points</label>
-              <label><input type="checkbox" checked={showMandatory} onChange={e=>setShowMandatory((e.target as HTMLInputElement).checked)} /> Show mandatory Wargear</label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                Wargear:
+                <select value={wargearMode} onChange={e=>setWargearMode((e.target as HTMLSelectElement).value as any)}>
+                  <option value="show-all">Show All</option>
+                  <option value="hide-mandatory">Hide Mandatory</option>
+                  <option value="hide-all">Hide All</option>
+                </select>
+              </label>
             </div>
 
             <div class="row" style={{ gap: '10px', alignItems: 'center', marginBottom: '6px' }}>

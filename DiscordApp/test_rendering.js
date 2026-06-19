@@ -17,7 +17,7 @@ async function run() {
   console.log('Generating card HTML with hideSubunits: true...');
   const cardHtml = generateCardHtml(parsedData, {
     hideSubunits: true,
-    showMandatoryWargear: false,
+    wargearShowMode: 'hide-mandatory',
     hidePoints: false
   });
 

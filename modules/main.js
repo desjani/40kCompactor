@@ -2,7 +2,7 @@ import { detectFormat, parseV11List, parseGwAppV11 } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth } from './cardRenderer.js';
-import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getMultilineHeaderState, getAbbreviateHeaderState, getShowMandatoryWargearState, getCustomAbbrs, setCopyPreviewButtonText } from './ui.js';
+import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getMultilineHeaderState, getAbbreviateHeaderState, getWargearShowModeState, getCustomAbbrs, setCopyPreviewButtonText } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 };
                 downloadCardPng(parsedData, {
                     hideSubunits: hideSubunits,
-                    showMandatoryWargear: getShowMandatoryWargearState(),
+                    wargearShowMode: getWargearShowModeState(),
                     hidePoints: hidePoints,
                     combineIdenticalUnits: combineUnits,
                     useAbbreviations: selectedFormat === 'imageCodexAbbr',
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            const opts = { forcePalette: true, multilineHeader: getMultilineHeaderState(), abbreviateHeader: getAbbreviateHeaderState(), showMandatoryWargear: getShowMandatoryWargearState() };
+            const opts = { forcePalette: true, multilineHeader: getMultilineHeaderState(), abbreviateHeader: getAbbreviateHeaderState(), wargearShowMode: getWargearShowModeState() };
             let text = '';
             switch (selectedFormat) {
                 case 'discordCompact':
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     onHidePointsChange: () => renderAllOutputsWithCurrentOptions(),
         onMultilineHeaderChange: () => updatePreview(),
         onAbbreviateHeaderChange: () => renderAllOutputsWithCurrentOptions(),
-        onShowMandatoryWargearChange: () => renderAllOutputsWithCurrentOptions()
+        onWargearShowModeChange: () => renderAllOutputsWithCurrentOptions()
     });
 
     enableParseButton();
@@ -202,7 +202,7 @@ async function updatePreview() {
     const hidePoints = getHidePointsState();
     console.log('UI: hideSubunits value in updatePreview', hideSubunits, 'selectedFormat', selectedFormat);
 
-    const opts = { multilineHeader: getMultilineHeaderState(), abbreviateHeader: getAbbreviateHeaderState(), showMandatoryWargear: getShowMandatoryWargearState() };
+    const opts = { multilineHeader: getMultilineHeaderState(), abbreviateHeader: getAbbreviateHeaderState(), wargearShowMode: getWargearShowModeState() };
 
     if (selectedFormat === 'imageCodex' || selectedFormat === 'imageCodexAbbr') {
         setCopyPreviewButtonText('Download Image');
@@ -223,7 +223,7 @@ async function updatePreview() {
             };
             const imageOpts = {
                 hideSubunits,
-                showMandatoryWargear: getShowMandatoryWargearState(),
+                wargearShowMode: getWargearShowModeState(),
                 hidePoints,
                 combineIdenticalUnits: combineUnits,
                 useAbbreviations: selectedFormat === 'imageCodexAbbr',
@@ -289,7 +289,7 @@ function renderAllOutputsWithCurrentOptions() {
     extendedPlainText = extendedOutput.plainText;
 
     // Compact HTML
-    const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true, combineUnits, noBullets, hidePoints, getAbbreviateHeaderState(), getShowMandatoryWargearState());
+    const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true, combineUnits, noBullets, hidePoints, getAbbreviateHeaderState(), false, getWargearShowModeState());
     setCompactedOutput(compactOutput.html);
     compactPlainText = compactOutput.plainText;
 
