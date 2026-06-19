@@ -805,9 +805,16 @@ export async function generateCardPngDataUrl(data, options = {}) {
     link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap';
     document.head.appendChild(link);
     
-    // Wait for fonts to be completely ready
+    // Wait for fonts to be completely ready with a timeout
     if (document.fonts) {
-      await document.fonts.ready;
+      try {
+        await Promise.race([
+          document.fonts.ready,
+          new Promise(r => setTimeout(r, 500))
+        ]);
+      } catch (e) {
+        console.warn('Failed to wait for fonts ready:', e);
+      }
     }
     await new Promise(r => setTimeout(r, 100));
 
@@ -819,6 +826,7 @@ export async function generateCardPngDataUrl(data, options = {}) {
     const dataUrl = await window.htmlToImage.toPng(targetNode, {
       pixelRatio: 2, // High DPI rendering
       backgroundColor: colors.background, // Set background color explicitly to avoid rendering artifacts
+      skipFonts: true,
       style: {
         transform: 'scale(1)',
         transformOrigin: 'top left'
