@@ -37,26 +37,47 @@ try {
     console.error('Failed to load Inter fonts for Satori bot rendering', e);
 }
 
+// Map Discord bot ANSI color codes back to HEX for the card renderer
+function mapAnsiToHex(ansiColors) {
+    if (!ansiColors) return undefined;
+    const codeToHex = (code) => {
+        const entry = ansiPalette.find(p => p.code === parseInt(code, 10));
+        return entry ? entry.hex : '#FFFFFF';
+    };
+    return {
+        unit: codeToHex(ansiColors.unit || '37'),
+        subunit: codeToHex(ansiColors.subunit || '90'),
+        wargear: codeToHex(ansiColors.wargear || '37'),
+        points: codeToHex(ansiColors.points || '33'),
+        header: codeToHex(ansiColors.header || '33'),
+        icon: codeToHex(ansiColors.icon || ansiColors.header || '33')
+    };
+}
+
 async function generateImageBuffer(parsedData, options) {
     if (!interRegular || !interBold) {
         throw new Error('Required fonts for image rendering are not loaded');
     }
 
     const useAbbreviations = options.format === 'discordCompact' || options.format === 'plainText';
-    const cardWidth = estimateCardWidth(parsedData, {
-        hideSubunits: options.hideSubunits,
-        showMandatoryWargear: options.showMandatoryWargear,
-        hidePoints: options.hidePoints,
-        combineIdenticalUnits: options.combineUnits,
-        useAbbreviations: useAbbreviations
-    });
+    const hexColors = (options.colorMode === 'custom') ? mapAnsiToHex(options.customColors) : undefined;
 
-    const cardHtml = generateCardHtml(parsedData, {
+    const widthOpts = {
         hideSubunits: options.hideSubunits,
         showMandatoryWargear: options.showMandatoryWargear,
         hidePoints: options.hidePoints,
         combineIdenticalUnits: options.combineUnits,
         useAbbreviations: useAbbreviations,
+        noBullets: options.noBullets,
+        abbreviateHeader: options.abbreviateHeader,
+        colorMode: options.colorMode || 'faction',
+        colors: hexColors
+    };
+
+    const cardWidth = estimateCardWidth(parsedData, widthOpts);
+
+    const cardHtml = generateCardHtml(parsedData, {
+        ...widthOpts,
         wargearAbbrMap: buildAbbreviationIndex(parsedData),
         cardWidth: cardWidth
     });
@@ -354,21 +375,21 @@ client.on(Events.InteractionCreate, async interaction => {
             }
 
             if (interaction.customId === 'btn_config_colors') {
-                const colors = options.customColors || { unit: '37', subunit: '90', wargear: '37', points: '33', header: '33' };
+                const colors = options.customColors || { unit: '37', subunit: '90', wargear: '37', points: '33', header: '33', icon: '33' };
                 const { content, components } = generateColorConfig(colors, 'units');
                 await interaction.update({ content, components });
                 return;
             }
 
             if (interaction.customId === 'btn_config_accents') {
-                const colors = options.customColors || { unit: '37', subunit: '90', wargear: '37', points: '33', header: '33' };
+                const colors = options.customColors || { unit: '37', subunit: '90', wargear: '37', points: '33', header: '33', icon: '33' };
                 const { content, components } = generateColorConfig(colors, 'accents');
                 await interaction.update({ content, components });
                 return;
             }
 
             if (interaction.customId === 'btn_config_units') {
-                const colors = options.customColors || { unit: '37', subunit: '90', wargear: '37', points: '33', header: '33' };
+                const colors = options.customColors || { unit: '37', subunit: '90', wargear: '37', points: '33', header: '33', icon: '33' };
                 const { content, components } = generateColorConfig(colors, 'units');
                 await interaction.update({ content, components });
                 return;
@@ -384,11 +405,11 @@ client.on(Events.InteractionCreate, async interaction => {
                 const type = interaction.customId.replace('cfg_', '');
                 const colorVal = interaction.values[0];
                 
-                if (!options.customColors) options.customColors = { unit: '37', subunit: '90', wargear: '37', points: '33', header: '33' };
+                if (!options.customColors) options.customColors = { unit: '37', subunit: '90', wargear: '37', points: '33', header: '33', icon: '33' };
                 options.customColors[type] = colorVal;
                 
                 // Stay on current page
-                const page = (type === 'header' || type === 'points') ? 'accents' : 'units';
+                const page = (type === 'header' || type === 'points' || type === 'icon') ? 'accents' : 'units';
                 const { content, components } = generateColorConfig(options.customColors, page);
                 await interaction.update({ content, components });
                 return;
@@ -454,6 +475,9 @@ function generateColorConfig(colors, page) {
         components.push(new ActionRowBuilder().addComponents(
             new StringSelectMenuBuilder().setCustomId('cfg_points').setPlaceholder('Points Color').addOptions(getColorOptions(colors.points))
         ));
+        components.push(new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder().setCustomId('cfg_icon').setPlaceholder('Icon Color').addOptions(getColorOptions(colors.icon || colors.header))
+        ));
 
         components.push(new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('btn_config_units').setLabel('Back: Units').setStyle(ButtonStyle.Secondary),
@@ -461,7 +485,7 @@ function generateColorConfig(colors, page) {
         ));
     }
 
-    return { content: `**Configure Custom Colors (${page === 'units' ? '1/2' : '2/2'})**\nSelect colors for each element below.`, components };
+    return { content: `**Configure Custom Colors (${page === 'units' ? '1/2' : '2/2'})**\nSelect colors for each element below.${page !== 'units' ? '\n*(Icon Color affects the faction emblem in Image mode)*' : ''}`, components };
 }
 
 function generateResponse(text, options) {
