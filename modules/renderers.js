@@ -1,9 +1,9 @@
 // Renderers for 11th Edition JSON structure.
 import { makeAbbrevForName } from './abbreviations.js';
 import factionColors from './faction_colors.js';
-import { sortItemsByQuantityThenName } from './utils.js';
+import { sortItemsByQuantityThenName, getModelsCount } from './utils.js';
 
-function abbreviateWords(str) {
+export function abbreviateWords(str) {
     if (!str) return '';
     const words = str.split(/\s+/);
     const lowercaseWords = ['the', 'of', 'in', 'on', 'at', 'for', 'a', 'an', 'to', 'by', 'with', 'and'];
@@ -19,13 +19,13 @@ function abbreviateWords(str) {
     return abbr;
 }
 
-function abbreviateDetachment(detStr) {
+export function abbreviateDetachment(detStr) {
     if (!detStr) return '';
     const parts = detStr.split(/\s+and\s+/i);
     return parts.map(p => abbreviateWords(p.trim())).join(' & ');
 }
 
-function abbreviateForceDisposition(dispStr) {
+export function abbreviateForceDisposition(dispStr) {
     if (!dispStr) return '';
     const parts = dispStr.split(',');
     return parts.map(p => abbreviateWords(p.trim())).join(', ');
@@ -294,12 +294,12 @@ export function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
         if (group.length === 1) {
             const single = { ...group[0] };
             single.__groupCount = 1;
-            single.__unitSize = parseInt((single.quantity || '1').toString().replace('x', ''), 10) || 1;
+            single.__unitSize = getModelsCount(single);
             if (single.isAttached && Array.isArray(single.attachedParts)) {
                 single.attachedParts = single.attachedParts.map(part => {
                     const p = { ...part };
                     p.__groupCount = 1;
-                    p.__unitSize = parseInt((p.quantity || '1').toString().replace('x', ''), 10) || 1;
+                    p.__unitSize = getModelsCount(p);
                     return p;
                 });
             }
@@ -307,14 +307,14 @@ export function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
             continue;
         }
         const template = { ...group[0] };
-        const unitSize = parseInt((template.quantity || '1').toString().replace('x', ''), 10) || 1;
+        const unitSize = getModelsCount(template);
         template.__groupCount = group.length;
         template.__unitSize = unitSize;
         if (template.isAttached && Array.isArray(template.attachedParts)) {
             template.attachedParts = template.attachedParts.map(part => {
                 const p = { ...part };
                 p.__groupCount = group.length;
-                p.__unitSize = parseInt((p.quantity || '1').toString().replace('x', ''), 10) || 1;
+                p.__unitSize = getModelsCount(p);
                 return p;
             });
         }
@@ -323,7 +323,7 @@ export function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
     return combined;
 }
 
-function getRoleTag(part, index) {
+export function getRoleTag(part, index) {
     if (!part) return '';
     const roleLower = (part.role || '').toLowerCase();
     const attachedLower = (part.attachedAs || '').toLowerCase();
@@ -334,7 +334,7 @@ function getRoleTag(part, index) {
     return '';
 }
 
-function getWarlordTag(unit) {
+export function getWarlordTag(unit) {
     return unit && unit.isWarlord ? '[W]' : '';
 }
 
@@ -420,13 +420,13 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
 
     const renderUnit = (unit) => {
         let outHtml = '', outPlain = '';
-        const qtyNum = parseInt((unit.quantity || '1').toString().replace('x', ''), 10) || 1;
+        const G = (unit.__groupCount !== undefined) ? unit.__groupCount : 1;
+        const M = (unit.__unitSize !== undefined) ? unit.__unitSize : getModelsCount(unit);
         let qtyDisplay = '';
-        if (combineIdenticalUnits && (unit.__groupCount || 0) > 1) {
-            const unitSize = unit.__unitSize || qtyNum;
-            qtyDisplay = `${unit.__groupCount}x${unitSize} `;
+        if (G > 1) {
+            qtyDisplay = M > 1 ? `${G}x${M} ` : `${G}x `;
         } else {
-            qtyDisplay = qtyNum > 1 ? `${qtyNum} ` : '';
+            qtyDisplay = M > 1 ? `${M} ` : '';
         }
 
         const categorySuffix = '';
@@ -707,13 +707,13 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
     const units = maybeCombineUnits(rawUnits, hideSubunits, combineIdenticalUnits);
 
     const renderDiscordUnit = (unit, prefixText = '') => {
-        const qtyNum = parseInt((unit.quantity || '1').toString().replace('x', ''), 10) || 1;
+        const G = (unit.__groupCount !== undefined) ? unit.__groupCount : 1;
+        const M = (unit.__unitSize !== undefined) ? unit.__unitSize : getModelsCount(unit);
         let qtyDisplay = '';
-        if (combineIdenticalUnits && (unit.__groupCount || 0) > 1) {
-            const unitSize = unit.__unitSize || qtyNum;
-            qtyDisplay = `${unit.__groupCount}x${unitSize} `;
+        if (G > 1) {
+            qtyDisplay = M > 1 ? `${G}x${M} ` : `${G}x `;
         } else {
-            qtyDisplay = qtyNum > 1 ? `${qtyNum} ` : '';
+            qtyDisplay = M > 1 ? `${M} ` : '';
         }
 
         const categorySuffix = '';

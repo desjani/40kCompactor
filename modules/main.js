@@ -1,7 +1,7 @@
 import { detectFormat, parseV11List, parseGwAppV11 } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
-import { downloadCardPng, generateCardPngDataUrl } from './cardRenderer.js';
+import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth } from './cardRenderer.js';
 import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getMultilineHeaderState, getAbbreviateHeaderState, getShowMandatoryWargearState, getCustomAbbrs, setCopyPreviewButtonText } from './ui.js';
 
 let parsedData = null;
@@ -44,13 +44,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             const hidePoints = getHidePointsState();
 
             if (selectedFormat === 'imageCodex' || selectedFormat === 'imageCodexAbbr') {
+                const colorMode = document.querySelector('input[name="colorMode"]:checked')?.value || 'none';
+                const colors = {
+                    unit: document.getElementById('unitColor')?.value,
+                    subunit: document.getElementById('subunitColor')?.value,
+                    wargear: document.getElementById('wargearColor')?.value,
+                    points: document.getElementById('pointsColor')?.value,
+                    header: document.getElementById('headerColor')?.value,
+                    attached: document.getElementById('attachedColor')?.value,
+                    icon: document.getElementById('iconColor')?.value
+                };
                 downloadCardPng(parsedData, {
                     hideSubunits: hideSubunits,
                     showMandatoryWargear: getShowMandatoryWargearState(),
                     hidePoints: hidePoints,
                     combineIdenticalUnits: combineUnits,
                     useAbbreviations: selectedFormat === 'imageCodexAbbr',
-                    wargearAbbrMap: wargearAbbrDB
+                    wargearAbbrMap: wargearAbbrDB,
+                    noBullets: noBullets,
+                    colorMode: colorMode,
+                    colors: colors,
+                    abbreviateHeader: getAbbreviateHeaderState()
                 });
                 return;
             }
@@ -197,16 +211,32 @@ async function updatePreview() {
             markdownPreviewOutput.innerHTML = '<div style="color: var(--color-text-secondary); text-align: center; padding: 2rem;">Generating preview image...</div>';
         }
         try {
-            const dataUrl = await generateCardPngDataUrl(parsedData, {
+            const colorMode = document.querySelector('input[name="colorMode"]:checked')?.value || 'none';
+            const colors = {
+                unit: document.getElementById('unitColor')?.value,
+                subunit: document.getElementById('subunitColor')?.value,
+                wargear: document.getElementById('wargearColor')?.value,
+                points: document.getElementById('pointsColor')?.value,
+                header: document.getElementById('headerColor')?.value,
+                attached: document.getElementById('attachedColor')?.value,
+                icon: document.getElementById('iconColor')?.value
+            };
+            const imageOpts = {
                 hideSubunits,
                 showMandatoryWargear: getShowMandatoryWargearState(),
                 hidePoints,
                 combineIdenticalUnits: combineUnits,
                 useAbbreviations: selectedFormat === 'imageCodexAbbr',
-                wargearAbbrMap: wargearAbbrDB
-            });
+                wargearAbbrMap: wargearAbbrDB,
+                noBullets,
+                colorMode,
+                colors,
+                abbreviateHeader: getAbbreviateHeaderState()
+            };
+            const dataUrl = await generateCardPngDataUrl(parsedData, imageOpts);
             if (markdownPreviewOutput && (outputFormatSelect.value === 'imageCodex' || outputFormatSelect.value === 'imageCodexAbbr')) {
-                markdownPreviewOutput.innerHTML = `<img src="${dataUrl}" style="max-width: 100%; height: auto; display: block; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);" />`;
+                const cardWidth = estimateCardWidth(parsedData, imageOpts);
+                markdownPreviewOutput.innerHTML = `<img src="${dataUrl}" style="width: ${cardWidth}px; max-width: none; display: block; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);" />`;
             }
         } catch (err) {
             console.error('Failed to generate preview image:', err);

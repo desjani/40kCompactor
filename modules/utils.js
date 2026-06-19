@@ -101,3 +101,12 @@ export function isWargearSkippable(skippableWargearMap, faction, unitName, warge
     }
     return false;
 }
+
+export function getModelsCount(unit) {
+    if (!unit) return 1;
+    if (Array.isArray(unit.subunits) && unit.subunits.length > 0) {
+        return unit.subunits.reduce((sum, sub) => sum + (parseInt(sub.quantity, 10) || 0), 0);
+    }
+    const q = parseInt((unit.quantity || '1').toString().replace('x', ''), 10);
+    return isNaN(q) ? 1 : q;
+}

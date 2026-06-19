@@ -16,7 +16,7 @@ import { generateOutput, generateDiscordText } from '../../../modules/renderers.
 // @ts-ignore - ambient types provided separately for JS modules
 import { buildAbbreviationIndex } from '../../../modules/abbreviations.js'
 // @ts-ignore
-import { downloadCardPng, generateCardPngDataUrl } from '../../../modules/cardRenderer.js'
+import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth } from '../../../modules/cardRenderer.js'
 import skippable from '../../../skippable_wargear.json'
 
 function useLocalStorage<T>(key: string, initial: T): [T, (v: T)=>void] {
@@ -99,7 +99,12 @@ function App() {
         hidePoints: hidePoints,
         combineIdenticalUnits: combine,
         useAbbreviations: format === 'imageCodexAbbr',
-        wargearAbbrMap: abbr
+        wargearAbbrMap: abbr,
+        colorMode,
+        colors: {
+          ...colors,
+          icon: (colors as any).icon || colors.header
+        }
       }).then(dataUrl => {
         if (active) {
           setImagePreviewUrl(dataUrl);
@@ -138,12 +143,20 @@ function App() {
         return '<div style="color: #aab; text-align: center; padding: 20px;">Generating preview image...</div>';
       }
       if (imagePreviewUrl) {
-        return `<img src="${imagePreviewUrl}" style="max-width: 100%; height: auto; display: block; border-radius: 6px;" />`;
+        const cardWidth = parsed ? estimateCardWidth(parsed, {
+          hideSubunits: hide,
+          showMandatoryWargear: showMandatory,
+          hidePoints: hidePoints,
+          combineIdenticalUnits: combine,
+          useAbbreviations: format === 'imageCodexAbbr',
+          wargearAbbrMap: abbr
+        }) : 580;
+        return `<img src="${imagePreviewUrl}" style="width: ${cardWidth}px; max-width: none; display: block; border-radius: 6px;" />`;
       }
       return '<div style="color: #aab; text-align: center; padding: 20px;">No preview generated.</div>';
     }
     return au.ansi_to_html(previewText);
-  }, [format, renderingImage, imagePreviewUrl, previewText, au]);
+  }, [format, renderingImage, imagePreviewUrl, previewText, au, parsed, hide, showMandatory, hidePoints, combine, abbr]);
 
   function copy(s: string) {
     if (!s || !parsed || !abbr) { navigator.clipboard?.writeText(s || ''); return }
@@ -172,7 +185,12 @@ function App() {
       hidePoints: hidePoints,
       combineIdenticalUnits: combine,
       useAbbreviations: format === 'imageCodexAbbr',
-      wargearAbbrMap: abbr
+      wargearAbbrMap: abbr,
+      colorMode,
+      colors: {
+        ...colors,
+        icon: (colors as any).icon || colors.header
+      }
     })
   }
 
@@ -229,11 +247,15 @@ function App() {
             </div>
 
             <div class="row" style={{ marginBottom: '6px', justifyContent:'flex-start', flexWrap: 'wrap', gap: '10px' }}>
-              <label><input id="multilineHeaderCheckbox" type="checkbox" checked={multiline} onChange={e=>setMultiline((e.target as HTMLInputElement).checked)} /> Multiline Header</label>
+              {!(format === 'imageCodex' || format === 'imageCodexAbbr') && (
+                <label><input id="multilineHeaderCheckbox" type="checkbox" checked={multiline} onChange={e=>setMultiline((e.target as HTMLInputElement).checked)} /> Multiline Header</label>
+              )}
               <label><input type="checkbox" checked={abbrHeader} onChange={e=>setAbbrHeader((e.target as HTMLInputElement).checked)} /> Abbreviate Header</label>
               <label><input type="checkbox" checked={combine} onChange={e=>setCombine((e.target as HTMLInputElement).checked)} /> Combine like units</label>
               <label><input type="checkbox" checked={hide} onChange={e=>setHide((e.target as HTMLInputElement).checked)} /> Hide Subunits</label>
-              <label><input type="checkbox" checked={noBullets} onChange={e=>setNoBullets((e.target as HTMLInputElement).checked)} /> Hide Bullets</label>
+              {!(format === 'imageCodex' || format === 'imageCodexAbbr') && (
+                <label><input type="checkbox" checked={noBullets} onChange={e=>setNoBullets((e.target as HTMLInputElement).checked)} /> Hide Bullets</label>
+              )}
               <label><input type="checkbox" checked={hidePoints} onChange={e=>setHidePoints((e.target as HTMLInputElement).checked)} /> Hide Points</label>
               <label><input type="checkbox" checked={showMandatory} onChange={e=>setShowMandatory((e.target as HTMLInputElement).checked)} /> Show mandatory Wargear</label>
             </div>
@@ -254,10 +276,14 @@ function App() {
             </div>
             {colorMode==='custom' && (
               <div class="grid2 section">
-                {(['unit','subunit','wargear','points','header','attached'] as const).map(k => (
-                  <label>
+                {(
+                  (format === 'imageCodex' || format === 'imageCodexAbbr')
+                    ? ['unit', 'subunit', 'wargear', 'points', 'header', 'attached', 'icon']
+                    : ['unit', 'subunit', 'wargear', 'points', 'header', 'attached']
+                ).map(k => (
+                  <label key={k}>
                     {k} color
-                    <input id={`${k}Color`} type="color" value={(colors as any)[k]} onChange={e=>setColors({...colors, [k]:(e.target as HTMLInputElement).value})} style={{ marginLeft: '6px' }} />
+                    <input id={`${k}Color`} type="color" value={(colors as any)[k] || (colors as any).header || '#ffffff'} onChange={e=>setColors({...colors, [k]:(e.target as HTMLInputElement).value})} style={{ marginLeft: '6px' }} />
                   </label>
                 ))}
               </div>

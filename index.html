@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warhammer 40k List Compactor</title>
     <link rel="stylesheet" href="styles.css?v=0.0.8">
+    <!-- Eagerly preload Inter font for custom cards -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Explicit favicons to ensure GitHub Pages/project-site path resolution -->
     <link rel="icon" type="image/x-icon" href="Favicons/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="Favicons/favicon-32x32.png">
@@ -77,7 +81,7 @@
                             </select>
                         </label>
                     </div>
-                    <div style="margin-bottom: 0.5rem;">
+                    <div id="multilineHeaderContainer" style="margin-bottom: 0.5rem;">
                         <label class="checkbox-label">
                             Multiline Header
                             <input type="checkbox" id="multilineHeaderCheckbox" class="switch-input">
@@ -105,7 +109,7 @@
                             <span class="switch-slider" aria-hidden="true"></span>
                         </label>
                     </div>
-                    <div style="margin-bottom: 0.5rem;">
+                    <div id="noBulletsContainer" style="margin-bottom: 0.5rem;">
                         <label class="checkbox-label">
                             Hide Bullets
                             <input type="checkbox" id="noBulletsCheckbox" class="switch-input">
@@ -137,6 +141,20 @@
                             <div style="margin-bottom: 0.5rem;">
                                 <label>Header: 
                                     <select id="headerColor">
+                                        <option value="#FFFFFF" selected>White</option>
+                                        <option value="#808080">Grey</option>
+                                        <option value="#FF0000">Red</option>
+                                        <option value="#00FF00">Green</option>
+                                        <option value="#FFFF00">Yellow</option>
+                                        <option value="#0000FF">Blue</option>
+                                        <option value="#FF00FF">Magenta</option>
+                                        <option value="#00FFFF">Cyan</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div id="iconColorContainer" style="margin-bottom: 0.5rem; display: none;">
+                                <label>Icon: 
+                                    <select id="iconColor">
                                         <option value="#FFFFFF" selected>White</option>
                                         <option value="#808080">Grey</option>
                                         <option value="#FF0000">Red</option>

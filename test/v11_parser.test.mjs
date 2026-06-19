@@ -196,9 +196,13 @@ function runGwAppTests() {
     
     // Normal unit combining check on World Eaters list
     const weAbbr = buildAbbreviationIndex(parsedWe);
+    const uncombinedWe = generateOutput(parsedWe, false, weAbbr, false, {}, false, false, false, false, false, false);
+    assert.ok(uncombinedWe.plainText.includes('• 2 Chaos Spawn'), 'Uncombined Chaos Spawn should show model count without x');
+    assert.ok(!uncombinedWe.plainText.includes('• 2x Chaos Spawn'), 'Uncombined Chaos Spawn unit header should not show x');
+
     const combinedWe = generateOutput(parsedWe, false, weAbbr, false, {}, false, true, false, false, false, false);
-    assert.ok(combinedWe.plainText.includes('2x1 Chaos Rhino'), 'Should combine identical Chaos Rhinos');
-    assert.ok(combinedWe.plainText.includes('2x1 Chaos Spawn'), 'Should combine identical Chaos Spawns');
+    assert.ok(combinedWe.plainText.includes('2x Chaos Rhino'), 'Should combine identical Chaos Rhinos');
+    assert.ok(combinedWe.plainText.includes('2x2 Chaos Spawn'), 'Should combine identical Chaos Spawns');
 
     // Attached unit combining check using mocked identical attached units
     const mockList = {
@@ -225,12 +229,12 @@ function runGwAppTests() {
         ]
     };
     const combinedMock = generateOutput(mockList, false, {}, false, {}, false, true, false, false, false, false);
-    assert.ok(combinedMock.plainText.includes('2x1 Khârn the Betrayer'), 'Should render 2x1 for combined leader in text mode');
+    assert.ok(combinedMock.plainText.includes('2x Khârn the Betrayer'), 'Should render 2x for combined leader in text mode');
     assert.ok(combinedMock.plainText.includes('2x10 Khorne Berzerkers'), 'Should render 2x10 for combined bodyguard in text mode');
 
     // HTML/Card rendering combining check
     const cardHtml = generateCardHtml(mockList, { combineIdenticalUnits: true });
-    assert.ok(cardHtml.includes('2x1 Khârn the Betrayer'), 'HTML should render 2x1 Khârn the Betrayer');
+    assert.ok(cardHtml.includes('2x Khârn the Betrayer'), 'HTML should render 2x Khârn the Betrayer');
     assert.ok(cardHtml.includes('2x10 Khorne Berzerkers'), 'HTML should render 2x10 Khorne Berzerkers');
 
     // Dynamic width & Inline wargear in abbreviated mode checks

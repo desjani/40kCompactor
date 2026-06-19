@@ -67,6 +67,8 @@ export function initializeUI(callbacks) {
         // Set initial visibility of custom color pickers based on checked radio
         const checked = document.querySelector('input[name="colorMode"]:checked');
         if (customColorPickers) customColorPickers.style.display = (checked && checked.value === 'custom') ? 'block' : 'none';
+        updateVisibilityOfOptionalControls();
+
         document.querySelectorAll('input[name="colorMode"]').forEach(el => { // Modified to only target colorMode
             el.addEventListener('change', (e) => {
                 if (e.target.name === 'colorMode') {
@@ -74,6 +76,7 @@ export function initializeUI(callbacks) {
                         customColorPickers.style.display = e.target.value === 'custom' ? 'block' : 'none';
                     }
                 }
+                updateVisibilityOfOptionalControls();
                 if (callbacks.onColorChange) {
                     callbacks.onColorChange();
                 }
@@ -81,7 +84,7 @@ export function initializeUI(callbacks) {
         });
 
         // New event listeners for color pickers
-        document.querySelectorAll('#unitColor, #subunitColor, #pointsColor, #headerColor, #wargearColor, #attachedColor').forEach(el => {
+        document.querySelectorAll('#unitColor, #subunitColor, #pointsColor, #headerColor, #wargearColor, #attachedColor, #iconColor').forEach(el => {
             el.addEventListener('change', () => {
                 if (callbacks.onColorChange) {
                     callbacks.onColorChange();
@@ -120,7 +123,14 @@ export function initializeUI(callbacks) {
     if (resetButton) resetButton.addEventListener('click', callbacks.onReset);
     if (isBrowser && toggleDebugButton) toggleDebugButton.addEventListener('click', toggleDebug);
     if (copyExtendedButton) copyExtendedButton.addEventListener('click', callbacks.onCopyExtended);
-    if (outputFormatSelect) outputFormatSelect.addEventListener('change', callbacks.onOutputFormatChange);
+    if (outputFormatSelect) {
+        outputFormatSelect.addEventListener('change', () => {
+            updateVisibilityOfOptionalControls();
+            if (callbacks.onOutputFormatChange) {
+                callbacks.onOutputFormatChange();
+            }
+        });
+    }
     if (copyPreviewButton) copyPreviewButton.addEventListener('click', callbacks.onCopyPreview);
     
     if (isBrowser) {
@@ -426,5 +436,30 @@ export function clearFactionColorDiagnostic() {
 export function setCopyPreviewButtonText(text) {
     if (copyPreviewButton) {
         copyPreviewButton.textContent = text || 'Copy Preview to Clipboard';
+    }
+}
+
+export function updateVisibilityOfOptionalControls() {
+    if (!isBrowser) return;
+    const outputFormatSelect = document.getElementById('outputFormatSelect');
+    const selectedFormat = outputFormatSelect ? outputFormatSelect.value : 'discordCompact';
+    const isImageMode = (selectedFormat === 'imageCodex' || selectedFormat === 'imageCodexAbbr');
+
+    // Hide/show Multiline Header and Hide Bullets containers
+    const multilineHeaderContainer = document.getElementById('multilineHeaderContainer');
+    const noBulletsContainer = document.getElementById('noBulletsContainer');
+    if (multilineHeaderContainer) {
+        multilineHeaderContainer.style.display = isImageMode ? 'none' : 'block';
+    }
+    if (noBulletsContainer) {
+        noBulletsContainer.style.display = isImageMode ? 'none' : 'block';
+    }
+
+    // Hide/show Icon Color container
+    const checked = document.querySelector('input[name="colorMode"]:checked');
+    const colorMode = checked ? checked.value : 'none';
+    const iconColorContainer = document.getElementById('iconColorContainer');
+    if (iconColorContainer) {
+        iconColorContainer.style.display = (colorMode === 'custom' && isImageMode) ? 'block' : 'none';
     }
 }
