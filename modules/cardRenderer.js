@@ -1,7 +1,7 @@
 import factionColors from './faction_colors.js';
 import { makeAbbrevForName } from './abbreviations.js';
 import { maybeCombineUnits, getWarlordTag, abbreviateDetachment, abbreviateForceDisposition, abbreviateWords } from './renderers.js';
-import { getModelsCount } from './utils.js';
+import { getModelsCount, getCanonicalFactionName } from './utils.js';
 import factionEmblems from './faction_icons.js';
 
 function getContrastColor(hexColor) {
@@ -73,6 +73,7 @@ const premiumFactionColors = {
 
 // Helper to resolve faction color variables
 export function resolveColors(factionName, options = {}) {
+  factionName = getCanonicalFactionName(factionName);
   const mode = options.colorMode || 'faction';
   
   if (mode === 'custom' && options.colors) {

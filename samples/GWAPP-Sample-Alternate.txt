@@ -1,0 +1,246 @@
+CRISIS SUITS  (1,990 Points)
+
+T’au Empire
+Advanced Acquisition Cadre and Retaliation Cadre (3 Detachment Points)
+Force Dispositions: Purge the Foe, Reconnaissance
+Strike Force (2,000 Points)
+
+ATTACHED UNITS
+
+Attached unit 1
+
+Commander Farsight (80 Points)
+  • Attached as: Leader (Character)
+  • Warlord
+  • 1x Dawn Blade
+  • 1x High-intensity plasma rifle
+
+Crisis Sunforge Battlesuits (135 Points)
+  • Attached as: Bodyguard ()
+  • 1x Crisis Sunforge Shas’vre
+     ◦ 1x Battlesuit fists
+     ◦ 2x Fusion blaster
+     ◦ 1x Gun Drone
+     ◦ 1x Shield Drone
+  • 2x Crisis Sunforge Shas’ui
+     ◦ 2x Battlesuit fists
+     ◦ 4x Fusion blaster
+     ◦ 2x Gun Drone
+     ◦ 2x Shield Drone
+
+Attached unit 2
+
+Commander in Enforcer Battlesuit (80 Points)
+  • Attached as: Leader (Character)
+  • 1x Battlesuit fists
+  • 1x Cyclic ion blaster
+  • 1x Marker Drone
+  • 3x Missile pod
+  • 1x Shield Drone
+
+Crisis Fireknife Battlesuits (100 Points)
+  • Attached as: Bodyguard ()
+  • 1x Crisis Fireknife Shas’vre
+     ◦ 1x Battlesuit fists
+     ◦ 1x Gun Drone
+     ◦ 2x Plasma rifle
+     ◦ 1x Shield Drone
+  • 2x Crisis Fireknife Shas’ui
+     ◦ 2x Battlesuit fists
+     ◦ 2x Gun Drone
+     ◦ 4x Plasma rifle
+     ◦ 2x Shield Drone
+
+Attached unit 3
+
+Commander in Coldstar Battlesuit (95 Points)
+  • Attached as: Leader (Character)
+  • 1x Battlesuit fists
+  • 2x Burst cannon
+  • 1x Cyclic ion blaster
+  • 2x Gun Drone
+  • 1x High-output burst cannon
+
+Crisis Starscythe Battlesuits (90 Points)
+  • Attached as: Bodyguard ()
+  • 1x Crisis Starscythe Shas’vre
+     ◦ 1x Battlesuit fists
+     ◦ 2x Burst cannon
+     ◦ 1x Marker Drone
+     ◦ 1x Shield Drone
+  • 2x Crisis Starscythe Shas’ui
+     ◦ 2x Battlesuit fists
+     ◦ 4x Burst cannon
+     ◦ 2x Gun Drone
+     ◦ 2x Shield Drone
+
+Attached unit 4
+
+Commander in Enforcer Battlesuit (100 Points)
+  • Attached as: Leader (Character)
+  • 1x Battlesuit fists
+  • 1x Marker Drone
+  • 4x Missile pod
+  • 1x Shield Drone
+  • Enhancements: Starflare Ignition System
+
+Crisis Starscythe Battlesuits (90 Points)
+  • Attached as: Bodyguard ()
+  • 1x Crisis Starscythe Shas’vre
+     ◦ 1x Battlesuit fists
+     ◦ 2x Burst cannon
+     ◦ 1x Marker Drone
+     ◦ 1x Shield Drone
+  • 2x Crisis Starscythe Shas’ui
+     ◦ 2x Battlesuit fists
+     ◦ 4x Burst cannon
+     ◦ 2x Gun Drone
+     ◦ 2x Shield Drone
+
+Attached unit 5
+
+Commander in Coldstar Battlesuit (95 Points)
+  • Attached as: Leader (Character)
+  • 1x Battlesuit fists
+  • 3x Fusion blaster
+  • 1x Marker Drone
+  • 1x Shield Drone
+  • 1x Shield Generator
+
+Crisis Sunforge Battlesuits (125 Points)
+  • Attached as: Bodyguard ()
+  • 1x Crisis Sunforge Shas’vre
+     ◦ 1x Battlesuit fists
+     ◦ 2x Fusion blaster
+     ◦ 1x Gun Drone
+     ◦ 1x Shield Drone
+  • 2x Crisis Sunforge Shas’ui
+     ◦ 2x Battlesuit fists
+     ◦ 4x Fusion blaster
+     ◦ 2x Gun Drone
+     ◦ 2x Shield Drone
+
+Attached unit 6
+
+Commander in Coldstar Battlesuit (95 Points)
+  • Attached as: Leader (Character)
+  • 1x Battlesuit fists
+  • 3x Fusion blaster
+  • 1x Marker Drone
+  • 1x Shield Drone
+  • 1x Shield Generator
+
+Crisis Sunforge Battlesuits (125 Points)
+  • Attached as: Bodyguard ()
+  • 1x Crisis Sunforge Shas’vre
+     ◦ 1x Battlesuit fists
+     ◦ 2x Fusion blaster
+     ◦ 1x Gun Drone
+     ◦ 1x Shield Drone
+  • 2x Crisis Sunforge Shas’ui
+     ◦ 2x Battlesuit fists
+     ◦ 4x Fusion blaster
+     ◦ 2x Gun Drone
+     ◦ 2x Shield Drone
+
+CHARACTERS
+
+The Twin Lance (205 Points)
+  • 1x Ri’Lantar
+     ◦ 1x Fusion eliminator
+     ◦ 1x MV15 Gun Drone
+     ◦ 1x Shardstorm burst system
+     ◦ 1x XV pulse pistol
+  • 1x Ri’Locai
+     ◦ 1x Ion scattercannon
+     ◦ 1x MV15 Gun Drone
+     ◦ 1x Shardstorm burst system
+     ◦ 1x XV pulse pistol
+
+OTHER DATASHEETS
+
+Kroot Carnivores (65 Points)
+  • 1x Long-quill
+     ◦ 1x Close combat weapon
+     ◦ 1x Kroot pistol
+     ◦ 1x Kroot rifle
+  • 9x Kroot Carnivore
+     ◦ 9x Close combat weapon
+     ◦ 8x Kroot rifle
+     ◦ 1x Tanglebomb launcher
+
+Pathfinder Team (80 Points)
+  • 1x Pathfinder Shas’ui
+     ◦ 1x Close combat weapon
+     ◦ 1x Grav-inhibitor Drone
+     ◦ 2x Gun Drone
+     ◦ 1x Pulse carbine
+     ◦ 1x Pulse pistol
+     ◦ 1x Semi-automatic grenade launcher
+  • 9x Pathfinder
+     ◦ 9x Close combat weapon
+     ◦ 6x Pulse carbine
+     ◦ 9x Pulse pistol
+     ◦ 3x Rail rifle
+
+Pathfinder Team (80 Points)
+  • 1x Pathfinder Shas’ui
+     ◦ 1x Close combat weapon
+     ◦ 1x Grav-inhibitor Drone
+     ◦ 2x Gun Drone
+     ◦ 1x Pulse carbine
+     ◦ 1x Pulse pistol
+     ◦ 1x Semi-automatic grenade launcher
+  • 9x Pathfinder
+     ◦ 9x Close combat weapon
+     ◦ 6x Pulse carbine
+     ◦ 9x Pulse pistol
+     ◦ 3x Rail rifle
+
+Pathfinder Team (80 Points)
+  • 1x Pathfinder Shas’ui
+     ◦ 1x Close combat weapon
+     ◦ 1x Grav-inhibitor Drone
+     ◦ 2x Gun Drone
+     ◦ 1x Pulse carbine
+     ◦ 1x Pulse pistol
+     ◦ 1x Semi-automatic grenade launcher
+  • 9x Pathfinder
+     ◦ 9x Close combat weapon
+     ◦ 6x Pulse carbine
+     ◦ 9x Pulse pistol
+     ◦ 3x Rail rifle
+
+Stealth Battlesuits (100 Points)
+  • 1x Stealth Shas’vre
+     ◦ 1x Battlesuit fists
+     ◦ 1x Burst cannon
+     ◦ 1x Gun Drone
+     ◦ 1x Marker Drone
+     ◦ 1x Pulse pistol
+  • 4x Stealth Shas’ui
+     ◦ 4x Battlesuit fists
+     ◦ 4x Burst cannon
+     ◦ 1x Homing Beacon
+
+Stealth Battlesuits (100 Points)
+  • 1x Stealth Shas’vre
+     ◦ 1x Battlesuit fists
+     ◦ 1x Burst cannon
+     ◦ 1x Gun Drone
+     ◦ 1x Marker Drone
+     ◦ 1x Pulse pistol
+  • 4x Stealth Shas’ui
+     ◦ 4x Battlesuit fists
+     ◦ 4x Burst cannon
+     ◦ 1x Homing Beacon
+
+Vespid Stingwings (70 Points)
+  • 1x Vespid Strain Leader
+     ◦ 1x Neutron blaster
+     ◦ 1x Stingwing claws
+  • 4x Vespid Stingwing
+     ◦ 4x Neutron blaster
+     ◦ 4x Stingwing claws
+
+Exported with App Version: v2.0.3 (1), Data Version: v879

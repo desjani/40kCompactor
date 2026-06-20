@@ -7,6 +7,7 @@ import { detectFormat, parseV11List, parseGwAppV11 } from '../modules/parsers.js
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 import { generateDiscordText, generateOutput } from '../modules/renderers.js';
 import { generateCardHtml, estimateCardWidth } from '../modules/cardRenderer.js';
+import { getCanonicalFactionName } from '../modules/utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -272,6 +273,84 @@ function runGwAppTests() {
     console.log('✓ GW App v11 rendering tests passed');
 }
 
+// Helper to run French GW App parser tests
+function runFrenchTests() {
+    console.log('\n--- Running French GW App v11 Parser Tests ---');
+    const frenchPath = path.join(__dirname, '../samples/GWAPP-Sample-French.txt');
+    const frenchText = fs.readFileSync(frenchPath, 'utf8');
+    const frenchLines = frenchText.split(/\r?\n/);
+
+    const detected = detectFormat(frenchLines);
+    assert.strictEqual(detected, 'GW_APP_V11', 'Should detect French sample list as GW_APP_V11');
+
+    const parsed = parseGwAppV11(frenchLines, skippableWargear);
+    assert.strictEqual(parsed.metadata.armyName, 'v11');
+    assert.ok(parsed.metadata.faction.includes('Empire T’au') || parsed.metadata.faction.includes('Empire T\'au'));
+    assert.strictEqual(parsed.metadata.totalPoints, 2000);
+    assert.strictEqual(parsed.metadata.detachmentPoints, 3);
+    assert.ok(parsed.metadata.detachments.includes('Mont’ka') || parsed.metadata.detachments.includes('Mont\'ka'));
+
+    // Check attached units parsing:
+    // The list should have Farsight attached to Sunforge. Verify Farsight has role 'Leader' and is Warlord (isWarlord: true), and the Sunforge group has role 'Bodyguard'.
+    const attached1 = parsed.units.find(u => u.name === 'Attached Unit 1');
+    assert.ok(attached1, 'Should parse Attached Unit 1');
+    assert.strictEqual(attached1.isAttached, true);
+    assert.strictEqual(attached1.attachedParts.length, 2);
+
+    const farsight = attached1.attachedParts[0];
+    assert.strictEqual(farsight.name, 'Commander Farsight');
+    assert.strictEqual(farsight.role, 'Leader');
+    assert.strictEqual(farsight.isWarlord, true);
+
+    const sunforge = attached1.attachedParts[1];
+    assert.strictEqual(sunforge.name, 'Crisis Sunforge Battlesuits');
+    assert.strictEqual(sunforge.role, 'Bodyguard');
+
+    // Verify generateOutput rendering output includes tags like [L1][W] and [B1]
+    const abbrIndex = buildAbbreviationIndex(parsed);
+    const htmlOut = generateOutput(parsed, true, abbrIndex, false, {}, false, false, false, false, false, false);
+    
+    assert.ok(htmlOut.plainText.includes('[L1][W]'), 'Should contain [L1][W]');
+    assert.ok(htmlOut.plainText.includes('[B1]'), 'Should contain [B1]');
+
+    console.log('✓ French GW App v11 parsing tests passed');
+}
+
+// Helper to test faction name normalization across languages
+function runFactionNormalizationTests() {
+    console.log('\n--- Running Faction Normalization Tests ---');
+    
+    // T'au Empire translations
+    assert.strictEqual(getCanonicalFactionName("sternenreich der t'au"), "T'au Empire");
+    assert.strictEqual(getCanonicalFactionName("impero tau"), "T'au Empire");
+    assert.strictEqual(getCanonicalFactionName("empire t'au"), "T'au Empire");
+    
+    // Chaos Daemons
+    assert.strictEqual(getCanonicalFactionName("démons du chaos"), "Chaos Daemons");
+    assert.strictEqual(getCanonicalFactionName("chaosdaemonen"), "Chaos Daemons");
+    assert.strictEqual(getCanonicalFactionName("demonios del caos"), "Chaos Daemons");
+    
+    // White Scars
+    assert.strictEqual(getCanonicalFactionName("weisse narben"), "White Scars");
+    assert.strictEqual(getCanonicalFactionName("cicatrices blanches"), "White Scars");
+    
+    // Grey Knights
+    assert.strictEqual(getCanonicalFactionName("grey knights"), "Grey Knights");
+    assert.strictEqual(getCanonicalFactionName("cavalieri grigi"), "Grey Knights");
+    
+    // Space Wolves
+    assert.strictEqual(getCanonicalFactionName("weltraumwolfe"), "Space Wolves");
+    assert.strictEqual(getCanonicalFactionName("loups spatiaux"), "Space Wolves");
+    
+    // Adepta Sororitas
+    assert.strictEqual(getCanonicalFactionName("sisters of battle"), "Adepta Sororitas");
+    assert.strictEqual(getCanonicalFactionName("schwestern des kampfes"), "Adepta Sororitas");
+    
+    console.log('✓ Faction normalization tests passed');
+}
+
 runGenericTests();
 runGwAppTests();
+runFrenchTests();
+runFactionNormalizationTests();
 console.log('\nAll 11th Edition tests completed and PASSED!');

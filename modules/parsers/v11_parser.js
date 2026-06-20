@@ -46,10 +46,20 @@ export function parseV11List(lines, skippableWargearMap = {}) {
             continue;
         }
 
-        const metaMatch = trimmed.match(/^(Faction|Detachment|Points):\s*(.*)$/i);
+        const metaMatch = trimmed.match(/^(Faction|Facci[oó]n|Fraktion|Fazione|Detachment|D[eé]tachement|Destacamento|Kontingent|Distaccamento|Points|Puntos|Punkte|Punti):\s*(.*)$/i);
         if (metaMatch) {
-            const key = metaMatch[1].toLowerCase();
+            const rawKey = metaMatch[1].toLowerCase();
             const val = metaMatch[2].trim();
+            
+            let key = '';
+            if (/^(faction|facci[oó]n|fraktion|fazione)$/i.test(rawKey)) {
+                key = 'faction';
+            } else if (/^(detachment|d[eé]tachement|destacamento|kontingent|distaccamento)$/i.test(rawKey)) {
+                key = 'detachment';
+            } else if (/^(points|puntos|punkte|punti)$/i.test(rawKey)) {
+                key = 'points';
+            }
+
             if (key === 'faction') {
                 result.metadata.faction = val;
             } else if (key === 'detachment') {
@@ -67,7 +77,7 @@ export function parseV11List(lines, skippableWargearMap = {}) {
 
         // 2. Parse Unit Header
         // e.g. "[Leader] Captain in Terminator Armour (95 pts)" or "[Line] 5x Terminator Squad (185 pts)"
-        const unitMatch = trimmed.match(/^\[([^\]]+)\]\s+(?:(\d+)x?\s+)?(.*?)\s*\((\d+)\s*(?:pts|points)\)$/i);
+        const unitMatch = trimmed.match(/^\[([^\]]+)\]\s+(?:(\d+)x?\s+)?(.*?)\s*\((\d+)\s*(?:pts|points|punkte|puntos|punti)\)$/i);
         if (unitMatch) {
             const category = unitMatch[1].trim();
             const quantity = unitMatch[2] ? parseInt(unitMatch[2], 10) : 1;
@@ -92,7 +102,8 @@ export function parseV11List(lines, skippableWargearMap = {}) {
 
         // 3. Parse Unit Wargear
         // e.g. "- Wargear: Relic Weapon, Storm Bolter"
-        if (trimmed.toLowerCase().startsWith('- wargear:')) {
+        const wargearPrefixRegex = /^-\s*(wargear|equipement|[eé]quipement|equipo|equipamiento|ausrustung|ausr[uü]stung|equipaggiamento)\s*:/i;
+        if (wargearPrefixRegex.test(trimmed)) {
             const itemsStr = trimmed.substring(trimmed.indexOf(':') + 1).trim();
             const items = itemsStr.split(',').map(s => s.trim()).filter(Boolean);
             items.forEach(it => {
@@ -103,9 +114,10 @@ export function parseV11List(lines, skippableWargearMap = {}) {
 
         // 4. Parse Enhancement
         // e.g. "- Enhancement: Artificer Armour (10 pts)"
-        if (trimmed.toLowerCase().startsWith('- enhancement:')) {
+        const enhancementPrefixRegex = /^-\s*(enhancement|optimisation|mejora|aufwertung|verbesserung|potenziamento)\s*:/i;
+        if (enhancementPrefixRegex.test(trimmed)) {
             const enhContent = trimmed.substring(trimmed.indexOf(':') + 1).trim();
-            const enhMatch = enhContent.match(/^(.*?)\s*\((\d+)\s*(?:pts|points)\)$/i);
+            const enhMatch = enhContent.match(/^(.*?)\s*\((\d+)\s*(?:pts|points|punkte|puntos|punti)\)$/i);
             if (enhMatch) {
                 currentUnit.enhancements.push({
                     name: enhMatch[1].trim(),

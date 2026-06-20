@@ -1,0 +1,195 @@
+v11 (2000 points)
+
+Empire T’au
+Force de Frappe (2000 points)
+Mont’ka (3 Points de Détachement)
+Dispositions des Forces : Éliminez l’Adversaire
+
+Unités Attachées
+Unité 1 Attachée
+
+Commander Farsight (80 points)
+• Attachée en tant que : Meneur (Personnage)
+  • Seigneur de Guerre
+  • 1x Dawn Blade
+    1x High-intensity plasma rifle
+
+Crisis Sunforge Battlesuits (125 points)
+• Attachée en tant que : Gardes du Corps
+  • 1x Crisis Sunforge Shas’vre
+    • 1x Battlesuit fists
+      2x Fusion blaster
+      1x Gun Drone
+      1x Shield Drone
+  • 2x Crisis Sunforge Shas’ui
+    • 2x Battlesuit fists
+      4x Fusion blaster
+      2x Gun Drone
+      2x Shield Drone
+
+Unité 2 Attachée
+
+Commander in Enforcer Battlesuit (90 points)
+• Attachée en tant que : Meneur (Personnage)
+  • 1x Battlesuit fists
+    1x Marker Drone
+    4x Missile pod
+    1x Shield Drone
+  • Optimisation : Exemplar of the Mont’ka
+
+Crisis Fireknife Battlesuits (130 points)
+• Attachée en tant que : Gardes du Corps
+  • 1x Crisis Fireknife Shas’vre
+    • 1x Battlesuit fists
+      1x Gun Drone
+      2x Missile pod
+      1x Shield Drone
+  • 2x Crisis Fireknife Shas’ui
+    • 2x Battlesuit fists
+      2x Gun Drone
+      4x Missile pod
+      2x Shield Drone
+
+Unité 3 Attachée
+
+Commander in Enforcer Battlesuit (80 points)
+• Attachée en tant que : Meneur (Personnage)
+  • 1x Battlesuit fists
+    1x Marker Drone
+    4x Missile pod
+    1x Shield Drone
+
+Crisis Fireknife Battlesuits (130 points)
+• Attachée en tant que : Gardes du Corps
+  • 1x Crisis Fireknife Shas’vre
+    • 1x Battlesuit fists
+      1x Gun Drone
+      2x Missile pod
+      1x Shield Drone
+  • 2x Crisis Fireknife Shas’ui
+    • 2x Battlesuit fists
+      2x Gun Drone
+      4x Missile pod
+      2x Shield Drone
+
+Unité 4 Attachée
+
+Commander in Coldstar Battlesuit (130 points)
+• Attachée en tant que : Meneur (Personnage)
+  • 1x Battlesuit fists
+    2x Burst cannon
+    1x Cyclic ion blaster
+    1x High-output burst cannon
+    1x Marker Drone
+    1x Shield Drone
+  • Optimisation : Strike Swiftly
+
+Crisis Starscythe Battlesuits (90 points)
+• Attachée en tant que : Gardes du Corps
+  • 1x Crisis Starscythe Shas’vre
+    • 1x Battlesuit fists
+      2x Burst cannon
+      1x Gun Drone
+      1x Shield Drone
+  • 2x Crisis Starscythe Shas’ui
+    • 2x Battlesuit fists
+      4x Burst cannon
+      2x Gun Drone
+      2x Shield Drone
+
+
+CHARACTERS
+
+The Twin Lance (205 points)
+  • 1x Ri’Lantar
+    • 1x Fusion eliminator
+      1x MV15 Gun Drone
+      1x Shardstorm burst system
+      1x XV pulse pistol
+  • 1x Ri’Locai
+    • 1x Ion scattercannon
+      1x MV15 Gun Drone
+      1x Shardstorm burst system
+      1x XV pulse pistol
+
+
+OTHER DATASHEETS
+
+Kroot Carnivores (65 points)
+  • 1x Long-quill
+    • 1x Close combat weapon
+      1x Kroot pistol
+      1x Kroot rifle
+  • 9x Kroot Carnivore
+    • 9x Close combat weapon
+      9x Kroot rifle
+
+Pathfinder Team (95 points)
+  • 1x Pathfinder Shas’ui
+    • 1x Close combat weapon
+      1x Pulse carbine
+      1x Pulse pistol
+      1x Recon Drone
+      1x Semi-automatic grenade launcher
+      2x Shield Drone
+  • 9x Pathfinder
+    • 9x Close combat weapon
+      3x Ion rifle
+      6x Pulse carbine
+      9x Pulse pistol
+
+Pathfinder Team (80 points)
+  • 1x Pathfinder Shas’ui
+    • 1x Close combat weapon
+      1x Grav-inhibitor Drone
+      1x Pulse carbine
+      1x Pulse pistol
+      1x Semi-automatic grenade launcher
+      2x Shield Drone
+  • 9x Pathfinder
+    • 9x Close combat weapon
+      6x Pulse carbine
+      9x Pulse pistol
+      3x Rail rifle
+
+Piranhas (65 points)
+  • 1x Armoured hull
+    1x Piranha fusion blaster
+    2x Seeker missile
+    2x Twin pulse carbine
+
+Piranhas (65 points)
+  • 1x Armoured hull
+    1x Piranha fusion blaster
+    2x Seeker missile
+    2x Twin pulse carbine
+
+Riptide Battlesuit (200 points)
+  • 1x Ion accelerator
+    2x Missile Drone
+    1x Riptide fists
+    1x Twin fusion blaster
+
+Riptide Battlesuit (200 points)
+  • 1x Ion accelerator
+    2x Missile Drone
+    1x Riptide fists
+    1x Twin fusion blaster
+
+Stealth Battlesuits (100 points)
+  • 1x Stealth Shas’vre
+    • 1x Battlesuit fists
+      1x Burst cannon
+  • 4x Stealth Shas’ui
+    • 4x Battlesuit fists
+      4x Burst cannon
+
+Vespid Stingwings (70 points)
+  • 1x Vespid Strain Leader
+    • 1x Neutron blaster
+      1x Stingwing claws
+  • 4x Vespid Stingwing
+    • 4x Neutron blaster
+      4x Stingwing claws
+
+Exporté avec la Version de l'Appli : v2.0.0 (121), Version de Données : v867

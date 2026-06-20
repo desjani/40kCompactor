@@ -7,8 +7,8 @@ export function detectV11Format(lines) {
 
     // Check if any line in the file indicates a GW App export
     const hasGwAppMarker = lines.some(l => 
-        l.includes('Exported with App Version:') || 
-        l.includes('Data Version:')
+        /^Export.*(?:App.*Version|Version.*App)/i.test(l) || 
+        /Version.*D(?:onné|ata|aten|ato)/i.test(l)
     );
 
     if (hasGwAppMarker) {
@@ -25,7 +25,7 @@ export function detectV11Format(lines) {
     const hasGenericV11 = first15.some(l => 
         l.includes('11th edition') || 
         l.includes('v11') || 
-        /^\[[^\]]+\]\s+.*?\(\d+\s*(?:pts|points)\)$/i.test(l)
+        /^\[[^\]]+\]\s+.*?\(\d+\s*(?:pts|points|punkte|puntos|punti)\)$/i.test(l)
     );
 
     if (hasGenericV11) {
@@ -45,7 +45,9 @@ export function detectV11Format(lines) {
     const hasBattleSize = first15.some(l => 
         l.includes('strike force (') || 
         l.includes('incursion (') || 
-        l.includes('onslaught (')
+        l.includes('onslaught (') ||
+        /^(?:strike force|incursion|onslaught|force de frappe|fuerza de combate|einsatzverband|forza d'attacco|incursione|scharmützel|assalto|embate|offensive|ansturm)\s*\(\d+\s*(?:pts|points|punkte|puntos|punti)\)/i.test(l) ||
+        (!l.includes('v11') && !l.includes('edition') && !l.includes('faction') && !l.includes('detachment') && /\(\d+\s*(?:pts|points|punkte|puntos|punti)\)/i.test(l))
     );
     if (hasBattleSize) {
         return 'GW_APP_V11';

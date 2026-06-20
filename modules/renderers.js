@@ -1,7 +1,7 @@
 // Renderers for 11th Edition JSON structure.
 import { makeAbbrevForName } from './abbreviations.js';
 import factionColors from './faction_colors.js';
-import { sortItemsByQuantityThenName, getModelsCount } from './utils.js';
+import { sortItemsByQuantityThenName, getModelsCount, getCanonicalFactionName } from './utils.js';
 
 export function abbreviateWords(str) {
     if (!str) return '';
@@ -331,9 +331,14 @@ export function getRoleTag(part, index) {
     const roleLower = (part.role || '').toLowerCase();
     const attachedLower = (part.attachedAs || '').toLowerCase();
     const suffix = index !== undefined ? index : '';
-    if (roleLower.includes('leader') || attachedLower.includes('leader')) return `[L${suffix}]`;
-    if (roleLower.includes('support') || attachedLower.includes('support')) return `[S${suffix}]`;
-    if (roleLower.includes('bodyguard') || attachedLower.includes('bodyguard')) return `[B${suffix}]`;
+    
+    const isLeader = (str) => /leader|meneur|l[ií]der|anfuehrer|anführer|capo|comandante/i.test(str);
+    const isBodyguard = (str) => /bodyguard|gardes?\s+du\s+corps|escolta|leibwaechter|leibwächter|guardia\s+del\s+corpo/i.test(str);
+    const isSupport = (str) => /support/i.test(str);
+
+    if (isLeader(roleLower) || isLeader(attachedLower)) return `[L${suffix}]`;
+    if (isSupport(roleLower) || isSupport(attachedLower)) return `[S${suffix}]`;
+    if (isBodyguard(roleLower) || isBodyguard(attachedLower)) return `[B${suffix}]`;
     return '';
 }
 
@@ -398,7 +403,8 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
             let headerColor = null;
             try {
                 const fm = buildFactionColorMap(skippableWargearMap || {});
-                const fk = summary.faction || null;
+                const rawFaction = summary.faction || null;
+                const fk = getCanonicalFactionName(rawFaction);
                 const normalizeKeyLookup = (s) => {
                     if (!s) return null;
                     try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
@@ -626,7 +632,8 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
         }
         if (useColor && mode === 'faction') {
             const factionMap = buildFactionColorMap(skippableWargearMap || {});
-            const factionKey = summary.faction || null;
+            const rawFaction = summary.faction || null;
+            const factionKey = getCanonicalFactionName(rawFaction);
             const normalizeKeyLookup = (s) => {
                 if (!s) return null;
                 try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
@@ -814,7 +821,8 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
 export function resolveFactionColors(data, skippableWargearMap) {
     const factionMap = buildFactionColorMap(skippableWargearMap || {});
     const summary = data.metadata || {};
-    const factionKey = summary.faction || null;
+    const rawFaction = summary.faction || null;
+    const factionKey = getCanonicalFactionName(rawFaction);
     if (!factionKey) return null;
     const normalizeKeyLookup = (s) => {
         if (!s) return null;
