@@ -349,8 +349,54 @@ function runFactionNormalizationTests() {
     console.log('✓ Faction normalization tests passed');
 }
 
+// Helper to run Alternate GW App parser tests
+function runAlternateGwAppTests() {
+    console.log('\n--- Running Alternate GW App v11 Parser Tests ---');
+    const altPath = path.join(__dirname, '../samples/GWAPP-Sample-Alternate.txt');
+    const altText = fs.readFileSync(altPath, 'utf8');
+    const altLines = altText.split(/\r?\n/);
+
+    const detected = detectFormat(altLines);
+    assert.strictEqual(detected, 'GW_APP_V11', 'Should detect alternate sample list as GW_APP_V11');
+
+    const parsed = parseGwAppV11(altLines, skippableWargear);
+    
+    // Assert metadata fields match the alternate file contents
+    assert.strictEqual(parsed.metadata.armyName, 'CRISIS SUITS');
+    assert.strictEqual(parsed.metadata.totalPoints, 1990);
+    assert.strictEqual(parsed.metadata.faction, 'T’au Empire');
+    assert.deepStrictEqual(parsed.metadata.detachments, ['Advanced Acquisition Cadre', 'Retaliation Cadre']);
+    assert.strictEqual(parsed.metadata.detachmentPoints, 3);
+    assert.deepStrictEqual(parsed.metadata.forceDispositions, ['Purge the Foe', 'Reconnaissance']);
+    assert.strictEqual(parsed.metadata.battleSize, 'Strike Force');
+    assert.strictEqual(parsed.metadata.pointsLimit, 2000);
+
+    // Assert unit parsing is correct (e.g. Commander Farsight has Leader role & Warlord status, Crisis Sunforge has Bodyguard role)
+    const attached1 = parsed.units.find(u => u.name === 'Attached Unit 1');
+    assert.ok(attached1, 'Should parse Attached Unit 1');
+    assert.strictEqual(attached1.isAttached, true);
+    assert.strictEqual(attached1.attachedParts.length, 2);
+    assert.strictEqual(attached1.points, 215); // 80 + 135
+
+    const farsight = attached1.attachedParts[0];
+    assert.strictEqual(farsight.name, 'Commander Farsight');
+    assert.strictEqual(farsight.role, 'Leader');
+    assert.strictEqual(farsight.isWarlord, true);
+
+    const sunforge = attached1.attachedParts[1];
+    assert.strictEqual(sunforge.name, 'Crisis Sunforge Battlesuits');
+    assert.strictEqual(sunforge.role, 'Bodyguard');
+    assert.strictEqual(sunforge.subunits.length, 2);
+    assert.strictEqual(sunforge.subunits[0].name, 'Crisis Sunforge Shas’vre');
+    assert.strictEqual(sunforge.subunits[0].quantity, 1);
+    assert.ok(sunforge.subunits[0].wargear.some(w => w.name === 'Fusion blaster'));
+
+    console.log('✓ Alternate GW App v11 parsing tests passed');
+}
+
 runGenericTests();
 runGwAppTests();
 runFrenchTests();
 runFactionNormalizationTests();
+runAlternateGwAppTests();
 console.log('\nAll 11th Edition tests completed and PASSED!');

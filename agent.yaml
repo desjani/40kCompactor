@@ -25,3 +25,10 @@ sub_agents:
     instructions: |
       You handle complex, deep architectural implementation tasks.
       Execute the plan provided by the ChiefOrchestrator with high logical precision.
+
+  - name: CloudMigrationConsultant
+    model: gemini-3.5-flash  # Fast research and architecture layout
+    tools: [code_editor, run_command]
+    instructions: |
+      You are a cloud solutions architect specializing in migrations from static sites (like GitHub Pages) to cloud platforms (like Firebase/GCP).
+      Analyze the codebase, evaluate free-tier cloud resources, design migration plans, and outline new backend features enabled by Firebase.

@@ -68,58 +68,115 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
     const forceDispPrefixRegex = /^(Force\s+Dispositions|Dispositions\s+des\s+Forces|Disposiciones\s+de\s+la?\s+fuerza|Streitkräfteaufstellungen?)\s*:\s*/i;
     const attachedUnitHeaderRegex = /^(Attached Unit|Unité|Unidad acoplada|Angegliederte Einheit|Unità associata|Unita associata)\s+(\d+)(?:\s+Attachée)?$/i;
 
+    const isUnitHeader = (trimmed) => {
+        const unitMatch = trimmed.match(/^(.*?)\s*\((\d+[\d,]*)\s*(?:pts|points|punkte|puntos|punti)\)$/i);
+        if (!unitMatch) return false;
+        const name = unitMatch[1].toLowerCase().trim();
+        const battleSizes = [
+            'strike force', 'force de frappe', 'fuerza de choque', 'fuerza de incursión', 'angriffstrupp', 'forza d\'attacco',
+            'incursion', 'incursión', 'scharmützel', 'incursione',
+            'combat patrol', 'patrouille de combat', 'patrulla de combate', 'kampfpatrouille', 'pattuglia da combattimento',
+            'onslaught', 'aufmarsch', 'embestida', 'guerra aperta',
+        ];
+        if (battleSizes.some(bs => name.includes(bs))) {
+            return false;
+        }
+        if (name.includes('detachment') || name.includes('détachement') || name.includes('destacamento') || name.includes('detachement') || name.includes('distaccamento')) {
+            return false;
+        }
+        return true;
+    };
+
     // 1. Parse Metadata Headers
-    // Line 1: e.g. "Retaliation + AAC Mass suits (2000 points)"
-    const line1 = nonEmptyLines[0].trim();
-    const line1Match = line1.match(/^(.*?)\s*\((\d+)\s*(?:pts|points|punkte|puntos|punti)\)$/i);
+    let cleanLinesIndex = 0;
+    const getNextNonEmptyLine = () => {
+        while (cleanLinesIndex < cleanLines.length) {
+            const trimmed = cleanLines[cleanLinesIndex].trim();
+            if (trimmed.length > 0) {
+                return { line: trimmed, index: cleanLinesIndex++ };
+            }
+            cleanLinesIndex++;
+        }
+        return null;
+    };
+
+    const first = getNextNonEmptyLine();
+    if (!first) return result;
+
+    const line1 = first.line;
+    const line1Match = line1.match(/^(.*?)\s*\((\d+[\d,]*)\s*(?:pts|points|punkte|puntos|punti)\)$/i);
     if (line1Match) {
         result.metadata.armyName = line1Match[1].trim();
-        result.metadata.totalPoints = parseInt(line1Match[2], 10) || 0;
+        result.metadata.totalPoints = parseInt(line1Match[2].replace(/,/g, ''), 10) || 0;
     } else {
         result.metadata.armyName = line1;
     }
 
-    // Line 2 (non-empty index 1): Faction, e.g. "T’au Empire"
-    if (nonEmptyLines[1]) {
-        result.metadata.faction = nonEmptyLines[1].trim();
+    const second = getNextNonEmptyLine();
+    if (second) {
+        result.metadata.faction = second.line.trim();
     }
 
-    // Line 3 (non-empty index 2): Battle size, e.g. "Strike Force (2000 points)"
-    if (nonEmptyLines[2]) {
-        const line3 = nonEmptyLines[2].trim();
-        const line3Match = line3.match(/^(.*?)\s*\((\d+)\s*(?:pts|points|punkte|puntos|punti)\)$/i);
-        if (line3Match) {
-            result.metadata.battleSize = line3Match[1].trim();
-            result.metadata.pointsLimit = parseInt(line3Match[2], 10) || 0;
-        } else {
-            result.metadata.battleSize = line3;
+    const metadataLines = [];
+    let bodyStartIndex = cleanLines.length;
+
+    while (cleanLinesIndex < cleanLines.length) {
+        let nextIndex = cleanLinesIndex;
+        while (nextIndex < cleanLines.length && cleanLines[nextIndex].trim().length === 0) {
+            nextIndex++;
         }
+        if (nextIndex >= cleanLines.length) {
+            bodyStartIndex = cleanLines.length;
+            break;
+        }
+        const lineVal = cleanLines[nextIndex].trim();
+        if (getCanonicalSectionHeader(lineVal) || attachedUnitHeaderRegex.test(lineVal) || isUnitHeader(lineVal)) {
+            bodyStartIndex = nextIndex;
+            break;
+        }
+        metadataLines.push(lineVal);
+        cleanLinesIndex = nextIndex + 1;
     }
 
-    // Line 4 (non-empty index 3): Detachments, e.g. "Advanced Acquisition Cadre and Retaliation Cadre (3 Detachment Points)"
-    let headerOffset = 3;
-    if (nonEmptyLines[3] && !forceDispPrefixRegex.test(nonEmptyLines[3])) {
-        const line4 = nonEmptyLines[3].trim();
-        const line4Match = line4.match(/^(.*?)\s*\((\d+)\s*(?:Detachment\s*Points|Points?\s*de\s*D[eé]tachement|Puntos\s*de\s*Destacamento|Detachement[- ]*Punkte|Detachementpunkte|Punti\s*(?:di\s*)?Distaccamento)\)$/i);
-        if (line4Match) {
-            const detStr = line4Match[1].trim();
-            result.metadata.detachmentPoints = parseInt(line4Match[2], 10) || 0;
-            // Split by translated separators
+    let detachmentsSet = false;
+    let battleSizeSet = false;
+
+    metadataLines.forEach(line => {
+        const trimmedLine = line.trim();
+        if (trimmedLine.length === 0) return;
+
+        if (forceDispPrefixRegex.test(trimmedLine)) {
+            const dispStr = trimmedLine.replace(forceDispPrefixRegex, '').trim();
+            const cleanedDisp = dispStr.replace(/,$/, '');
+            result.metadata.forceDispositions = cleanedDisp.split(',').map(d => d.trim()).filter(Boolean);
+            return;
+        }
+
+        const detachmentMatch = trimmedLine.match(/^(.*?)\s*\((\d+[\d,]*)\s*(?:Detachment\s*Points|Points?\s*de\s*D[eé]tachement|Puntos\s*de\s*Destacamento|Detachement[- ]*Punkte|Detachementpunkte|Punti\s*(?:di\s*)?Distaccamento)\)$/i);
+        if (detachmentMatch) {
+            const detStr = detachmentMatch[1].trim();
+            result.metadata.detachmentPoints = parseInt(detachmentMatch[2].replace(/,/g, ''), 10) || 0;
             result.metadata.detachments = detStr.split(/\s+(?:and|et|y|und|e)\s+/i).map(d => d.trim()).filter(Boolean);
-        } else {
-            result.metadata.detachments = [line4];
+            detachmentsSet = true;
+            return;
         }
-        headerOffset = 4;
-    }
 
-    // Line 5 (non-empty index 4): Force Dispositions, e.g. "Force Dispositions: Purge the Foe, "
-    if (nonEmptyLines[headerOffset] && forceDispPrefixRegex.test(nonEmptyLines[headerOffset])) {
-        const line5 = nonEmptyLines[headerOffset].trim();
-        const dispStr = line5.replace(forceDispPrefixRegex, '').trim();
-        // Strip trailing comma and split by comma
-        const cleanedDisp = dispStr.replace(/,$/, '');
-        result.metadata.forceDispositions = cleanedDisp.split(',').map(d => d.trim()).filter(Boolean);
-    }
+        const battleSizeMatch = trimmedLine.match(/^(.*?)\s*\((\d+[\d,]*)\s*(?:pts|points|punkte|puntos|punti)\)$/i);
+        if (battleSizeMatch) {
+            result.metadata.battleSize = battleSizeMatch[1].trim();
+            result.metadata.pointsLimit = parseInt(battleSizeMatch[2].replace(/,/g, ''), 10) || 0;
+            battleSizeSet = true;
+            return;
+        }
+
+        if (!detachmentsSet) {
+            result.metadata.detachments = [trimmedLine];
+            detachmentsSet = true;
+        } else if (!battleSizeSet) {
+            result.metadata.battleSize = trimmedLine;
+            battleSizeSet = true;
+        }
+    });
 
     // 2. Group Remaining Lines into Sections and Unit Blocks
     let currentSection = 'Characters';
@@ -147,12 +204,12 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
     const parseLineDetails = (line) => {
         const leadingSpaces = line.length - line.trimStart().length;
         const trimmed = line.trim();
-        const bulletMatch = trimmed.match(/^•\s*(.*)$/);
+        const bulletMatch = trimmed.match(/^([•◦\u25e6\u2022])\s*(.*)$/);
         if (bulletMatch) {
             return {
                 leadingSpaces,
                 hasBullet: true,
-                content: bulletMatch[1].trim()
+                content: bulletMatch[2].trim()
             };
         }
         return {
@@ -280,18 +337,7 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
     };
 
     // Start parsing the body lines
-    let i = 0;
-    // Find the first empty line or first section/unit header, skipping metadata
-    while (i < cleanLines.length) {
-        const line = cleanLines[i].trim();
-        if (forceDispPrefixRegex.test(line) || getCanonicalSectionHeader(line)) {
-            break;
-        }
-        i++;
-    }
-    if (i < cleanLines.length && forceDispPrefixRegex.test(cleanLines[i].trim())) {
-        i++; // skip force dispositions line
-    }
+    let i = bodyStartIndex;
 
     while (i < cleanLines.length) {
         const line = cleanLines[i];
@@ -327,10 +373,10 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
         }
 
         // Check for unit header line, e.g. "Commander Farsight (80 points)"
-        const unitMatch = trimmed.match(/^(.*?)\s*\((\d+)\s*(?:pts|points|punkte|puntos|punti)\)$/i);
+        const unitMatch = trimmed.match(/^(.*?)\s*\((\d+[\d,]*)\s*(?:pts|points|punkte|puntos|punti)\)$/i);
         if (unitMatch) {
             const unitName = unitMatch[1].trim();
-            const unitPoints = parseInt(unitMatch[2], 10) || 0;
+            const unitPoints = parseInt(unitMatch[2].replace(/,/g, ''), 10) || 0;
             const blockLines = [];
             i++;
 
@@ -346,7 +392,7 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
                 // If next line starts a new section, attached group, or unit header, stop
                 if (getCanonicalSectionHeader(nextTrimmed) ||
                     (currentSection === 'Attached Units' && attachedUnitHeaderRegex.test(nextTrimmed)) ||
-                    nextTrimmed.match(/^(.*?)\s*\((\d+)\s*(?:pts|points|punkte|puntos|punti)\)$/i) ||
+                    nextTrimmed.match(/^(.*?)\s*\((\d+[\d,]*)\s*(?:pts|points|punkte|puntos|punti)\)$/i) ||
                     /^(?:exported with app version|exporte avec la version|export|esport)/i.test(nextTrimmed)) {
                     break;
                 }
