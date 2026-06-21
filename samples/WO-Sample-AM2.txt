@@ -1,0 +1,202 @@
+Fire Teams (2000 points)
+
+Astra Militarum
+Strike Force (2000 Point)
+Armoured Infantry, Bridgehead Strike
+
+
+CHARACTER
+
+Cadian Castellan (55 points)
+	• 1x Plasma pistol
+	• 1x Power fist
+
+Cadian Castellan (55 points)
+	• 1x Plasma pistol
+	• 1x Power fist
+
+Leman Russ Commander (260 points)
+	• 2x Multi-meltas
+	• 1x Armoured tracks
+	• 1x Heavy stubber
+	• 1x Hunter-killer missile
+	• 1x Lascannon
+	• 1x Leman russ battle cannon
+	• Enhancement: Grand Strategist
+
+Militarum Tempestus Command Squad (100 points)
+	• Warlord
+	• 1x Tempestor Prime
+		• 1x Tempestus Dagger
+		• 1x Command Rod
+	• 4x Tempestus Scions
+		• 4x Close Combat Weapon
+		• 1x Plasma Gun
+		• 1x Meltagun
+		• 1x Hot-shot Laspistol and Master Vox
+		• 1x Hot-shot Lasgun and Hot-shot Laspistol and Medi-pack
+	• Enhancement: Bombast-class Vox-array
+
+Militarum Tempestus Command Squad (115 points)
+	• 1x Tempestor Prime
+		• 1x Tempestus Dagger
+		• 1x Command Rod
+	• 4x Tempestus Scions
+		• 4x Close Combat Weapon
+		• 1x Plasma Gun
+		• 1x Meltagun
+		• 1x Hot-shot Laspistol and Master Vox
+		• 1x Hot-shot Lasgun and Hot-shot Laspistol and Medi-pack
+	• Enhancement: Exemplary Officer
+
+
+BATTLELINE
+
+Tempestus Scions (75 points)
+	• 1x Tempestor
+		• 1x Power Fist
+		• 1x Plasma Pistol
+	• 4x Tempestus Scions
+		• 1x Hot-shot Lasgun
+		• 4x Close Combat Weapon
+		• 1x Plasma Gun
+		• 1x Hot-shot Laspistol and Vox-caster
+		• 1x Meltagun
+
+Tempestus Scions (75 points)
+	• 1x Tempestor
+		• 1x Power Fist
+		• 1x Plasma Pistol
+	• 4x Tempestus Scions
+		• 1x Hot-shot Lasgun
+		• 4x Close Combat Weapon
+		• 1x Plasma Gun
+		• 1x Hot-shot Laspistol and Vox-caster
+		• 1x Meltagun
+
+
+DEDICATED TRANSPORTS
+
+Chimera (85 points)
+	• 1x Armoured tracks
+	• 1x Heavy flamer
+	• 1x Heavy flamer
+	• 1x Heavy stubber
+	• 1x Hunter-killer missile
+	• 1x Lasgun array
+
+Chimera (85 points)
+	• 1x Armoured tracks
+	• 1x Heavy flamer
+	• 1x Heavy flamer
+	• 1x Heavy stubber
+	• 1x Hunter-killer missile
+	• 1x Lasgun array
+
+
+OTHER DATASHEETS
+
+Armoured Sentinels (120 points)
+	• 2x Armoured Sentinels
+		• 2x Close Combat Weapon
+		• 2x Sentinel Chainsaw
+		• 2x Hunter-killer Missile
+		• 2x Lascannon
+
+Cadian Recon Squad (80 points)
+	• 1x Recon Sergeant
+		• 1x Lasgun
+		• 1x Close Combat Weapon
+	• 9x Recon Troopers
+		• 3x Lasgun
+		• 9x Close Combat Weapon
+		• 1x Autostubber
+		• 1x Plasma Gun
+		• 1x Lasgun, Vox-caster and Vox-relay Beacon
+		• 1x Missile Launcher and Laspistol
+		• 1x Long-las
+		• 1x Laspistol
+
+Cadian Recon Squad (80 points)
+	• 1x Recon Sergeant
+		• 1x Lasgun
+		• 1x Close Combat Weapon
+	• 9x Recon Troopers
+		• 3x Lasgun
+		• 9x Close Combat Weapon
+		• 1x Autostubber
+		• 1x Plasma Gun
+		• 1x Lasgun, Vox-caster and Vox-relay Beacon
+		• 1x Missile Launcher and Laspistol
+		• 1x Long-las
+		• 1x Laspistol
+
+Kasrkin (115 points)
+	• 1x Kasrkin Sergeant
+		• 1x Plasma Pistol
+		• 1x Power Weapon
+	• 9x Kasrkin Troopers
+		• 2x Hot-shot Lasgun
+		• 9x Close Combat Weapon
+		• 2x Plasma Gun
+		• 2x Meltagun
+		• 1x Hot-shot Marksman Rifle
+		• 1x Hot-shot Laspistol and Melta Mine
+		• 1x Hot-shot Lasgun and Vox-caster
+
+Kasrkin (115 points)
+	• 1x Kasrkin Sergeant
+		• 1x Plasma Pistol
+		• 1x Power Weapon
+	• 9x Kasrkin Troopers
+		• 2x Hot-shot Lasgun
+		• 9x Close Combat Weapon
+		• 2x Plasma Gun
+		• 2x Meltagun
+		• 1x Hot-shot Marksman Rifle
+		• 1x Hot-shot Laspistol and Melta Mine
+		• 1x Hot-shot Lasgun and Vox-caster
+
+Leman Russ Battle Tank (185 points)
+	• 2x Multi-meltas
+	• 1x Armoured tracks
+	• 1x Heavy stubber
+	• 1x Hunter-killer missile
+	• 1x Lascannon
+	• 1x Leman russ battle cannon
+
+Scout Sentinels (100 points)
+	• 2x Scout Sentinels
+		• 2x Close Combat Weapon
+		• 2x Autocannon
+		• 2x Sentinel Chainsaw
+		• 2x Hunter-killer Missile
+
+Scout Sentinels (100 points)
+	• 2x Scout Sentinels
+		• 2x Close Combat Weapon
+		• 2x Autocannon
+		• 2x Sentinel Chainsaw
+		• 2x Hunter-killer Missile
+
+Tempestus Aquilons (100 points)
+	• 1x Tempestor Aquilon
+		• 1x Hot‑shot Lascarbine
+		• 1x Close Combat Weapon
+		• 1x Sentry Grenade Launcher
+	• 9x Tempestus Aquilons
+		• 7x Hot‑shot Lascarbine
+		• 9x Close Combat Weapon
+		• 1x Plasma Carbine
+		• 1x Hot‑shot Long‑las
+
+Tempestus Aquilons (100 points)
+	• 1x Tempestor Aquilon
+		• 1x Hot‑shot Lascarbine
+		• 1x Close Combat Weapon
+		• 1x Sentry Grenade Launcher
+	• 9x Tempestus Aquilons
+		• 7x Hot‑shot Lascarbine
+		• 9x Close Combat Weapon
+		• 1x Plasma Carbine
+		• 1x Hot‑shot Long‑las

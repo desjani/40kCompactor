@@ -1,4 +1,4 @@
-import { detectFormat, parseV11List, parseGwAppV11 } from './parsers.js';
+import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11 } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth, copyCardImageToClipboard } from './cardRenderer.js';
@@ -186,11 +186,12 @@ function handleParse() {
     const format = detectFormat(lines);
     const parser = {
         V11_GENERIC: parseV11List,
-        GW_APP_V11: parseGwAppV11
+        GW_APP_V11: parseGwAppV11,
+        WAR_ORGAN_V11: parseWarOrganV11
     }[format];
     if (!parser) {
         console.error("Unsupported list format.");
-        setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use the 11th Edition GW App or Generic list format.</p>');
+        setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use the 11th Edition GW App, Generic, or War Organ list format.</p>');
         setCompactedOutput('');
         setMarkdownPreviewOutput('');
         return;

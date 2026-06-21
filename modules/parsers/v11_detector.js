@@ -15,6 +15,32 @@ export function detectV11Format(lines) {
         return 'GW_APP_V11';
     }
 
+    // Check if any line indicates a War Organ export
+    const hasWarOrganMarker = lines.some(l => 
+        /warorgan/i.test(l)
+    );
+    if (hasWarOrganMarker) {
+        return 'WAR_ORGAN_V11';
+    }
+
+    const first10NonEmpty = lines
+        .map(l => l.trim())
+        .filter(Boolean)
+        .slice(0, 10);
+
+    if (first10NonEmpty.length >= 3) {
+        const line0 = first10NonEmpty[0];
+        const hasPointsHeader = /^.+?\s*[\[\(]\d+\s*(?:points|pts)[\]\)]$/i.test(line0);
+        
+        const hasBattleSize = first10NonEmpty.some(l => 
+            /^(?:Battle Size:\s*)?(?:Strike Force|Incursion|Onslaught|Combat Patrol|StrikeForce)\s*\(\d+\s*(?:point limit|point|points|pts)\)$/i.test(l)
+        );
+
+        if (hasPointsHeader && hasBattleSize) {
+            return 'WAR_ORGAN_V11';
+        }
+    }
+
     // Look at first 15 lines for generic V11 headers
     const first15 = lines
         .slice(0, 15)

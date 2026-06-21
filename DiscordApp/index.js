@@ -8,7 +8,7 @@ import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 
 // Import core modules from parent directory
-import { detectFormat, parseV11List, parseGwAppV11 } from '../modules/parsers.js';
+import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11 } from '../modules/parsers.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 import { generateDiscordText, ansiPalette, colorNameToHex } from '../modules/renderers.js';
 import { generateCardHtml, estimateCardWidth } from '../modules/cardRenderer.js';
@@ -244,7 +244,8 @@ client.on(Events.InteractionCreate, async interaction => {
                     
                     const parser = {
                         V11_GENERIC: parseV11List,
-                        GW_APP_V11: parseGwAppV11
+                        GW_APP_V11: parseGwAppV11,
+                        WAR_ORGAN_V11: parseWarOrganV11
                     }[format];
 
                     if (!parser) {
@@ -469,7 +470,8 @@ async function generateResponse(text, options) {
         
         const parser = {
             V11_GENERIC: parseV11List,
-            GW_APP_V11: parseGwAppV11
+            GW_APP_V11: parseGwAppV11,
+            WAR_ORGAN_V11: parseWarOrganV11
         }[format];
 
         if (!parser) {

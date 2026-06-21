@@ -241,7 +241,7 @@ export function getCanonicalFactionName(faction) {
         "todeswache": "Deathwatch",
         "guet de la mort": "Deathwatch",
         "guardianes de la muerte": "Deathwatch",
-        "guardia della morte": "Deathwatch",
+        "veglia della morte": "Deathwatch",
         "deathwatch": "Deathwatch",
 
         // Drukhari

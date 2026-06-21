@@ -3,7 +3,7 @@ import path from 'path';
 import assert from 'assert';
 import { fileURLToPath } from 'url';
 
-import { detectFormat, parseV11List, parseGwAppV11 } from '../modules/parsers.js';
+import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11 } from '../modules/parsers.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 import { generateDiscordText, generateOutput } from '../modules/renderers.js';
 import { generateCardHtml, estimateCardWidth } from '../modules/cardRenderer.js';
@@ -394,9 +394,143 @@ function runAlternateGwAppTests() {
     console.log('✓ Alternate GW App v11 parsing tests passed');
 }
 
+// Helper to run War Organ parser tests
+function runWarOrganTests() {
+    console.log('\n--- Running War Organ 11th Edition Parser Tests ---');
+
+    // 1. SOB1 (Format 1)
+    console.log('Testing Sisters of Battle (Format 1)...');
+    const sob1Path = path.join(__dirname, '../samples/WO-Sample-SOB1.txt');
+    const sob1Text = fs.readFileSync(sob1Path, 'utf8');
+    const sob1Lines = sob1Text.split(/\r?\n/);
+
+    const detectedSob1 = detectFormat(sob1Lines);
+    assert.strictEqual(detectedSob1, 'WAR_ORGAN_V11', 'Should detect SOB1 as WAR_ORGAN_V11');
+
+    const parsedSob1 = parseWarOrganV11(sob1Lines, skippableWargear);
+    assert.strictEqual(parsedSob1.edition, '11th');
+    assert.strictEqual(parsedSob1.metadata.title, 'Nundams Wing');
+    assert.strictEqual(parsedSob1.metadata.pointsTotal, 1985);
+    assert.strictEqual(parsedSob1.metadata.faction, 'Adepta Sororitas');
+    assert.strictEqual(parsedSob1.metadata.battleSize, 'Strike Force');
+    assert.strictEqual(parsedSob1.metadata.pointsLimit, 2000);
+    assert.deepStrictEqual(parsedSob1.metadata.detachments, ['Chorus of Condemnation', 'Champions of Faith']);
+
+    // Check first Canoness Jump Pack
+    const canoness1 = parsedSob1.units.find(u => u.name === 'Canoness With Jump Pack' && u.points === 85);
+    assert.ok(canoness1, 'Should find 85-point Canoness');
+    assert.strictEqual(canoness1.category, 'Characters');
+    assert.strictEqual(canoness1.wargear.length, 1);
+    assert.strictEqual(canoness1.wargear[0].name, 'Blessed halberd');
+    assert.strictEqual(canoness1.enhancements.length, 1);
+    assert.strictEqual(canoness1.enhancements[0].name, 'Eyes of the oracle');
+    assert.strictEqual(canoness1.enhancements[0].points, 10);
+
+    // Check Celestian Sacresants
+    const sacresants1 = parsedSob1.units.find(u => u.name === 'Celestian Sacresants');
+    assert.ok(sacresants1, 'Should find Celestian Sacresants');
+    assert.strictEqual(sacresants1.subunits.length, 2);
+    assert.strictEqual(sacresants1.subunits[0].name, 'Sacresant Superior');
+    assert.strictEqual(sacresants1.subunits[0].quantity, 1);
+    assert.ok(sacresants1.subunits[0].wargear.some(w => w.name === 'Spear of the faithful'));
+    assert.strictEqual(sacresants1.subunits[1].name, 'Celestian Sacresants');
+    assert.strictEqual(sacresants1.subunits[1].quantity, 9);
+
+    // 2. SOB2 (Format 2)
+    console.log('Testing Sisters of Battle (Format 2)...');
+    const sob2Path = path.join(__dirname, '../samples/WO-Sample-SOB2.txt');
+    const sob2Text = fs.readFileSync(sob2Path, 'utf8');
+    const sob2Lines = sob2Text.split(/\r?\n/);
+
+    const detectedSob2 = detectFormat(sob2Lines);
+    assert.strictEqual(detectedSob2, 'WAR_ORGAN_V11', 'Should detect SOB2 as WAR_ORGAN_V11');
+
+    const parsedSob2 = parseWarOrganV11(sob2Lines, skippableWargear);
+    assert.strictEqual(parsedSob2.metadata.title, 'Nundams Wing');
+    assert.strictEqual(parsedSob2.metadata.pointsTotal, 1985);
+    assert.strictEqual(parsedSob2.metadata.faction, 'Adepta Sororitas');
+
+    const canoness2 = parsedSob2.units.find(u => u.name === 'Canoness With Jump Pack' && u.points === 85);
+    assert.ok(canoness2, 'Should find 85-point Canoness in SOB2');
+    assert.strictEqual(canoness2.category, 'Characters');
+    assert.strictEqual(canoness2.wargear.length, 1);
+    assert.strictEqual(canoness2.wargear[0].name, 'Blessed halberd');
+    assert.strictEqual(canoness2.enhancements.length, 1);
+    assert.strictEqual(canoness2.enhancements[0].name, 'Eyes of The Oracle');
+
+    const sacresants2 = parsedSob2.units.find(u => u.name === 'Celestian Sacresants');
+    assert.ok(sacresants2, 'Should find Celestian Sacresants in SOB2');
+    assert.strictEqual(sacresants2.category, 'Other Datasheets');
+    assert.strictEqual(sacresants2.subunits.length, 2);
+    assert.strictEqual(sacresants2.subunits[0].name, 'Sacresant Superior');
+    assert.strictEqual(sacresants2.subunits[0].quantity, 1);
+    assert.ok(sacresants2.subunits[0].wargear.some(w => w.name === 'Spear of The Faithful'));
+    assert.strictEqual(sacresants2.subunits[1].name, 'Celestian Sacresants');
+    assert.strictEqual(sacresants2.subunits[1].quantity, 9);
+
+    // 3. AM1 (Format 1)
+    console.log('Testing Astra Militarum (Format 1)...');
+    const am1Path = path.join(__dirname, '../samples/WO-Sample-AM1.txt');
+    const am1Text = fs.readFileSync(am1Path, 'utf8');
+    const am1Lines = am1Text.split(/\r?\n/);
+
+    const detectedAm1 = detectFormat(am1Lines);
+    assert.strictEqual(detectedAm1, 'WAR_ORGAN_V11', 'Should detect AM1 as WAR_ORGAN_V11');
+
+    const parsedAm1 = parseWarOrganV11(am1Lines, skippableWargear);
+    assert.strictEqual(parsedAm1.metadata.title, 'Fire Teams');
+    assert.strictEqual(parsedAm1.metadata.pointsTotal, 2000);
+    assert.strictEqual(parsedAm1.metadata.faction, 'Astra Militarum');
+
+    const commander1 = parsedAm1.units.find(u => u.name === 'Leman Russ Commander');
+    assert.ok(commander1, 'Should find Leman Russ Commander in AM1');
+    assert.strictEqual(commander1.points, 260);
+    assert.strictEqual(commander1.enhancements.length, 1);
+    assert.strictEqual(commander1.enhancements[0].name, 'Grand strategist');
+    assert.strictEqual(commander1.enhancements[0].points, 25);
+    assert.ok(commander1.wargear.some(w => w.name === 'Multi-meltas' && w.quantity === 2));
+
+    // 4. AM2 (Format 2)
+    console.log('Testing Astra Militarum (Format 2)...');
+    const am2Path = path.join(__dirname, '../samples/WO-Sample-AM2.txt');
+    const am2Text = fs.readFileSync(am2Path, 'utf8');
+    const am2Lines = am2Text.split(/\r?\n/);
+
+    const detectedAm2 = detectFormat(am2Lines);
+    assert.strictEqual(detectedAm2, 'WAR_ORGAN_V11', 'Should detect AM2 as WAR_ORGAN_V11');
+
+    const parsedAm2 = parseWarOrganV11(am2Lines, skippableWargear);
+    assert.strictEqual(parsedAm2.metadata.title, 'Fire Teams');
+    assert.strictEqual(parsedAm2.metadata.pointsTotal, 2000);
+    assert.strictEqual(parsedAm2.metadata.faction, 'Astra Militarum');
+
+    const commander2 = parsedAm2.units.find(u => u.name === 'Leman Russ Commander');
+    assert.ok(commander2, 'Should find Leman Russ Commander in AM2');
+    assert.strictEqual(commander2.category, 'Characters');
+    assert.strictEqual(commander2.enhancements.length, 1);
+    assert.strictEqual(commander2.enhancements[0].name, 'Grand Strategist');
+    assert.ok(commander2.wargear.some(w => w.name === 'Multi-meltas' && w.quantity === 2));
+
+    const cmdSquad = parsedAm2.units.find(u => u.name === 'Militarum Tempestus Command Squad' && u.points === 100);
+    assert.ok(cmdSquad, 'Should find 100-point Tempestus Command Squad in AM2');
+    assert.strictEqual(cmdSquad.category, 'Characters');
+    assert.strictEqual(cmdSquad.isWarlord, true);
+    assert.strictEqual(cmdSquad.enhancements.length, 1);
+    assert.strictEqual(cmdSquad.enhancements[0].name, 'Bombast-class Vox-array');
+    assert.strictEqual(cmdSquad.subunits.length, 2);
+    assert.strictEqual(cmdSquad.subunits[0].name, 'Tempestor Prime');
+    assert.strictEqual(cmdSquad.subunits[0].quantity, 1);
+    assert.ok(cmdSquad.subunits[0].wargear.some(w => w.name === 'Tempestus Dagger'));
+    assert.strictEqual(cmdSquad.subunits[1].name, 'Tempestus Scions');
+    assert.strictEqual(cmdSquad.subunits[1].quantity, 4);
+
+    console.log('✓ War Organ 11th Edition parsing tests passed');
+}
+
 runGenericTests();
 runGwAppTests();
 runFrenchTests();
 runFactionNormalizationTests();
 runAlternateGwAppTests();
+runWarOrganTests();
 console.log('\nAll 11th Edition tests completed and PASSED!');

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { detectFormat, parseV11List, parseGwAppV11 } from './parsers.js';
+import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11 } from './parsers.js';
 import { generateDiscordText } from './modules/renderers.js';
 import { buildAbbreviationIndex } from './modules/abbreviations.js';
 
@@ -151,7 +151,8 @@ async function main() {
     
     const parser = {
         V11_GENERIC: parseV11List,
-        GW_APP_V11: parseGwAppV11
+        GW_APP_V11: parseGwAppV11,
+        WAR_ORGAN_V11: parseWarOrganV11
     }[format];
 
     if (!parser) {
@@ -162,7 +163,7 @@ async function main() {
     // Parse
     let parsedData;
     try {
-        parsedData = parser(lines);
+        parsedData = parser(lines, skippableWargearMap);
     } catch (e) {
         console.error('Error parsing list:', e);
         process.exit(1);

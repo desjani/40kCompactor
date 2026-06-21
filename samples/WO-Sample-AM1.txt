@@ -1,0 +1,116 @@
+Fire Teams [2000 points]
+Astra Militarum
+Battle Size: Strike Force (2000 point limit)
+
+Detachments: Armoured Infantry, Bridgehead Strike
+
+Armoured Sentinels [120 points]
+	• 1 Armoured Sentinels with Close combat weapon, Hunter-killer missile, Lascannon and Sentinel chainsaw
+	• 1 Armoured Sentinels with Close combat weapon, Hunter-killer missile, Lascannon and Sentinel chainsaw
+
+Cadian Castellan [55 points]
+	• Plasma pistol and Power fist
+
+Cadian Castellan [55 points]
+	• Plasma pistol and Power fist
+
+Cadian Recon Squad [80 points]
+	• 1 Recon Sergeant with Close combat weapon and Lasgun
+	• 3 Recon Troopers with Close combat weapon and Lasgun
+	• 1 Recon Troopers with Autostubber and Close combat weapon
+	• 1 Recon Troopers with Close combat weapon and Plasma gun
+	• 1 Recon Troopers with Close combat weapon and Lasgun, vox-caster and vox-relay beacon
+	• 1 Recon Troopers with Close combat weapon and Missile launcher and laspistol
+	• 1 Recon Troopers with Close combat weapon and Long-las
+	• 1 Recon Troopers with Close combat weapon and Laspistol
+
+Cadian Recon Squad [80 points]
+	• 1 Recon Sergeant with Close combat weapon and Lasgun
+	• 3 Recon Troopers with Close combat weapon and Lasgun
+	• 1 Recon Troopers with Autostubber and Close combat weapon
+	• 1 Recon Troopers with Close combat weapon and Plasma gun
+	• 1 Recon Troopers with Close combat weapon and Lasgun, vox-caster and vox-relay beacon
+	• 1 Recon Troopers with Close combat weapon and Missile launcher and laspistol
+	• 1 Recon Troopers with Close combat weapon and Long-las
+	• 1 Recon Troopers with Close combat weapon and Laspistol
+
+Chimera [85 points]
+	• Armoured tracks, Heavy flamer, Heavy flamer , Heavy stubber, Hunter-killer missile and Lasgun array
+
+Chimera [85 points]
+	• Armoured tracks, Heavy flamer, Heavy flamer , Heavy stubber, Hunter-killer missile and Lasgun array
+
+Kasrkin [115 points]
+	• 1 Kasrkin Sergeant with Plasma pistol and Power weapon
+	• 2 Kasrkin Troopers with Close combat weapon and Hot-shot lasgun
+	• 2 Kasrkin Troopers with Close combat weapon and Plasma gun
+	• 2 Kasrkin Troopers with Close combat weapon and Meltagun
+	• 1 Kasrkin Troopers with Close combat weapon and Hot-shot marksman rifle
+	• 1 Kasrkin Troopers with Close combat weapon and Hot-shot laspistol and melta mine
+	• 1 Kasrkin Troopers with Close combat weapon and Hot-shot lasgun and vox-caster
+
+Kasrkin [115 points]
+	• 1 Kasrkin Sergeant with Plasma pistol and Power weapon
+	• 2 Kasrkin Troopers with Close combat weapon and Hot-shot lasgun
+	• 2 Kasrkin Troopers with Close combat weapon and Plasma gun
+	• 2 Kasrkin Troopers with Close combat weapon and Meltagun
+	• 1 Kasrkin Troopers with Close combat weapon and Hot-shot marksman rifle
+	• 1 Kasrkin Troopers with Close combat weapon and Hot-shot laspistol and melta mine
+	• 1 Kasrkin Troopers with Close combat weapon and Hot-shot lasgun and vox-caster
+
+Leman Russ Battle Tank [185 points]
+	• 2 Multi-meltas, Armoured tracks, Heavy stubber, Hunter-killer missile, Lascannon and Leman russ battle cannon
+
+Leman Russ Commander [260 points]
+	• 2 Multi-meltas, Armoured tracks, Grand strategist [+25 points], Heavy stubber, Hunter-killer missile, Lascannon and Leman russ battle cannon
+
+Militarum Tempestus Command Squad [100 points]
+	• Warlord
+	• 1 Tempestor Prime with Command rod and Tempestus dagger
+	• 1 Tempestus Scions with Close combat weapon and Plasma gun
+	• 1 Tempestus Scions with Close combat weapon and Meltagun
+	• 1 Tempestus Scions with Close combat weapon and Hot-shot laspistol and master vox
+	• 1 Tempestus Scions with Close combat weapon and Hot-shot lasgun and hot-shot laspistol and medi-pack
+
+Militarum Tempestus Command Squad [115 points]
+	• 1 Tempestor Prime with Command rod and Tempestus dagger
+	• 1 Tempestus Scions with Close combat weapon and Plasma gun
+	• 1 Tempestus Scions with Close combat weapon and Meltagun
+	• 1 Tempestus Scions with Close combat weapon and Hot-shot laspistol and master vox
+	• 1 Tempestus Scions with Close combat weapon and Hot-shot lasgun and hot-shot laspistol and medi-pack
+
+Scout Sentinels [100 points]
+	• 1 Scout Sentinels with Autocannon, Close combat weapon, Hunter-killer missile and Sentinel chainsaw
+	• 1 Scout Sentinels with Autocannon, Close combat weapon, Hunter-killer missile and Sentinel chainsaw
+
+Scout Sentinels [100 points]
+	• 1 Scout Sentinels with Autocannon, Close combat weapon, Hunter-killer missile and Sentinel chainsaw
+	• 1 Scout Sentinels with Autocannon, Close combat weapon, Hunter-killer missile and Sentinel chainsaw
+
+Tempestus Aquilons [100 points]
+	• 1 Tempestor Aquilon with Close combat weapon, Hot‑shot lascarbine and Sentry grenade launcher
+	• 7 Tempestus Aquilons with Close combat weapon and Hot‑shot lascarbine
+	• 1 Tempestus Aquilons with Close combat weapon and Plasma carbine
+	• 1 Tempestus Aquilons with Close combat weapon and Hot‑shot long‑las
+
+Tempestus Aquilons [100 points]
+	• 1 Tempestor Aquilon with Close combat weapon, Hot‑shot lascarbine and Sentry grenade launcher
+	• 7 Tempestus Aquilons with Close combat weapon and Hot‑shot lascarbine
+	• 1 Tempestus Aquilons with Close combat weapon and Plasma carbine
+	• 1 Tempestus Aquilons with Close combat weapon and Hot‑shot long‑las
+
+Tempestus Scions [75 points]
+	• 1 Tempestor with Plasma pistol and Power fist
+	• 1 Tempestus Scions with Close combat weapon and Hot-shot lasgun
+	• 1 Tempestus Scions with Close combat weapon and Plasma gun
+	• 1 Tempestus Scions with Close combat weapon and Hot-shot laspistol and vox-caster
+	• 1 Tempestus Scions with Close combat weapon and Meltagun
+
+Tempestus Scions [75 points]
+	• 1 Tempestor with Plasma pistol and Power fist
+	• 1 Tempestus Scions with Close combat weapon and Hot-shot lasgun
+	• 1 Tempestus Scions with Close combat weapon and Plasma gun
+	• 1 Tempestus Scions with Close combat weapon and Hot-shot laspistol and vox-caster
+	• 1 Tempestus Scions with Close combat weapon and Meltagun
+
+Created with WarOrgan (https://warorgan.com)
