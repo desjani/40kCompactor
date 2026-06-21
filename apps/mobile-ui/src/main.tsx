@@ -334,7 +334,7 @@ function App() {
                   // INGEST ARMY LIST
                 </label>
                 <textarea 
-                  placeholder="Paste your Warhammer 40k list here (GW App, War Organ, Generic)..." 
+                  placeholder="Paste your Warhammer 40k list here (GW App, War Organ)..." 
                   value={text} 
                   onInput={(e: any) => setText(e.currentTarget.value)} 
                 />

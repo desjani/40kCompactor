@@ -191,7 +191,7 @@ function handleParse() {
     }[format];
     if (!parser) {
         console.error("Unsupported list format.");
-        setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use the 11th Edition GW App, Generic, or War Organ list format.</p>');
+        setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use the 11th Edition GW App or War Organ list format.</p>');
         setCompactedOutput('');
         setMarkdownPreviewOutput('');
         return;
