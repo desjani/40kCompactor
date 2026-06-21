@@ -72,7 +72,8 @@ function App() {
     const fmt = parsers.detectFormat(lines)
     const parseFn = {
       'V11_GENERIC': parsers.parseV11List,
-      'GW_APP_V11': parsers.parseGwAppV11
+      'GW_APP_V11': parsers.parseGwAppV11,
+      'WAR_ORGAN_V11': parsers.parseWarOrganV11
     }[fmt]
     if (!parseFn) return null
     try { return parseFn(lines, skippable as any) } catch { return null }
@@ -333,7 +334,7 @@ function App() {
                   // INGEST ARMY LIST
                 </label>
                 <textarea 
-                  placeholder="Paste your Warhammer 40k list here (NewApp, GW App format)..." 
+                  placeholder="Paste your Warhammer 40k list here (GW App, War Organ, New Recruit)..." 
                   value={text} 
                   onInput={(e: any) => setText(e.currentTarget.value)} 
                 />
