@@ -150,8 +150,8 @@ function runGwAppTests() {
     assert.ok(htmlOut.plainText.includes('Commander Farsight'), 'PlainText output should contain Farsight');
     assert.ok(htmlOut.plainText.includes('[L1][W] Commander Farsight [80]'), 'Should render Leader+Warlord part of attached unit without mandatory wargear');
     assert.ok(htmlOut.plainText.includes('[B1] Crisis Sunforge Battlesuits [125]'), 'Should render Bodyguard part of attached unit without inline wargear');
-    assert.ok(htmlOut.plainText.includes('* Crisis Sunforge Shas’vre (2x FB, MD, SD)'), 'Should render subunit 1 inline wargear');
-    assert.ok(htmlOut.plainText.includes('* 2 Crisis Sunforge Shas’ui (4x FB, 2x GD, 2x SD)'), 'Should render subunit 2 inline wargear');
+    assert.ok(htmlOut.plainText.includes('* Crisis Sunforge Shas’vre (MD, SD)'), 'Should render subunit 1 inline wargear');
+    assert.ok(htmlOut.plainText.includes('* 2 Crisis Sunforge Shas’ui (2x GD, 2x SD)'), 'Should render subunit 2 inline wargear');
 
     // Verify compact attached units format when showMandatoryWargear = true, hideSubunits = false
     const htmlOutWithMandatory = generateOutput(parsedTau, true, abbrIndex, false, {}, false, false, false, false, false, true);
@@ -162,7 +162,7 @@ function runGwAppTests() {
 
     // Verify compact attached units format when hideSubunits = true, showMandatoryWargear = false
     const htmlOutHiddenSubunits = generateOutput(parsedTau, true, abbrIndex, true, {}, false, false, false, false, false, false);
-    assert.ok(htmlOutHiddenSubunits.plainText.includes('[B1] Crisis Sunforge Battlesuits (6x FB, 3x SD, 2x GD, MD) [125]'), 'Should roll up wargear to unit level and not double-multiply quantities');
+    assert.ok(htmlOutHiddenSubunits.plainText.includes('[B1] Crisis Sunforge Battlesuits (3x SD, 2x GD, MD) [125]'), 'Should roll up wargear to unit level and not double-multiply quantities');
     assert.ok(!htmlOutHiddenSubunits.plainText.includes('Crisis Sunforge Shas’vre'), 'Should not show subunit lines');
 
     // Verify compact attached units format when hideSubunits = true, showMandatoryWargear = true
