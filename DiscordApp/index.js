@@ -135,7 +135,8 @@ client.on(Events.InteractionCreate, async interaction => {
 
                 const listInput = new TextInputBuilder()
                     .setCustomId('listInput')
-                    .setLabel("Paste your army list here")
+                    .setLabel("Paste list (4k limit - check fit)")
+                    .setPlaceholder("If over the 4k limit, please use https://www.40kcompactor.com/ (which has no character limits)")
                     .setStyle(TextInputStyle.Paragraph)
                     .setRequired(true);
 
@@ -151,7 +152,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
             if (listText.length >= 4000) {
                 await interaction.reply({
-                    content: '⚠️ **Input Limit Reached**\nDiscord has a text input limit of 4000 characters. Your list is likely truncated.\n\nPlease use the website instead: http://www.40kcompactor.com (No character limits!)',
+                    content: '⚠️ **Input Limit Reached**\nDiscord has a text input limit of 4000 characters. Your list is likely truncated.\n\nPlease use the website instead: https://www.40kcompactor.com/ (No character limits!)',
                     ephemeral: true
                 });
                 return;
@@ -159,7 +160,7 @@ client.on(Events.InteractionCreate, async interaction => {
             
             // Default options
             const options = {
-                hideSubunits: false,
+                hideSubunits: true,
                 combineUnits: false,
                 multilineHeader: false,
                 noBullets: false,
@@ -542,7 +543,7 @@ async function generateResponse(text, options) {
         }
 
         const userAttribution = options.userId ? `List created by <@${options.userId}>` : (options.username ? `List created by ${options.username}` : 'List created');
-        outputText += `\n*${userAttribution} with [40kCompactor](http://www.40kcompactor.com)*`;
+        outputText += `\n*${userAttribution} with [40kCompactor](https://www.40kcompactor.com/)*`;
 
     } catch (err) {
         console.error(err);
@@ -572,7 +573,7 @@ async function generateResponse(text, options) {
             new ButtonBuilder()
                 .setCustomId('toggle_subunits')
                 .setLabel(options.hideSubunits ? 'Show Subunits' : 'Hide Subunits')
-                .setStyle(options.hideSubunits ? ButtonStyle.Primary : ButtonStyle.Secondary)
+                .setStyle(options.hideSubunits ? ButtonStyle.Secondary : ButtonStyle.Primary)
         );
 
     const row2 = new ActionRowBuilder()

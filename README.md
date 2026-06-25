@@ -2,6 +2,10 @@
 
 List compactor for Warhammer 40,000 lists to create Discord-friendly versions.
 
+> [!IMPORTANT]
+> **Legacy Version Lock**: The `v10/` subdirectory contains the legacy 10th edition codebase. This directory is strictly version-locked and must not be modified or edited under any circumstances.
+
+
 This tool supports the following formats:
 * Games Workshop App (GW App)
 * New Recruit: WTC-Compact
@@ -97,7 +101,7 @@ node cli.mjs -i path/to/list.txt
 **Options:**
 *   `-i, --input <file>`: Input file path (reads from stdin if not provided).
 *   `-f, --format <format>`: Output format (`discordCompact`, `discordExtended`, `plainText`, `plainTextExtended`, `json`). Default: `discordCompact`.
-*   `--hide-subunits`: Hide subunits in compact view.
+*   `--show-subunits`: Show subunits in compact view.
 *   `--combine-units`: Combine identical units.
 *   `--multiline-header`: Use a multiline header.
 *   `--no-bullets`: Disable bullet points.
@@ -113,7 +117,7 @@ node cli.mjs -i path/to/list.txt
 
 **Example:**
 ```bash
-node cli.mjs -i samples/GWAPPSample.txt --format discordCompact --hide-subunits --combine-units --multiline-header --color-mode faction
+node cli.mjs -i samples/GWAPPSample.txt --format discordCompact --show-subunits --combine-units --multiline-header --color-mode faction
 ```
 
 ## NPM Module Usage

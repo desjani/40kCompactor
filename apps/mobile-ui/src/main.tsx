@@ -36,7 +36,7 @@ function App() {
     return 0;
   }, [tab])
   const [text, setText] = useLocalStorage('text','')
-  const [hide, setHide] = useLocalStorage('hide', false)
+  const [showSubunits, setShowSubunits] = useLocalStorage('showSubunits', false)
   const [combine, setCombine] = useLocalStorage('combine', false)
   const [multiline, setMultiline] = useLocalStorage('multiline', false)
   const [abbrHeader, setAbbrHeader] = useLocalStorage('abbrHeader', false)
@@ -88,8 +88,8 @@ function App() {
 
   const compactText = useMemo(() => {
     if (!parsed || !abbr) return ''
-    return generateOutput(parsed, true, abbr, hide, skippable as any, true, combine, noBullets, hidePoints, abbrHeader, false, wargearMode).plainText
-  }, [parsed, abbr, hide, combine, noBullets, hidePoints, abbrHeader, wargearMode])
+    return generateOutput(parsed, true, abbr, !showSubunits, skippable as any, true, combine, noBullets, hidePoints, abbrHeader, false, wargearMode).plainText
+  }, [parsed, abbr, showSubunits, combine, noBullets, hidePoints, abbrHeader, wargearMode])
 
   const [previewText, setPreviewText] = useState('')
   // Support different module export shapes across bundlers/browsers
@@ -109,7 +109,7 @@ function App() {
       setRenderingImage(true);
       let active = true;
       generateCardPngDataUrl(parsed, {
-        hideSubunits: hide,
+        hideSubunits: !showSubunits,
         wargearShowMode: wargearMode,
         hidePoints: hidePoints,
         combineIdenticalUnits: combine,
@@ -139,18 +139,18 @@ function App() {
     const opts = { colorMode, colors, multilineHeader: multiline, abbreviateHeader: abbrHeader, wargearShowMode: wargearMode } as any
     switch (format) {
       case 'discordCompact':
-        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
+        t = generateDiscordText(parsed, false, true, abbr, !showSubunits, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'discordExtended':
-        t = generateDiscordText(parsed, false, false, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
+        t = generateDiscordText(parsed, false, false, abbr, !showSubunits, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'plainText':
-        t = generateDiscordText(parsed, true, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
+        t = generateDiscordText(parsed, true, true, abbr, !showSubunits, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'plainTextExtended':
-        t = generateDiscordText(parsed, true, false, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
+        t = generateDiscordText(parsed, true, false, abbr, !showSubunits, skippable as any, combine, opts, noBullets, hidePoints); break
       default:
-        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints)
+        t = generateDiscordText(parsed, false, true, abbr, !showSubunits, skippable as any, combine, opts, noBullets, hidePoints)
     }
     setPreviewText(t)
-  }, [parsed, abbr, hide, combine, colorMode, colors, multiline, format, noBullets, hidePoints, abbrHeader, wargearMode])
+  }, [parsed, abbr, showSubunits, combine, colorMode, colors, multiline, format, noBullets, hidePoints, abbrHeader, wargearMode])
 
   const previewHtml = useMemo(() => {
     if (format === 'imageCodex' || format === 'imageCodexAbbr') {
@@ -159,7 +159,7 @@ function App() {
       }
       if (imagePreviewUrl) {
         const cardWidth = parsed ? estimateCardWidth(parsed, {
-          hideSubunits: hide,
+          hideSubunits: !showSubunits,
           wargearShowMode: wargearMode,
           hidePoints: hidePoints,
           combineIdenticalUnits: combine,
@@ -171,7 +171,7 @@ function App() {
       return '<div style="color: #aab; text-align: center; padding: 20px;">No preview generated.</div>';
     }
     return au.ansi_to_html(previewText);
-  }, [format, renderingImage, imagePreviewUrl, previewText, au, parsed, hide, wargearMode, hidePoints, combine, abbr]);
+  }, [format, renderingImage, imagePreviewUrl, previewText, au, parsed, showSubunits, wargearMode, hidePoints, combine, abbr]);
 
   function copy(s: string) {
     if (!s || !parsed || !abbr) { navigator.clipboard?.writeText(s || ''); return }
@@ -179,15 +179,15 @@ function App() {
     let t = ''
     switch (format) {
       case 'discordCompact':
-        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
+        t = generateDiscordText(parsed, false, true, abbr, !showSubunits, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'discordExtended':
-        t = generateDiscordText(parsed, false, false, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
+        t = generateDiscordText(parsed, false, false, abbr, !showSubunits, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'plainText':
-        t = generateDiscordText(parsed, true, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
+        t = generateDiscordText(parsed, true, true, abbr, !showSubunits, skippable as any, combine, opts, noBullets, hidePoints); break
       case 'plainTextExtended':
-        t = generateDiscordText(parsed, true, false, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints); break
+        t = generateDiscordText(parsed, true, false, abbr, !showSubunits, skippable as any, combine, opts, noBullets, hidePoints); break
       default:
-        t = generateDiscordText(parsed, false, true, abbr, hide, skippable as any, combine, opts, noBullets, hidePoints)
+        t = generateDiscordText(parsed, false, true, abbr, !showSubunits, skippable as any, combine, opts, noBullets, hidePoints)
     }
     navigator.clipboard?.writeText(t)
   }
@@ -195,7 +195,7 @@ function App() {
   function handleDownloadImage() {
     if (!parsed) return
     downloadCardPng(parsed, {
-      hideSubunits: hide,
+      hideSubunits: !showSubunits,
       wargearShowMode: wargearMode,
       hidePoints: hidePoints,
       combineIdenticalUnits: combine,
@@ -218,7 +218,7 @@ function App() {
     try {
       setCopyingImage(true);
       await copyCardImageToClipboard(parsed, {
-        hideSubunits: hide,
+        hideSubunits: !showSubunits,
         wargearShowMode: wargearMode,
         hidePoints: hidePoints,
         combineIdenticalUnits: combine,
@@ -248,7 +248,7 @@ function App() {
     try {
       setSharingImage(true);
       const dataUrl = await generateCardPngDataUrl(parsed, {
-        hideSubunits: hide,
+        hideSubunits: !showSubunits,
         wargearShowMode: wargearMode,
         hidePoints: hidePoints,
         combineIdenticalUnits: combine,
@@ -402,9 +402,9 @@ function App() {
                 </label>
                 
                 <label class="switch-container">
-                  <input type="checkbox" class="tactical-switch" checked={hide} onChange={e => setHide((e.target as HTMLInputElement).checked)} />
+                  <input type="checkbox" class="tactical-switch" checked={showSubunits} onChange={e => setShowSubunits((e.target as HTMLInputElement).checked)} />
                   <span class="switch-slider"></span>
-                  <span class="switch-label">Hide Subunits</span>
+                  <span class="switch-label">Show Subunits</span>
                 </label>
                 
                 {!(format === 'imageCodex' || format === 'imageCodexAbbr') && (

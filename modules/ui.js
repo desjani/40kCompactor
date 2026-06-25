@@ -23,8 +23,8 @@ const copyPopup = isBrowser ? document.getElementById('copyPopup') : null;
 const ansi_up = (typeof AnsiUp !== 'undefined') ? new AnsiUp() : { ansi_to_html: (s) => s };
 
 export function getHideSubunitsState() {
-    const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');
-    return hideSubunitsCheckbox ? hideSubunitsCheckbox.checked : false;
+    const showSubunitsCheckbox = document.getElementById('showSubunitsCheckbox');
+    return showSubunitsCheckbox ? !showSubunitsCheckbox.checked : true;
 }
 
 export function getMultilineHeaderState() { // New function
@@ -136,9 +136,9 @@ export function initializeUI(callbacks) {
     if (copyPreviewImageButton) copyPreviewImageButton.addEventListener('click', callbacks.onCopyPreviewImage);
     
     if (isBrowser) {
-        const hideSubunitsCheckbox = document.getElementById('hideSubunitsCheckbox');
-        if (hideSubunitsCheckbox) {
-            hideSubunitsCheckbox.addEventListener('change', callbacks.onHideSubunitsChange);
+        const showSubunitsCheckbox = document.getElementById('showSubunitsCheckbox');
+        if (showSubunitsCheckbox) {
+            showSubunitsCheckbox.addEventListener('change', callbacks.onHideSubunitsChange);
         }
 
         const multilineHeaderCheckbox = document.getElementById('multilineHeaderCheckbox'); // New checkbox event listener

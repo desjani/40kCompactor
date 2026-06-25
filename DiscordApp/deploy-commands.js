@@ -15,7 +15,7 @@ if (!process.env.CLIENT_ID) {
 const commands = [
     new SlashCommandBuilder()
         .setName('compact')
-        .setDescription('Compact a Warhammer 40k army list'),
+        .setDescription('Compact a list (4k limit. Over limit? Use https://www.40kcompactor.com/)'),
 ]
     .map(command => command.toJSON());
 

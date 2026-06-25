@@ -30,7 +30,7 @@ Usage: node cli.mjs [options] [input-file]
 Options:
   -i, --input <file>       Input file path (reads from stdin if not provided)
   -f, --format <format>    Output format: discordCompact (default), discordExtended, plainText, plainTextExtended, json
-  --hide-subunits          Hide subunits in compact view
+  --show-subunits          Show subunits in compact view
   --combine-units          Combine identical units
   --multiline-header       Use multiline header
   --no-bullets             Disable bullet points
@@ -55,7 +55,7 @@ async function main() {
     const options = {
         input: null,
         format: 'discordCompact',
-        hideSubunits: false,
+        hideSubunits: true,
         combineUnits: false,
         multilineHeader: false,
         noBullets: false,
@@ -75,8 +75,8 @@ async function main() {
             options.input = args[++i];
         } else if (arg === '--format' || arg === '-f') {
             options.format = args[++i];
-        } else if (arg === '--hide-subunits') {
-            options.hideSubunits = true;
+        } else if (arg === '--show-subunits') {
+            options.hideSubunits = false;
         } else if (arg === '--combine-units') {
             options.combineUnits = true;
         } else if (arg === '--multiline-header') {

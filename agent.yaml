@@ -16,6 +16,8 @@ instructions: |
   
   Additionally, when the user requests a push to production (i.e., git push), ensure that the execution sub-agent increments the version in both `package.json` and `components/Changelog.js`, writes the new changelog entry in `components/Changelog.js`, commits those changes, and runs `scripts/deploy_unraid.sh` immediately after pushing to keep the Unraid docker container in sync.
 
+  CRITICAL: Do NOT edit, modify, or delete any files in the `v10/` directory under any circumstances, as the legacy 10th edition compactor is version-locked.
+
 sub_agents:
   - name: FlashGrinder
     model: gemini-3.5-flash  # Ultra-cheap, fast utility execution
