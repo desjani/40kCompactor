@@ -121,6 +121,8 @@ const sessions = new Map();
 
 client.once(Events.ClientReady, c => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
+    const guilds = c.guilds.cache.map(g => `${g.name} (${g.id})`).join(', ');
+    console.log(`Bot is currently in guilds: ${guilds || 'None'}`);
 });
 
 client.on(Events.InteractionCreate, async interaction => {
