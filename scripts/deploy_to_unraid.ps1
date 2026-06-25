@@ -1,4 +1,4 @@
-$source = 'C:\Git\40kCompactor\40kCompactor'
+$source = 'C:\Git\40kCompactor'
 $dest = '\\METRON\appdata\40kCompactor'
 $exclude = @('.git', '.vscode', 'node_modules', 'test', 'samples', 'tmp')
 

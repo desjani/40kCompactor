@@ -7,12 +7,12 @@ List compactor for Warhammer 40,000 lists to create Discord-friendly versions.
 
 
 This tool supports the following formats:
-* Games Workshop App (GW App)
-* New Recruit: WTC-Compact
-* New Recruit: WTC
-* New Recruit: GW/NR (aka NR-GW)
-* NRNR (markdown-style variant)
-* ListForge (Detailed)
+* Games Workshop App (v11)
+* War Organ (Flat & Indented)
+* Generic 11th Edition formats
+
+> [!NOTE]
+> Legacy 10th Edition formats are supported via the version-locked `v10/` directory.
 
 ## Features
 
@@ -37,9 +37,8 @@ This tool supports the following formats:
 
 The compactor's behavior can be customized by editing JSON files in the repository root:
 
-- `wargear.json`: dynamic wargear database used for optional abbreviations.
 - `skippable_wargear.json`: per-faction rules for hiding default/redundant wargear in the compact output.
-- `abbreviation_rules.json`: supplemental rules to steer abbreviation generation (when needed).
+- `custom_abbrs.json`: custom abbreviation overrides.
 
 ### `skippable_wargear.json`
 
@@ -73,20 +72,20 @@ Prereqs: Node.js 20+ recommended.
 
 Run the cross-format validator (quick end-to-end sanity checks):
 
-```powershell
-pwsh -NoProfile -Command "npm run validate"
+```bash
+npm run validate
 ```
 
 Run the small test suite:
 
-```powershell
-pwsh -NoProfile -Command "npm test"
+```bash
+npm test
 ```
 
 Optional lint (warnings-only, non-blocking):
 
-```powershell
-pwsh -NoProfile -Command "npm run lint"
+```bash
+npm run lint
 ```
 
 ## CLI Usage
@@ -117,7 +116,7 @@ node cli.mjs -i path/to/list.txt
 
 **Example:**
 ```bash
-node cli.mjs -i samples/GWAPPSample.txt --format discordCompact --show-subunits --combine-units --multiline-header --color-mode faction
+node cli.mjs -i samples/GWAPP-Sample-Tau.txt --format discordCompact --show-subunits --combine-units --multiline-header --color-mode faction
 ```
 
 ## NPM Module Usage
@@ -131,7 +130,7 @@ npm install 40k-compactor
 
 **Example:**
 ```javascript
-import { detectFormat, parseGwApp, generateDiscordText, buildAbbreviationIndex } from '40k-compactor';
+import { detectFormat, parseGwAppV11, generateDiscordText, buildAbbreviationIndex } from '40k-compactor';
 import fs from 'fs';
 
 // Load your list
@@ -141,7 +140,7 @@ const lines = listText.split('\n');
 // Detect and Parse
 const format = detectFormat(lines);
 // Select parser based on format (simplified example)
-const parsedData = parseGwApp(lines); 
+const parsedData = parseGwAppV11(lines); 
 
 // Build Abbreviations
 const abbrIndex = buildAbbreviationIndex(parsedData);

@@ -2,7 +2,7 @@ import fs from 'fs';
 import { execSync } from 'child_process';
 
 try {
-    execSync('node cli.mjs -i samples/WTCCompactSample.txt --format discordCompact --color-mode faction > output_test.txt');
+    execSync(`${process.execPath} cli.mjs -i samples/V11Sample.txt --format discordCompact --color-mode faction > output_test.txt`);
     const content = fs.readFileSync('output_test.txt', 'utf8');
     if (content.includes('\u001b[')) {
         console.log('Success: Output contains ANSI escape codes.');
