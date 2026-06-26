@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11 } from './modules/parsers.js';
+import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11, parseNRWTCCompact, parseNRWTC, parseNRGW } from './modules/parsers.js';
 import { generateDiscordText } from './modules/renderers.js';
 import { buildAbbreviationIndex } from './modules/abbreviations.js';
 
@@ -152,7 +152,10 @@ async function main() {
     const parser = {
         V11_GENERIC: parseV11List,
         GW_APP_V11: parseGwAppV11,
-        WAR_ORGAN_V11: parseWarOrganV11
+        WAR_ORGAN_V11: parseWarOrganV11,
+        NR_WTC_COMPACT: parseNRWTCCompact,
+        NR_WTC: parseNRWTC,
+        NR_GW: parseNRGW
     }[format];
 
     if (!parser) {

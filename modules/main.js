@@ -1,4 +1,4 @@
-import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11 } from './parsers.js';
+import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11, parseNRWTCCompact, parseNRWTC, parseNRGW } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth, copyCardImageToClipboard } from './cardRenderer.js';
@@ -187,7 +187,10 @@ function handleParse() {
     const parser = {
         V11_GENERIC: parseV11List,
         GW_APP_V11: parseGwAppV11,
-        WAR_ORGAN_V11: parseWarOrganV11
+        WAR_ORGAN_V11: parseWarOrganV11,
+        NR_WTC_COMPACT: parseNRWTCCompact,
+        NR_WTC: parseNRWTC,
+        NR_GW: parseNRGW
     }[format];
     if (!parser) {
         console.error("Unsupported list format.");

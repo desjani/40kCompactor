@@ -9,6 +9,7 @@ List compactor for Warhammer 40,000 lists to create Discord-friendly versions.
 This tool supports the following formats:
 * Games Workshop App (v11)
 * War Organ (Flat & Indented)
+* New Recruit (NR-WTCCompact, NR-WTC, and NR-GW)
 * Generic 11th Edition formats
 
 > [!NOTE]

@@ -5,6 +5,39 @@
 export function detectV11Format(lines) {
     if (!Array.isArray(lines) || lines.length === 0) return 'UNKNOWN';
 
+    // Check for New Recruit format header (starts with a block of pluses)
+    const firstNonEmptyIndex = lines.findIndex(l => l.trim().length > 0);
+    const hasNrHeader = firstNonEmptyIndex !== -1 && lines[firstNonEmptyIndex].trim().startsWith('+++');
+    if (hasNrHeader) {
+        let headerEndIndex = 0;
+        for (let i = firstNonEmptyIndex + 1; i < lines.length; i++) {
+            if (lines[i].trim().startsWith('+++')) {
+                headerEndIndex = i;
+                break;
+            }
+        }
+
+        const bodyLines = lines.slice(headerEndIndex + 1).map(l => l.trim()).filter(Boolean);
+
+        // 1. Check for WTC Compact
+        const hasCompactColon = bodyLines.some(l => 
+            /^[A-Za-z0-9:\s•◦\*-]+?\(\d+\s*(?:pts|points|pt)\):\s*\S+/i.test(l)
+        );
+        if (hasCompactColon) {
+            return 'NR_WTC_COMPACT';
+        }
+
+        // 2. Check for standard WTC vs GW style
+        const hasWtcPrefix = bodyLines.some(l => 
+            /^(?:[a-zA-Z0-9]+:\s*)?\d+x\s+.*?\(\d+\s*(?:pts|points|pt)\)$/i.test(l)
+        );
+        if (hasWtcPrefix) {
+            return 'NR_WTC';
+        }
+
+        return 'NR_GW';
+    }
+
     // Check if any line in the file indicates a GW App export
     const hasGwAppMarker = lines.some(l => 
         /^Export.*(?:App.*Version|Version.*App)/i.test(l) || 

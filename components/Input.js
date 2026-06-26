@@ -3,7 +3,7 @@ import { h } from 'https://unpkg.com/preact@10.5.15/dist/preact.module.js';
 export function Input() {
   return (
     h('div', null,
-      h('label', { for: 'inputText', class: 'io-label' }, 'Paste List here (GW App or WTC-Compact)'),
+      h('label', { for: 'inputText', class: 'io-label' }, 'Paste List here (GW App, WTC-Compact, or New Recruit)'),
       h('textarea', { id: 'inputText', class: 'io-box', autofocus: true }),
       h('div', { class: 'column-footer', style: 'flex-direction: column; align-items: center;' },
         h('div', { class: 'button-group' },

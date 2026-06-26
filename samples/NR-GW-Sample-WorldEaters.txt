@@ -1,0 +1,122 @@
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Chaos - World Eaters
++ DETACHMENT: Berzerker Warband (Relentless Rage)
++ TOTAL ARMY POINTS: 1995pts
++
++ WARLORD: Char1: Khârn the Betrayer
++ ENHANCEMENT: Favoured of Khorne (on Char2: Lord on Juggernaut)
+& Berzerker Glaive (on Char3: Master of Executions)
+& Battle-lust (on Char4: Slaughterbound)
++ NUMBER OF UNITS: 16
++ SECONDARY: - Bring It Down: (4x2) - Assassination: 4 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+CHARACTER
+
+Khârn the Betrayer (115 pts)
+• 1x Gorechild
+• 1x Plasma pistol
+• Warlord
+
+Lord on Juggernaut (125 pts)
+• 1x Bladed horn
+• 1x Exalted chainblade
+• 1x Plasma pistol
+• Favoured of Khorne (+20 pts)
+
+Master of Executions (95 pts)
+• 1x Axe of dismemberment
+• 1x Bolt pistol
+• Berzerker Glaive (+35 pts)
+
+Slaughterbound (120 pts)
+• 1x Lacerator and daemonic claw
+• Battle-lust (+20 pts)
+
+BATTLELINE
+
+Khorne Berzerkers (180 pts)
+• 1x Khorne Berzerker Champion
+    • 1x Chainblade
+    • 1x Plasma pistol
+• 9x Khorne Berzerker
+    • 7x Bolt pistol
+    • 7x Chainblade
+    • 2x Plasma pistol
+    • 2x Khornate eviscerator
+    • Icon of Khorne
+
+Khorne Berzerkers (180 pts)
+• 1x Khorne Berzerker Champion
+    • 1x Chainblade
+    • 1x Plasma pistol
+• 9x Khorne Berzerker
+    • 7x Bolt pistol
+    • 7x Chainblade
+    • 2x Plasma pistol
+    • 2x Khornate eviscerator
+    • Icon of Khorne
+
+Khorne Berzerkers (180 pts)
+• 1x Khorne Berzerker Champion
+    • 1x Chainblade
+    • 1x Plasma pistol
+• 9x Khorne Berzerker
+    • 7x Bolt pistol
+    • 7x Chainblade
+    • 2x Plasma pistol
+    • 2x Khornate eviscerator
+    • Icon of Khorne
+
+OTHER DATASHEETS
+
+Chaos Rhino (85 pts)
+• 1x Armoured tracks
+• 1x Combi-bolter
+• 1x Havoc launcher
+• 1x Combi-bolter
+
+Chaos Rhino (85 pts)
+• 1x Armoured tracks
+• 1x Combi-bolter
+• 1x Havoc launcher
+• 1x Combi-bolter
+
+Chaos Spawn (95 pts)
+• 2x Chaos Spawn
+    • 2x Hideous Mutations
+
+Chaos Spawn (95 pts)
+• 2x Chaos Spawn
+    • 2x Hideous Mutations
+
+Eightbound (135 pts)
+• 1x Eightbound Champion
+    • 1x Chainblades
+• 2x Eightbound
+    • 2x Chainblades
+
+Exalted Eightbound (140 pts)
+• 1x Exalted Eightbound Champion
+    • 1x Chainblades
+• 2x Exalted Eightbound
+    • 2x Chainblades
+
+Goremongers (75 pts)
+• 1x Blood Herald
+    • 1x Autopistol
+    • 1x Chainblade
+    • 1x Close combat weapon
+• 7x Goremonger
+    • 7x Autopistol
+    • 6x Chainblade
+    • 7x Close combat weapon
+    • 1x Blood harpoon
+
+Maulerfiend (145 pts)
+• 1x Maulerfiend fists
+• 2x Magma cutter
+
+Maulerfiend (145 pts)
+• 1x Maulerfiend fists
+• 2x Magma cutter

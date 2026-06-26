@@ -370,3 +370,130 @@ export function getModelsCount(unit) {
     const q = parseInt((unit.quantity || '1').toString().replace('x', ''), 10);
     return isNaN(q) ? 1 : q;
 }
+
+export function parseNewRecruitHeader(lines) {
+    const metadata = {
+        title: '',
+        armyName: '',
+        faction: '',
+        detachment: '',
+        detachments: [],
+        pointsTotal: 0,
+        totalPoints: 0,
+        pointsLimit: 0,
+        forceDispositions: [],
+        warlordName: '',
+        warlordId: '',
+        enhancements: []
+    };
+
+    let i = 0;
+    while (i < lines.length && !lines[i].trim()) {
+        i++;
+    }
+    if (i < lines.length && lines[i].trim().startsWith('+++')) {
+        i++; // skip opening +++
+        while (i < lines.length && !lines[i].trim().startsWith('+++')) {
+            const line = lines[i].trim();
+            if (line.startsWith('+') || line.startsWith('&')) {
+                const isAmp = line.startsWith('&');
+                const content = line.substring(1).trim();
+                
+                if (isAmp) {
+                    // Continuing enhancement or other field
+                    const match = content.match(/^(.*?)\s*\(on\s+(Char\d+|Infa\d+|[A-Za-z]+\d+)?\s*:?\s*(.*)\)$/i);
+                    if (match) {
+                        metadata.enhancements.push({
+                            name: match[1].trim(),
+                            onId: match[2] ? match[2].trim() : '',
+                            onName: match[3] ? match[3].trim() : ''
+                        });
+                    } else {
+                        metadata.enhancements.push({
+                            name: content,
+                            onId: '',
+                            onName: ''
+                        });
+                    }
+                    i++;
+                    continue;
+                }
+
+                const factionMatch = content.match(/^FACTION KEYWORD:\s*(.*)$/i);
+                if (factionMatch) {
+                    let facVal = factionMatch[1].trim();
+                    const hyphenIdx = facVal.indexOf('-');
+                    if (hyphenIdx !== -1) {
+                        facVal = facVal.substring(hyphenIdx + 1).trim();
+                    }
+                    metadata.faction = facVal;
+                    i++;
+                    continue;
+                }
+
+                const detachmentMatch = content.match(/^DETACHMENT:\s*(.*)$/i);
+                if (detachmentMatch) {
+                    let detVal = detachmentMatch[1].trim();
+                    detVal = detVal.replace(/\s*\(.*?\)/g, '').trim();
+                    metadata.detachment = detVal;
+                    metadata.detachments = detVal.split(',').map(d => d.trim()).filter(Boolean);
+                    i++;
+                    continue;
+                }
+
+                const pointsMatch = content.match(/^TOTAL ARMY POINTS:\s*(\d+)/i);
+                if (pointsMatch) {
+                    const pts = parseInt(pointsMatch[1], 10) || 0;
+                    metadata.pointsTotal = pts;
+                    metadata.totalPoints = pts;
+                    i++;
+                    continue;
+                }
+
+                const warlordMatch = content.match(/^WARLORD:\s*(Char\d+|Infa\d+|[A-Za-z]+\d+)?\s*:?\s*(.*)$/i);
+                if (warlordMatch) {
+                    if (warlordMatch[1]) {
+                        metadata.warlordId = warlordMatch[1].trim();
+                    }
+                    metadata.warlordName = warlordMatch[2].trim();
+                    i++;
+                    continue;
+                }
+
+                const enhancementMatch = content.match(/^ENHANCEMENT:\s*(.*)$/i);
+                if (enhancementMatch) {
+                    const enhContent = enhancementMatch[1].trim();
+                    const match = enhContent.match(/^(.*?)\s*\(on\s+(Char\d+|Infa\d+|[A-Za-z]+\d+)?\s*:?\s*(.*)\)$/i);
+                    if (match) {
+                        metadata.enhancements.push({
+                            name: match[1].trim(),
+                            onId: match[2] ? match[2].trim() : '',
+                            onName: match[3] ? match[3].trim() : ''
+                        });
+                    } else {
+                        metadata.enhancements.push({
+                            name: enhContent,
+                            onId: '',
+                            onName: ''
+                        });
+                    }
+                    i++;
+                    continue;
+                }
+
+                const secondaryMatch = content.match(/^SECONDARY:\s*(.*)$/i);
+                if (secondaryMatch) {
+                    // TODO: Re-add Force Dispositions when New Recruit adds support
+                    metadata.forceDispositions = [];
+                    i++;
+                    continue;
+                }
+            }
+            i++;
+        }
+        if (i < lines.length && lines[i].trim().startsWith('+++')) {
+            i++;
+        }
+    }
+    return { metadata, nextIndex: i };
+}

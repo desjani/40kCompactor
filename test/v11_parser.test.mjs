@@ -3,7 +3,7 @@ import path from 'path';
 import assert from 'assert';
 import { fileURLToPath } from 'url';
 
-import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11 } from '../modules/parsers.js';
+import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11, parseNRWTCCompact, parseNRWTC, parseNRGW } from '../modules/parsers.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 import { generateDiscordText, generateOutput } from '../modules/renderers.js';
 import { generateCardHtml, estimateCardWidth } from '../modules/cardRenderer.js';
@@ -527,10 +527,65 @@ function runWarOrganTests() {
     console.log('✓ War Organ 11th Edition parsing tests passed');
 }
 
+function runNewRecruitTests() {
+    console.log('\n--- Running New Recruit (NR) Parser Tests ---');
+
+    // 1. NR-WTCCompact (Tau)
+    const wtcCompactTauPath = path.join(__dirname, '../samples/NR-WTCCompact-Sample-Tau.txt');
+    const wtcCompactTauLines = fs.readFileSync(wtcCompactTauPath, 'utf8').split(/\r?\n/);
+    const formatCompactTau = detectFormat(wtcCompactTauLines);
+    assert.strictEqual(formatCompactTau, 'NR_WTC_COMPACT');
+    
+    const parsedCompactTau = parseNRWTCCompact(wtcCompactTauLines, skippableWargear);
+    assert.strictEqual(parsedCompactTau.metadata.faction, "T'au Empire");
+    assert.strictEqual(parsedCompactTau.metadata.totalPoints, 2000);
+    assert.deepStrictEqual(parsedCompactTau.metadata.detachments, ['Advanced Acquisition Cadre', 'Retaliation Cadre']);
+    
+    const farsightCompact = parsedCompactTau.units.find(u => u.name === 'Commander Farsight');
+    assert.ok(farsightCompact, 'Should parse Commander Farsight in compact WTC');
+    assert.strictEqual(farsightCompact.isWarlord, true);
+    assert.strictEqual(farsightCompact.category, 'Characters');
+    assert.ok(farsightCompact.wargear.some(w => w.name === 'Dawn Blade'));
+
+    const coldstarCompact = parsedCompactTau.units.find(u => u.name === 'Commander in Coldstar Battlesuit' && u.points === 110);
+    assert.ok(coldstarCompact, 'Should parse Commander in Coldstar Battlesuit in compact WTC');
+    assert.strictEqual(coldstarCompact.enhancements.length, 1);
+    assert.strictEqual(coldstarCompact.enhancements[0].name, 'Prototype Weapon System');
+
+    // 2. NR-WTC (Tau)
+    const wtcTauPath = path.join(__dirname, '../samples/NR-WTC-Sample-Tau.txt');
+    const wtcTauLines = fs.readFileSync(wtcTauPath, 'utf8').split(/\r?\n/);
+    const formatWtcTau = detectFormat(wtcTauLines);
+    assert.strictEqual(formatWtcTau, 'NR_WTC');
+
+    const parsedWtcTau = parseNRWTC(wtcTauLines, skippableWargear);
+    assert.strictEqual(parsedWtcTau.metadata.totalPoints, 2000);
+    const farsightWtc = parsedWtcTau.units.find(u => u.name === 'Commander Farsight');
+    assert.ok(farsightWtc, 'Should parse Commander Farsight in standard WTC');
+    assert.strictEqual(farsightWtc.isWarlord, true);
+    assert.strictEqual(farsightWtc.category, 'Characters');
+
+    // 3. NR-GW (Tau)
+    const gwTauPath = path.join(__dirname, '../samples/NR-GW-Sample-Tau.txt');
+    const gwTauLines = fs.readFileSync(gwTauPath, 'utf8').split(/\r?\n/);
+    const formatGwTau = detectFormat(gwTauLines);
+    assert.strictEqual(formatGwTau, 'NR_GW');
+
+    const parsedGwTau = parseNRGW(gwTauLines, skippableWargear);
+    assert.strictEqual(parsedGwTau.metadata.totalPoints, 2000);
+    const farsightGw = parsedGwTau.units.find(u => u.name === 'Commander Farsight');
+    assert.ok(farsightGw, 'Should parse Commander Farsight in NR-GW');
+    assert.strictEqual(farsightGw.isWarlord, true);
+    assert.strictEqual(farsightGw.category, 'Characters');
+
+    console.log('✓ New Recruit parsing tests passed');
+}
+
 runGenericTests();
 runGwAppTests();
 runFrenchTests();
 runFactionNormalizationTests();
 runAlternateGwAppTests();
 runWarOrganTests();
+runNewRecruitTests();
 console.log('\nAll 11th Edition tests completed and PASSED!');

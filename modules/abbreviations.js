@@ -228,6 +228,18 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
         if (key === 'warlord') return;
         if (flat[key]) return;
 
+        // Check if a singular or plural variation already has an abbreviation
+        const singularKey = key.endsWith('s') ? key.slice(0, -1) : key;
+        const pluralKey = key.endsWith('s') ? key : key + 's';
+        if (flat[singularKey]) {
+            flat[key] = flat[singularKey];
+            return;
+        }
+        if (flat[pluralKey]) {
+            flat[key] = flat[pluralKey];
+            return;
+        }
+
         const base = makeBaseAbbreviation(name);
         if (base && base.toUpperCase() !== 'NULL') {
             const priority = getPriority({ type });

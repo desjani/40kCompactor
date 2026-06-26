@@ -1,0 +1,73 @@
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Xenos - T'au Empire
++ DETACHMENT: Advanced Acquisition Cadre, Retaliation Cadre (Expert Fieldcraft)
++ TOTAL ARMY POINTS: 2000pts
++
++ WARLORD: Char1: Commander Farsight
++ ENHANCEMENT: Prototype Weapon System (on Char4: Commander in Coldstar Battlesuit)
+& Starflare Ignition System (on Char6: Commander in Enforcer Battlesuit)
+& Negation Emitters (on Infa6: Stealth Battlesuits)
+& Negation Emitters (on Infa6: Stealth Battlesuits)
++ NUMBER OF UNITS: 18
++ SECONDARY: - Bring It Down: (4x2) + (7x4) - Assassination: 6 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Char1: 1x Commander Farsight (80 pts): Warlord, Dawn Blade, High-intensity plasma rifle
+Char4: 1x Commander in Coldstar Battlesuit (110 pts): 2x Shield Drone, 2x Burst cannon, Cyclic ion blaster, High-output burst cannon, Battlesuit fists
+Enhancement: Prototype Weapon System (+15 pts)
+Char5: 1x Commander in Coldstar Battlesuit (95 pts): 2x Shield Drone, 4x Fusion blaster, Battlesuit fists
+Char6: 1x Commander in Enforcer Battlesuit (100 pts): Marker Drone, Shield Drone, Airbursting fragmentation projector, Battlesuit fists
+Enhancement: Starflare Ignition System (+20 pts)
+Char2: 1x Darkstrider (60 pts): Close combat weapon, Shade
+Char3: 2x The Twin Lance (205 pts)
+• 1x Ri'Lantar: MV15 Gun Drone, Twin pulse blaster, Fusion eliminator, Twin pulse blaster, Shardstorm burst system, XV pulse pistol
+• 1x Ri'Locai: MV15 Gun Drone, Twin pulse blaster, Ion scattercannon, Twin pulse blaster, Shardstorm burst system, XV pulse pistol
+
+2x Broadside Battlesuits (150 pts)
+• 1x Broadside Shas’vre: 2x Missile Drone, Weapon support system, Crushing bulk, Heavy rail rifle, Seeker missile
+• 1x Broadside Shas’ui: 2x Missile Drone, Weapon support system, Crushing bulk, Heavy rail rifle, Seeker missile
+2x Broadside Battlesuits (150 pts)
+• 1x Broadside Shas’vre: 2x Missile Drone, Weapon support system, Crushing bulk, Heavy rail rifle, Seeker missile
+• 1x Broadside Shas’ui: 2x Missile Drone, Weapon support system, Crushing bulk, Heavy rail rifle, Seeker missile
+3x Crisis Fireknife Battlesuits (130 pts)
+• 1x Crisis Fireknife Shas’vre: Gun Drone, Shield Drone, 2x Missile pod, Battlesuit fists
+• 2x Crisis Fireknife Shas’ui: 2 with Gun Drone, Shield Drone, Battlesuit fists, 2x Missile pod
+3x Crisis Starscythe Battlesuits (120 pts)
+• 1x Crisis Starscythe Shas’vre: Marker Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+• 2x Crisis Starscythe Shas’ui: 2 with Gun Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+3x Crisis Starscythe Battlesuits (90 pts)
+• 1x Crisis Starscythe Shas’vre: Gun Drone, Shield Drone, 2x Burst cannon, Battlesuit fists
+• 2x Crisis Starscythe Shas’ui: 2 with Gun Drone, Shield Drone, 2x Burst cannon, Battlesuit fists
+3x Crisis Sunforge Battlesuits (125 pts)
+• 1x Crisis Sunforge Shas’vre: Marker Drone, Shield Drone, 2x Fusion blaster, Battlesuit fists
+• 2x Crisis Sunforge Shas’ui: 2 with Gun Drone, Shield Drone, Battlesuit fists, 2x Fusion blaster
+10x Pathfinder Team (95 pts)
+• 9x Pathfinders
+    6 with Close combat weapon, Pulse carbine, Pulse pistol
+    3 with Close combat weapon, Ion rifle, Pulse pistol
+• 1x Pathfinder Shas'ui: 2x Gun Drone, Recon drone, Drone burst cannon, Close combat weapon, Pulse carbine, Pulse pistol, Semi-automatic grenade launcher, Drone burst cannon
+10x Pathfinder Team (95 pts)
+• 9x Pathfinders
+    6 with Close combat weapon, Pulse carbine, Pulse pistol
+    3 with Close combat weapon, Ion rifle, Pulse pistol
+• 1x Pathfinder Shas'ui: 2x Gun Drone, Grav-inhibitor drone, Close combat weapon, Pulse carbine, Pulse pistol, Semi-automatic grenade launcher
+10x Pathfinder Team (95 pts)
+• 9x Pathfinders
+    6 with Close combat weapon, Pulse carbine, Pulse pistol
+    3 with Close combat weapon, Ion rifle, Pulse pistol
+• 1x Pathfinder Shas'ui: 2x Gun Drone, Grav-inhibitor drone, Close combat weapon, Pulse carbine, Pulse pistol, Semi-automatic grenade launcher
+5x Stealth Battlesuits (115 pts)
+• 4x Stealth Shas'ui
+    3 with Battlesuit fists, Burst cannon
+    1 with Homing beacon, Battlesuit fists, Fusion blaster
+  Enhancement: Negation Emitters (+15 pts)
+• 1x Stealth Shas'vre: Gun Drone, Marker Drone, Battlesuit fists, Pulse pistol, Fusion blaster
+5x Stealth Battlesuits (115 pts)
+• 4x Stealth Shas'ui
+    3 with Battlesuit fists, Burst cannon
+    1 with Homing beacon, Battlesuit fists, Fusion blaster
+  Enhancement: Negation Emitters (+15 pts)
+• 1x Stealth Shas'vre: Gun Drone, Marker Drone, Battlesuit fists, Pulse pistol, Fusion blaster
+5x Vespid Stingwings (70 pts)
+• 1x Vespid Strain Leader: Neutron blaster, Stingwing claws
+• 4x Vespid Stingwings: 4 with Neutron blaster, Stingwing claws

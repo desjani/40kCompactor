@@ -12,7 +12,13 @@ const samples = [
   { file: 'samples/V11Sample.txt', expect: 'V11_GENERIC' },
   { file: 'samples/GWAPP-Sample-Tau.txt', expect: 'GW_APP_V11' },
   { file: 'samples/GWAPP-Sample-WorldEaters.txt', expect: 'GW_APP_V11' },
-  { file: 'samples/GWAPP-Sample-ImperialKnights', expect: 'GW_APP_V11' }
+  { file: 'samples/GWAPP-Sample-ImperialKnights', expect: 'GW_APP_V11' },
+  { file: 'samples/NR-WTCCompact-Sample-Tau.txt', expect: 'NR_WTC_COMPACT' },
+  { file: 'samples/NR-WTCCompact-Sample-WorldEaters.txt', expect: 'NR_WTC_COMPACT' },
+  { file: 'samples/NR-WTC-Sample-Tau.txt', expect: 'NR_WTC' },
+  { file: 'samples/NR-WTC-Sample-WorldEaters.txt', expect: 'NR_WTC' },
+  { file: 'samples/NR-GW-Sample-Tau.txt', expect: 'NR_GW' },
+  { file: 'samples/NR-GW-Sample-WorldEaters.txt', expect: 'NR_GW' }
 ];
 
 const renderCombos = [
@@ -44,7 +50,10 @@ async function main() {
     try {
       const parser = {
         V11_GENERIC: parsers.parseV11List,
-        GW_APP_V11: parsers.parseGwAppV11
+        GW_APP_V11: parsers.parseGwAppV11,
+        NR_WTC_COMPACT: parsers.parseNRWTCCompact,
+        NR_WTC: parsers.parseNRWTC,
+        NR_GW: parsers.parseNRGW
       }[detected];
       if (!parser) throw new Error(`No parser found for format ${detected}`);
       data = parser(lines);
