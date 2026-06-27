@@ -255,7 +255,7 @@ client.on(Events.InteractionCreate, async interaction => {
                         throw new Error('Unsupported or unknown list format.');
                     }
 
-                    const parsedData = parser(lines);
+                    const parsedData = parser(lines, skippableWargear);
                     const isImage = session.options.format === 'imageCodex' || session.options.format === 'imageCodexAbbr';
                     
                     let channel = interaction.channel;
@@ -481,7 +481,7 @@ async function generateResponse(text, options) {
             return { content: 'Could not detect list format. Please check your input.', components: [] };
         }
 
-        const parsedData = parser(lines);
+        const parsedData = parser(lines, skippableWargear);
         const isImage = options.format === 'imageCodex' || options.format === 'imageCodexAbbr';
 
         if (isImage) {
