@@ -1,7 +1,7 @@
 // Renderers for 11th Edition JSON structure.
 import { makeAbbrevForName } from './abbreviations.js';
 import factionColors from './faction_colors.js';
-import { sortItemsByQuantityThenName, getModelsCount, getCanonicalFactionName, normalizeKey } from './utils.js';
+import { sortItemsByQuantityThenName, getModelsCount, getCanonicalFactionName, normalizeKey, shouldHideSubunitsForUnit } from './utils.js';
 
 export function abbreviateWords(str) {
     if (!str) return '';
@@ -430,6 +430,7 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
 
     const renderUnit = (unit, prefix = '') => {
         let outHtml = '', outPlain = '';
+        const hideSubunitsForThisUnit = hideSubunits || shouldHideSubunitsForUnit(unit, showMode);
         const G = (unit.__groupCount !== undefined) ? unit.__groupCount : 1;
         const M = (unit.__unitSize !== undefined) ? unit.__unitSize : getModelsCount(unit);
         let qtyDisplay = '';
@@ -442,14 +443,14 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
         const categorySuffix = '';
 
         if (useAbbreviations) {
-            const itemsString = getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, summary, skippableWargearMap, showMandatoryWargear, hideSubunits, showMode, hideBrackets);
+            const itemsString = getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, summary, skippableWargearMap, showMandatoryWargear, hideSubunitsForThisUnit, showMode, hideBrackets);
             const pointsString = hidePoints ? '' : (hideBrackets ? ` ${unit.points}` : ` [${unit.points}]`);
             const finalUnitName = abbreviateUnitNames ? (findAbbreviationForItem(unit.name, wargearAbbrMap, summary) || makeAbbrevForName(unit.name)) : unit.name;
             const unitText = `${prefix}${qtyDisplay}${finalUnitName}${categorySuffix}${itemsString}${pointsString}`;
             outHtml += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p>`;
             outPlain += `${UNIT_BULLET}${unitText}\n`;
 
-            if (!hideSubunits && Array.isArray(unit.subunits) && unit.subunits.length > 0) {
+            if (!hideSubunitsForThisUnit && Array.isArray(unit.subunits) && unit.subunits.length > 0) {
                 outHtml += `<div style="padding-left:1rem;font-size:0.75rem;color:var(--color-text-secondary);font-weight:400;">`;
                 unit.subunits.forEach(sub => {
                     const subQty = parseInt((sub.quantity || '1').toString().replace('x', ''), 10) || 1;
@@ -490,7 +491,7 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
         outHtml += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p>`;
         outPlain += `${UNIT_BULLET}${unitText}\n`;
 
-        if (hideSubunits) {
+        if (hideSubunitsForThisUnit) {
             const aggregated = aggregateWargear(unit);
             const visibleAggregated = aggregated.filter(it => {
                 if (showMode === 'show-all') return true;
@@ -732,6 +733,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
     const units = maybeCombineUnits(rawUnits, hideSubunits, combineIdenticalUnits);
 
     const renderDiscordUnit = (unit, prefixText = '') => {
+        const hideSubunitsForThisUnit = hideSubunits || shouldHideSubunitsForUnit(unit, showMode);
         const G = (unit.__groupCount !== undefined) ? unit.__groupCount : 1;
         const M = (unit.__unitSize !== undefined) ? unit.__unitSize : getModelsCount(unit);
         let qtyDisplay = '';
@@ -743,7 +745,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
 
         const categorySuffix = '';
 
-        const itemsString = getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, summary, skippableWargearMap, showMandatoryWargear, hideSubunits, showMode, hideBrackets);
+        const itemsString = getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, summary, skippableWargearMap, showMandatoryWargear, hideSubunitsForThisUnit, showMode, hideBrackets);
 
         const abbreviateUnitNames = !!(options && options.abbreviateUnitNames);
         const finalUnitName = (useAbbreviations && abbreviateUnitNames) ? (findAbbreviationForItem(unit.name, wargearAbbrMap, summary) || makeAbbrevForName(unit.name)) : unit.name;
@@ -760,7 +762,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
         }
         out += `${line}\n`;
 
-        if (!hideSubunits && Array.isArray(unit.subunits)) {
+        if (!hideSubunitsForThisUnit && Array.isArray(unit.subunits)) {
             unit.subunits.forEach(sub => {
                 const subQty = parseInt((sub.quantity || '1').toString().replace('x', ''), 10) || 1;
                 const subQtyDisplay = subQty > 1 ? `${subQty} ` : '';

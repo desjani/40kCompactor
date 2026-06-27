@@ -375,6 +375,18 @@ export function isWargearSkippable(skippableWargearMap, faction, unitName, warge
     return false;
 }
 
+export function shouldHideSubunitsForUnit(unit, showMode) {
+    if (!unit || !Array.isArray(unit.subunits) || unit.subunits.length === 0) return false;
+    return unit.subunits.every(sub => {
+        const visibleWargear = (sub.wargear || []).filter(wg => {
+            if (showMode === 'show-all') return true;
+            if (showMode === 'hide-all') return false;
+            return !wg.skippable;
+        });
+        return visibleWargear.length === 0;
+    });
+}
+
 export function getModelsCount(unit) {
     if (!unit) return 1;
     if (Array.isArray(unit.subunits) && unit.subunits.length > 0) {

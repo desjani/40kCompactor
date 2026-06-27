@@ -301,6 +301,20 @@ function runGwAppTests() {
     assert.ok(!abbrCardHtml.includes('padding: 3px 8px;'), 'Should not render separate detail badges in abbreviated mode');
     console.log('✓ Dynamic width and inline abbreviated layout tests passed');
 
+    // Verify that "The Twin Lance" has its subunits hidden even when hideSubunits is false,
+    // but "Crisis Sunforge Battlesuits" does not (it still renders its subunits).
+    const htmlOutForSubunitCheck = generateOutput(parsedTau, true, abbrIndex, false, skippableWargear, false, false, false, false, false, false);
+    assert.ok(!htmlOutForSubunitCheck.plainText.includes('Ri’Lantar'), 'Ri’Lantar subunit should be hidden');
+    assert.ok(!htmlOutForSubunitCheck.plainText.includes('Ri’Locai'), 'Ri’Locai subunit should be hidden');
+    assert.ok(htmlOutForSubunitCheck.plainText.includes('Crisis Sunforge Shas’vre'), 'Crisis Sunforge Shas’vre subunit should be shown');
+    
+    // Also test card renderer for "The Twin Lance" subunits hiding
+    const cardHtmlForSubunitCheck = generateCardHtml(parsedTau, { hideSubunits: false, useAbbreviations: true, wargearAbbrMap: abbrIndex });
+    assert.ok(!cardHtmlForSubunitCheck.includes('Ri’Lantar'), 'Ri’Lantar subunit should be hidden in card HTML');
+    assert.ok(!cardHtmlForSubunitCheck.includes('Ri’Locai'), 'Ri’Locai subunit should be hidden in card HTML');
+    assert.ok(cardHtmlForSubunitCheck.includes('Crisis Sunforge Shas’vre'), 'Crisis Sunforge Shas’vre subunit should be shown in card HTML');
+    console.log('✓ Subunits with 100% skippable wargear hiding tests passed');
+
     console.log('✓ GW App v11 rendering tests passed');
 }
 

@@ -1,7 +1,7 @@
 import factionColors from './faction_colors.js';
 import { makeAbbrevForName } from './abbreviations.js';
 import { maybeCombineUnits, getWarlordTag, abbreviateDetachment, abbreviateForceDisposition, abbreviateWords } from './renderers.js';
-import { getModelsCount, getCanonicalFactionName, normalizeKey } from './utils.js';
+import { getModelsCount, getCanonicalFactionName, normalizeKey, shouldHideSubunitsForUnit } from './utils.js';
 import factionEmblems from './faction_icons.js';
 
 function getContrastColor(hexColor) {
@@ -276,7 +276,8 @@ export function estimateCardWidth(data, options = {}) {
         parts.push(`E: ${getAbbrName(e.name)}`);
       });
     }
-    if (options.hideSubunits) {
+    const hideSubunitsForThisUnit = options.hideSubunits || shouldHideSubunitsForUnit(unit, showMode);
+    if (hideSubunitsForThisUnit) {
       const aggregated = new Map();
       if (Array.isArray(unit.wargear)) {
         unit.wargear.forEach(wg => {
@@ -377,7 +378,8 @@ export function estimateCardWidth(data, options = {}) {
       }
     }
 
-    if (!options.hideSubunits && Array.isArray(unit.subunits)) {
+    const hideSubunitsForThisUnit = options.hideSubunits || shouldHideSubunitsForUnit(unit, showMode);
+    if (!hideSubunitsForThisUnit && Array.isArray(unit.subunits)) {
       unit.subunits.forEach(sub => {
         const q = parseInt(sub.quantity || 1, 10);
         const prefix = q > 1 ? `${q}x ` : '';
@@ -522,7 +524,8 @@ export function generateCardHtml(data, options = {}) {
       });
     }
 
-    if (options.hideSubunits) {
+    const hideSubunitsForThisUnit = options.hideSubunits || shouldHideSubunitsForUnit(unit, showMode);
+    if (hideSubunitsForThisUnit) {
       const aggregated = new Map();
       if (Array.isArray(unit.wargear)) {
         unit.wargear.forEach(wg => {
@@ -631,6 +634,7 @@ export function generateCardHtml(data, options = {}) {
   let unitsHtml = '';
   
   const renderUnitCardHtml = (unit, isSubCard = false, labelPrefix = '') => {
+    const hideSubunitsForThisUnit = options.hideSubunits || shouldHideSubunitsForUnit(unit, showMode);
     const G = (unit.__groupCount !== undefined) ? unit.__groupCount : 1;
     const M = (unit.__unitSize !== undefined) ? unit.__unitSize : getModelsCount(unit);
     let qtyStr = '';
@@ -644,7 +648,7 @@ export function generateCardHtml(data, options = {}) {
 
     const showInlineDetails = !!options.useAbbreviations;
 
-    const subunitsBlock = (!options.hideSubunits && Array.isArray(unit.subunits) && unit.subunits.length > 0)
+    const subunitsBlock = (!hideSubunitsForThisUnit && Array.isArray(unit.subunits) && unit.subunits.length > 0)
       ? `
         <div style="
           display: flex;
