@@ -13,10 +13,11 @@ let skippableWargearMap = null;
 let wargearAbbrDB = null; // dynamic abbreviations built from parsed data
 let currentPreviewText = ''; // New global variable
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function init() {
     // Load skippable_wargear.json
     try {
-        const resp = await fetch('skippable_wargear.json');
+        const version = window.APP_VERSION || '';
+        const resp = await fetch('skippable_wargear.json' + (version ? `?v=${version}` : ''));
         skippableWargearMap = await resp.json();
         console.log('Loaded skippableWargearMap:', skippableWargearMap);
     } catch (e) {
@@ -154,7 +155,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     enableParseButton();
-});
+}
+
+if (document.readyState !== 'loading') {
+    init();
+} else {
+    document.addEventListener('DOMContentLoaded', init);
+}
+
 
 function updateFactionDiagnostic() {
     try {

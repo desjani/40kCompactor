@@ -501,6 +501,52 @@
             const metaPromise = fetch('./build_meta.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
             const headPromise = fetch('./index.html', { method: 'HEAD', cache: 'no-store' }).then(r => r.headers.get('last-modified')).catch(() => null);
 
+            // Dynamically load CSS and JS modules with cache busting based on build_meta.json
+            metaPromise.then(meta => {
+                const version = (meta && (meta.commitShort || meta.timestamp)) || 'dev-' + Date.now();
+                window.APP_VERSION = version;
+
+                // 1. Update stylesheet version
+                const stylesheet = document.querySelector('link[rel="stylesheet"][href^="styles.css"]');
+                if (stylesheet) {
+                    stylesheet.href = `styles.css?v=${version}`;
+                }
+
+                // 2. Inject import map for all modules to enforce version cache busting
+                const importMap = {
+                    imports: {
+                        "./modules/main.js": `./modules/main.js?v=${version}`,
+                        "./modules/parsers.js": `./modules/parsers.js?v=${version}`,
+                        "./modules/renderers.js": `./modules/renderers.js?v=${version}`,
+                        "./modules/abbreviations.js": `./modules/abbreviations.js?v=${version}`,
+                        "./modules/cardRenderer.js": `./modules/cardRenderer.js?v=${version}`,
+                        "./modules/ui.js": `./modules/ui.js?v=${version}`,
+                        "./modules/utils.js": `./modules/utils.js?v=${version}`,
+                        "./modules/faction_colors.js": `./modules/faction_colors.js?v=${version}`,
+                        "./modules/faction_icons.js": `./modules/faction_icons.js?v=${version}`,
+                        "./modules/family_map.js": `./modules/family_map.js?v=${version}`,
+                        "./modules/summary.js": `./modules/summary.js?v=${version}`,
+                        "./modules/parsers/v11_detector.js": `./modules/parsers/v11_detector.js?v=${version}`,
+                        "./modules/parsers/v11_parser.js": `./modules/parsers/v11_parser.js?v=${version}`,
+                        "./modules/parsers/gwapp_v11.js": `./modules/parsers/gwapp_v11.js?v=${version}`,
+                        "./modules/parsers/war_organ_parser.js": `./modules/parsers/war_organ_parser.js?v=${version}`,
+                        "./modules/parsers/nr_wtc_compact_parser.js": `./modules/parsers/nr_wtc_compact_parser.js?v=${version}`,
+                        "./modules/parsers/nr_wtc_parser.js": `./modules/parsers/nr_wtc_parser.js?v=${version}`,
+                        "./modules/parsers/nr_gw_parser.js": `./modules/parsers/nr_gw_parser.js?v=${version}`
+                    }
+                };
+
+                const imScript = document.createElement('script');
+                imScript.type = 'importmap';
+                imScript.textContent = JSON.stringify(importMap);
+                document.head.appendChild(imScript);
+
+                // 3. Dynamically import main.js
+                import(`./modules/main.js?v=${version}`).catch(err => {
+                    console.error('Failed to load main.js module:', err);
+                });
+            });
+
             Promise.all([metaPromise, headPromise]).then(([meta, lm]) => {
                 // Commit short from build_meta.json if available
                 if (meta && meta.commitShort) setCommit(meta.commitShort);
@@ -562,7 +608,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/ansi_up@5.2.1/ansi_up.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
-    <script type="module" src="./modules/main.js"></script>
     <script>
         // Collapse changelog entries after the first 3 and wire a toggle button
         (function () {
