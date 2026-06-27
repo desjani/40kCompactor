@@ -37,6 +37,11 @@ export function getAbbreviateHeaderState() {
     return abbreviateHeaderCheckbox ? abbreviateHeaderCheckbox.checked : false;
 }
 
+export function getAbbreviateUnitNamesState() {
+    const el = document.getElementById('abbreviateUnitNamesCheckbox');
+    return el ? el.checked : false;
+}
+
 export function getNoBulletsState() {
     const el = document.getElementById('noBulletsCheckbox');
     return el ? el.checked : false;
@@ -49,6 +54,11 @@ export function getCombineUnitsState() {
 
 export function getHidePointsState() {
     const el = document.getElementById('hidePointsCheckbox');
+    return el ? el.checked : false;
+}
+
+export function getHideBracketsState() {
+    const el = document.getElementById('hideBracketsCheckbox');
     return el ? el.checked : false;
 }
 
@@ -151,6 +161,11 @@ export function initializeUI(callbacks) {
             abbreviateHeaderCheckbox.addEventListener('change', callbacks.onAbbreviateHeaderChange);
         }
 
+        const abbreviateUnitNamesCheckbox = document.getElementById('abbreviateUnitNamesCheckbox');
+        if (abbreviateUnitNamesCheckbox) {
+            abbreviateUnitNamesCheckbox.addEventListener('change', callbacks.onAbbreviateUnitNamesChange);
+        }
+
         const combineUnitsCheckbox = document.getElementById('combineUnitsCheckbox');
         if (combineUnitsCheckbox) {
             const handler = (typeof callbacks.onCombineUnitsChange === 'function') ? callbacks.onCombineUnitsChange : callbacks.onHideSubunitsChange;
@@ -167,6 +182,11 @@ export function initializeUI(callbacks) {
         const hidePointsCheckbox = document.getElementById('hidePointsCheckbox');
         if (hidePointsCheckbox) {
             hidePointsCheckbox.addEventListener('change', callbacks.onHidePointsChange);
+        }
+
+        const hideBracketsCheckbox = document.getElementById('hideBracketsCheckbox');
+        if (hideBracketsCheckbox) {
+            hideBracketsCheckbox.addEventListener('change', callbacks.onHideBracketsChange);
         }
 
         const wargearShowModeSelect = document.getElementById('wargearShowModeSelect');

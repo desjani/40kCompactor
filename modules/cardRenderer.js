@@ -256,6 +256,19 @@ export function estimateCardWidth(data, options = {}) {
     return makeAbbrevForName(itemName);
   };
 
+  const getUnitAbbrName = (itemName) => {
+    if (!options.abbreviateUnitNames) return itemName;
+    if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
+      const nameLower = itemName.toLowerCase();
+      const val = options.wargearAbbrMap.__flat_abbr[nameLower];
+      if (val) {
+        if (typeof val === 'string') return val;
+        if (typeof val === 'object' && val.abbr) return val.abbr;
+      }
+    }
+    return makeAbbrevForName(itemName);
+  };
+
   const getUnitDetails = (unit) => {
     const parts = [];
     if (Array.isArray(unit.enhancements)) {
@@ -318,8 +331,9 @@ export function estimateCardWidth(data, options = {}) {
   };
 
   const processUnitLines = (unit, attachedIndex, isAttachedPart) => {
-    let nameLen = unit.name.length;
-    const wTag = getWarlordTag(unit);
+    const finalUnitName = getUnitAbbrName(unit.name);
+    let nameLen = finalUnitName.length;
+    const wTag = getWarlordTag(unit, options.hideBrackets);
     nameLen += wTag ? wTag.length + 1 : 0;
     
     const G = (unit.__groupCount !== undefined) ? unit.__groupCount : 1;
@@ -344,7 +358,7 @@ export function estimateCardWidth(data, options = {}) {
 
     const details = getUnitDetails(unit);
     const showInlineDetails = !!options.useAbbreviations;
-    const unitPointsStr = options.hidePoints ? '' : `[${unit.points} pts]`;
+    const unitPointsStr = options.hidePoints ? '' : (options.hideBrackets ? `${unit.points} pts` : `[${unit.points} pts]`);
 
     // Left side width: Unit Name (15px, bold)
     const nameWidth = nameLen * 8.2;
@@ -368,7 +382,8 @@ export function estimateCardWidth(data, options = {}) {
         const q = parseInt(sub.quantity || 1, 10);
         const prefix = q > 1 ? `${q}x ` : '';
         const bulletChar = options.noBullets ? '' : '• ';
-        const subNameText = `${bulletChar}${prefix}${sub.name}`;
+        const finalSubName = getUnitAbbrName(sub.name);
+        const subNameText = `${bulletChar}${prefix}${finalSubName}`;
         
         const subNameWidth = subNameText.length * 7.0;
 
@@ -461,6 +476,19 @@ export function generateCardHtml(data, options = {}) {
   
   const getAbbrName = (itemName) => {
     if (!options.useAbbreviations) return itemName;
+    if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
+      const nameLower = itemName.toLowerCase();
+      const val = options.wargearAbbrMap.__flat_abbr[nameLower];
+      if (val) {
+        if (typeof val === 'string') return val;
+        if (typeof val === 'object' && val.abbr) return val.abbr;
+      }
+    }
+    return makeAbbrevForName(itemName);
+  };
+
+  const getUnitAbbrName = (itemName) => {
+    if (!options.abbreviateUnitNames) return itemName;
     if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
       const nameLower = itemName.toLowerCase();
       const val = options.wargearAbbrMap.__flat_abbr[nameLower];
@@ -593,7 +621,7 @@ export function generateCardHtml(data, options = {}) {
         gap: 6px;
       ">
         <span style="color: ${colors.subunit || colors.textSecondary}; font-weight: 500;">
-          ${bulletChar}${prefix}${sub.name}
+          ${bulletChar}${prefix}${getUnitAbbrName(sub.name)}
         </span>
         ${badgesHtml}
       </div>
@@ -611,7 +639,7 @@ export function generateCardHtml(data, options = {}) {
     } else {
       qtyStr = M > 1 ? `${M} ` : '';
     }
-    const pointsStr = options.hidePoints ? '' : `[${unit.points} pts]`;
+    const pointsStr = options.hidePoints ? '' : (options.hideBrackets ? `${unit.points} pts` : `[${unit.points} pts]`);
     const details = renderUnitDetails(unit);
 
     const showInlineDetails = !!options.useAbbreviations;
@@ -647,7 +675,7 @@ export function generateCardHtml(data, options = {}) {
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
           <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: 1; margin-right: 12px; text-align: left;">
             <span style="font-size: 15px; font-weight: bold; color: ${colors.unit || colors.text};">
-              ${labelPrefix}${qtyStr}${unit.name}
+              ${labelPrefix}${qtyStr}${getUnitAbbrName(unit.name)}
             </span>
             ${(showInlineDetails && details.length > 0) ? details.map(det => `
               <span style="
@@ -705,14 +733,14 @@ export function generateCardHtml(data, options = {}) {
           box-sizing: border-box;
         ">
           ${unit.attachedParts.map((part, pIdx) => {
-            const wTag = getWarlordTag(part);
+            const wTag = getWarlordTag(part, options.hideBrackets);
             const labelPrefix = wTag ? `<span style="color: ${colors.attached || colors.secondary}; font-weight: bold; margin-right: 4px;">${wTag}</span>` : '';
             return renderUnitCardHtml(part, true, labelPrefix);
           }).join('')}
         </div>
       `;
     } else {
-      const wTag = getWarlordTag(unit);
+      const wTag = getWarlordTag(unit, options.hideBrackets);
       const labelPrefix = wTag ? `<span style="color: ${colors.attached || colors.secondary}; font-weight: bold; margin-right: 4px;">${wTag}</span>` : '';
       unitsHtml += renderUnitCardHtml(unit, false, labelPrefix);
     }

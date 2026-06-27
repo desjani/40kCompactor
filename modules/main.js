@@ -2,7 +2,7 @@ import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11, parseNRWTC
 import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth, copyCardImageToClipboard } from './cardRenderer.js';
-import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getMultilineHeaderState, getAbbreviateHeaderState, getWargearShowModeState, getCustomAbbrs, setCopyPreviewButtonText } from './ui.js';
+import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getHideBracketsState, getMultilineHeaderState, getAbbreviateHeaderState, getAbbreviateUnitNamesState, getWargearShowModeState, getCustomAbbrs, setCopyPreviewButtonText } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const combineUnits = getCombineUnitsState();
             const noBullets = getNoBulletsState();
             const hidePoints = getHidePointsState();
+            const hideBrackets = getHideBracketsState();
+            const abbreviateUnitNames = getAbbreviateUnitNamesState();
 
             if (selectedFormat === 'imageCodex' || selectedFormat === 'imageCodexAbbr') {
                 const colorMode = document.querySelector('input[name="colorMode"]:checked')?.value || 'none';
@@ -58,18 +60,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                     hideSubunits: hideSubunits,
                     wargearShowMode: getWargearShowModeState(),
                     hidePoints: hidePoints,
+                    hideBrackets: hideBrackets,
                     combineIdenticalUnits: combineUnits,
                     useAbbreviations: selectedFormat === 'imageCodexAbbr',
                     wargearAbbrMap: wargearAbbrDB,
                     noBullets: noBullets,
                     colorMode: colorMode,
                     colors: colors,
-                    abbreviateHeader: getAbbreviateHeaderState()
+                    abbreviateHeader: getAbbreviateHeaderState(),
+                    abbreviateUnitNames: abbreviateUnitNames
                 });
                 return;
             }
 
-            const opts = { forcePalette: true, multilineHeader: getMultilineHeaderState(), abbreviateHeader: getAbbreviateHeaderState(), wargearShowMode: getWargearShowModeState() };
+            const opts = { forcePalette: true, multilineHeader: getMultilineHeaderState(), abbreviateHeader: getAbbreviateHeaderState(), wargearShowMode: getWargearShowModeState(), abbreviateUnitNames: abbreviateUnitNames, hideBrackets: hideBrackets };
             let text = '';
             switch (selectedFormat) {
                 case 'discordCompact':
@@ -104,13 +108,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     hideSubunits: getHideSubunitsState(),
                     wargearShowMode: getWargearShowModeState(),
                     hidePoints: getHidePointsState(),
+                    hideBrackets: getHideBracketsState(),
                     combineIdenticalUnits: getCombineUnitsState(),
                     useAbbreviations: selectedFormat === 'imageCodexAbbr',
                     wargearAbbrMap: wargearAbbrDB,
                     noBullets: getNoBulletsState(),
                     colorMode: colorMode,
                     colors: colors,
-                    abbreviateHeader: getAbbreviateHeaderState()
+                    abbreviateHeader: getAbbreviateHeaderState(),
+                    abbreviateUnitNames: getAbbreviateUnitNamesState()
                 };
                 try {
                     const btn = document.getElementById('copyPreviewImageButton');
@@ -140,9 +146,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     onCombineUnitsChange: () => renderAllOutputsWithCurrentOptions(),
     onNoBulletsChange: () => renderAllOutputsWithCurrentOptions(),
     onHidePointsChange: () => renderAllOutputsWithCurrentOptions(),
+    onHideBracketsChange: () => renderAllOutputsWithCurrentOptions(),
         onMultilineHeaderChange: () => updatePreview(),
         onAbbreviateHeaderChange: () => renderAllOutputsWithCurrentOptions(),
-        onWargearShowModeChange: () => renderAllOutputsWithCurrentOptions()
+        onWargearShowModeChange: () => renderAllOutputsWithCurrentOptions(),
+        onAbbreviateUnitNamesChange: () => renderAllOutputsWithCurrentOptions()
     });
 
     enableParseButton();
@@ -249,9 +257,11 @@ async function updatePreview() {
     const combineUnits = getCombineUnitsState();
     const noBullets = getNoBulletsState();
     const hidePoints = getHidePointsState();
+    const hideBrackets = getHideBracketsState();
+    const abbreviateUnitNames = getAbbreviateUnitNamesState();
     console.log('UI: hideSubunits value in updatePreview', hideSubunits, 'selectedFormat', selectedFormat);
 
-    const opts = { multilineHeader: getMultilineHeaderState(), abbreviateHeader: getAbbreviateHeaderState(), wargearShowMode: getWargearShowModeState() };
+    const opts = { multilineHeader: getMultilineHeaderState(), abbreviateHeader: getAbbreviateHeaderState(), wargearShowMode: getWargearShowModeState(), abbreviateUnitNames: abbreviateUnitNames, hideBrackets: hideBrackets };
 
     if (selectedFormat === 'imageCodex' || selectedFormat === 'imageCodexAbbr') {
         setCopyPreviewButtonText('Download Image');
@@ -274,13 +284,15 @@ async function updatePreview() {
                 hideSubunits,
                 wargearShowMode: getWargearShowModeState(),
                 hidePoints,
+                hideBrackets,
                 combineIdenticalUnits: combineUnits,
                 useAbbreviations: selectedFormat === 'imageCodexAbbr',
                 wargearAbbrMap: wargearAbbrDB,
                 noBullets,
                 colorMode,
                 colors,
-                abbreviateHeader: getAbbreviateHeaderState()
+                abbreviateHeader: getAbbreviateHeaderState(),
+                abbreviateUnitNames: abbreviateUnitNames
             };
             const dataUrl = await generateCardPngDataUrl(parsedData, imageOpts);
             if (markdownPreviewOutput && (outputFormatSelect.value === 'imageCodex' || outputFormatSelect.value === 'imageCodexAbbr')) {
@@ -330,15 +342,16 @@ function renderAllOutputsWithCurrentOptions() {
     const combineUnits = getCombineUnitsState();
     const noBullets = getNoBulletsState();
     const hidePoints = getHidePointsState();
+    const hideBrackets = getHideBracketsState();
 
     // Full text (extended)
     // Important: Full Text must NOT be affected by toggles. Always show full structure.
-    const extendedOutput = generateOutput(parsedData, false, wargearAbbrDB, /*hideSubunits*/ false, skippableWargearMap, /*applyHeaderColor*/ false, /*combine*/ false, false, false, getAbbreviateHeaderState(), true);
+    const extendedOutput = generateOutput(parsedData, false, wargearAbbrDB, /*hideSubunits*/ false, skippableWargearMap, /*applyHeaderColor*/ false, /*combine*/ false, false, false, getAbbreviateHeaderState(), true, undefined, getAbbreviateUnitNamesState(), hideBrackets);
     setUnabbreviatedOutput(extendedOutput.html);
     extendedPlainText = extendedOutput.plainText;
 
     // Compact HTML
-    const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true, combineUnits, noBullets, hidePoints, getAbbreviateHeaderState(), false, getWargearShowModeState());
+    const compactOutput = generateOutput(parsedData, true, wargearAbbrDB, hideSubunits, skippableWargearMap, true, combineUnits, noBullets, hidePoints, getAbbreviateHeaderState(), false, getWargearShowModeState(), getAbbreviateUnitNamesState(), hideBrackets);
     setCompactedOutput(compactOutput.html);
     compactPlainText = compactOutput.plainText;
 

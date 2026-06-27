@@ -35,6 +35,7 @@ Options:
   --multiline-header       Use multiline header
   --no-bullets             Disable bullet points
   --hide-points            Hide points costs
+  --hide-brackets          Hide brackets and parentheses
   --wargear-mode <mode>    Wargear visibility: show-all, hide-mandatory (default), hide-all
   --show-mandatory-wargear (Deprecated) Shortcut for --wargear-mode show-all
   --color-mode <mode>      Color mode: none, faction (default), custom
@@ -60,6 +61,7 @@ async function main() {
         multilineHeader: false,
         noBullets: false,
         hidePoints: false,
+        hideBrackets: false,
         wargearShowMode: 'hide-mandatory',
         colorMode: 'faction',
         colors: {},
@@ -85,6 +87,8 @@ async function main() {
             options.noBullets = true;
         } else if (arg === '--hide-points') {
             options.hidePoints = true;
+        } else if (arg === '--hide-brackets') {
+            options.hideBrackets = true;
         } else if (arg === '--wargear-mode') {
             options.wargearShowMode = args[++i];
         } else if (arg === '--show-mandatory-wargear') {
@@ -203,7 +207,8 @@ async function main() {
         multilineHeader: options.multilineHeader,
         colors: options.colors,
         wargearShowMode: options.wargearShowMode,
-        forcePalette: true
+        forcePalette: true,
+        hideBrackets: options.hideBrackets
     };
 
     let output = '';

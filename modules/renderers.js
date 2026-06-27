@@ -172,7 +172,7 @@ function findAbbreviationForItem(itemName, wargearAbbrMap, dataSummary) {
     return null;
 }
 
-function getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, dataSummary, skippableWargearMap, showMandatoryWargear = false, hideSubunits = false, wargearShowMode = undefined) {
+function getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, dataSummary, skippableWargearMap, showMandatoryWargear = false, hideSubunits = false, wargearShowMode = undefined, hideBrackets = false) {
     const specials = [];
     const wargear = [];
 
@@ -186,7 +186,7 @@ function getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, dataSummar
                 abbr = findAbbreviationForItem(enh.name, wargearAbbrMap, dataSummary);
                 if (!abbr) abbr = makeAbbrevForName(enh.name);
             }
-            const pts = enh.points ? ` (+${enh.points})` : '';
+            const pts = enh.points ? (hideBrackets ? ` +${enh.points}` : ` (+${enh.points})`) : '';
             specials.push(`E: ${abbr || enh.name}${pts}`);
         });
     }
@@ -211,7 +211,7 @@ function getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, dataSummar
     });
 
     const all = [...specials, ...wargear].filter(Boolean);
-    return all.length ? ` (${all.join(', ')})` : '';
+    return all.length ? (hideBrackets ? ` ${all.join(', ')}` : ` (${all.join(', ')})`) : '';
 }
 
 function findSkippableForUnit(skippableWargearMap, dataSummary, unitName) {
@@ -326,7 +326,7 @@ export function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
     return combined;
 }
 
-export function getRoleTag(part, index) {
+export function getRoleTag(part, index, hideBrackets = false) {
     if (!part) return '';
     const roleLower = (part.role || '').toLowerCase();
     const attachedLower = (part.attachedAs || '').toLowerCase();
@@ -336,17 +336,17 @@ export function getRoleTag(part, index) {
     const isBodyguard = (str) => /bodyguard|gardes?\s+du\s+corps|escolta|leibwaechter|leibwächter|guardia\s+del\s+corpo/i.test(str);
     const isSupport = (str) => /support/i.test(str);
 
-    if (isLeader(roleLower) || isLeader(attachedLower)) return `[L${suffix}]`;
-    if (isSupport(roleLower) || isSupport(attachedLower)) return `[S${suffix}]`;
-    if (isBodyguard(roleLower) || isBodyguard(attachedLower)) return `[B${suffix}]`;
+    if (isLeader(roleLower) || isLeader(attachedLower)) return hideBrackets ? `L${suffix}` : `[L${suffix}]`;
+    if (isSupport(roleLower) || isSupport(attachedLower)) return hideBrackets ? `S${suffix}` : `[S${suffix}]`;
+    if (isBodyguard(roleLower) || isBodyguard(attachedLower)) return hideBrackets ? `B${suffix}` : `[B${suffix}]`;
     return '';
 }
 
-export function getWarlordTag(unit) {
-    return unit && unit.isWarlord ? '[W]' : '';
+export function getWarlordTag(unit, hideBrackets = false) {
+    return unit && unit.isWarlord ? (hideBrackets ? 'W' : '[W]') : '';
 }
 
-export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap, applyHeaderColor = true, combineIdenticalUnits = false, noBullets = false, hidePoints = false, abbreviateHeader = false, showMandatoryWargear = false, wargearShowMode = undefined) {
+export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubunits, skippableWargearMap, applyHeaderColor = true, combineIdenticalUnits = false, noBullets = false, hidePoints = false, abbreviateHeader = false, showMandatoryWargear = false, wargearShowMode = undefined, abbreviateUnitNames = false, hideBrackets = false) {
     let html = '', plainText = '';
     const showMode = wargearShowMode || (showMandatoryWargear ? 'show-all' : 'hide-mandatory');
     const summary = data.metadata || {};
@@ -428,7 +428,7 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
     const rawUnits = Array.isArray(data.units) ? data.units : [];
     const units = maybeCombineUnits(rawUnits, hideSubunits, combineIdenticalUnits);
 
-    const renderUnit = (unit) => {
+    const renderUnit = (unit, prefix = '') => {
         let outHtml = '', outPlain = '';
         const G = (unit.__groupCount !== undefined) ? unit.__groupCount : 1;
         const M = (unit.__unitSize !== undefined) ? unit.__unitSize : getModelsCount(unit);
@@ -442,9 +442,10 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
         const categorySuffix = '';
 
         if (useAbbreviations) {
-            const itemsString = getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, summary, skippableWargearMap, showMandatoryWargear, hideSubunits, showMode);
-            const pointsString = hidePoints ? '' : ` [${unit.points}]`;
-            const unitText = `${qtyDisplay}${unit.name}${categorySuffix}${itemsString}${pointsString}`;
+            const itemsString = getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, summary, skippableWargearMap, showMandatoryWargear, hideSubunits, showMode, hideBrackets);
+            const pointsString = hidePoints ? '' : (hideBrackets ? ` ${unit.points}` : ` [${unit.points}]`);
+            const finalUnitName = abbreviateUnitNames ? (findAbbreviationForItem(unit.name, wargearAbbrMap, summary) || makeAbbrevForName(unit.name)) : unit.name;
+            const unitText = `${prefix}${qtyDisplay}${finalUnitName}${categorySuffix}${itemsString}${pointsString}`;
             outHtml += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p>`;
             outPlain += `${UNIT_BULLET}${unitText}\n`;
 
@@ -470,11 +471,12 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                             if (!abbr) abbr = makeAbbrevForName(wg.name);
                             return `${qtyStr}${abbr || wg.name}`;
                         });
-                        subItemsText = ` (${subItemsArr.join(', ')})`;
+                        subItemsText = hideBrackets ? ` ${subItemsArr.join(', ')}` : ` (${subItemsArr.join(', ')})`;
                     }
                     
-                    outHtml += `<p style="font-weight:500;color:var(--color-text-primary);margin:0;">${subQtyDisplay}${sub.name}${subItemsText}</p>`;
-                    outPlain += `  * ${subQtyDisplay}${sub.name}${subItemsText}\n`;
+                    const finalSubName = abbreviateUnitNames ? (findAbbreviationForItem(sub.name, wargearAbbrMap, summary) || makeAbbrevForName(sub.name)) : sub.name;
+                    outHtml += `<p style="font-weight:500;color:var(--color-text-primary);margin:0;">${subQtyDisplay}${finalSubName}${subItemsText}</p>`;
+                    outPlain += `  * ${subQtyDisplay}${finalSubName}${subItemsText}\n`;
                 });
                 outHtml += `</div>`;
             }
@@ -482,8 +484,9 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
             return { html: outHtml, plainText: outPlain };
         }
 
-        const pointsString = hidePoints ? '' : ` [${unit.points}]`;
-        const unitText = `${qtyDisplay}${unit.name}${categorySuffix}${pointsString}`;
+        const pointsString = hidePoints ? '' : (hideBrackets ? ` ${unit.points}` : ` [${unit.points}]`);
+        const finalUnitName = (useAbbreviations && abbreviateUnitNames) ? (findAbbreviationForItem(unit.name, wargearAbbrMap, summary) || makeAbbrevForName(unit.name)) : unit.name;
+        const unitText = `${prefix}${qtyDisplay}${finalUnitName}${categorySuffix}${pointsString}`;
         outHtml += `<div><p style="color:var(--color-text-primary);font-weight:600;font-size:0.875rem;margin-bottom:0.25rem;">${unitText}</p>`;
         outPlain += `${UNIT_BULLET}${unitText}\n`;
 
@@ -546,8 +549,9 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
                         return !wg.skippable;
                     });
                     
-                    outHtml += `<p style="font-weight:500;color:var(--color-text-primary);margin:0;">${qtyStr}${sub.name}</p>`;
-                    outPlain += `  * ${qtyStr}${sub.name}\n`;
+                    const finalSubName = (useAbbreviations && abbreviateUnitNames) ? (findAbbreviationForItem(sub.name, wargearAbbrMap, summary) || makeAbbrevForName(sub.name)) : sub.name;
+                    outHtml += `<p style="font-weight:500;color:var(--color-text-primary);margin:0;">${qtyStr}${finalSubName}</p>`;
+                    outPlain += `  * ${qtyStr}${finalSubName}\n`;
 
                     visibleWargear.forEach(wg => {
                         const wgQty = parseInt(wg.quantity || 1, 10);
@@ -568,23 +572,18 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
         if (unit.isAttached) {
             attachedIndex++;
             unit.attachedParts.forEach(part => {
-                const tag = getRoleTag(part, attachedIndex);
-                const wTag = getWarlordTag(part);
+                const tag = getRoleTag(part, attachedIndex, hideBrackets);
+                const wTag = getWarlordTag(part, hideBrackets);
                 const tags = [tag, wTag].filter(Boolean).join('');
                 const prefix = tags ? `${tags} ` : '';
-                const tempUnit = {
-                    ...part,
-                    name: `${prefix}${part.name}`
-                };
-                const rendered = renderUnit(tempUnit);
+                const rendered = renderUnit(part, prefix);
                 html += rendered.html;
                 plainText += rendered.plainText;
             });
         } else {
-            const wTag = getWarlordTag(unit);
+            const wTag = getWarlordTag(unit, hideBrackets);
             const prefix = wTag ? `${wTag} ` : '';
-            const tempUnit = wTag ? { ...unit, name: `${prefix}${unit.name}` } : unit;
-            const rendered = renderUnit(tempUnit);
+            const rendered = renderUnit(unit, prefix);
             html += rendered.html;
             plainText += rendered.plainText;
         }
@@ -602,6 +601,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
     const defaultColors = { unit: '#FFFFFF', subunit: '#808080', wargear: '#FFFFFF', points: '#FFFF00', header: '#FFFF00', attached: '#FFFF00' };
     const colors = { ...defaultColors };
     const summary = data.metadata || {};
+    const hideBrackets = !!(options && options.hideBrackets);
 
     if (!plain) {
         const mode = (options && options.colorMode) || (hasDOM ? ((document.querySelector('input[name="colorMode"]:checked') || {}).value || 'none') : 'none');
@@ -743,12 +743,15 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
 
         const categorySuffix = '';
 
-        const itemsString = getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, summary, skippableWargearMap, showMandatoryWargear, hideSubunits, showMode);
+        const itemsString = getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, summary, skippableWargearMap, showMandatoryWargear, hideSubunits, showMode, hideBrackets);
 
-        const unitNameText = useColor ? toAnsi(unit.name, colors.unit, true) : unit.name;
+        const abbreviateUnitNames = !!(options && options.abbreviateUnitNames);
+        const finalUnitName = (useAbbreviations && abbreviateUnitNames) ? (findAbbreviationForItem(unit.name, wargearAbbrMap, summary) || makeAbbrevForName(unit.name)) : unit.name;
+
+        const unitNameText = useColor ? toAnsi(finalUnitName, colors.unit, true) : finalUnitName;
         const unitText = `${prefixText}${qtyDisplay}${unitNameText}${categorySuffix}`;
         const itemsText = (useColor && itemsString) ? toAnsi(itemsString, colors.wargear, false) : itemsString;
-        const pointsRaw = `[${unit.points}]`;
+        const pointsRaw = hideBrackets ? `${unit.points}` : `[${unit.points}]`;
         const pointsText = useColor ? toAnsi(pointsRaw, colors.points, true) : pointsRaw;
 
         let line = `${UNIT_BULLET}${unitText}${itemsText}`;
@@ -761,7 +764,8 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
             unit.subunits.forEach(sub => {
                 const subQty = parseInt((sub.quantity || '1').toString().replace('x', ''), 10) || 1;
                 const subQtyDisplay = subQty > 1 ? `${subQty} ` : '';
-                const subRaw = `${subQtyDisplay}${sub.name}`;
+                const finalSubName = (useAbbreviations && abbreviateUnitNames) ? (findAbbreviationForItem(sub.name, wargearAbbrMap, summary) || makeAbbrevForName(sub.name)) : sub.name;
+                const subRaw = `${subQtyDisplay}${finalSubName}`;
                 const subName = useColor ? toAnsi(subRaw, colors.subunit, false) : subRaw;
 
                 const filteredItems = (sub.wargear || []).filter(wg => {
@@ -786,7 +790,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
                     }
                     return `${qtyStr}${abbr || wg.name}`;
                 });
-                const subItems = ` (${subItemsArr.join(', ')})`;
+                const subItems = hideBrackets ? ` ${subItemsArr.join(', ')}` : ` (${subItemsArr.join(', ')})`;
                 const subItemsText = (useColor && subItems) ? toAnsi(subItems, colors.wargear, false) : subItems;
                 out += `${SUB_BULLET}${subName}${subItemsText}\n`;
             });
@@ -798,8 +802,8 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
         if (unit.isAttached) {
             attachedIndex++;
             unit.attachedParts.forEach(part => {
-                const tag = getRoleTag(part, attachedIndex);
-                const wTag = getWarlordTag(part);
+                const tag = getRoleTag(part, attachedIndex, hideBrackets);
+                const wTag = getWarlordTag(part, hideBrackets);
                 const tagText = useColor ? toAnsi(tag, colors.attached, true) : tag;
                 const wTagText = useColor && wTag ? toAnsi(wTag, colors.attached, true) : wTag;
                 const parts = [tagText, wTagText].filter(Boolean);
@@ -807,7 +811,7 @@ export function generateDiscordText(data, plain, useAbbreviations = true, wargea
                 renderDiscordUnit(part, prefixText);
             });
         } else {
-            const wTag = getWarlordTag(unit);
+            const wTag = getWarlordTag(unit, hideBrackets);
             const wTagText = useColor && wTag ? toAnsi(wTag, colors.attached, true) : wTag;
             const prefixText = wTag ? `${wTagText} ` : '';
             renderDiscordUnit(unit, prefixText);

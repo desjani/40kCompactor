@@ -38,10 +38,17 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
     // Build a flat map: lowercased full item name -> abbreviation string
     const flat = Object.create(null);
 
-    // Keep a reverse map of used abbreviations -> canonical info so we can
-    // detect collisions and expand later items per the requested rule.
-    // Structure: used[abbr] = { name: canonicalName, keys: [k1,k2], priority }
-    const used = Object.create(null);
+    // Keep namespace-specific used and collision maps.
+    // Namespaces: 'unit' (units/subunits) and 'wargear' (wargear/specials)
+    const used = {
+        unit: Object.create(null),
+        wargear: Object.create(null)
+    };
+
+    const collisionGroups = {
+        unit: Object.create(null),
+        wargear: Object.create(null)
+    };
 
     // 1. Load Custom Abbreviations (Priority 999)
     if (customAbbrs) {
@@ -52,16 +59,18 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
             
             // If multiple custom rules map to the same abbr, the last one wins in 'used' map,
             // but 'flat' map will hold all of them.
-            // We treat custom rules as "locked".
-            if (!used[abbr]) {
-                used[abbr] = { name: name, keys: [lowerName], priority: 999 };
-            } else {
-                // If collision with another custom rule, just append key
-                if (used[abbr].priority === 999) {
-                    used[abbr].keys.push(lowerName);
+            // We treat custom rules as "locked" in both namespaces.
+            for (const ns of ['unit', 'wargear']) {
+                if (!used[ns][abbr]) {
+                    used[ns][abbr] = { name: name, keys: [lowerName], priority: 999 };
                 } else {
-                    // Should not happen if we process custom first, but just in case
-                    used[abbr] = { name: name, keys: [lowerName], priority: 999 };
+                    // If collision with another custom rule, just append key
+                    if (used[ns][abbr].priority === 999) {
+                        used[ns][abbr].keys.push(lowerName);
+                    } else {
+                        // Should not happen if we process custom first, but just in case
+                        used[ns][abbr] = { name: name, keys: [lowerName], priority: 999 };
+                    }
                 }
             }
         }
@@ -76,13 +85,18 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
         return 1;
     };
 
-    const makeUniqueCandidate = (base, canonicalName) => {
+    const getNamespace = (type) => {
+        if (type === 'unit' || type === 'subunit') return 'unit';
+        return 'wargear';
+    };
+
+    const makeUniqueCandidate = (base, canonicalName, ns) => {
         const first = (canonicalName || '').replace(/\(.*?\)/g, '').replace(/[\-]/g, ' ').trim().split(/\s+/)[0] || '';
         let i = 1;
         while (true) {
             const extra = (first.length > 1) ? first.slice(1, 1 + i).toLowerCase() : String(i);
             const candidate = base + extra;
-            if (!used[candidate]) return candidate;
+            if (!used[ns][candidate]) return candidate;
             i++;
             if (i > 100) return base + String(Date.now()).slice(-4);
         }
@@ -111,24 +125,22 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
         return tokens.join('');
     };
 
-    // Track collision groups by base abbreviation.
-    // Each member keeps its own step for iterative expansion (one letter per word per cycle).
-    const collisionGroups = Object.create(null); // base -> { members: Array<{ name, keys, priority, abbr, step }> }
-
     const reassignFlatKeys = (keys, newAbbr) => {
         (keys || []).forEach(k => { flat[k] = newAbbr; });
     };
 
     // Resolve a collision group by iteratively expanding only conflicting members
     // one letter per word per iteration until all become unique and don't clash with external 'used'.
-    const resolveGroup = (base) => {
-        const grp = collisionGroups[base];
+    const resolveGroup = (base, ns) => {
+        const grp = collisionGroups[ns][base];
         if (!grp) return;
 
         // Initialize steps/abbrs if missing
         for (const m of grp.members) {
             if (typeof m.step !== 'number') m.step = 0;
         }
+
+        const nsUsed = used[ns];
 
         const maxIterations = 100; // safety guard
         let iter = 0;
@@ -147,7 +159,7 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
             for (const m of grp.members) {
                 const ab = m.nextAbbr;
                 const internalConflict = (abbrMap.get(ab) || []).length > 1;
-                const external = used[ab];
+                const external = nsUsed[ab];
                 // If external exists and is high priority (custom), we must conflict
                 const externalIsCustom = external && external.priority === 999;
                 const externalConflict = !!(external && (!external.keys || !m.keys || external.keys.some(k => !(m.keys||[]).includes(k))));
@@ -162,9 +174,9 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
                 // Commit: update used and flat for all members
                 for (const m of grp.members) {
                     const ab = m.nextAbbr;
-                    if (m.abbr && m.abbr !== ab && used[m.abbr]) delete used[m.abbr];
+                    if (m.abbr && m.abbr !== ab && nsUsed[m.abbr]) delete nsUsed[m.abbr];
                     reassignFlatKeys(m.keys, ab);
-                    used[ab] = { name: m.name, keys: m.keys, priority: m.priority };
+                    nsUsed[ab] = { name: m.name, keys: m.keys, priority: m.priority };
                     m.abbr = ab;
                 }
                 // Clean temp fields
@@ -188,34 +200,35 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
             } else {
                 abbrCount[ab] = 1;
             }
-            if (m.abbr && m.abbr !== ab && used[m.abbr]) delete used[m.abbr];
+            if (m.abbr && m.abbr !== ab && nsUsed[m.abbr]) delete nsUsed[m.abbr];
             reassignFlatKeys(m.keys, ab);
-            used[ab] = { name: m.name, keys: m.keys, priority: m.priority };
+            nsUsed[ab] = { name: m.name, keys: m.keys, priority: m.priority };
             m.abbr = ab;
         }
         grp.members.forEach(m => { delete m.nextAbbr; delete m._conflict; });
     };
 
-    const registerInGroup = (name, key, priority, base) => {
-        let grp = collisionGroups[base];
+    const registerInGroup = (name, key, priority, base, ns) => {
+        let grp = collisionGroups[ns][base];
+        const nsUsed = used[ns];
         if (!grp) {
-            const existing = used[base];
+            const existing = nsUsed[base];
             if (!existing) return null; // should not happen
-            grp = collisionGroups[base] = { members: [
+            grp = collisionGroups[ns][base] = { members: [
                 { name: existing.name, keys: existing.keys || [], priority: existing.priority || 1, abbr: base, step: 0 },
                 { name, keys: [key], priority, abbr: base, step: 0 }
             ] };
             // Remove the simplistic base entry; will be re-assigned after resolution
-            delete used[base];
-            resolveGroup(base);
+            delete nsUsed[base];
+            resolveGroup(base, ns);
             // return abbr for the new member
             const last = grp.members[1];
             return last.abbr;
         }
-    // Add to existing group; reset steps so the entire set resolves fairly from the same baseline
-    grp.members.forEach(m => { m.step = 0; });
-    grp.members.push({ name, keys: [key], priority, abbr: '', step: 0 });
-        resolveGroup(base);
+        // Add to existing group; reset steps so the entire set resolves fairly from the same baseline
+        grp.members.forEach(m => { m.step = 0; });
+        grp.members.push({ name, keys: [key], priority, abbr: '', step: 0 });
+        resolveGroup(base, ns);
         const me = grp.members[grp.members.length - 1];
         return me.abbr;
     };
@@ -240,24 +253,55 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
             return;
         }
 
+        const ns = getNamespace(type);
         const base = makeBaseAbbreviation(name);
         if (base && base.toUpperCase() !== 'NULL') {
             const priority = getPriority({ type });
-            if (used[base]) {
-                const assigned = registerInGroup(name, key, priority, base);
+            const nsUsed = used[ns];
+            const nsCollisionGroups = collisionGroups[ns];
+            if (nsUsed[base]) {
+                const assigned = registerInGroup(name, key, priority, base, ns);
                 if (assigned) flat[key] = assigned;
-            } else if (collisionGroups[base]) {
-                const assigned = registerInGroup(name, key, priority, base);
+            } else if (nsCollisionGroups[base]) {
+                const assigned = registerInGroup(name, key, priority, base, ns);
                 if (assigned) flat[key] = assigned;
             } else {
                 flat[key] = base;
-                used[base] = { name, keys: [key], priority };
+                nsUsed[base] = { name, keys: [key], priority };
             }
         }
     };
 
     if (Array.isArray(parsedData.units)) {
         for (const unit of parsedData.units) {
+            if (unit.isAttached && Array.isArray(unit.attachedParts)) {
+                for (const part of unit.attachedParts) {
+                    processItem(part.name, 'unit');
+                    if (Array.isArray(part.wargear)) {
+                        for (const wg of part.wargear) {
+                            processItem(wg.name, 'wargear');
+                        }
+                    }
+                    if (Array.isArray(part.enhancements)) {
+                        for (const enh of part.enhancements) {
+                            processItem(enh.name, 'special');
+                        }
+                    }
+                    if (Array.isArray(part.subunits)) {
+                        for (const sub of part.subunits) {
+                            processItem(sub.name, 'subunit');
+                            if (Array.isArray(sub.wargear)) {
+                                for (const wg of sub.wargear) {
+                                    processItem(wg.name, 'wargear');
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                processItem(unit.name, 'unit');
+            }
+
             if (Array.isArray(unit.wargear)) {
                 for (const wg of unit.wargear) {
                     processItem(wg.name, 'wargear');

@@ -149,25 +149,25 @@ function runGwAppTests() {
     assert.ok(htmlOut.html.includes('Commander Farsight'), 'HTML output should contain Farsight');
     assert.ok(htmlOut.plainText.includes('Commander Farsight'), 'PlainText output should contain Farsight');
     assert.ok(htmlOut.plainText.includes('[L1][W] Commander Farsight [80]'), 'Should render Leader+Warlord part of attached unit without mandatory wargear');
-    assert.ok(htmlOut.plainText.includes('[B1] Crisis Sunforge Battlesuits [125]'), 'Should render Bodyguard part of attached unit without inline wargear');
+    assert.ok(htmlOut.plainText.includes('[B1] 3 Crisis Sunforge Battlesuits [125]'), 'Should render Bodyguard part of attached unit without inline wargear');
     assert.ok(htmlOut.plainText.includes('* Crisis Sunforge Shas’vre (MD, SD)'), 'Should render subunit 1 inline wargear');
     assert.ok(htmlOut.plainText.includes('* 2 Crisis Sunforge Shas’ui (2x GD, 2x SD)'), 'Should render subunit 2 inline wargear');
 
     // Verify compact attached units format when showMandatoryWargear = true, hideSubunits = false
     const htmlOutWithMandatory = generateOutput(parsedTau, true, abbrIndex, false, {}, false, false, false, false, false, true);
     assert.ok(htmlOutWithMandatory.plainText.includes('[L1][W] Commander Farsight (DB, HIPR) [80]'), 'Should render Leader+Warlord part with mandatory wargear');
-    assert.ok(htmlOutWithMandatory.plainText.includes('[B1] Crisis Sunforge Battlesuits [125]'), 'Should render Bodyguard part without inline wargear');
+    assert.ok(htmlOutWithMandatory.plainText.includes('[B1] 3 Crisis Sunforge Battlesuits [125]'), 'Should render Bodyguard part without inline wargear');
     assert.ok(htmlOutWithMandatory.plainText.includes('* Crisis Sunforge Shas’vre (BF, 2x FB, MD, SD)'), 'Should render subunit 1 inline wargear with mandatory');
     assert.ok(htmlOutWithMandatory.plainText.includes('* 2 Crisis Sunforge Shas’ui (2x BF, 4x FB, 2x GD, 2x SD)'), 'Should render subunit 2 inline wargear with mandatory');
 
     // Verify compact attached units format when hideSubunits = true, showMandatoryWargear = false
     const htmlOutHiddenSubunits = generateOutput(parsedTau, true, abbrIndex, true, {}, false, false, false, false, false, false);
-    assert.ok(htmlOutHiddenSubunits.plainText.includes('[B1] Crisis Sunforge Battlesuits (3x SD, 2x GD, MD) [125]'), 'Should roll up wargear to unit level and not double-multiply quantities');
+    assert.ok(htmlOutHiddenSubunits.plainText.includes('[B1] 3 Crisis Sunforge Battlesuits (3x SD, 2x GD, MD) [125]'), 'Should roll up wargear to unit level and not double-multiply quantities');
     assert.ok(!htmlOutHiddenSubunits.plainText.includes('Crisis Sunforge Shas’vre'), 'Should not show subunit lines');
 
     // Verify compact attached units format when hideSubunits = true, showMandatoryWargear = true
     const htmlOutHiddenSubunitsWithMandatory = generateOutput(parsedTau, true, abbrIndex, true, {}, false, false, false, false, false, true);
-    assert.ok(htmlOutHiddenSubunitsWithMandatory.plainText.includes('[B1] Crisis Sunforge Battlesuits (6x FB, 3x BF, 3x SD, 2x GD, MD) [125]'), 'Should roll up all wargear including mandatory to unit level');
+    assert.ok(htmlOutHiddenSubunitsWithMandatory.plainText.includes('[B1] 3 Crisis Sunforge Battlesuits (6x FB, 3x BF, 3x SD, 2x GD, MD) [125]'), 'Should roll up all wargear including mandatory to unit level');
 
     // Verify compact attached units format when hideSubunits = false, wargearShowMode = 'hide-all'
     const htmlOutHideAllWargear = generateOutput(parsedTau, true, abbrIndex, false, {}, false, false, false, false, false, false, 'hide-all');
@@ -178,13 +178,26 @@ function runGwAppTests() {
     // Verify extended attached units format (always showing all wargear by passing true as the 11th param)
     const fullOut = generateOutput(parsedTau, false, abbrIndex, false, {}, false, false, false, false, false, true);
     assert.ok(fullOut.plainText.includes('[L1][W] Commander Farsight [80]'), 'Extended should render Leader+Warlord prefix');
-    assert.ok(fullOut.plainText.includes('[B1] Crisis Sunforge Battlesuits [125]'), 'Extended should render Bodyguard prefix');
+    assert.ok(fullOut.plainText.includes('[B1] 3 Crisis Sunforge Battlesuits [125]'), 'Extended should render Bodyguard prefix');
 
     // Verify abbreviateHeader option
     const abbrHeaderOut = generateOutput(parsedTau, true, abbrIndex, false, {}, false, false, false, false, true, false);
     assert.ok(abbrHeaderOut.plainText.includes('AAC & RC'), 'Header detachments should be abbreviated to AAC & RC');
     assert.ok(abbrHeaderOut.plainText.includes('PtF'), 'Header force dispositions should be abbreviated to PtF');
     console.log('✓ GW App v11 header abbreviation option passed');
+
+    // Verify abbreviateUnitNames option
+    const abbrUnitNamesOut = generateOutput(parsedTau, true, abbrIndex, false, {}, false, false, false, false, false, false, undefined, true);
+    assert.ok(abbrUnitNamesOut.plainText.includes('CF'), 'Commander Farsight should be abbreviated to CF');
+    assert.ok(abbrUnitNamesOut.plainText.includes('CrSuBa'), 'Crisis Sunforge Battlesuits should be abbreviated to CrSuBa');
+    console.log('✓ GW App v11 unit and subunit abbreviation option passed');
+
+    // Verify hideBrackets option
+    const hideBracketsOut = generateOutput(parsedTau, true, abbrIndex, false, {}, false, false, false, false, false, false, undefined, false, true);
+    assert.ok(hideBracketsOut.plainText.includes('L1W Commander Farsight 80'), 'Should hide brackets and parentheses for leader, warlord, and points');
+    assert.ok(hideBracketsOut.plainText.includes('Crisis Sunforge Shas’vre MD, SD'), 'Should hide parentheses around subunit wargear');
+    console.log('✓ GW App v11 hide brackets and parentheses option passed');
+
 
     // 5. Discord Text Colors Test
     console.log('Testing Discord ANSI color output...');
@@ -197,6 +210,12 @@ function runGwAppTests() {
     });
     assert.ok(customColorsOut.includes('1;32m[L1]'), 'Should color Farsight attached tag with custom attached color (green = 32)');
     console.log('✓ Discord ANSI color output tests passed');
+
+    // Verify generateDiscordText with hideBrackets
+    const discordHideBrackets = generateDiscordText(parsedTau, false, true, abbrIndex, false, {}, false, { hideBrackets: true });
+    assert.ok(discordHideBrackets.includes('L1W Commander Farsight'), 'Should format leader/warlord without brackets in discord preview');
+    assert.ok(!discordHideBrackets.includes('[L1]'), 'Should not contain [L1] when hideBrackets is true');
+    console.log('✓ Discord ANSI output with hideBrackets tests passed');
 
     // 6. Unit Combining Tests (both normal and attached)
     console.log('Testing Unit Combining option (including attached units)...');

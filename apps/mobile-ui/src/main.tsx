@@ -42,6 +42,8 @@ function App() {
   const [abbrHeader, setAbbrHeader] = useLocalStorage('abbrHeader', false)
   const [noBullets, setNoBullets] = useLocalStorage('noBullets', false)
   const [hidePoints, setHidePoints] = useLocalStorage('hidePoints', false)
+  const [hideBrackets, setHideBrackets] = useLocalStorage('hideBrackets', false)
+  const [abbrUnitNames, setAbbrUnitNames] = useLocalStorage('abbrUnitNames', false)
   const [wargearMode, setWargearMode] = useLocalStorage<'show-all'|'hide-mandatory'|'hide-all'>('wargearMode', (() => {
     try {
       const legacy = localStorage.getItem('showMandatory');
@@ -83,13 +85,13 @@ function App() {
 
   const fullText = useMemo(() => {
     if (!parsed || !abbr) return ''
-    return generateOutput(parsed, false, abbr, false, skippable as any, false, false, false, false, abbrHeader, true).plainText
-  }, [parsed, abbr, abbrHeader])
+    return generateOutput(parsed, false, abbr, false, skippable as any, false, false, false, false, abbrHeader, true, undefined, abbrUnitNames, hideBrackets).plainText
+  }, [parsed, abbr, abbrHeader, abbrUnitNames, hideBrackets])
 
   const compactText = useMemo(() => {
     if (!parsed || !abbr) return ''
-    return generateOutput(parsed, true, abbr, !showSubunits, skippable as any, true, combine, noBullets, hidePoints, abbrHeader, false, wargearMode).plainText
-  }, [parsed, abbr, showSubunits, combine, noBullets, hidePoints, abbrHeader, wargearMode])
+    return generateOutput(parsed, true, abbr, !showSubunits, skippable as any, true, combine, noBullets, hidePoints, abbrHeader, false, wargearMode, abbrUnitNames, hideBrackets).plainText
+  }, [parsed, abbr, showSubunits, combine, noBullets, hidePoints, abbrHeader, wargearMode, abbrUnitNames, hideBrackets])
 
   const [previewText, setPreviewText] = useState('')
   // Support different module export shapes across bundlers/browsers
@@ -112,6 +114,7 @@ function App() {
         hideSubunits: !showSubunits,
         wargearShowMode: wargearMode,
         hidePoints: hidePoints,
+        hideBrackets: hideBrackets,
         combineIdenticalUnits: combine,
         useAbbreviations: format === 'imageCodexAbbr',
         wargearAbbrMap: abbr,
@@ -119,7 +122,9 @@ function App() {
         colors: {
           ...colors,
           icon: (colors as any).icon || colors.header
-        }
+        },
+        abbreviateHeader: abbrHeader,
+        abbreviateUnitNames: abbrUnitNames
       }).then(dataUrl => {
         if (active) {
           setImagePreviewUrl(dataUrl);
@@ -136,7 +141,7 @@ function App() {
       };
     }
     let t = ''
-    const opts = { colorMode, colors, multilineHeader: multiline, abbreviateHeader: abbrHeader, wargearShowMode: wargearMode } as any
+    const opts = { colorMode, colors, multilineHeader: multiline, abbreviateHeader: abbrHeader, wargearShowMode: wargearMode, abbreviateUnitNames: abbrUnitNames, hideBrackets: hideBrackets } as any
     switch (format) {
       case 'discordCompact':
         t = generateDiscordText(parsed, false, true, abbr, !showSubunits, skippable as any, combine, opts, noBullets, hidePoints); break
@@ -150,7 +155,7 @@ function App() {
         t = generateDiscordText(parsed, false, true, abbr, !showSubunits, skippable as any, combine, opts, noBullets, hidePoints)
     }
     setPreviewText(t)
-  }, [parsed, abbr, showSubunits, combine, colorMode, colors, multiline, format, noBullets, hidePoints, abbrHeader, wargearMode])
+  }, [parsed, abbr, showSubunits, combine, colorMode, colors, multiline, format, noBullets, hidePoints, hideBrackets, abbrHeader, wargearMode, abbrUnitNames])
 
   const previewHtml = useMemo(() => {
     if (format === 'imageCodex' || format === 'imageCodexAbbr') {
@@ -162,20 +167,23 @@ function App() {
           hideSubunits: !showSubunits,
           wargearShowMode: wargearMode,
           hidePoints: hidePoints,
+          hideBrackets: hideBrackets,
           combineIdenticalUnits: combine,
           useAbbreviations: format === 'imageCodexAbbr',
-          wargearAbbrMap: abbr
+          wargearAbbrMap: abbr,
+          abbreviateHeader: abbrHeader,
+          abbreviateUnitNames: abbrUnitNames
         }) : 580;
         return `<img src="${imagePreviewUrl}" style="width: ${cardWidth}px; max-width: none; display: block; border-radius: 6px;" />`;
       }
       return '<div style="color: #aab; text-align: center; padding: 20px;">No preview generated.</div>';
     }
     return au.ansi_to_html(previewText);
-  }, [format, renderingImage, imagePreviewUrl, previewText, au, parsed, showSubunits, wargearMode, hidePoints, combine, abbr]);
+  }, [format, renderingImage, imagePreviewUrl, previewText, au, parsed, showSubunits, wargearMode, hidePoints, hideBrackets, combine, abbr, abbrHeader, abbrUnitNames]);
 
   function copy(s: string) {
     if (!s || !parsed || !abbr) { navigator.clipboard?.writeText(s || ''); return }
-    const opts: any = { colorMode, colors, forcePalette: true, multilineHeader: multiline, abbreviateHeader: abbrHeader, wargearShowMode: wargearMode }
+    const opts: any = { colorMode, colors, forcePalette: true, multilineHeader: multiline, abbreviateHeader: abbrHeader, wargearShowMode: wargearMode, abbreviateUnitNames: abbrUnitNames, hideBrackets: hideBrackets }
     let t = ''
     switch (format) {
       case 'discordCompact':
@@ -198,6 +206,7 @@ function App() {
       hideSubunits: !showSubunits,
       wargearShowMode: wargearMode,
       hidePoints: hidePoints,
+      hideBrackets: hideBrackets,
       combineIdenticalUnits: combine,
       useAbbreviations: format === 'imageCodex' ? false : (format === 'imageCodexAbbr'),
       wargearAbbrMap: abbr,
@@ -205,7 +214,9 @@ function App() {
       colors: {
         ...colors,
         icon: (colors as any).icon || colors.header
-      }
+      },
+      abbreviateHeader: abbrHeader,
+      abbreviateUnitNames: abbrUnitNames
     })
   }
 
@@ -221,6 +232,7 @@ function App() {
         hideSubunits: !showSubunits,
         wargearShowMode: wargearMode,
         hidePoints: hidePoints,
+        hideBrackets: hideBrackets,
         combineIdenticalUnits: combine,
         useAbbreviations: format === 'imageCodex' ? false : (format === 'imageCodexAbbr'),
         wargearAbbrMap: abbr,
@@ -228,7 +240,9 @@ function App() {
         colors: {
           ...colors,
           icon: (colors as any).icon || colors.header
-        }
+        },
+        abbreviateHeader: abbrHeader,
+        abbreviateUnitNames: abbrUnitNames
       });
       alert('Image copied to clipboard!');
     } catch (err) {
@@ -251,6 +265,7 @@ function App() {
         hideSubunits: !showSubunits,
         wargearShowMode: wargearMode,
         hidePoints: hidePoints,
+        hideBrackets: hideBrackets,
         combineIdenticalUnits: combine,
         useAbbreviations: format === 'imageCodex' ? false : (format === 'imageCodexAbbr'),
         wargearAbbrMap: abbr,
@@ -258,7 +273,9 @@ function App() {
         colors: {
           ...colors,
           icon: (colors as any).icon || colors.header
-        }
+        },
+        abbreviateHeader: abbrHeader,
+        abbreviateUnitNames: abbrUnitNames
       });
       const res = await fetch(dataUrl);
       const blob = await res.blob();
@@ -396,6 +413,12 @@ function App() {
                 </label>
                 
                 <label class="switch-container">
+                  <input type="checkbox" class="tactical-switch" checked={abbrUnitNames} onChange={e => setAbbrUnitNames((e.target as HTMLInputElement).checked)} />
+                  <span class="switch-slider"></span>
+                  <span class="switch-label">Abbreviate unit and subunit names</span>
+                </label>
+                
+                <label class="switch-container">
                   <input type="checkbox" class="tactical-switch" checked={combine} onChange={e => setCombine((e.target as HTMLInputElement).checked)} />
                   <span class="switch-slider"></span>
                   <span class="switch-label">Combine Identical Units</span>
@@ -419,6 +442,12 @@ function App() {
                   <input type="checkbox" class="tactical-switch" checked={hidePoints} onChange={e => setHidePoints((e.target as HTMLInputElement).checked)} />
                   <span class="switch-slider"></span>
                   <span class="switch-label">Hide Points</span>
+                </label>
+                
+                <label class="switch-container">
+                  <input type="checkbox" class="tactical-switch" checked={hideBrackets} onChange={e => setHideBrackets((e.target as HTMLInputElement).checked)} />
+                  <span class="switch-slider"></span>
+                  <span class="switch-label">Hide brackets and parentheses</span>
                 </label>
                 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
