@@ -1,6 +1,6 @@
 {
   "name": "40k-compactor",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "workspaces": [
     "apps/mobile-ui",
     "DiscordApp"
