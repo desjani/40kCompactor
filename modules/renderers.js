@@ -1,7 +1,7 @@
 // Renderers for 11th Edition JSON structure.
 import { makeAbbrevForName } from './abbreviations.js';
 import factionColors from './faction_colors.js';
-import { sortItemsByQuantityThenName, getModelsCount, getCanonicalFactionName } from './utils.js';
+import { sortItemsByQuantityThenName, getModelsCount, getCanonicalFactionName, normalizeKey } from './utils.js';
 
 export function abbreviateWords(str) {
     if (!str) return '';
@@ -158,7 +158,7 @@ function aggregateWargear(unit, excludeSubunits = false) {
 
 function findAbbreviationForItem(itemName, wargearAbbrMap, dataSummary) {
     if (!wargearAbbrMap || !itemName) return null;
-    const nameLower = itemName.toLowerCase();
+    const key = normalizeKey(itemName);
     const extractAbbr = (val) => {
         if (!val) return null;
         if (typeof val === 'string') return val;
@@ -167,7 +167,7 @@ function findAbbreviationForItem(itemName, wargearAbbrMap, dataSummary) {
     };
     try {
         const flat = wargearAbbrMap.__flat_abbr;
-        if (flat && flat[nameLower] !== undefined) return extractAbbr(flat[nameLower]);
+        if (flat && flat[key] !== undefined) return extractAbbr(flat[key]);
     } catch (e) {}
     return null;
 }

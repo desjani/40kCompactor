@@ -8,6 +8,19 @@ export function normalizeForComparison(text) {
     return text.toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
+export function normalizeKey(s) {
+    if (!s) return '';
+    try {
+        return s.toString().normalize('NFD')
+            .replace(/\p{M}/gu, '')
+            .replace(/[\u2018\u2019\u201B\u2032]/g, "'")
+            .replace(/[^\w\s'\-]/g, '')
+            .toLowerCase().trim();
+    } catch (e) {
+        return s.toString().toLowerCase().trim();
+    }
+}
+
 export function parseItemString(itemString) {
     const itemRegex = /^(?:(\d+)x?\s+)?(.*)/;
     const itemMatch = itemString.trim().match(itemRegex);

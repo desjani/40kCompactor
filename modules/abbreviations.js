@@ -2,6 +2,7 @@
 // The goal: do not depend on any external JSON (wargear.json or abbreviation_rules.json).
 // We'll derive reasonable abbreviations by: using explicit nameshort from parsed items if
 // present, else generating a short token by taking initials of significant words.
+import { normalizeKey } from './utils.js';
 
 // Generate a base abbreviation following project rules:
 // - Trim parenthetical content and punctuation, split on words
@@ -54,7 +55,7 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
     if (customAbbrs) {
         for (const [name, abbr] of Object.entries(customAbbrs)) {
             if (!name || !abbr) continue;
-            const lowerName = name.toLowerCase();
+            const lowerName = normalizeKey(name);
             flat[lowerName] = abbr;
             
             // If multiple custom rules map to the same abbr, the last one wins in 'used' map,
@@ -237,7 +238,7 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
 
     const processItem = (name, type) => {
         if (!name) return;
-        const key = name.toString().trim().toLowerCase();
+        const key = normalizeKey(name);
         if (key === 'warlord') return;
         if (flat[key]) return;
 

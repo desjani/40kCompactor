@@ -1,7 +1,7 @@
 import factionColors from './faction_colors.js';
 import { makeAbbrevForName } from './abbreviations.js';
 import { maybeCombineUnits, getWarlordTag, abbreviateDetachment, abbreviateForceDisposition, abbreviateWords } from './renderers.js';
-import { getModelsCount, getCanonicalFactionName } from './utils.js';
+import { getModelsCount, getCanonicalFactionName, normalizeKey } from './utils.js';
 import factionEmblems from './faction_icons.js';
 
 function getContrastColor(hexColor) {
@@ -246,8 +246,8 @@ export function estimateCardWidth(data, options = {}) {
   const getAbbrName = (itemName) => {
     if (!options.useAbbreviations) return itemName;
     if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
-      const nameLower = itemName.toLowerCase();
-      const val = options.wargearAbbrMap.__flat_abbr[nameLower];
+      const key = normalizeKey(itemName);
+      const val = options.wargearAbbrMap.__flat_abbr[key];
       if (val) {
         if (typeof val === 'string') return val;
         if (typeof val === 'object' && val.abbr) return val.abbr;
@@ -259,8 +259,8 @@ export function estimateCardWidth(data, options = {}) {
   const getUnitAbbrName = (itemName) => {
     if (!options.abbreviateUnitNames) return itemName;
     if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
-      const nameLower = itemName.toLowerCase();
-      const val = options.wargearAbbrMap.__flat_abbr[nameLower];
+      const key = normalizeKey(itemName);
+      const val = options.wargearAbbrMap.__flat_abbr[key];
       if (val) {
         if (typeof val === 'string') return val;
         if (typeof val === 'object' && val.abbr) return val.abbr;
@@ -477,8 +477,8 @@ export function generateCardHtml(data, options = {}) {
   const getAbbrName = (itemName) => {
     if (!options.useAbbreviations) return itemName;
     if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
-      const nameLower = itemName.toLowerCase();
-      const val = options.wargearAbbrMap.__flat_abbr[nameLower];
+      const key = normalizeKey(itemName);
+      const val = options.wargearAbbrMap.__flat_abbr[key];
       if (val) {
         if (typeof val === 'string') return val;
         if (typeof val === 'object' && val.abbr) return val.abbr;
@@ -490,8 +490,8 @@ export function generateCardHtml(data, options = {}) {
   const getUnitAbbrName = (itemName) => {
     if (!options.abbreviateUnitNames) return itemName;
     if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
-      const nameLower = itemName.toLowerCase();
-      const val = options.wargearAbbrMap.__flat_abbr[nameLower];
+      const key = normalizeKey(itemName);
+      const val = options.wargearAbbrMap.__flat_abbr[key];
       if (val) {
         if (typeof val === 'string') return val;
         if (typeof val === 'object' && val.abbr) return val.abbr;

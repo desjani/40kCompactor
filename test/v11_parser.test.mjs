@@ -192,6 +192,18 @@ function runGwAppTests() {
     assert.ok(abbrUnitNamesOut.plainText.includes('CrSuBa'), 'Crisis Sunforge Battlesuits should be abbreviated to CrSuBa');
     console.log('✓ GW App v11 unit and subunit abbreviation option passed');
 
+    // Verify custom abbreviations with quote/apostrophe normalization
+    const customAbbrsNorm = {
+        "crisis sunforge shas'ui": "Shas'ui",
+        "crisis sunforge shas'vre": "Shas'vre"
+    };
+    const customAbbrIndex = buildAbbreviationIndex(parsedTau, customAbbrsNorm);
+    const customAbbrOut = generateOutput(parsedTau, true, customAbbrIndex, false, {}, false, false, false, false, false, false, undefined, true);
+    assert.ok(customAbbrOut.plainText.includes("Shas'ui"), "Subunits should use custom abbreviations despite straight/curly apostrophe mismatch");
+    assert.ok(customAbbrOut.plainText.includes("Shas'vre"), "Subunits should use custom abbreviations despite straight/curly apostrophe mismatch");
+    console.log('✓ Custom abbreviations with quote/apostrophe normalization passed');
+
+
     // Verify hideBrackets option
     const hideBracketsOut = generateOutput(parsedTau, true, abbrIndex, false, {}, false, false, false, false, false, false, undefined, false, true);
     assert.ok(hideBracketsOut.plainText.includes('L1W Commander Farsight 80'), 'Should hide brackets and parentheses for leader, warlord, and points');
