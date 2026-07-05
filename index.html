@@ -484,19 +484,25 @@
                 const pref = localStorage.getItem('uiPref');
                 const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
                 const narrow = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
-                const isMobile = (override === 'mobile') || (!override && (pref === 'mobile' || (!pref && (coarse || narrow))));
-                const isDesktop = (override === 'desktop') || (!override && pref === 'desktop');
+                
+                // Detect if the mobile browser's "Desktop Mode" is active (touch capability but desktop UA)
+                const isMobileUA = /Mobi|Android|iPhone|iPad|Windows Phone/i.test(navigator.userAgent);
+                const isDesktopMode = !isMobileUA && coarse;
+
+                const isDesktop = (override === 'desktop') || isDesktopMode || (!override && pref === 'desktop');
+                const isMobile = !isDesktop && ((override === 'mobile') || (!override && (pref === 'mobile' || (!pref && (coarse || narrow)))));
+
                 const prompt = document.getElementById('mobilePrompt');
                 const openBtn = document.getElementById('openMobileUi');
                 const dismissBtn = document.getElementById('dismissMobileUi');
                 function openMobile(){
                     // Navigate directly to the built mobile UI; it uses relative asset paths
                     // and works with simple static servers (python -m http.server, etc.).
-                    window.location.href = './apps/mobile-ui/dist/index.html';
+                    window.location.href = './apps/mobile-ui/dist/index.html' + window.location.search;
                 }
                 function dismiss(){ prompt.style.display = 'none'; localStorage.setItem('uiPref','desktop'); }
                 // Auto-redirect phones/tablets unless desktop is explicitly requested or preferred
-                if (!isDesktop && (override === 'mobile' || pref === 'mobile' || (coarse || narrow))) {
+                if (isMobile) {
                     try { localStorage.setItem('uiPref','mobile'); } catch(e) {}
                     openMobile();
                     return;
