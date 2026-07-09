@@ -3,3 +3,5 @@ myenv/
 legacy/
 node_modules/
 DiscordApp/.env
+.agents/
+scratch/
