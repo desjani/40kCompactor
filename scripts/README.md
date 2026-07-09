@@ -1,27 +1,16 @@
-write_build_meta.ps1
+write_build_meta.sh / deploy_unraid.sh
 
-This folder contains a small helper to generate `build_meta.json` with git commit metadata.
+This folder contains helpers used by the repo's local git hooks (`.git/hooks/pre-commit` and `.git/hooks/post-commit`, not tracked in git so each machine needs them set up once):
 
-Usage (PowerShell):
+- `write_build_meta.sh` writes `build_meta.json` to the repo root with keys:
+  - commitShort
+  - commitFull
+  - timestamp
 
-    pwsh ./scripts/write_build_meta.ps1
+  Run manually with `./scripts/write_build_meta.sh`, or let `pre-commit` do it automatically.
 
-This will write `build_meta.json` to the repo root with keys:
-- commitShort
-- commitFull
-- timestamp
+- `deploy_unraid.sh` SSHes into the Unraid host (METRON), pulls the latest `main`, and rebuilds/restarts the `40k-compactor-bot` Docker container.
 
-Optional: install a local git hook to update `build_meta.json` before commits.
+  `post-commit` runs this automatically on `main` only (commits on other branches are local-only), pushing to `origin` first so the deploy always reflects the commit that was just made.
 
-Sample pre-commit hook (place in .git/hooks/pre-commit and make executable on *nix):
-
-```bash
-#!/bin/sh
-# Run the PowerShell helper to update build_meta.json and stage it.
-pwsh -NoProfile -ExecutionPolicy Bypass -File "scripts/write_build_meta.ps1"
-if [ -f build_meta.json ]; then
-    git add build_meta.json
-fi
-```
-
-On Windows, you can create a `pre-commit` file with the same contents or run the PowerShell script manually before committing.
+The legacy `write_build_meta.ps1` / `deploy_to_unraid.ps1` PowerShell scripts are Windows-only leftovers; the Linux dev environment uses the `.sh` versions above.
