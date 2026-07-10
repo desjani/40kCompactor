@@ -1,5 +1,5 @@
 import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11, parseNRWTCCompact, parseNRWTC, parseNRGW } from './parsers.js';
-import { generateOutput, generateDiscordText, resolveFactionColors, buildFactionColorMap } from './renderers.js';
+import { generateOutput, generateDiscordText, resolveFactionColors } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth, copyCardImageToClipboard } from './cardRenderer.js';
 import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getHideBracketsState, getMultilineHeaderState, getAbbreviateHeaderState, getAbbreviateUnitNamesState, getWargearShowModeState, getCustomAbbrs, setCopyPreviewButtonText } from './ui.js';
@@ -177,14 +177,7 @@ function updateFactionDiagnostic() {
             clearFactionColorDiagnostic();
             return;
         }
-        const factionMap = buildFactionColorMap(skippableWargearMap || {});
-        const fk = (parsedData.metadata && parsedData.metadata.faction) || null;
-        const normalizeKey = (s) => {
-            if (!s) return null;
-            try { return s.toString().normalize('NFD').replace(/\p{M}/gu, '').replace(/[\u2018\u2019\u201B\u2032]/g, "'").replace(/[^\w\s'\-]/g, '').toLowerCase().trim(); } catch (e) { return s.toString().toLowerCase(); }
-        };
-        const nfk = normalizeKey(fk);
-        const fm = fk ? (factionMap[fk] || factionMap[fk.toString().toLowerCase()] || (nfk && factionMap[nfk])) : null;
+        const fm = resolveFactionColors(parsedData, skippableWargearMap || {});
         if (!fm) {
             setFactionColorDiagnostic('No faction mapping found for parsed faction');
             return;

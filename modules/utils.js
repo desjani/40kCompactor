@@ -21,6 +21,22 @@ export function normalizeKey(s) {
     }
 }
 
+// Normalize a wargear name for comparison/grouping purposes. Treats hyphens the same
+// as spaces so inconsistent source formatting (e.g. "Close Combat Weapon" vs
+// "Close-Combat Weapon") is recognized as the same item.
+export function normalizeWargearName(name) {
+    if (!name) return '';
+    let normalized = name.toString().replace(/[\u2018\u2019\u201B\u2032]/g, "'");
+    try {
+        normalized = normalized.normalize('NFD').replace(/\p{M}/gu, '');
+    } catch (e) {}
+    return normalized
+        .replace(/-/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+}
+
 export function parseItemString(itemString) {
     const itemRegex = /^(?:(\d+)x?\s+)?(.*)/;
     const itemMatch = itemString.trim().match(itemRegex);
@@ -61,7 +77,15 @@ export function sortItemsByQuantityThenName(items) {
 
 export function getCanonicalFactionName(faction) {
     if (!faction) return faction;
-    
+
+    // Combined "Parent - Subfaction" strings (e.g. "Space Marines - Dark Angels")
+    // should resolve off the subfaction segment, since that's the more specific
+    // identity for coloring/skippable-wargear lookups.
+    const combinedMatch = faction.toString().match(/^(.+?)\s+-\s+(.+)$/);
+    if (combinedMatch) {
+        return getCanonicalFactionName(combinedMatch[2].trim());
+    }
+
     // Normalize curly apostrophes to straight ones
     let normalized = faction.toString()
         .replace(/[\u2018\u2019\u201B\u2032]/g, "'");
@@ -319,9 +343,7 @@ export function getCanonicalFactionName(faction) {
 
 export function isWargearSkippable(skippableWargearMap, faction, unitName, wargearName) {
     if (!skippableWargearMap || !faction || !unitName || !wargearName) return false;
-    
-    const canonicalFaction = getCanonicalFactionName(faction);
-    
+
     const normalizeKey = (s) => {
         if (!s) return '';
         try {
@@ -335,43 +357,59 @@ export function isWargearSkippable(skippableWargearMap, faction, unitName, warge
         }
     };
 
-    const factionKey = normalizeKey(canonicalFaction);
     const unitKey = normalizeKey(unitName);
     const unitAlt = unitKey.endsWith('s') ? unitKey.slice(0, -1) : unitKey + 's';
-    const wargearKey = wargearName.toLowerCase().trim();
+    const wargearKey = normalizeWargearName(wargearName);
 
-    // Find faction entry
-    let factionData = undefined;
-    for (const [k, v] of Object.entries(skippableWargearMap)) {
-        if (normalizeKey(k) === factionKey) {
-            factionData = v;
-            break;
-        }
-    }
-    if (!factionData) return false;
+    // A combined "Parent - Subfaction" faction (e.g. "Space Marines - Dark Angels")
+    // resolves to the subfaction for coloring, but skippable-wargear rules are often
+    // only defined once at the parent level. Try the subfaction first so any
+    // chapter-specific overrides win, then fall back to the parent when the
+    // subfaction's data has no entry at all for this unit.
+    const rawFaction = faction.toString();
+    const combinedMatch = rawFaction.match(/^(.+?)\s+-\s+(.+)$/);
+    const candidateFactions = combinedMatch ? [combinedMatch[2].trim(), combinedMatch[1].trim()] : [rawFaction];
 
-    // Find unit entry
-    let unitData = undefined;
-    const tryUnitKeys = [unitName, unitKey, unitAlt];
-    for (const uk of tryUnitKeys) {
-        if (Object.prototype.hasOwnProperty.call(factionData, uk)) {
-            unitData = factionData[uk];
-            break;
-        }
-    }
-    if (unitData === undefined) {
-        for (const [k, v] of Object.entries(factionData)) {
-            if (normalizeKey(k) === unitKey || normalizeKey(k) === unitAlt) {
-                unitData = v;
+    for (const candidateFaction of candidateFactions) {
+        const canonicalFaction = getCanonicalFactionName(candidateFaction);
+        const factionKey = normalizeKey(canonicalFaction);
+
+        // Find faction entry
+        let factionData;
+        for (const [k, v] of Object.entries(skippableWargearMap)) {
+            if (normalizeKey(k) === factionKey) {
+                factionData = v;
                 break;
             }
         }
+        if (!factionData) continue;
+
+        // Find unit entry
+        let unitData;
+        const tryUnitKeys = [unitName, unitKey, unitAlt];
+        for (const uk of tryUnitKeys) {
+            if (Object.prototype.hasOwnProperty.call(factionData, uk)) {
+                unitData = factionData[uk];
+                break;
+            }
+        }
+        if (unitData === undefined) {
+            for (const [k, v] of Object.entries(factionData)) {
+                if (normalizeKey(k) === unitKey || normalizeKey(k) === unitAlt) {
+                    unitData = v;
+                    break;
+                }
+            }
+        }
+        if (unitData === undefined) continue;
+
+        if (unitData === true) return true;
+        if (Array.isArray(unitData)) {
+            return unitData.map(s => normalizeWargearName(s)).includes(wargearKey);
+        }
+        return false;
     }
 
-    if (unitData === true) return true;
-    if (Array.isArray(unitData)) {
-        return unitData.map(s => (s || '').toString().toLowerCase().trim()).includes(wargearKey);
-    }
     return false;
 }
 

@@ -1,7 +1,7 @@
 import factionColors from './faction_colors.js';
 import { makeAbbrevForName } from './abbreviations.js';
 import { maybeCombineUnits, getWarlordTag, abbreviateDetachment, abbreviateForceDisposition, abbreviateWords } from './renderers.js';
-import { getModelsCount, getCanonicalFactionName, normalizeKey, shouldHideSubunitsForUnit } from './utils.js';
+import { getModelsCount, getCanonicalFactionName, normalizeWargearName, shouldHideSubunitsForUnit } from './utils.js';
 import factionEmblems from './faction_icons.js';
 
 function getContrastColor(hexColor) {
@@ -246,7 +246,7 @@ export function estimateCardWidth(data, options = {}) {
   const getAbbrName = (itemName) => {
     if (!options.useAbbreviations) return itemName;
     if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
-      const key = normalizeKey(itemName);
+      const key = normalizeWargearName(itemName);
       const val = options.wargearAbbrMap.__flat_abbr[key];
       if (val) {
         if (typeof val === 'string') return val;
@@ -259,7 +259,7 @@ export function estimateCardWidth(data, options = {}) {
   const getUnitAbbrName = (itemName) => {
     if (!options.abbreviateUnitNames) return itemName;
     if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
-      const key = normalizeKey(itemName);
+      const key = normalizeWargearName(itemName);
       const val = options.wargearAbbrMap.__flat_abbr[key];
       if (val) {
         if (typeof val === 'string') return val;
@@ -279,28 +279,24 @@ export function estimateCardWidth(data, options = {}) {
     const hideSubunitsForThisUnit = options.hideSubunits || shouldHideSubunitsForUnit(unit, showMode);
     if (hideSubunitsForThisUnit) {
       const aggregated = new Map();
+      const addAggregatedItem = (wg) => {
+        const key = normalizeWargearName(wg.name);
+        const qtyVal = parseInt(wg.quantity || 1, 10);
+        const prev = aggregated.get(key) || { name: wg.name, quantity: 0, skippable: !!wg.skippable };
+        aggregated.set(key, { name: prev.name, quantity: prev.quantity + qtyVal, skippable: prev.skippable || !!wg.skippable });
+      };
       if (Array.isArray(unit.wargear)) {
-        unit.wargear.forEach(wg => {
-          const key = wg.name;
-          const qtyVal = parseInt(wg.quantity || 1, 10);
-          const prev = aggregated.get(key) || { quantity: 0, skippable: !!wg.skippable };
-          aggregated.set(key, { quantity: prev.quantity + qtyVal, skippable: prev.skippable || !!wg.skippable });
-        });
+        unit.wargear.forEach(addAggregatedItem);
       }
       if (Array.isArray(unit.subunits)) {
         unit.subunits.forEach(sub => {
           if (Array.isArray(sub.wargear)) {
-            sub.wargear.forEach(wg => {
-              const key = wg.name;
-              const qtyVal = parseInt(wg.quantity || 1, 10);
-              const prev = aggregated.get(key) || { quantity: 0, skippable: !!wg.skippable };
-              aggregated.set(key, { quantity: prev.quantity + qtyVal, skippable: prev.skippable || !!wg.skippable });
-            });
+            sub.wargear.forEach(addAggregatedItem);
           }
         });
       }
-      const wargearList = Array.from(aggregated.entries()).map(([name, info]) => ({
-        name,
+      const wargearList = Array.from(aggregated.values()).map(info => ({
+        name: info.name,
         quantity: info.quantity,
         skippable: info.skippable
       }));
@@ -479,7 +475,7 @@ export function generateCardHtml(data, options = {}) {
   const getAbbrName = (itemName) => {
     if (!options.useAbbreviations) return itemName;
     if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
-      const key = normalizeKey(itemName);
+      const key = normalizeWargearName(itemName);
       const val = options.wargearAbbrMap.__flat_abbr[key];
       if (val) {
         if (typeof val === 'string') return val;
@@ -492,7 +488,7 @@ export function generateCardHtml(data, options = {}) {
   const getUnitAbbrName = (itemName) => {
     if (!options.abbreviateUnitNames) return itemName;
     if (options.wargearAbbrMap && options.wargearAbbrMap.__flat_abbr) {
-      const key = normalizeKey(itemName);
+      const key = normalizeWargearName(itemName);
       const val = options.wargearAbbrMap.__flat_abbr[key];
       if (val) {
         if (typeof val === 'string') return val;
@@ -527,29 +523,25 @@ export function generateCardHtml(data, options = {}) {
     const hideSubunitsForThisUnit = options.hideSubunits || shouldHideSubunitsForUnit(unit, showMode);
     if (hideSubunitsForThisUnit) {
       const aggregated = new Map();
+      const addAggregatedItem = (wg) => {
+        const key = normalizeWargearName(wg.name);
+        const qty = parseInt(wg.quantity || 1, 10);
+        const prev = aggregated.get(key) || { name: wg.name, quantity: 0, skippable: !!wg.skippable };
+        aggregated.set(key, { name: prev.name, quantity: prev.quantity + qty, skippable: prev.skippable || !!wg.skippable });
+      };
       if (Array.isArray(unit.wargear)) {
-        unit.wargear.forEach(wg => {
-          const key = wg.name;
-          const qty = parseInt(wg.quantity || 1, 10);
-          const prev = aggregated.get(key) || { quantity: 0, skippable: !!wg.skippable };
-          aggregated.set(key, { quantity: prev.quantity + qty, skippable: prev.skippable || !!wg.skippable });
-        });
+        unit.wargear.forEach(addAggregatedItem);
       }
       if (Array.isArray(unit.subunits)) {
         unit.subunits.forEach(sub => {
           if (Array.isArray(sub.wargear)) {
-            sub.wargear.forEach(wg => {
-              const key = wg.name;
-              const qty = parseInt(wg.quantity || 1, 10);
-              const prev = aggregated.get(key) || { quantity: 0, skippable: !!wg.skippable };
-              aggregated.set(key, { quantity: prev.quantity + qty, skippable: prev.skippable || !!wg.skippable });
-            });
+            sub.wargear.forEach(addAggregatedItem);
           }
         });
       }
 
-      const wargearList = Array.from(aggregated.entries()).map(([name, info]) => ({
-        name,
+      const wargearList = Array.from(aggregated.values()).map(info => ({
+        name: info.name,
         quantity: info.quantity,
         skippable: info.skippable
       }));

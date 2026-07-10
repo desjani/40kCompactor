@@ -1,0 +1,144 @@
+Angels 2.0 (1995 points)
+
+Space Marines
+Dark Angels
+Strike Force (2000 points)
+Darkflight Pursuit and Inner Circle Task Force (3 Detachment Points)
+Force Dispositions: Priority Assets, Reconnaissance
+
+Attached Units
+Attached Unit 1
+
+Ancient in Terminator Armour (65 points)
+• Attached as: Support (Character)
+  • 1x Terminator Storm Shield
+    1x Thunder hammer
+
+Deathwing Knights (240 points)
+• Attached as: Bodyguard
+  • 1x Watcher in the Dark
+  • 1x Knight Master
+    • 1x Great weapon of the Unforgiven
+  • 4x Deathwing Knight
+    • 4x Power weapon
+
+Attached Unit 2
+
+Ancient in Terminator Armour (65 points)
+• Attached as: Support (Character)
+  • 1x Terminator Storm Shield
+    1x Thunder hammer
+
+Deathwing Terminator Squad (165 points)
+• Attached as: Bodyguard
+  • 1x Watcher in the Dark
+  • 1x Deathwing Sergeant
+    • 1x Power weapon
+      1x Storm bolter
+  • 4x Deathwing Terminator
+    • 1x Cyclone missile launcher
+      4x Power fist
+      4x Storm bolter
+
+
+CHARACTERS
+
+Azrael (140 points)
+  • 1x Lion’s Wrath
+    1x The Lion Helm
+    1x The Sword of Secrets
+
+Lion El’Jonson (285 points)
+  • Warlord
+  • 1x Arma Luminis
+    1x Fealty
+
+
+OTHER DATASHEETS
+
+Assault Intercessors with Jump Packs (85 points)
+  • 1x Assault Intercessor Sergeant with Jump Pack
+    • 1x Plasma pistol
+      1x Power weapon
+  • 4x Assault Intercessors with Jump Packs
+    • 4x Astartes chainsword
+      3x Heavy bolt pistol
+      1x Plasma pistol
+
+Eradicator Squad with Heavy Bolters (70 points)
+  • 1x Eradicator Sergeant
+    • 1x Bolt pistol
+      1x Close-combat weapon
+      1x Heavy Bolter
+  • 2x Eradicator
+    • 2x Bolt pistol
+      2x Close-combat weapon
+      2x Heavy Bolter
+
+.
+
+Inceptor Squad (120 points)
+  • 1x Inceptor Sergeant
+    • 1x Assault bolters
+      1x Close combat weapon
+  • 2x Inceptor
+    • 2x Assault bolters
+      2x Close combat weapon
+
+Inceptor Squad (120 points)
+  • 1x Inceptor Sergeant
+    • 1x Assault bolters
+      1x Close combat weapon
+  • 2x Inceptor
+    • 2x Assault bolters
+      2x Close combat weapon
+
+Land Speeder (110 points)
+  • 1x Close-combat weapon
+    1x Multi-melta
+    1x Onslaught gatling cannon
+    1x Stormfury missile launcher
+  • Enhancement: Thundercowl Turbines (Upgrade)
+
+Land Speeder (95 points)
+  • 1x Close-combat weapon
+    1x Multi-melta
+    1x Onslaught gatling cannon
+    1x Stormfury missile launcher
+
+Land Speeder Vengeance (120 points)
+  • 1x Assault cannon
+    1x Close combat weapon
+    1x Plasma storm battery
+
+Outrider Squad (70 points)
+  • 1x Outrider Sergeant
+    • 1x Astartes chainsword
+      1x Heavy bolt pistol
+      1x Twin bolt rifle
+  • 2x Outrider
+    • 2x Astartes chainsword
+      2x Heavy bolt pistol
+      2x Twin bolt rifle
+
+Scout Squad (65 points)
+  • 1x Scout Sergeant
+    • 1x Astartes chainsword
+      1x Bolt pistol
+      1x Close combat weapon
+  • 4x Scout
+    • 2x Astartes shotgun
+      4x Bolt pistol
+      4x Close combat weapon
+      1x Missile launcher
+      1x Scout sniper rifle
+
+Terminator Assault Squad (180 points)
+  • 1x Assault Terminator Sergeant
+    • 1x Storm Shield
+      1x Thunder hammer
+  • 4x Assault Terminator
+    • 4x Storm Shield
+      4x Thunder hammer
+
+Exported with App Version: v2.0.5 (128), Data Version: v886

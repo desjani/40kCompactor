@@ -1,7 +1,7 @@
 // Renderers for 11th Edition JSON structure.
 import { makeAbbrevForName } from './abbreviations.js';
 import factionColors from './faction_colors.js';
-import { sortItemsByQuantityThenName, getModelsCount, getCanonicalFactionName, normalizeKey, shouldHideSubunitsForUnit } from './utils.js';
+import { sortItemsByQuantityThenName, getModelsCount, getCanonicalFactionName, normalizeWargearName, shouldHideSubunitsForUnit } from './utils.js';
 
 export function abbreviateWords(str) {
     if (!str) return '';
@@ -122,32 +122,29 @@ export const HIDE_ALL = '__HIDE_ALL_WARGEARS__';
 function aggregateWargear(unit, excludeSubunits = false) {
     const aggregated = new Map();
 
+    const addItem = (wg) => {
+        const key = normalizeWargearName(wg.name);
+        const qty = parseInt(wg.quantity || 1, 10);
+        const prev = aggregated.get(key) || { name: wg.name, quantity: 0, skippable: !!wg.skippable };
+        aggregated.set(key, { name: prev.name, quantity: prev.quantity + qty, skippable: prev.skippable || !!wg.skippable });
+    };
+
     // 1. Add unit's own wargear
     if (Array.isArray(unit.wargear)) {
-        unit.wargear.forEach(wg => {
-            const key = wg.name;
-            const qty = parseInt(wg.quantity || 1, 10);
-            const prev = aggregated.get(key) || { quantity: 0, skippable: !!wg.skippable };
-            aggregated.set(key, { quantity: prev.quantity + qty, skippable: prev.skippable || !!wg.skippable });
-        });
+        unit.wargear.forEach(addItem);
     }
 
     // 2. Add subunits' wargear
     if (!excludeSubunits && Array.isArray(unit.subunits)) {
         unit.subunits.forEach(sub => {
             if (Array.isArray(sub.wargear)) {
-                sub.wargear.forEach(wg => {
-                    const key = wg.name;
-                    const qty = parseInt(wg.quantity || 1, 10);
-                    const prev = aggregated.get(key) || { quantity: 0, skippable: !!wg.skippable };
-                    aggregated.set(key, { quantity: prev.quantity + qty, skippable: prev.skippable || !!wg.skippable });
-                });
+                sub.wargear.forEach(addItem);
             }
         });
     }
 
-    const wargearList = Array.from(aggregated.entries()).map(([name, info]) => ({
-        name,
+    const wargearList = Array.from(aggregated.values()).map(info => ({
+        name: info.name,
         quantity: `${info.quantity}x`,
         skippable: info.skippable,
         type: 'wargear'
@@ -158,7 +155,7 @@ function aggregateWargear(unit, excludeSubunits = false) {
 
 function findAbbreviationForItem(itemName, wargearAbbrMap, dataSummary) {
     if (!wargearAbbrMap || !itemName) return null;
-    const key = normalizeKey(itemName);
+    const key = normalizeWargearName(itemName);
     const extractAbbr = (val) => {
         if (!val) return null;
         if (typeof val === 'string') return val;

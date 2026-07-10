@@ -115,6 +115,31 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
     const second = getNextNonEmptyLine();
     if (second) {
         result.metadata.faction = second.line.trim();
+
+        // Some lists express a subfaction as its own header line directly below the
+        // main faction, e.g.:
+        //   Space Marines
+        //   Dark Angels
+        //   Strike Force (2000 points)
+        // Detect this by peeking at the next line: if it's a plain line (not a battle
+        // size, force disposition, section header, or unit header), treat it as a
+        // subfaction and fold it into the faction name as "Space Marines - Dark Angels".
+        const savedIndex = cleanLinesIndex;
+        const peek = getNextNonEmptyLine();
+        if (peek) {
+            const peekLine = peek.line;
+            const looksLikeBattleSize = /^(.*?)\s*\((\d+[\d,]*)\s*(?:pts|points|punkte|puntos|punti)\)$/i.test(peekLine);
+            const looksLikeMetadataMarker = looksLikeBattleSize ||
+                forceDispPrefixRegex.test(peekLine) ||
+                getCanonicalSectionHeader(peekLine) ||
+                attachedUnitHeaderRegex.test(peekLine) ||
+                isUnitHeader(peekLine);
+            if (!looksLikeMetadataMarker) {
+                result.metadata.faction = `${result.metadata.faction} - ${peekLine}`;
+            } else {
+                cleanLinesIndex = savedIndex;
+            }
+        }
     }
 
     const metadataLines = [];
