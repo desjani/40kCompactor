@@ -200,6 +200,10 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
         } else if (!battleSizeSet) {
             result.metadata.battleSize = trimmedLine;
             battleSizeSet = true;
+        } else if (result.metadata.forceDispositions.length === 0) {
+            // Newer app versions drop the "Force Dispositions:" label and just list
+            // the disposition(s) as a bare line, e.g. "Purge the Foe".
+            result.metadata.forceDispositions = trimmedLine.split(',').map(d => d.trim()).filter(Boolean);
         }
     });
 
