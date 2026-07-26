@@ -67,6 +67,7 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
 
     const forceDispPrefixRegex = /^(Force\s+Dispositions|Dispositions\s+des\s+Forces|Disposiciones\s+de\s+la?\s+fuerza|Streitkräfteaufstellungen?)\s*:\s*/i;
     const attachedUnitHeaderRegex = /^(Attached Unit|Unité|Unidad acoplada|Angegliederte Einheit|Unità associata|Unita associata)\s+(\d+)(?:\s+Attachée)?$/i;
+    const detachmentPointsRegex = /^(.*?)\s*\((\d+[\d,]*)\s*(?:Detachment\s*Points|Points?\s*de\s*D[eé]tachement|Puntos\s*de\s*Destacamento|Detachement[- ]*Punkte|Detachementpunkte|Punti\s*(?:di\s*)?Distaccamento)\)$/i;
 
     const isUnitHeader = (trimmed) => {
         const unitMatch = trimmed.match(/^(.*?)\s*\((\d+[\d,]*)\s*(?:pts|points|punkte|puntos|punti)\)$/i);
@@ -131,6 +132,7 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
             const looksLikeBattleSize = /^(.*?)\s*\((\d+[\d,]*)\s*(?:pts|points|punkte|puntos|punti)\)$/i.test(peekLine);
             const looksLikeMetadataMarker = looksLikeBattleSize ||
                 forceDispPrefixRegex.test(peekLine) ||
+                detachmentPointsRegex.test(peekLine) ||
                 getCanonicalSectionHeader(peekLine) ||
                 attachedUnitHeaderRegex.test(peekLine) ||
                 isUnitHeader(peekLine);
@@ -165,6 +167,7 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
 
     let detachmentsSet = false;
     let battleSizeSet = false;
+    let forceDispositionsSet = false;
 
     metadataLines.forEach(line => {
         const trimmedLine = line.trim();
@@ -174,10 +177,11 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
             const dispStr = trimmedLine.replace(forceDispPrefixRegex, '').trim();
             const cleanedDisp = dispStr.replace(/,$/, '');
             result.metadata.forceDispositions = cleanedDisp.split(',').map(d => d.trim()).filter(Boolean);
+            forceDispositionsSet = true;
             return;
         }
 
-        const detachmentMatch = trimmedLine.match(/^(.*?)\s*\((\d+[\d,]*)\s*(?:Detachment\s*Points|Points?\s*de\s*D[eé]tachement|Puntos\s*de\s*Destacamento|Detachement[- ]*Punkte|Detachementpunkte|Punti\s*(?:di\s*)?Distaccamento)\)$/i);
+        const detachmentMatch = trimmedLine.match(detachmentPointsRegex);
         if (detachmentMatch) {
             const detStr = detachmentMatch[1].trim();
             result.metadata.detachmentPoints = parseInt(detachmentMatch[2].replace(/,/g, ''), 10) || 0;
@@ -194,7 +198,15 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
             return;
         }
 
-        if (!detachmentsSet) {
+        // Bare line with no distinguishing marker. GW App's newer export format lists
+        // Force Dispositions as a plain line (no "Force Dispositions:" prefix) once the
+        // detachment has already been parsed, so prefer that reading over the legacy
+        // bare detachment/battle-size fallback below.
+        if (!forceDispositionsSet && detachmentsSet) {
+            const cleanedDisp = trimmedLine.replace(/,$/, '');
+            result.metadata.forceDispositions = cleanedDisp.split(',').map(d => d.trim()).filter(Boolean);
+            forceDispositionsSet = true;
+        } else if (!detachmentsSet) {
             result.metadata.detachments = [trimmedLine];
             detachmentsSet = true;
         } else if (!battleSizeSet) {

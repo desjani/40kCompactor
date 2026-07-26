@@ -320,6 +320,12 @@
                 <div class="changelog-entry">
                     <h4>Changelog</h4>
                     <div class="changelog-version-entry">
+                        <h5>Version 1.7.0: GW App Detachment Parsing Fix</h5>
+                        <ul>
+                            <li>Fixed a further GW App export format issue: when a list has no subfaction line, the detachment line (immediately following the faction name) was being absorbed into the faction name instead of parsed as the detachment, which also caused the bare Force Disposition line to be mislabeled as the detachment. Both are now parsed correctly regardless of subfaction or line order.</li>
+                        </ul>
+                    </div>
+                    <div class="changelog-version-entry">
                         <h5>Version 1.6.6: GW App Force Disposition Fix</h5>
                         <ul>
                             <li>Fixed force disposition detection for the latest official Warhammer App export format, which dropped the "Force Dispositions:" label and now lists the disposition as a bare line (e.g. "Purge the Foe").</li>
