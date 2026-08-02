@@ -95,37 +95,45 @@ function App() {
 
   const [previewText, setPreviewText] = useState('')
   // Support different module export shapes across bundlers/browsers
-  const au = useMemo(() => {
-    const Ctor: any = (AnsiUpNS as any).default ?? (AnsiUpNS as any).AnsiUp ?? AnsiUpNS
+  const AnsiUpCtor: any = useMemo(() => (AnsiUpNS as any).default ?? (AnsiUpNS as any).AnsiUp ?? AnsiUpNS, [])
+  // A fresh instance per conversion, not a shared/memoized one: AnsiUp keeps an
+  // internal text buffer across calls, so reusing one instance for the component's
+  // whole lifetime risks a stuck/partial buffer corrupting later conversions.
+  function newAnsiUp() {
     try {
-      return new Ctor()
+      return new AnsiUpCtor()
     } catch {
-      // Fallback: if the module itself is a function/class
       return new (AnsiUpNS as any)()
     }
-  }, [])
+  }
   useEffect(() => {
     if (!parsed || !abbr) { setPreviewText(''); setImagePreviewUrl(''); return }
     if (format === 'imageCodex' || format === 'imageCodexAbbr') {
       setPreviewText('');
       setRenderingImage(true);
       let active = true;
-      generateCardPngDataUrl(parsed, {
-        hideSubunits: !showSubunits,
-        wargearShowMode: wargearMode,
-        hidePoints: hidePoints,
-        hideBrackets: hideBrackets,
-        combineIdenticalUnits: combine,
-        useAbbreviations: format === 'imageCodexAbbr',
-        wargearAbbrMap: abbr,
-        colorMode,
-        colors: {
-          ...colors,
-          icon: (colors as any).icon || colors.header
-        },
-        abbreviateHeader: abbrHeader,
-        abbreviateUnitNames: abbrUnitNames
-      }).then(dataUrl => {
+      // Guard against a stalled canvas/font render (seen on some mobile browsers)
+      // leaving the "Generating preview image..." spinner up forever.
+      const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Image render timed out')), 15000));
+      Promise.race([
+        generateCardPngDataUrl(parsed, {
+          hideSubunits: !showSubunits,
+          wargearShowMode: wargearMode,
+          hidePoints: hidePoints,
+          hideBrackets: hideBrackets,
+          combineIdenticalUnits: combine,
+          useAbbreviations: format === 'imageCodexAbbr',
+          wargearAbbrMap: abbr,
+          colorMode,
+          colors: {
+            ...colors,
+            icon: (colors as any).icon || colors.header
+          },
+          abbreviateHeader: abbrHeader,
+          abbreviateUnitNames: abbrUnitNames
+        }),
+        timeout
+      ]).then(dataUrl => {
         if (active) {
           setImagePreviewUrl(dataUrl);
           setRenderingImage(false);
@@ -178,8 +186,8 @@ function App() {
       }
       return '<div style="color: #aab; text-align: center; padding: 20px;">No preview generated.</div>';
     }
-    return au.ansi_to_html(previewText);
-  }, [format, renderingImage, imagePreviewUrl, previewText, au, parsed, showSubunits, wargearMode, hidePoints, hideBrackets, combine, abbr, abbrHeader, abbrUnitNames]);
+    return newAnsiUp().ansi_to_html(previewText);
+  }, [format, renderingImage, imagePreviewUrl, previewText, AnsiUpCtor, parsed, showSubunits, wargearMode, hidePoints, hideBrackets, combine, abbr, abbrHeader, abbrUnitNames]);
 
   function copy(s: string) {
     if (!s || !parsed || !abbr) { navigator.clipboard?.writeText(s || ''); return }
