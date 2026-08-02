@@ -630,4 +630,9 @@ function App() {
   )
 }
 
-render(<App />, document.getElementById('app')!)
+const appRoot = document.getElementById('app')!
+// Preact does not clear pre-existing DOM content (the "Loading…" placeholder)
+// on initial mount — it just appends alongside it, leaving a stray text node
+// that lingers below the rendered UI.
+appRoot.textContent = ''
+render(<App />, appRoot)
