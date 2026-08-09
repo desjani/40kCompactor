@@ -12,7 +12,8 @@ export function parseWarOrganV11(lines, skippableWargearMap = {}) {
             battleSize: '',
             pointsLimit: 0,
             detachment: '',
-            detachments: []
+            detachments: [],
+            forceDispositions: []
         },
         units: []
     };
@@ -45,7 +46,13 @@ export function parseWarOrganV11(lines, skippableWargearMap = {}) {
     // Helper to split wargear items by comma and 'and'
     const splitWargearItems = (str) => {
         const normalized = str.replace(/\s+and\s+/ig, ', ');
-        return normalized.split(',').map(s => s.trim()).filter(Boolean);
+        return normalized.split(',').map(s => s.trim()).filter(Boolean).map(item => {
+            // War Organ names some drones after their built-in weapon (e.g. "Gun
+            // drone with twin pulse carbine"); other formats just use the base name
+            // ("Gun Drone"). Keep only the part before "with" so names match across formats.
+            const withMatch = item.match(/^(.*?)\s+with\s+(.*)$/i);
+            return withMatch ? withMatch[1].trim() : item;
+        });
     };
 
     // 1. Parse Metadata Headers
@@ -81,7 +88,9 @@ export function parseWarOrganV11(lines, skippableWargearMap = {}) {
     if (nonEmptyLines[3]) {
         const detachmentLine = nonEmptyLines[3].trim();
         const detMatch = detachmentLine.match(/^(?:Detachments:\s*)(.*)$/i);
-        const detStr = detMatch ? detMatch[1].trim() : detachmentLine;
+        let detStr = detMatch ? detMatch[1].trim() : detachmentLine;
+        // Strip a trailing "(N Detachment Points)" or "(N/N Detachment Points)" suffix
+        detStr = detStr.replace(/\s*\(\d+(?:\/\d+)?\s*Detachment\s*Points\)\s*$/i, '').trim();
         result.metadata.detachment = detStr;
         result.metadata.detachments = detStr.split(',').map(d => d.trim()).filter(Boolean);
     }
@@ -97,6 +106,20 @@ export function parseWarOrganV11(lines, skippableWargearMap = {}) {
                 break;
             }
         }
+    }
+
+    // Force Disposition is an optional 5th metadata line (not all exports include it).
+    // Peek at the next non-empty line after Detachments; only consume it if it actually
+    // looks like a Force Disposition line, so files without one fall through to body scanning.
+    for (let idx = scanStartIndex; idx < cleanLines.length; idx++) {
+        const peekTrimmed = cleanLines[idx].trim();
+        if (peekTrimmed.length === 0) continue;
+        const fdMatch = peekTrimmed.match(/^Force\s*Disposition:\s*(.*)$/i);
+        if (fdMatch) {
+            result.metadata.forceDispositions = fdMatch[1].trim().split(',').map(d => d.trim()).filter(Boolean);
+            scanStartIndex = idx + 1;
+        }
+        break;
     }
 
     // Category mappings for Format 2
@@ -122,8 +145,13 @@ export function parseWarOrganV11(lines, skippableWargearMap = {}) {
         return 'Other Datasheets';
     }
 
-    // Detect format type (Format 2 has deeper indentation or "Enhancement:" lines)
-    const isFormat2 = lines.some(l => /^\s*(?:CHARACTER|BATTLELINE|DEDICATED TRANSPORTS|OTHER DATASHEETS)\s*$/i.test(l))
+    // Detect format type (Format 2 has deeper indentation or "Enhancement:" lines).
+    // The category-header check is intentionally case-sensitive (matching categoryMap's
+    // own case-sensitive lookup below): newer War Organ exports generate randomized,
+    // mixed-case "group name" headers for attached units (e.g. "Character", "Vehicle",
+    // "Khorne Trouble Team") that must not be confused with the real ALL-CAPS Format 2
+    // category headers ("CHARACTER", "BATTLELINE", "DEDICATED TRANSPORTS").
+    const isFormat2 = lines.some(l => /^\s*(?:CHARACTER|BATTLELINE|DEDICATED TRANSPORTS|OTHER DATASHEETS)\s*$/.test(l))
         || lines.some(l => /^\s*•\s*Enhancement:/i.test(l))
         || !lines.some(l => /^\s*Battle Size:/i.test(l));
 
@@ -327,7 +355,12 @@ export function parseWarOrganV11(lines, skippableWargearMap = {}) {
 
                                 const items = splitWargearItems(subWargearStr);
                                 items.forEach(it => {
-                                    subunit.wargear.push(parseQtyAndName(it, currentUnit.name));
+                                    // Format 1 wargear items carry a per-model quantity (e.g. "Bolt
+                                    // pistol" implicitly means 1 each); multiply by the subunit's
+                                    // own model count so totals match Format 2's pre-multiplied convention.
+                                    const parsedWg = parseQtyAndName(it, currentUnit.name);
+                                    parsedWg.quantity = parsedWg.quantity * subQty;
+                                    subunit.wargear.push(parsedWg);
                                 });
 
                                 currentUnit.subunits.push(subunit);

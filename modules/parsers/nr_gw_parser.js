@@ -45,6 +45,19 @@ export function parseNRGW(lines, skippableWargearMap = {}) {
         };
     };
 
+    // Add a parsed wargear item to a target list, summing into an existing entry of
+    // the same name instead of pushing a duplicate. The same wargear name can appear
+    // across multiple separate bullet lines within one unit/subunit (e.g. two "1x
+    // Drone burst cannon" bullets for the same model).
+    const addWargear = (targetArray, parsedWg) => {
+        const existing = targetArray.find(w => w.name === parsedWg.name);
+        if (existing) {
+            existing.quantity += parsedWg.quantity;
+        } else {
+            targetArray.push(parsedWg);
+        }
+    };
+
     const getCategory = (str) => {
         const lower = str.trim().toLowerCase();
         if (lower.startsWith('character')) return 'Characters';
@@ -131,9 +144,9 @@ export function parseNRGW(lines, skippableWargearMap = {}) {
                 items.forEach(it => {
                     const parsedWg = parseQtyAndName(it, currentUnit ? currentUnit.name : '');
                     if (currentSubunit && leadingSpaces > 2) {
-                        currentSubunit.wargear.push(parsedWg);
+                        addWargear(currentSubunit.wargear, parsedWg);
                     } else if (currentUnit) {
-                        currentUnit.wargear.push(parsedWg);
+                        addWargear(currentUnit.wargear, parsedWg);
                     }
                 });
             }

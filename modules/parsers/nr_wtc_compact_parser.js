@@ -44,6 +44,19 @@ export function parseNRWTCCompact(lines, skippableWargearMap = {}) {
         };
     };
 
+    // Add a parsed wargear item to a subunit's wargear list, summing into an existing
+    // entry of the same name instead of pushing a duplicate. A subunit's loadout is
+    // often split across several "N with ..." lines/segments (e.g. rank-and-file vs.
+    // an icon bearer), so the same wargear name can legitimately appear more than once.
+    const addWargear = (targetArray, parsedWg) => {
+        const existing = targetArray.find(w => w.name === parsedWg.name);
+        if (existing) {
+            existing.quantity += parsedWg.quantity;
+        } else {
+            targetArray.push(parsedWg);
+        }
+    };
+
     for (let i = nextIndex; i < cleanLines.length; i++) {
         const line = cleanLines[i];
         const trimmed = line.trim();
@@ -81,9 +94,19 @@ export function parseNRWTCCompact(lines, skippableWargearMap = {}) {
                     wargear: []
                 };
 
-                const items = itemsStr.split(',').map(s => s.trim()).filter(Boolean);
+                // An inline subunit's item text can itself lead with a "N with ..."
+                // model-count multiplier (e.g. "2x Shas'ui: 2 with Gun Drone, Plasma rifle")
+                // when all N models in the subunit share one loadout. Distinguish that
+                // from a per-item "Nx Item" quantity on the first item (no "with").
+                const modelPrefixMatch = itemsStr.match(/^(\d+)\s+with\s+(.*)$/i);
+                const modelMultiplier = modelPrefixMatch ? (parseInt(modelPrefixMatch[1], 10) || 1) : 1;
+                const rawItemsStr = modelPrefixMatch ? modelPrefixMatch[2] : itemsStr;
+
+                const items = rawItemsStr.split(',').map(s => s.trim()).filter(Boolean);
                 items.forEach(it => {
-                    currentSubunit.wargear.push(parseQtyAndName(it, currentUnit ? currentUnit.name : ''));
+                    const parsedWg = parseQtyAndName(it, currentUnit ? currentUnit.name : '');
+                    parsedWg.quantity = parsedWg.quantity * modelMultiplier;
+                    addWargear(currentSubunit.wargear, parsedWg);
                 });
 
                 if (currentUnit) {
@@ -121,7 +144,7 @@ export function parseNRWTCCompact(lines, skippableWargearMap = {}) {
                 items.forEach(it => {
                     const parsedWg = parseQtyAndName(it, currentUnit ? currentUnit.name : '');
                     parsedWg.quantity = parsedWg.quantity * modelQty;
-                    currentSubunit.wargear.push(parsedWg);
+                    addWargear(currentSubunit.wargear, parsedWg);
                 });
             }
             continue;
@@ -164,7 +187,7 @@ export function parseNRWTCCompact(lines, skippableWargearMap = {}) {
                     if (p.toLowerCase() === 'warlord') {
                         currentUnit.isWarlord = true;
                     } else {
-                        currentUnit.wargear.push(parseQtyAndName(p, name));
+                        addWargear(currentUnit.wargear, parseQtyAndName(p, name));
                     }
                 });
             }

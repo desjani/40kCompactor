@@ -47,9 +47,16 @@ export function parseGwAppV11(lines, skippableWargearMap = {}) {
             "charaktermodelle": "Characters",
             "personaggi": "Characters",
 
+            // Battleline
+            // TODO: confirm Spanish/German/Italian equivalents against real exports
+            // before adding — "ligne" (French) is confirmed against a live export.
+            "battleline": "Battleline",
+            "ligne": "Battleline",
+
             // Dedicated transports
             "dedicated transports": "Dedicated Transports",
             "transports assignes": "Dedicated Transports",
+            "transport assigne": "Dedicated Transports",
             "transportes asignados": "Dedicated Transports",
             "angeschlossene transportfahrzeuge": "Dedicated Transports",
             "trasporti dedicati": "Dedicated Transports",
