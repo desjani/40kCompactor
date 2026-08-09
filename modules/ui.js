@@ -227,12 +227,12 @@ function saveCustomAbbrs() {
     }
 }
 
-function renderCustomAbbrsUI(onUpdate) {
+function renderCustomAbbrsUI(onUpdate, onEditStart) {
     if (!isBrowser) return;
     const list = document.getElementById('customAbbrList');
     if (!list) return;
     list.innerHTML = '';
-    
+
     if (Object.keys(customAbbrs).length === 0) {
         list.innerHTML = '<div style="color: #666; font-style: italic; padding: 4px;">No custom abbreviations defined.</div>';
         return;
@@ -249,14 +249,31 @@ function renderCustomAbbrsUI(onUpdate) {
         row.style.alignItems = 'center';
         row.style.padding = '2px 0';
         row.style.borderBottom = '1px solid #222';
-        
+
         const text = document.createElement('span');
         text.textContent = `${name} → ${abbr}`;
         text.style.overflow = 'hidden';
         text.style.textOverflow = 'ellipsis';
         text.style.whiteSpace = 'nowrap';
         text.style.marginRight = '8px';
-        
+
+        const btnGroup = document.createElement('div');
+        btnGroup.style.display = 'flex';
+        btnGroup.style.gap = '4px';
+        btnGroup.style.flexShrink = '0';
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✎';
+        editBtn.title = 'Edit';
+        editBtn.className = 'btn';
+        editBtn.style.padding = '0 6px';
+        editBtn.style.fontSize = '14px';
+        editBtn.style.lineHeight = '1.2';
+        editBtn.style.minWidth = 'auto';
+        editBtn.onclick = () => {
+            if (onEditStart) onEditStart(name);
+        };
+
         const delBtn = document.createElement('button');
         delBtn.textContent = '×';
         delBtn.className = 'btn btn-danger';
@@ -267,12 +284,15 @@ function renderCustomAbbrsUI(onUpdate) {
         delBtn.onclick = () => {
             delete customAbbrs[name];
             saveCustomAbbrs();
-            renderCustomAbbrsUI(onUpdate);
+            renderCustomAbbrsUI(onUpdate, onEditStart);
             if (onUpdate) onUpdate();
         };
-        
+
+        btnGroup.appendChild(editBtn);
+        btnGroup.appendChild(delBtn);
+
         row.appendChild(text);
-        row.appendChild(delBtn);
+        row.appendChild(btnGroup);
         list.appendChild(row);
     });
 }
@@ -282,37 +302,103 @@ function setupCustomAbbrsUI(onUpdate) {
     const addBtn = document.getElementById('addCustomAbbrBtn');
     const nameInput = document.getElementById('customAbbrOriginal');
     const abbrInput = document.getElementById('customAbbrShort');
-    
+    const messageEl = document.getElementById('customAbbrMessage');
+    let editingKey = null;
+
+    // Finds an existing entry whose name matches (case-insensitive), excluding the entry being edited
+    const findDuplicateNameKey = (name) => {
+        if (!name) return null;
+        return Object.keys(customAbbrs).find(k =>
+            k.toLowerCase() === name.toLowerCase() &&
+            !(editingKey && k.toLowerCase() === editingKey.toLowerCase())
+        ) || null;
+    };
+
+    // Finds an existing entry (under a different name) whose abbreviation matches (case-insensitive)
+    const findAbbrConflictName = (name, abbr) => {
+        if (!abbr) return null;
+        return Object.keys(customAbbrs).find(k =>
+            customAbbrs[k].toLowerCase() === abbr.toLowerCase() &&
+            k.toLowerCase() !== name.toLowerCase() &&
+            !(editingKey && k.toLowerCase() === editingKey.toLowerCase())
+        ) || null;
+    };
+
+    const updateMessage = () => {
+        if (!messageEl) return;
+        const name = nameInput.value.trim();
+        const abbr = abbrInput.value.trim();
+        const duplicateNameKey = findDuplicateNameKey(name);
+        if (duplicateNameKey) {
+            messageEl.textContent = `"${duplicateNameKey}" already has a custom abbreviation defined. Duplicate entries are not allowed.`;
+            messageEl.style.color = '#ff5c5c';
+            return;
+        }
+        const abbrConflictName = findAbbrConflictName(name, abbr);
+        if (abbrConflictName) {
+            messageEl.textContent = `⚠ "${abbr}" is also used for "${abbrConflictName}" — this may cause confusion.`;
+            messageEl.style.color = '#e0b03d';
+            return;
+        }
+        messageEl.textContent = '';
+    };
+
+    const startEdit = (name) => {
+        editingKey = name;
+        nameInput.value = name;
+        abbrInput.value = customAbbrs[name];
+        if (addBtn) addBtn.textContent = 'Update';
+        nameInput.focus();
+        updateMessage();
+    };
+
+    const saveAbbr = () => {
+        const name = nameInput.value.trim();
+        const abbr = abbrInput.value.trim();
+
+        if (!name || !abbr) {
+            alert('Please enter both a name and an abbreviation.');
+            return;
+        }
+
+        const duplicateNameKey = findDuplicateNameKey(name);
+        if (duplicateNameKey) {
+            alert(`"${duplicateNameKey}" already has a custom abbreviation defined. Duplicate entries are not allowed.`);
+            return;
+        }
+
+        if (editingKey) {
+            delete customAbbrs[editingKey];
+        }
+
+        customAbbrs[name] = abbr;
+        saveCustomAbbrs();
+        editingKey = null;
+        if (addBtn) addBtn.textContent = 'Add';
+        renderCustomAbbrsUI(onUpdate, startEdit);
+        nameInput.value = '';
+        abbrInput.value = '';
+        updateMessage();
+        nameInput.focus();
+        if (onUpdate) onUpdate();
+    };
+
     if (addBtn && nameInput && abbrInput) {
-        addBtn.addEventListener('click', () => {
-            const name = nameInput.value.trim();
-            const abbr = abbrInput.value.trim();
-            
-            if (!name || !abbr) {
-                alert('Please enter both a name and an abbreviation.');
-                return;
+        addBtn.addEventListener('click', saveAbbr);
+
+        abbrInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveAbbr();
             }
-            
-            // Check for duplicates (case-insensitive key check)
-            // We store keys as provided but check case-insensitively
-            const existingKey = Object.keys(customAbbrs).find(k => k.toLowerCase() === name.toLowerCase());
-            if (existingKey) {
-                if (!confirm(`"${existingKey}" is already defined as "${customAbbrs[existingKey]}". Overwrite?`)) {
-                    return;
-                }
-            }
-            
-            customAbbrs[name] = abbr;
-            saveCustomAbbrs();
-            renderCustomAbbrsUI(onUpdate);
-            nameInput.value = '';
-            abbrInput.value = '';
-            if (onUpdate) onUpdate();
         });
+
+        nameInput.addEventListener('input', updateMessage);
+        abbrInput.addEventListener('input', updateMessage);
     }
-    
+
     loadCustomAbbrs();
-    renderCustomAbbrsUI(onUpdate);
+    renderCustomAbbrsUI(onUpdate, startEdit);
 }
 
 export function enableParseButton() {

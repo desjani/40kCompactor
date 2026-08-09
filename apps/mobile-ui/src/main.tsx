@@ -1,5 +1,5 @@
 import { render } from 'preact'
-import { useEffect, useMemo, useState } from 'preact/hooks'
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import * as AnsiUpNS from 'ansi_up'
 import * as htmlToImage from 'html-to-image'
 import './style.css'
@@ -67,6 +67,9 @@ function App() {
   // Temporary state for adding new abbreviations
   const [newAbbrName, setNewAbbrName] = useState('')
   const [newAbbrCode, setNewAbbrCode] = useState('')
+  const [editingAbbrKey, setEditingAbbrKey] = useState<string | null>(null)
+  const newAbbrNameRef = useRef<HTMLInputElement | null>(null)
+  const newAbbrCodeRef = useRef<HTMLInputElement | null>(null)
 
   const parsed = useMemo(() => {
     if (!text.trim()) return null
@@ -313,17 +316,69 @@ function App() {
     }
   }
 
+  function findDuplicateNameKey(name: string): string | null {
+    if (!name) return null
+    return Object.keys(customAbbrs).find(k =>
+      k.toLowerCase() === name.toLowerCase() &&
+      !(editingAbbrKey && k.toLowerCase() === editingAbbrKey.toLowerCase())
+    ) ?? null
+  }
+
+  function findAbbrConflictName(name: string, code: string): string | null {
+    if (!code) return null
+    return Object.keys(customAbbrs).find(k =>
+      customAbbrs[k].toLowerCase() === code.toLowerCase() &&
+      k.toLowerCase() !== name.toLowerCase() &&
+      !(editingAbbrKey && k.toLowerCase() === editingAbbrKey.toLowerCase())
+    ) ?? null
+  }
+
+  const abbrDuplicateNameKey = useMemo(
+    () => findDuplicateNameKey(newAbbrName.trim()),
+    [newAbbrName, customAbbrs, editingAbbrKey]
+  )
+  const abbrConflictName = useMemo(
+    () => abbrDuplicateNameKey ? null : findAbbrConflictName(newAbbrName.trim(), newAbbrCode.trim()),
+    [newAbbrName, newAbbrCode, customAbbrs, editingAbbrKey, abbrDuplicateNameKey]
+  )
+
   function addCustomAbbr() {
-    if (!newAbbrName.trim() || !newAbbrCode.trim()) return
-    setCustomAbbrs({ ...customAbbrs, [newAbbrName.trim()]: newAbbrCode.trim() })
+    const name = newAbbrName.trim()
+    const code = newAbbrCode.trim()
+    if (!name || !code) return
+    const duplicateNameKey = findDuplicateNameKey(name)
+    if (duplicateNameKey) {
+      alert(`"${duplicateNameKey}" already has a custom abbreviation defined. Duplicate entries are not allowed.`)
+      return
+    }
+    const next = { ...customAbbrs }
+    if (editingAbbrKey) {
+      delete next[editingAbbrKey]
+    }
+    next[name] = code
+    setCustomAbbrs(next)
     setNewAbbrName('')
     setNewAbbrCode('')
+    setEditingAbbrKey(null)
+    newAbbrNameRef.current?.focus()
   }
 
   function removeCustomAbbr(name: string) {
     const next = { ...customAbbrs }
     delete next[name]
     setCustomAbbrs(next)
+    if (editingAbbrKey === name) {
+      setEditingAbbrKey(null)
+      setNewAbbrName('')
+      setNewAbbrCode('')
+    }
+  }
+
+  function startEditCustomAbbr(name: string) {
+    setEditingAbbrKey(name)
+    setNewAbbrName(name)
+    setNewAbbrCode(customAbbrs[name] ?? '')
+    newAbbrNameRef.current?.focus()
   }
 
   return (
@@ -516,22 +571,35 @@ function App() {
                     [ + CUSTOM ABBREVIATIONS ]
                   </summary>
                   <div class="row" style={{ gap: '6px', marginBottom: '8px' }}>
-                    <input 
-                      type="text" 
-                      placeholder="Name (e.g. Plasma Pistol)" 
-                      value={newAbbrName} 
-                      onInput={(e: any) => setNewAbbrName(e.currentTarget.value)} 
-                      style={{ flex: 2 }} 
+                    <input
+                      type="text"
+                      placeholder="Name (e.g. Plasma Pistol)"
+                      value={newAbbrName}
+                      onInput={(e: any) => setNewAbbrName(e.currentTarget.value)}
+                      ref={newAbbrNameRef}
+                      style={{ flex: 2 }}
                     />
-                    <input 
-                      type="text" 
-                      placeholder="Abbr" 
-                      value={newAbbrCode} 
-                      onInput={(e: any) => setNewAbbrCode(e.currentTarget.value)} 
-                      style={{ flex: 1 }} 
+                    <input
+                      type="text"
+                      placeholder="Abbr"
+                      value={newAbbrCode}
+                      onInput={(e: any) => setNewAbbrCode(e.currentTarget.value)}
+                      onKeyDown={(e: any) => { if (e.key === 'Enter') { e.preventDefault(); addCustomAbbr(); } }}
+                      ref={newAbbrCodeRef}
+                      style={{ flex: 1 }}
                     />
-                    <button class="btn" onClick={addCustomAbbr} style={{ padding: '6px 10px' }}>+</button>
+                    <button class="btn" onClick={addCustomAbbr} style={{ padding: '6px 10px' }}>{editingAbbrKey ? '✓' : '+'}</button>
                   </div>
+                  {abbrDuplicateNameKey && (
+                    <div style={{ color: '#ef4444', fontSize: '10px', marginBottom: '8px' }}>
+                      "{abbrDuplicateNameKey}" already has a custom abbreviation defined. Duplicate entries are not allowed.
+                    </div>
+                  )}
+                  {!abbrDuplicateNameKey && abbrConflictName && (
+                    <div style={{ color: '#eab308', fontSize: '10px', marginBottom: '8px' }}>
+                      ⚠ "{newAbbrCode.trim()}" is also used for "{abbrConflictName}" — this may cause confusion.
+                    </div>
+                  )}
                   <div style={{ maxHeight: '120px', overflowY: 'auto', fontSize: '11px', border: '1px solid #1f2833', padding: '6px', background: '#0b0c10' }}>
                     {Object.entries(customAbbrs).length === 0 && (
                       <div style={{ color: '#4f5e71', fontStyle: 'italic' }}>No custom abbreviations set.</div>
@@ -539,13 +607,22 @@ function App() {
                     {Object.entries(customAbbrs).map(([name, code]) => (
                       <div key={name} class="row" style={{ justifyContent: 'space-between', alignItems: 'center', padding: '3px 0', borderBottom: '1px dashed #1f2833' }}>
                         <span>{name} &rarr; <strong style={{ color: '#22c55e' }}>{code}</strong></span>
-                        <button 
-                          class="btn" 
-                          style={{ padding: '2px 6px', fontSize: '9px', borderColor: '#ef4444', color: '#ef4444', textShadow: 'none' }} 
-                          onClick={() => removeCustomAbbr(name)}
-                        >
-                          [X]
-                        </button>
+                        <span style={{ display: 'flex', gap: '4px' }}>
+                          <button
+                            class="btn"
+                            style={{ padding: '2px 6px', fontSize: '9px', borderColor: '#45f3ff', color: '#45f3ff', textShadow: 'none' }}
+                            onClick={() => startEditCustomAbbr(name)}
+                          >
+                            [E]
+                          </button>
+                          <button
+                            class="btn"
+                            style={{ padding: '2px 6px', fontSize: '9px', borderColor: '#ef4444', color: '#ef4444', textShadow: 'none' }}
+                            onClick={() => removeCustomAbbr(name)}
+                          >
+                            [X]
+                          </button>
+                        </span>
                       </div>
                     ))}
                   </div>
