@@ -1,0 +1,32 @@
+#!/bin/sh
+# pre-commit hook: run the automated test suite, then update build_meta.json
+# and stage it. A failing test suite aborts the commit outright -- since
+# post-commit auto-pushes to origin and auto-deploys the live Discord bot on
+# main, this is the only gate standing between a broken parser/renderer and
+# production.
+
+echo "[pre-commit] Running test suite..."
+if ! npm test; then
+  echo "[pre-commit] Test suite failed. Commit aborted." >&2
+  exit 1
+fi
+
+echo "[pre-commit] Running format/render smoke validation..."
+if ! npm run validate; then
+  echo "[pre-commit] Smoke validation failed. Commit aborted." >&2
+  exit 1
+fi
+
+SCRIPT="./scripts/write_build_meta.sh"
+
+if [ -x "$SCRIPT" ]; then
+  "$SCRIPT"
+else
+  echo "[pre-commit] $SCRIPT not found or not executable. Skipping build_meta generation."
+fi
+
+if [ -f build_meta.json ]; then
+  git add build_meta.json
+fi
+
+exit 0

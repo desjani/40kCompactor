@@ -6,12 +6,16 @@ Compacts Warhammer 40k army lists into Discord-friendly output. See README.md fo
 
 **Never modify anything under `v10/`.** It's the version-locked legacy 10th-edition compactor.
 
-## Git hooks (local only — not tracked by git, must be re-set-up after a fresh clone)
+## Git hooks (tracked source lives in `scripts/hooks/`; `.git/hooks/` itself is never tracked by git and must be re-installed after a fresh clone)
 
-- `pre-commit` runs `scripts/write_build_meta.sh`, which regenerates and stages `build_meta.json` with the current commit SHA/timestamp.
-- `post-commit`, only when on `main`: pushes to `origin`, then runs `scripts/deploy_unraid.sh`, which SSHes into the Unraid host (METRON), pulls the latest `main`, and rebuilds/restarts the `40k-compactor-bot` Docker container. **Every commit to `main` auto-deploys the live Discord bot.**
-- After a fresh clone, re-enable with:
-  `chmod +x scripts/write_build_meta.sh scripts/deploy_unraid.sh .git/hooks/pre-commit .git/hooks/post-commit`
+- `pre-commit` runs `npm test` and `npm run validate`, aborting the commit if either fails, then runs `scripts/write_build_meta.sh` to regenerate and stage `build_meta.json` with the current commit SHA/timestamp. **This is the only gate before an automatic deploy — see below.**
+- `post-commit`, only when on `main`: pushes to `origin`, then runs `scripts/deploy_unraid.sh`, which SSHes into the Unraid host (METRON), pulls the latest `main`, and rebuilds/restarts the `40k-compactor-bot` Docker container. **Every commit to `main` that passes pre-commit auto-deploys the live Discord bot.**
+- After a fresh clone, install the tracked hooks and make everything executable:
+  ```
+  cp scripts/hooks/pre-commit scripts/hooks/post-commit .git/hooks/
+  chmod +x scripts/write_build_meta.sh scripts/deploy_unraid.sh .git/hooks/pre-commit .git/hooks/post-commit
+  ```
+- If you change hook behavior, edit `scripts/hooks/pre-commit` / `scripts/hooks/post-commit` (the tracked source) **and** copy the change into `.git/hooks/` — the latter is what actually runs and is never committed.
 
 ## Release checklist (version bumps)
 

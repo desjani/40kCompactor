@@ -18,7 +18,21 @@ const samples = [
   { file: 'samples/NR-WTC-Sample-Tau.txt', expect: 'NR_WTC' },
   { file: 'samples/NR-WTC-Sample-WorldEaters.txt', expect: 'NR_WTC' },
   { file: 'samples/NR-GW-Sample-Tau.txt', expect: 'NR_GW' },
-  { file: 'samples/NR-GW-Sample-WorldEaters.txt', expect: 'NR_GW' }
+  { file: 'samples/NR-GW-Sample-WorldEaters.txt', expect: 'NR_GW' },
+  { file: 'samples/WO-Sample-SOB1.txt', expect: 'WAR_ORGAN_V11' },
+  { file: 'samples/WO-Sample-SOB2.txt', expect: 'WAR_ORGAN_V11' },
+  { file: 'samples/WO-Sample-AM1.txt', expect: 'WAR_ORGAN_V11' },
+  { file: 'samples/WO-Sample-AM2.txt', expect: 'WAR_ORGAN_V11' },
+  { file: 'samples/Test-TAU-GWAPP-English', expect: 'GW_APP_V11' },
+  { file: 'samples/Test-TAU-GWAPP-French', expect: 'GW_APP_V11' },
+  { file: 'samples/Test-WE-GWAPP-English', expect: 'GW_APP_V11' },
+  { file: 'samples/Test-WE-GWAPP-French', expect: 'GW_APP_V11' },
+  { file: 'samples/Test-TAU-NRGW-English', expect: 'NR_GW' },
+  { file: 'samples/Test-WE-NRGW-English', expect: 'NR_GW' },
+  { file: 'samples/Test-TAU-NRTournament-English', expect: 'NR_WTC_COMPACT' },
+  { file: 'samples/Test-WE-NRTournament-English', expect: 'NR_WTC_COMPACT' },
+  { file: 'samples/Test-TAU-WARORGAN-English', expect: 'WAR_ORGAN_V11' },
+  { file: 'samples/Test-WE-WARORGAN-English', expect: 'WAR_ORGAN_V11' }
 ];
 
 const renderCombos = [
@@ -53,7 +67,8 @@ async function main() {
         GW_APP_V11: parsers.parseGwAppV11,
         NR_WTC_COMPACT: parsers.parseNRWTCCompact,
         NR_WTC: parsers.parseNRWTC,
-        NR_GW: parsers.parseNRGW
+        NR_GW: parsers.parseNRGW,
+        WAR_ORGAN_V11: parsers.parseWarOrganV11
       }[detected];
       if (!parser) throw new Error(`No parser found for format ${detected}`);
       data = parser(lines);

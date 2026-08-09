@@ -15,7 +15,7 @@
   "scripts": {
     "start": "node scripts/server.mjs",
     "validate": "node scripts/validate_all_formats.mjs",
-    "test": "node scripts/test_runner.mjs",
+    "test": "node --test test/*.test.mjs",
     "lint": "eslint --ext .js,.mjs modules components scripts/validate_all_formats.mjs"
   },
   "devDependencies": {

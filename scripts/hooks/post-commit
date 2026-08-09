@@ -1,0 +1,27 @@
+#!/bin/sh
+# post-commit hook: push to origin, then deploy to Unraid so the
+# container always reflects the commit that was just made.
+# Only runs on main; commits on other branches are local-only.
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$BRANCH" != "main" ]; then
+  echo "[post-commit] On branch '$BRANCH', not 'main' -- skipping push/deploy."
+  exit 0
+fi
+
+set -e
+
+echo "Pushing $BRANCH to origin..."
+git push origin "$BRANCH"
+
+SCRIPT="./scripts/deploy_unraid.sh"
+
+echo "Running post-commit deployment to Unraid..."
+
+if [ -x "$SCRIPT" ]; then
+  "$SCRIPT"
+else
+  echo "Error: $SCRIPT not found or not executable."
+  exit 1
+fi
