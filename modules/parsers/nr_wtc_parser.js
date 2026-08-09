@@ -13,7 +13,6 @@ export function parseNRWTC(lines, skippableWargearMap = {}) {
         };
     }
 
-    // TODO: Re-add Force Dispositions when New Recruit adds support
     // TODO: Re-add Attached Units when New Recruit adds support
 
     const cleanLines = lines.map(l => l ? l.replace(/\u00a0/g, ' ') : '');

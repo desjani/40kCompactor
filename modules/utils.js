@@ -504,6 +504,14 @@ export function parseNewRecruitHeader(lines) {
                     continue;
                 }
 
+                const forceDispositionMatch = content.match(/^FORCE DISPOSITION:\s*(.*)$/i);
+                if (forceDispositionMatch) {
+                    const dispVal = forceDispositionMatch[1].trim();
+                    metadata.forceDispositions = dispVal.split(',').map(d => d.trim()).filter(Boolean);
+                    i++;
+                    continue;
+                }
+
                 const pointsMatch = content.match(/^TOTAL ARMY POINTS:\s*(\d+)/i);
                 if (pointsMatch) {
                     const pts = parseInt(pointsMatch[1], 10) || 0;
@@ -546,8 +554,6 @@ export function parseNewRecruitHeader(lines) {
 
                 const secondaryMatch = content.match(/^SECONDARY:\s*(.*)$/i);
                 if (secondaryMatch) {
-                    // TODO: Re-add Force Dispositions when New Recruit adds support
-                    metadata.forceDispositions = [];
                     i++;
                     continue;
                 }
