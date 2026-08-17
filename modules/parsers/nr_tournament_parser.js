@@ -1,6 +1,6 @@
 import { isWargearSkippable, parseNewRecruitHeader } from '../utils.js';
 
-export function parseNRWTCCompact(lines, skippableWargearMap = {}) {
+export function parseNRTournament(lines, skippableWargearMap = {}) {
     if (!Array.isArray(lines) || lines.length === 0) {
         return {
             edition: '11th',

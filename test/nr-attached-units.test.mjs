@@ -1,5 +1,5 @@
 // New Recruit added "attached units" support to two of its export formats in the
-// same update: Tournament (NR_WTC_COMPACT) encodes it via a "Leading X[N]" hint on
+// same update: Tournament (NR_TOURNAMENT) encodes it via a "Leading X[N]" hint on
 // the character plus an "Attached to <Character>" backlink on the unit; the GW-style
 // export (NR_GW) wraps them in an explicit "Attached Units" / "Attached Unit N"
 // section identical in spirit to what gwapp_v11.js already parses. Both parsers must
@@ -7,7 +7,7 @@
 // 'Bodyguard' }] } shape the renderers already understand from the GW App format.
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { parseNRWTCCompact, parseNRGW } from '../modules/parsers.js';
+import { parseNRTournament, parseNRGW } from '../modules/parsers.js';
 import { readSample, skippableWargear } from './helpers.mjs';
 
 const STANDALONE_UNITS = [
@@ -67,9 +67,9 @@ function checkParsedWE2(data) {
     assert.deepStrictEqual(standaloneSet, expectedSet);
 }
 
-test('NR_WTC_COMPACT (Tournament): "Leading X[N]" / "Attached to" backlinks merge into leader+bodyguard pairs', () => {
+test('NR_TOURNAMENT: "Leading X[N]" / "Attached to" backlinks merge into leader+bodyguard pairs', () => {
     const lines = readSample('Test-WE2-NRTournament-English');
-    const data = parseNRWTCCompact(lines, skippableWargear);
+    const data = parseNRTournament(lines, skippableWargear);
     checkParsedWE2(data);
 });
 

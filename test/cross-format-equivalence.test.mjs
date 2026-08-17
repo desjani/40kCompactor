@@ -20,12 +20,12 @@
 // regression in a previously-clean unit still fails the build.
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { detectFormat, parseNRGW, parseNRWTCCompact, parseGwAppV11, parseWarOrganV11 } from '../modules/parsers.js';
+import { detectFormat, parseNRGW, parseNRTournament, parseGwAppV11, parseWarOrganV11 } from '../modules/parsers.js';
 import { readSample, comparableUnitSet } from './helpers.mjs';
 
 const parserByFormat = {
     NR_GW: parseNRGW,
-    NR_WTC_COMPACT: parseNRWTCCompact,
+    NR_TOURNAMENT: parseNRTournament,
     GW_APP_V11: parseGwAppV11,
     WAR_ORGAN_V11: parseWarOrganV11
 };

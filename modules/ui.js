@@ -486,7 +486,7 @@ export function updateCharCounts(original, extended, compact, markdownPreview, d
     // Map internal format codes to user-friendly labels
     const formatLabelMap = {
         'GW_APP': 'GW Official App',
-        'WTC_COMPACT': "New Recruit - WTC-Compact",
+        'NR_TOURNAMENT': "New Recruit - Tournament",
         'NR_GW': 'New Recruit - GW'
     // 'LF': 'Listforge'
     };

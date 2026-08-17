@@ -17,7 +17,7 @@ This tool supports the following formats:
 
 ## Features
 
-*   **Multiple Format Support:** Paste your army list from GW App, New Recruit (WTC-Compact, WTC, GW/NR), NRNR, or ListForge (Detailed).
+*   **Multiple Format Support:** Paste your army list from GW App, New Recruit (Tournament, GW/NR), NRNR, or ListForge (Detailed).
 *   **Extended and Compact Views:** See your full list or a compacted version with abbreviations.
 *   **Discord-Friendly Output:** Copy your list in various formats for easy pasting into Discord. Output is code-fenced for both ANSI-colored and plain text.
 *   **Customizable Colors:** Choose your own colors for the Discord output.

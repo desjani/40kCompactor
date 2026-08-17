@@ -1,4 +1,4 @@
-import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11, parseNRWTCCompact, parseNRWTC, parseNRGW } from './parsers.js';
+import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11, parseNRTournament, parseNRGW } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth, copyCardImageToClipboard } from './cardRenderer.js';
@@ -197,8 +197,7 @@ function handleParse() {
         V11_GENERIC: parseV11List,
         GW_APP_V11: parseGwAppV11,
         WAR_ORGAN_V11: parseWarOrganV11,
-        NR_WTC_COMPACT: parseNRWTCCompact,
-        NR_WTC: parseNRWTC,
+        NR_TOURNAMENT: parseNRTournament,
         NR_GW: parseNRGW
     }[format];
     if (!parser) {

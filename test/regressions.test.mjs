@@ -5,7 +5,7 @@
 // the broader consistency checks that originally surfaced these bugs.
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { parseNRWTCCompact, parseNRGW, parseGwAppV11, parseWarOrganV11 } from '../modules/parsers.js';
+import { parseNRTournament, parseNRGW, parseGwAppV11, parseWarOrganV11 } from '../modules/parsers.js';
 
 // --- New Recruit: shared header parser (parseNewRecruitHeader) ---
 
@@ -20,7 +20,7 @@ test('NR header: FORCE DISPOSITION is parsed (was silently dropped)', () => {
         '',
         'Char1: 1x Khârn the Betrayer (115 pts): Gorechild, Plasma pistol'
     ];
-    const result = parseNRWTCCompact(lines);
+    const result = parseNRTournament(lines);
     assert.deepStrictEqual(result.metadata.forceDispositions, ['Purge the Foe']);
 });
 
@@ -36,11 +36,11 @@ test('NR header: SECONDARY line no longer clobbers a previously-parsed FORCE DIS
         '',
         'Char1: 1x Khârn the Betrayer (115 pts): Gorechild, Plasma pistol'
     ];
-    const result = parseNRWTCCompact(lines);
+    const result = parseNRTournament(lines);
     assert.deepStrictEqual(result.metadata.forceDispositions, ['Purge the Foe']);
 });
 
-// --- New Recruit Tournament format (nr_wtc_compact_parser.js) ---
+// --- New Recruit Tournament format (nr_tournament_parser.js) ---
 
 test('NR Tournament: wargear split across multiple "N with ..." detail lines under one subunit is merged, not duplicated', () => {
     const lines = [
@@ -52,7 +52,7 @@ test('NR Tournament: wargear split across multiple "N with ..." detail lines und
         '    2 with Chainblade, Plasma pistol',
         '• 1x Khorne Berzerker Champion: Chainblade, Plasma pistol'
     ];
-    const result = parseNRWTCCompact(lines);
+    const result = parseNRTournament(lines);
     const unit = result.units.find(u => u.name === 'Khorne Berzerkers');
     const rankAndFile = unit.subunits.find(s => s.name === 'Khorne Berzerker');
     const byName = Object.fromEntries(rankAndFile.wargear.map(w => [w.name, w.quantity]));
@@ -65,7 +65,7 @@ test('NR Tournament: inline "subunit: N with X, Y" multiplies every item by the 
         '3x Crisis Fireknife Battlesuits (100 pts)',
         '• 2x Crisis Fireknife Shas\'ui: 2 with Gun Drone, Shield Drone, Battlesuit fists, 2x Plasma rifle'
     ];
-    const result = parseNRWTCCompact(lines);
+    const result = parseNRTournament(lines);
     const unit = result.units.find(u => u.name === 'Crisis Fireknife Battlesuits');
     const shasui = unit.subunits.find(s => s.name === "Crisis Fireknife Shas'ui");
     const byName = Object.fromEntries(shasui.wargear.map(w => [w.name, w.quantity]));
@@ -77,7 +77,7 @@ test('NR Tournament: unit-header inline wargear with a repeated item name is mer
         '+++', '+ FACTION KEYWORD: Chaos - World Eaters', '+ TOTAL ARMY POINTS: 2000pts', '+++',
         '1x Chaos Rhino (75 pts): Armoured tracks, Combi-bolter, Havoc launcher, Combi-bolter'
     ];
-    const result = parseNRWTCCompact(lines);
+    const result = parseNRTournament(lines);
     const unit = result.units.find(u => u.name === 'Chaos Rhino');
     const byName = Object.fromEntries(unit.wargear.map(w => [w.name, w.quantity]));
     assert.deepStrictEqual(byName, { 'Armoured tracks': 1, 'Combi-bolter': 2, 'Havoc launcher': 1 });

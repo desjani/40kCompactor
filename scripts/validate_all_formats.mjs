@@ -13,10 +13,8 @@ const samples = [
   { file: 'samples/GWAPP-Sample-Tau.txt', expect: 'GW_APP_V11' },
   { file: 'samples/GWAPP-Sample-WorldEaters.txt', expect: 'GW_APP_V11' },
   { file: 'samples/GWAPP-Sample-ImperialKnights', expect: 'GW_APP_V11' },
-  { file: 'samples/NR-WTCCompact-Sample-Tau.txt', expect: 'NR_WTC_COMPACT' },
-  { file: 'samples/NR-WTCCompact-Sample-WorldEaters.txt', expect: 'NR_WTC_COMPACT' },
-  { file: 'samples/NR-WTC-Sample-Tau.txt', expect: 'NR_WTC' },
-  { file: 'samples/NR-WTC-Sample-WorldEaters.txt', expect: 'NR_WTC' },
+  { file: 'samples/NR-Tournament-Sample-Tau.txt', expect: 'NR_TOURNAMENT' },
+  { file: 'samples/NR-Tournament-Sample-WorldEaters.txt', expect: 'NR_TOURNAMENT' },
   { file: 'samples/NR-GW-Sample-Tau.txt', expect: 'NR_GW' },
   { file: 'samples/NR-GW-Sample-WorldEaters.txt', expect: 'NR_GW' },
   { file: 'samples/WO-Sample-SOB1.txt', expect: 'WAR_ORGAN_V11' },
@@ -29,10 +27,10 @@ const samples = [
   { file: 'samples/Test-WE-GWAPP-French', expect: 'GW_APP_V11' },
   { file: 'samples/Test-TAU-NRGW-English', expect: 'NR_GW' },
   { file: 'samples/Test-WE-NRGW-English', expect: 'NR_GW' },
-  { file: 'samples/Test-TAU-NRTournament-English', expect: 'NR_WTC_COMPACT' },
-  { file: 'samples/Test-WE-NRTournament-English', expect: 'NR_WTC_COMPACT' },
+  { file: 'samples/Test-TAU-NRTournament-English', expect: 'NR_TOURNAMENT' },
+  { file: 'samples/Test-WE-NRTournament-English', expect: 'NR_TOURNAMENT' },
   { file: 'samples/Test-WE2-NRGW-English', expect: 'NR_GW' },
-  { file: 'samples/Test-WE2-NRTournament-English', expect: 'NR_WTC_COMPACT' },
+  { file: 'samples/Test-WE2-NRTournament-English', expect: 'NR_TOURNAMENT' },
   { file: 'samples/Test-TAU-WARORGAN-English', expect: 'WAR_ORGAN_V11' },
   { file: 'samples/Test-WE-WARORGAN-English', expect: 'WAR_ORGAN_V11' }
 ];
@@ -67,8 +65,7 @@ async function main() {
       const parser = {
         V11_GENERIC: parsers.parseV11List,
         GW_APP_V11: parsers.parseGwAppV11,
-        NR_WTC_COMPACT: parsers.parseNRWTCCompact,
-        NR_WTC: parsers.parseNRWTC,
+        NR_TOURNAMENT: parsers.parseNRTournament,
         NR_GW: parsers.parseNRGW,
         WAR_ORGAN_V11: parsers.parseWarOrganV11
       }[detected];

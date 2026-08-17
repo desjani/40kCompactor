@@ -19,20 +19,15 @@ export function detectV11Format(lines) {
 
         const bodyLines = lines.slice(headerEndIndex + 1).map(l => l.trim()).filter(Boolean);
 
-        // 1. Check for WTC Compact
-        const hasCompactColon = bodyLines.some(l => 
+        // Check for the Tournament export style (New Recruit's current name for
+        // what this codebase used to call "WTC-Compact"; the standalone "WTC"
+        // format this used to distinguish from ("NR_WTC") no longer exists as a
+        // New Recruit export option and has been removed).
+        const hasCompactColon = bodyLines.some(l =>
             /^[A-Za-z0-9:\s•◦\*-]+?\(\d+\s*(?:pts|points|pt)\):\s*\S+/i.test(l)
         );
         if (hasCompactColon) {
-            return 'NR_WTC_COMPACT';
-        }
-
-        // 2. Check for standard WTC vs GW style
-        const hasWtcPrefix = bodyLines.some(l => 
-            /^(?:[a-zA-Z0-9]+:\s*)?\d+x\s+.*?\(\d+\s*(?:pts|points|pt)\)$/i.test(l)
-        );
-        if (hasWtcPrefix) {
-            return 'NR_WTC';
+            return 'NR_TOURNAMENT';
         }
 
         return 'NR_GW';

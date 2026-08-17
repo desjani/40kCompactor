@@ -321,6 +321,12 @@
                 <div class="changelog-entry">
                     <h4>Changelog</h4>
                     <div class="changelog-version-entry">
+                        <h5>Version 1.8.1: New Recruit Tournament Rename</h5>
+                        <ul>
+                            <li>Renamed the internal "NR_WTC_COMPACT" format to "NR_TOURNAMENT", matching New Recruit's current name for this export style. Removed the standalone "NR_WTC" format entirely, since New Recruit no longer produces it.</li>
+                        </ul>
+                    </div>
+                    <div class="changelog-version-entry">
                         <h5>Version 1.8.0: New Recruit Attached Units Support</h5>
                         <ul>
                             <li>New Recruit added support for attached units to its export formats. Both the Tournament export (a "Leading X" / "Attached to" backlink pair) and the GW-style export (an explicit "Attached Units" section, matching the official Warhammer App's convention) are now parsed, grouping each character with its led unit the same way GW App attachments already display.</li>
@@ -588,8 +594,7 @@
                         "./modules/parsers/v11_parser.js": `./modules/parsers/v11_parser.js?v=${version}`,
                         "./modules/parsers/gwapp_v11.js": `./modules/parsers/gwapp_v11.js?v=${version}`,
                         "./modules/parsers/war_organ_parser.js": `./modules/parsers/war_organ_parser.js?v=${version}`,
-                        "./modules/parsers/nr_wtc_compact_parser.js": `./modules/parsers/nr_wtc_compact_parser.js?v=${version}`,
-                        "./modules/parsers/nr_wtc_parser.js": `./modules/parsers/nr_wtc_parser.js?v=${version}`,
+                        "./modules/parsers/nr_tournament_parser.js": `./modules/parsers/nr_tournament_parser.js?v=${version}`,
                         "./modules/parsers/nr_gw_parser.js": `./modules/parsers/nr_gw_parser.js?v=${version}`
                     }
                 };
