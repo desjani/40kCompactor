@@ -42,6 +42,11 @@ const cases = [
     ['Test-WE-NRTournament-English', 'NR_WTC_COMPACT'],
     ['Test-TAU-NRGW-English', 'NR_GW'],
     ['Test-WE-NRGW-English', 'NR_GW'],
+    // WE2 samples exercise New Recruit's newer "attached units" export syntax
+    // (Leading/Attached to backlinks for Tournament, an explicit Attached
+    // Units section for GW-style) - same detection rules apply unchanged.
+    ['Test-WE2-NRTournament-English', 'NR_WTC_COMPACT'],
+    ['Test-WE2-NRGW-English', 'NR_GW'],
 ];
 
 for (const [file, expected] of cases) {

@@ -13,8 +13,6 @@ export function parseNRGW(lines, skippableWargearMap = {}) {
         };
     }
 
-    // TODO: Re-add Attached Units when New Recruit adds support
-
     const cleanLines = lines.map(l => l ? l.replace(/\u00a0/g, ' ') : '');
     const { metadata, nextIndex } = parseNewRecruitHeader(cleanLines);
     const result = {
@@ -26,6 +24,8 @@ export function parseNRGW(lines, skippableWargearMap = {}) {
     let currentUnit = null;
     let currentSubunit = null;
     let currentCategory = 'Other Datasheets';
+    let inAttachedSection = false;
+    let currentAttachedGroup = null;
 
     const parseQtyAndName = (str, unitName) => {
         const cleaned = str.trim();
@@ -88,19 +88,63 @@ export function parseNRGW(lines, skippableWargearMap = {}) {
 
         const leadingSpaces = line.length - line.trimStart().length;
 
-        // 1. Check for Category header
+        // 1. Check for the "Attached Units" section header
+        if (/^attached units$/i.test(trimmed)) {
+            inAttachedSection = true;
+            currentCategory = 'Attached Units';
+            currentUnit = null;
+            currentSubunit = null;
+            currentAttachedGroup = null;
+            continue;
+        }
+
+        // 2. Check for Category header (also ends an "Attached Units" section, since
+        // a list can mix attached groups with standalone Characters/Battleline units)
         const cat = getCategory(trimmed);
         if (cat) {
             currentCategory = cat;
             currentUnit = null;
             currentSubunit = null;
+            inAttachedSection = false;
+            currentAttachedGroup = null;
             continue;
         }
 
-        // 2. Check for bulleted lines (starts with • or * or -)
+        // 3. Check for an "Attached Unit N" group header within the Attached Units section
+        const attachedGroupMatch = inAttachedSection && trimmed.match(/^attached unit\s+(\d+)$/i);
+        if (attachedGroupMatch) {
+            currentAttachedGroup = {
+                name: `Attached Unit ${attachedGroupMatch[1]}`,
+                points: 0,
+                category: 'Attached Units',
+                isAttached: true,
+                attachedParts: []
+            };
+            result.units.push(currentAttachedGroup);
+            currentUnit = null;
+            currentSubunit = null;
+            continue;
+        }
+
+        // 4. Check for bulleted lines (starts with • or * or -)
         const bulletMatch = trimmed.match(/^([•\*\-◦\u25e6\u2022])\s*(.*)$/);
         if (bulletMatch) {
             const content = bulletMatch[2].trim();
+
+            // Check for "Attached as: Leader/Bodyguard" role marker
+            const attachedAsMatch = content.match(/^attached as\s*:\s*(.*)$/i);
+            if (attachedAsMatch) {
+                if (currentUnit) {
+                    currentUnit.attachedAs = attachedAsMatch[1].trim();
+                    const roleStr = currentUnit.attachedAs.toLowerCase();
+                    if (/leader/i.test(roleStr)) {
+                        currentUnit.role = 'Leader';
+                    } else if (/bodyguard/i.test(roleStr)) {
+                        currentUnit.role = 'Bodyguard';
+                    }
+                }
+                continue;
+            }
 
             if (content.toLowerCase() === 'warlord') {
                 if (currentUnit) currentUnit.isWarlord = true;
@@ -153,7 +197,7 @@ export function parseNRGW(lines, skippableWargearMap = {}) {
             continue;
         }
 
-        // 3. Unit Header line
+        // 5. Unit Header line
         const unitMatch = trimmed.match(/^(?![•\*\-\s])(.*?)\s*\((\d+)\s*(?:pts|points|pt)\)$/i);
         if (unitMatch) {
             const name = unitMatch[1].trim();
@@ -163,7 +207,7 @@ export function parseNRGW(lines, skippableWargearMap = {}) {
                 name,
                 points,
                 quantity: 1,
-                category: currentCategory,
+                category: inAttachedSection ? 'Attached Units' : currentCategory,
                 wargear: [],
                 enhancements: [],
                 subunits: []
@@ -174,7 +218,12 @@ export function parseNRGW(lines, skippableWargearMap = {}) {
                 currentUnit.isWarlord = true;
             }
 
-            result.units.push(currentUnit);
+            if (inAttachedSection && currentAttachedGroup) {
+                currentAttachedGroup.attachedParts.push(currentUnit);
+                currentAttachedGroup.points += points;
+            } else {
+                result.units.push(currentUnit);
+            }
             currentSubunit = null; // Reset subunit context
             continue;
         }

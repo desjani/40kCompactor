@@ -13,8 +13,6 @@ export function parseNRWTCCompact(lines, skippableWargearMap = {}) {
         };
     }
 
-    // TODO: Re-add Attached Units when New Recruit adds support
-
     const cleanLines = lines.map(l => l ? l.replace(/\u00a0/g, ' ') : '');
     const { metadata, nextIndex } = parseNewRecruitHeader(cleanLines);
     const result = {
@@ -133,8 +131,17 @@ export function parseNRWTCCompact(lines, skippableWargearMap = {}) {
             continue;
         }
 
-        // 3. Model detail line (indented under a subunit)
+        // 3. Model detail line (indented under a subunit), or an "Attached to <Character>"
+        // backlink identifying which character leads this unit
         if (line.startsWith(' ') || line.startsWith('\t')) {
+            const attachedToMatch = trimmed.match(/^Attached to\s+(.+)$/i);
+            if (attachedToMatch) {
+                if (currentUnit) {
+                    currentUnit._attachedToName = attachedToMatch[1].trim();
+                }
+                continue;
+            }
+
             const detailMatch = trimmed.match(/^(\d+)(?:\s+with\s+)?(.*)$/i);
             if (detailMatch && currentSubunit) {
                 const modelQty = parseInt(detailMatch[1], 10) || 1;
@@ -197,6 +204,54 @@ export function parseNRWTCCompact(lines, skippableWargearMap = {}) {
             continue;
         }
     }
+
+    // Merge each unit carrying an "Attached to <Character>" backlink into its
+    // leading character, replacing the character's slot with a combined
+    // { isAttached, attachedParts: [leader, bodyguard] } wrapper (the shape the
+    // renderers already understand from the GW App parser). This format has no
+    // explicit attachment-group section in the source, so the backlink is the
+    // only signal available; matching is done purely by character name, since
+    // it's unambiguous on its own (unlike the forward "Leading X[N]" hint on the
+    // character, which is redundant for merging and is intentionally left unparsed).
+    const consumedCharIndices = new Set();
+    const consumedSquadIndices = new Set();
+    const mergedByCharIndex = new Map();
+
+    result.units.forEach((squadUnit, squadIndex) => {
+        if (!squadUnit._attachedToName) return;
+        const targetName = squadUnit._attachedToName.toLowerCase();
+        const charIndex = result.units.findIndex((u, idx) =>
+            idx !== squadIndex &&
+            !consumedCharIndices.has(idx) &&
+            !u._attachedToName &&
+            u.name.toLowerCase() === targetName
+        );
+        if (charIndex === -1) return;
+
+        const charUnit = result.units[charIndex];
+        delete squadUnit._attachedToName;
+        mergedByCharIndex.set(charIndex, {
+            name: charUnit.name,
+            points: (charUnit.points || 0) + (squadUnit.points || 0),
+            category: 'Attached Units',
+            isAttached: true,
+            attachedParts: [
+                { ...charUnit, role: 'Leader' },
+                { ...squadUnit, role: 'Bodyguard' }
+            ]
+        });
+        consumedCharIndices.add(charIndex);
+        consumedSquadIndices.add(squadIndex);
+    });
+
+    if (mergedByCharIndex.size > 0) {
+        result.units = result.units
+            .map((u, idx) => mergedByCharIndex.get(idx) || u)
+            .filter((u, idx) => !consumedSquadIndices.has(idx));
+    }
+
+    // Clean up the scratch field from any unmatched (orphaned) backlink
+    result.units.forEach(u => { delete u._attachedToName; });
 
     return result;
 }
