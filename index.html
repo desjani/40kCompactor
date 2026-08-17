@@ -321,6 +321,12 @@
                 <div class="changelog-entry">
                     <h4>Changelog</h4>
                     <div class="changelog-version-entry">
+                        <h5>Version 1.8.0: New Recruit Attached Units Support</h5>
+                        <ul>
+                            <li>New Recruit added support for attached units to its export formats. Both the Tournament export (a "Leading X" / "Attached to" backlink pair) and the GW-style export (an explicit "Attached Units" section, matching the official Warhammer App's convention) are now parsed, grouping each character with its led unit the same way GW App attachments already display.</li>
+                        </ul>
+                    </div>
+                    <div class="changelog-version-entry">
                         <h5>Version 1.7.0: GW App Detachment Parsing Fix</h5>
                         <ul>
                             <li>Fixed a further GW App export format issue: when a list has no subfaction line, the detachment line (immediately following the faction name) was being absorbed into the faction name instead of parsed as the detachment, which also caused the bare Force Disposition line to be mislabeled as the detachment. Both are now parsed correctly regardless of subfaction or line order.</li>
