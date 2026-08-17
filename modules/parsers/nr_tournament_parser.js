@@ -181,9 +181,15 @@ export function parseNRTournament(lines, skippableWargearMap = {}) {
                 subunits: []
             };
 
-            // Check if is Warlord via header metadata or ID matching
-            if (result.metadata.warlordId && idPrefix === result.metadata.warlordId) {
-                currentUnit.isWarlord = true;
+            // Check if is Warlord via header metadata. When the header gave a Char/Infa
+            // ID for the warlord, that ID is authoritative — matching by name alone
+            // would also flag other units sharing that name (e.g. two identically
+            // named characters where only one is the warlord). Only fall back to a
+            // name match when the header didn't supply an ID at all.
+            if (result.metadata.warlordId) {
+                if (idPrefix === result.metadata.warlordId) {
+                    currentUnit.isWarlord = true;
+                }
             } else if (result.metadata.warlordName && name.toLowerCase() === result.metadata.warlordName.toLowerCase()) {
                 currentUnit.isWarlord = true;
             }

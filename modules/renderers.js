@@ -117,8 +117,6 @@ export function buildFactionColorMap(skippableMap) {
     return normalized;
 }
 
-export const HIDE_ALL = '__HIDE_ALL_WARGEARS__';
-
 function aggregateWargear(unit, excludeSubunits = false) {
     const aggregated = new Map();
 
@@ -211,52 +209,6 @@ function getInlineItemsString(unit, useAbbreviations, wargearAbbrMap, dataSummar
     return all.length ? (hideBrackets ? ` ${all.join(', ')}` : ` (${all.join(', ')})`) : '';
 }
 
-function findSkippableForUnit(skippableWargearMap, dataSummary, unitName) {
-    if (!skippableWargearMap || !unitName) return [];
-    const faction = dataSummary?.faction || dataSummary?.DISPLAY_FACTION || dataSummary?.FACTION_KEYWORD || '';
-    const normalizeKey = (s) => {
-        if (!s) return '';
-        try {
-            return s.toString().normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
-        } catch (e) {
-            return s.toString().toLowerCase().trim();
-        }
-    };
-    const unitLower = normalizeKey(unitName);
-    const unitAlt = unitLower.endsWith('s') ? unitLower.slice(0, -1) : unitLower + 's';
-
-    const normalize = (list) => {
-        if (list === true) return [HIDE_ALL];
-        if (Array.isArray(list)) {
-            return list.map(s => (s || '').toString().toLowerCase());
-        }
-        return [];
-    };
-
-    const findMapForFaction = (desiredFaction) => {
-        if (!desiredFaction) return undefined;
-        const want = normalizeKey(desiredFaction);
-        if (Object.prototype.hasOwnProperty.call(skippableWargearMap, desiredFaction)) return skippableWargearMap[desiredFaction];
-        for (const [k, v] of Object.entries(skippableWargearMap)) {
-            if (normalizeKey(k) === want) return v;
-        }
-        return undefined;
-    };
-
-    const mapForFaction = findMapForFaction(faction);
-    if (mapForFaction) {
-        const tryUnitKeys = [unitName, unitLower, unitAlt];
-        for (const uk of tryUnitKeys) {
-            if (Object.prototype.hasOwnProperty.call(mapForFaction, uk)) return normalize(mapForFaction[uk]);
-        }
-        for (const [innerK, innerV] of Object.entries(mapForFaction)) {
-            if (normalizeKey(innerK) === unitLower || normalizeKey(innerK) === unitAlt) return normalize(innerV);
-        }
-    }
-
-    return [];
-}
-
 function canonicalUnitSignature(unit, hideSubunits) {
     const normalize = (value) => {
         if (value === null || typeof value !== 'object') return value;
@@ -290,7 +242,7 @@ export function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
         groups.get(sig).push(u);
     }
     const combined = [];
-    for (const [sig, group] of groups.entries()) {
+    for (const [, group] of groups.entries()) {
         if (group.length === 1) {
             const single = { ...group[0] };
             single.__groupCount = 1;
@@ -323,7 +275,7 @@ export function maybeCombineUnits(sectionUnits, hideSubunits, enable) {
     return combined;
 }
 
-export function getRoleTag(part, index, hideBrackets = false) {
+function getRoleTag(part, index, hideBrackets = false) {
     if (!part) return '';
     const roleLower = (part.role || '').toLowerCase();
     const attachedLower = (part.attachedAs || '').toLowerCase();
@@ -347,7 +299,6 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
     let html = '', plainText = '';
     const showMode = wargearShowMode || (showMandatoryWargear ? 'show-all' : 'hide-mandatory');
     const summary = data.metadata || {};
-    const displayFaction = summary.faction || '';
 
     const headerParts = [];
     const listName = summary.title || summary.armyName || '';
@@ -417,10 +368,6 @@ export function generateOutput(data, useAbbreviations, wargearAbbrMap, hideSubun
 
     html += `<div style="margin-top:0.5rem;">`;
     const UNIT_BULLET = noBullets ? '' : '• ';
-    const SUB_BULLET = noBullets ? '  ' : '◦ ';
-    const itemBullet = noBullets ? '  ' : '  - ';
-    const subUnitBullet = noBullets ? '  ' : '  * ';
-    const subItemBullet = noBullets ? '    ' : '    - ';
 
     const rawUnits = Array.isArray(data.units) ? data.units : [];
     const units = maybeCombineUnits(rawUnits, hideSubunits, combineIdenticalUnits);

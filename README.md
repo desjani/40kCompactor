@@ -39,7 +39,8 @@ This tool supports the following formats:
 The compactor's behavior can be customized by editing JSON files in the repository root:
 
 - `skippable_wargear.json`: per-faction rules for hiding default/redundant wargear in the compact output.
-- `custom_abbrs.json`: custom abbreviation overrides.
+
+Custom abbreviation overrides are entered in the web UI and persisted in the browser's `localStorage`, not a repo file.
 
 ### `skippable_wargear.json`
 

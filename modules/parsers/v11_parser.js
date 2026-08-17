@@ -36,7 +36,6 @@ export function parseV11List(lines, skippableWargearMap = {}) {
     };
 
     for (let line of lines) {
-        const raw = line;
         const trimmed = line.trim();
         if (!trimmed) continue;
 

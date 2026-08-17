@@ -409,12 +409,6 @@ export function enableParseButton() {
     }
 }
 
-export function setParseButtonError() {
-    if (parseButton) {
-        parseButton.textContent = 'Error: DB Load Failed';
-    }
-}
-
 export function getInputText() {
     return inputText ? inputText.value : '';
 }
@@ -547,7 +541,7 @@ export function setCopyPreviewButtonText(text) {
     }
 }
 
-export function updateVisibilityOfOptionalControls() {
+function updateVisibilityOfOptionalControls() {
     if (!isBrowser) return;
     const outputFormatSelect = document.getElementById('outputFormatSelect');
     const selectedFormat = outputFormatSelect ? outputFormatSelect.value : 'discordCompact';

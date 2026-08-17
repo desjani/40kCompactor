@@ -72,7 +72,7 @@ const premiumFactionColors = {
 };
 
 // Helper to resolve faction color variables
-export function resolveColors(factionName, options = {}) {
+function resolveColors(factionName, options = {}) {
   factionName = getCanonicalFactionName(factionName);
   const mode = options.colorMode || 'faction';
   
@@ -496,19 +496,6 @@ export function generateCardHtml(data, options = {}) {
       }
     }
     return makeAbbrevForName(itemName);
-  };
-
-  const getSubunitWargearStr = (sub, showMode) => {
-    const wgs = (sub.wargear || []).filter(w => {
-      if (showMode === 'show-all') return true;
-      if (showMode === 'hide-all') return false;
-      return !w.skippable;
-    });
-    return wgs.map(w => {
-      const q = parseInt(w.quantity || 1, 10);
-      const nameAbbr = getAbbrName(w.name);
-      return q > 1 ? `${q}x ${nameAbbr}` : nameAbbr;
-    }).join(', ');
   };
 
   const renderUnitDetails = (unit) => {

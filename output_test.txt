@@ -1,8 +1,0 @@
-```ansi
-[1;34m11th Edition Army List | Space Marines | Gladius Strike Force | 1990 / 2000pts[0m
-
-* [1;34mCaptain in Terminator Armour[0m[37m (E: AA (+10), RW, SB)[0m [1;33m[95][0m
-* [1;34mLibrarian[0m [1;33m[75][0m
-* 5 [1;34mTerminator Squad[0m[37m (5x SB, 4x PF, PW)[0m [1;33m[185][0m
-* 5 [1;34mTerminator Squad[0m[37m (5x SB, 4x PF, PW)[0m [1;33m[185][0m
-```

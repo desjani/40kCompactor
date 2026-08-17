@@ -2,13 +2,12 @@ import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11, parseNRTou
 import { generateOutput, generateDiscordText, resolveFactionColors } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth, copyCardImageToClipboard } from './cardRenderer.js';
-import { initializeUI, enableParseButton, setParseButtonError, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getHideBracketsState, getMultilineHeaderState, getAbbreviateHeaderState, getAbbreviateUnitNamesState, getWargearShowModeState, getCustomAbbrs, setCopyPreviewButtonText } from './ui.js';
+import { initializeUI, enableParseButton, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getHideBracketsState, getMultilineHeaderState, getAbbreviateHeaderState, getAbbreviateUnitNamesState, getWargearShowModeState, getCustomAbbrs, setCopyPreviewButtonText } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
 let compactPlainText = '';
 let detectedFormat = null;
-// let wargearAbbrMap = null; // DEPRECATED
 let skippableWargearMap = null;
 let wargearAbbrDB = null; // dynamic abbreviations built from parsed data
 let currentPreviewText = ''; // New global variable

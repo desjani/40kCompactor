@@ -26,6 +26,7 @@ export function parseNRGW(lines, skippableWargearMap = {}) {
     let currentCategory = 'Other Datasheets';
     let inAttachedSection = false;
     let currentAttachedGroup = null;
+    let warlordFoundExplicitly = false;
 
     const parseQtyAndName = (str, unitName) => {
         const cleaned = str.trim();
@@ -147,7 +148,10 @@ export function parseNRGW(lines, skippableWargearMap = {}) {
             }
 
             if (content.toLowerCase() === 'warlord') {
-                if (currentUnit) currentUnit.isWarlord = true;
+                if (currentUnit) {
+                    currentUnit.isWarlord = true;
+                    warlordFoundExplicitly = true;
+                }
                 continue;
             }
 
@@ -213,11 +217,6 @@ export function parseNRGW(lines, skippableWargearMap = {}) {
                 subunits: []
             };
 
-            // Check if is Warlord via header metadata matching
-            if (result.metadata.warlordName && name.toLowerCase() === result.metadata.warlordName.toLowerCase()) {
-                currentUnit.isWarlord = true;
-            }
-
             if (inAttachedSection && currentAttachedGroup) {
                 currentAttachedGroup.attachedParts.push(currentUnit);
                 currentAttachedGroup.points += points;
@@ -226,6 +225,29 @@ export function parseNRGW(lines, skippableWargearMap = {}) {
             }
             currentSubunit = null; // Reset subunit context
             continue;
+        }
+    }
+
+    // This format has no per-unit ID, so an explicit inline "Warlord" bullet (handled
+    // above) is the authoritative signal. Only fall back to matching the header's
+    // WARLORD name when no unit carried that marker, and flag just the first match —
+    // duplicate-named units (e.g. two identical Knight Castellans) must not all be
+    // flagged just because they share a name with the true warlord.
+    if (!warlordFoundExplicitly && result.metadata.warlordName) {
+        const wantName = result.metadata.warlordName.toLowerCase();
+        outer:
+        for (const u of result.units) {
+            if (Array.isArray(u.attachedParts)) {
+                for (const part of u.attachedParts) {
+                    if ((part.name || '').toLowerCase() === wantName) {
+                        part.isWarlord = true;
+                        break outer;
+                    }
+                }
+            } else if ((u.name || '').toLowerCase() === wantName) {
+                u.isWarlord = true;
+                break;
+            }
         }
     }
 

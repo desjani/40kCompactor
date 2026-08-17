@@ -91,18 +91,6 @@ export function buildAbbreviationIndex(parsedData, customAbbrs = {}) {
         return 'wargear';
     };
 
-    const makeUniqueCandidate = (base, canonicalName, ns) => {
-        const first = (canonicalName || '').replace(/\(.*?\)/g, '').replace(/[\-]/g, ' ').trim().split(/\s+/)[0] || '';
-        let i = 1;
-        while (true) {
-            const extra = (first.length > 1) ? first.slice(1, 1 + i).toLowerCase() : String(i);
-            const candidate = base + extra;
-            if (!used[ns][candidate]) return candidate;
-            i++;
-            if (i > 100) return base + String(Date.now()).slice(-4);
-        }
-    };
-
     // Produce an abbreviation taking first letter uppercase + `step` more letters lowercase per significant word.
     const makeAbbrevWithStep = (name, step = 0) => {
         if (!name) return '';

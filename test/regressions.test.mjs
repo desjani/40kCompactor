@@ -225,3 +225,53 @@ test('WarOrgan Format 1: a drone named after its built-in weapon ("Gun drone wit
     assert.ok(names.includes('Gun drone'), `expected a bare "Gun drone" entry, got: ${JSON.stringify(names)}`);
     assert.ok(!names.some(n => n.includes('with')), `no wargear name should retain "with": ${JSON.stringify(names)}`);
 });
+
+// --- New Recruit: warlord identification must not fan out to same-named units ---
+
+test('NR Tournament: only the Char ID named in WARLORD is flagged, not every unit sharing its name', () => {
+    const lines = [
+        '+++++++++++++++++++++++++++++++++++++++++++++++',
+        '+ FACTION KEYWORD: Imperium - Imperial Knights',
+        '+ DETACHMENT: Dominus Foebreakers',
+        '+ TOTAL ARMY POINTS: 2000pts',
+        '+',
+        '+ WARLORD: Char1: Knight Castellan',
+        '+++++++++++++++++++++++++++++++++++++++++++++++',
+        '',
+        'Char1: 1x Knight Castellan (450 pts): Warlord, Plasma decimator',
+        'Char2: 1x Knight Castellan (475 pts): Plasma decimator',
+        'Char3: 1x Knight Crusader (425 pts): Avenger gatling cannon'
+    ];
+    const result = parseNRTournament(lines);
+    const castellans = result.units.filter(u => u.name === 'Knight Castellan');
+    assert.strictEqual(castellans.length, 2);
+    assert.strictEqual(castellans[0].isWarlord, true);
+    assert.notStrictEqual(castellans[1].isWarlord, true);
+    assert.notStrictEqual(result.units.find(u => u.name === 'Knight Crusader').isWarlord, true);
+});
+
+test('NR-GW: explicit inline "Warlord" bullet wins, and the header-name fallback only flags one same-named unit', () => {
+    const lines = [
+        '+++++++++++++++++++++++++++++++++++++++++++++++',
+        '+ FACTION KEYWORD: Imperium - Imperial Knights',
+        '+ DETACHMENT: Dominus Foebreakers',
+        '+ TOTAL ARMY POINTS: 2000pts',
+        '+',
+        '+ WARLORD: Char1: Knight Castellan',
+        '+++++++++++++++++++++++++++++++++++++++++++++++',
+        '',
+        'CHARACTER',
+        '',
+        'Knight Castellan (450 pts)',
+        '• Plasma decimator',
+        '• Warlord',
+        '',
+        'Knight Castellan (475 pts)',
+        '• Plasma decimator'
+    ];
+    const result = parseNRGW(lines);
+    const castellans = result.units.filter(u => u.name === 'Knight Castellan');
+    assert.strictEqual(castellans.length, 2);
+    assert.strictEqual(castellans[0].isWarlord, true);
+    assert.notStrictEqual(castellans[1].isWarlord, true);
+});

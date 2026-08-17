@@ -19,11 +19,11 @@ Compacts Warhammer 40k army lists into Discord-friendly output. See README.md fo
 
 ## Release checklist (version bumps)
 
-1. `git status` — confirm the working tree is clean before starting, and that all intended source changes (modules/, components/, test/) are staged, not left behind.
+1. `git status` — confirm the working tree is clean before starting, and that all intended source changes (modules/, test/) are staged, not left behind.
 2. Bump the version in `package.json`.
-3. Add a changelog entry in **both** `components/Changelog.js` and the HTML changelog block in `index.html`.
+3. Add a changelog entry in the HTML changelog block in `index.html`.
 4. Rebuild the mobile UI: `npm run build` in `apps/mobile-ui/`, so the updated `dist/` lands in the same commit as the version bump.
-5. Stage everything together (version, changelogs, mobile dist, any source changes) — never commit changelog/config alone while leaving source changes uncommitted.
+5. Stage everything together (version, changelog, mobile dist, any source changes) — never commit changelog/config alone while leaving source changes uncommitted.
 6. Commit. (`build_meta.json` regeneration, push, and the Unraid deploy all happen automatically via the git hooks above — no separate steps needed.)
 7. `git status` again — confirm the tree is clean and the push/deploy in the commit output succeeded.
 
