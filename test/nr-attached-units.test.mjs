@@ -78,3 +78,40 @@ test('NR_GW: explicit "Attached Units" / "Attached Unit N" section merges into l
     const data = parseNRGW(lines, skippableWargear);
     checkParsedWE2(data);
 });
+
+// When several characters in a list share the same name (e.g. three "Slaughterbound"),
+// the "Attached to <Name>[N]" backlink disambiguates with a 1-based ordinal counting
+// same-named units in list order. Regression test for a bug where the ordinal suffix
+// was matched literally against plain character names ("Slaughterbound[3]" !==
+// "Slaughterbound"), so no attachments merged at all.
+test('NR_TOURNAMENT: "Attached to <Name>[N]" disambiguates multiple same-named leaders', () => {
+    const lines = readSample('Test-WE3-NRTournament-DuplicateLeaderNames-English');
+    const data = parseNRTournament(lines, skippableWargear);
+
+    const attachedUnits = data.units.filter(u => u.isAttached);
+    assert.strictEqual(attachedUnits.length, 3, 'Should merge exactly 3 leader+squad pairs');
+    attachedUnits.forEach(u => assert.strictEqual(u.attachedParts.length, 2));
+
+    // Ordinal [3] -> the 3rd "Slaughterbound" in list order (Char4), leading the
+    // first 6x Eightbound (255 pts).
+    const char4Merge = attachedUnits.find(u => u.points === 100 + 255 && !u.attachedParts[0].enhancements.length);
+    assert.ok(char4Merge, 'Attached to Slaughterbound[3] should merge with Char4');
+    assert.strictEqual(char4Merge.attachedParts[1].name, 'Eightbound');
+
+    // Ordinal [1] -> the 1st "Slaughterbound" (Char2), leading the second 6x Eightbound.
+    const char2Merge = attachedUnits.filter(u => u.points === 100 + 255)
+        .find(u => u !== char4Merge);
+    assert.ok(char2Merge, 'Attached to Slaughterbound[1] should merge with Char2');
+
+    // Ordinal [2] -> the 2nd "Slaughterbound" (Char3, carrying the enhancement),
+    // leading the 6x Exalted Eightbound.
+    const char3Merge = attachedUnits.find(u => u.attachedParts[0].enhancements.length > 0);
+    assert.ok(char3Merge, 'Attached to Slaughterbound[2] should merge with Char3');
+    assert.strictEqual(char3Merge.attachedParts[0].enhancements[0].name, 'Frenzied Focus');
+    assert.strictEqual(char3Merge.attachedParts[1].name, 'Exalted Eightbound');
+    assert.strictEqual(char3Merge.points, 120 + 265);
+
+    // The two un-attached Exalted Eightbound squads (130/145 pts) stay standalone.
+    const standaloneExalted = data.units.filter(u => !u.isAttached && u.name === 'Exalted Eightbound');
+    assert.strictEqual(standaloneExalted.length, 2);
+});

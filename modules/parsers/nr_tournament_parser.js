@@ -134,10 +134,15 @@ export function parseNRTournament(lines, skippableWargearMap = {}) {
         // 3. Model detail line (indented under a subunit), or an "Attached to <Character>"
         // backlink identifying which character leads this unit
         if (line.startsWith(' ') || line.startsWith('\t')) {
-            const attachedToMatch = trimmed.match(/^Attached to\s+(.+)$/i);
+            // The target name may carry a "[N]" disambiguation index (e.g.
+            // "Attached to Slaughterbound[3]") when multiple characters in the
+            // list share the same name — New Recruit numbers them by order of
+            // appearance so the backlink can point at the right one.
+            const attachedToMatch = trimmed.match(/^Attached to\s+(.+?)(?:\[(\d+)\])?$/i);
             if (attachedToMatch) {
                 if (currentUnit) {
                     currentUnit._attachedToName = attachedToMatch[1].trim();
+                    currentUnit._attachedToOrdinal = attachedToMatch[2] ? parseInt(attachedToMatch[2], 10) : null;
                 }
                 continue;
             }
@@ -226,16 +231,38 @@ export function parseNRTournament(lines, skippableWargearMap = {}) {
     result.units.forEach((squadUnit, squadIndex) => {
         if (!squadUnit._attachedToName) return;
         const targetName = squadUnit._attachedToName.toLowerCase();
-        const charIndex = result.units.findIndex((u, idx) =>
-            idx !== squadIndex &&
-            !consumedCharIndices.has(idx) &&
-            !u._attachedToName &&
-            u.name.toLowerCase() === targetName
-        );
+        const ordinal = squadUnit._attachedToOrdinal;
+
+        let charIndex = -1;
+        if (ordinal) {
+            // The ordinal counts the Nth same-named unit across the whole list
+            // (New Recruit's own numbering), so it must be resolved against
+            // every matching unit in original order, not just unconsumed ones.
+            let occurrence = 0;
+            for (let idx = 0; idx < result.units.length; idx++) {
+                const u = result.units[idx];
+                if (idx !== squadIndex && !u._attachedToName && u.name.toLowerCase() === targetName) {
+                    occurrence++;
+                    if (occurrence === ordinal) {
+                        charIndex = idx;
+                        break;
+                    }
+                }
+            }
+            if (charIndex !== -1 && consumedCharIndices.has(charIndex)) charIndex = -1;
+        } else {
+            charIndex = result.units.findIndex((u, idx) =>
+                idx !== squadIndex &&
+                !consumedCharIndices.has(idx) &&
+                !u._attachedToName &&
+                u.name.toLowerCase() === targetName
+            );
+        }
         if (charIndex === -1) return;
 
         const charUnit = result.units[charIndex];
         delete squadUnit._attachedToName;
+        delete squadUnit._attachedToOrdinal;
         mergedByCharIndex.set(charIndex, {
             name: charUnit.name,
             points: (charUnit.points || 0) + (squadUnit.points || 0),
@@ -256,8 +283,8 @@ export function parseNRTournament(lines, skippableWargearMap = {}) {
             .filter((u, idx) => !consumedSquadIndices.has(idx));
     }
 
-    // Clean up the scratch field from any unmatched (orphaned) backlink
-    result.units.forEach(u => { delete u._attachedToName; });
+    // Clean up the scratch fields from any unmatched (orphaned) backlink
+    result.units.forEach(u => { delete u._attachedToName; delete u._attachedToOrdinal; });
 
     return result;
 }
