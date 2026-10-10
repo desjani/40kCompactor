@@ -1,4 +1,4 @@
-import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11, parseNRTournament, parseNRGW } from './parsers.js';
+import { parseList } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth, copyCardImageToClipboard } from './cardRenderer.js';
@@ -190,16 +190,8 @@ function updateFactionDiagnostic() {
 function handleParse() {
     setDebugOutput('');
     const text = getInputText();
-    const lines = text.split('\n');
-    const format = detectFormat(lines);
-    const parser = {
-        V11_GENERIC: parseV11List,
-        GW_APP_V11: parseGwAppV11,
-        WAR_ORGAN_V11: parseWarOrganV11,
-        NR_TOURNAMENT: parseNRTournament,
-        NR_GW: parseNRGW
-    }[format];
-    if (!parser) {
+    const { format, list: result } = parseList(text.split('\n'), skippableWargearMap);
+    if (!result) {
         console.error("Unsupported list format.");
         setUnabbreviatedOutput('<p style="color: var(--color-danger);">Unsupported list format. Please use the 11th Edition GW App or War Organ list format.</p>');
         setCompactedOutput('');
@@ -207,7 +199,6 @@ function handleParse() {
         return;
     }
 
-    const result = parser(lines, skippableWargearMap);
     if (typeof window !== 'undefined') {
         window.LAST_RAW_PARSER_OUTPUT = result;
         try {

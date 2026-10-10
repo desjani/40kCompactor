@@ -8,7 +8,7 @@ import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 
 // Import core modules from parent directory
-import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11 } from '../modules/parsers.js';
+import { parseList } from '../modules/parsers.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 import { generateDiscordText, ansiPalette, colorNameToHex } from '../modules/renderers.js';
 import { generateCardHtml, estimateCardWidth } from '../modules/cardRenderer.js';
@@ -242,20 +242,12 @@ client.on(Events.InteractionCreate, async interaction => {
                 session.options.userId = interaction.user.id;
                 
                 try {
-                    const lines = session.text.split(/\r?\n/);
-                    const format = detectFormat(lines);
-                    
-                    const parser = {
-                        V11_GENERIC: parseV11List,
-                        GW_APP_V11: parseGwAppV11,
-                        WAR_ORGAN_V11: parseWarOrganV11
-                    }[format];
+                    const { list: parsedData } = parseList(session.text, skippableWargear);
 
-                    if (!parser) {
+                    if (!parsedData) {
                         throw new Error('Unsupported or unknown list format.');
                     }
 
-                    const parsedData = parser(lines, skippableWargear);
                     const isImage = session.options.format === 'imageCodex' || session.options.format === 'imageCodexAbbr';
                     
                     let channel = interaction.channel;
@@ -468,20 +460,12 @@ async function generateResponse(text, options) {
     let outputText = '';
     let files = [];
     try {
-        const lines = text.split(/\r?\n/);
-        const format = detectFormat(lines);
-        
-        const parser = {
-            V11_GENERIC: parseV11List,
-            GW_APP_V11: parseGwAppV11,
-            WAR_ORGAN_V11: parseWarOrganV11
-        }[format];
+        const { list: parsedData } = parseList(text, skippableWargear);
 
-        if (!parser) {
+        if (!parsedData) {
             return { content: 'Could not detect list format. Please check your input.', components: [] };
         }
 
-        const parsedData = parser(lines, skippableWargear);
         const isImage = options.format === 'imageCodex' || options.format === 'imageCodexAbbr';
 
         if (isImage) {

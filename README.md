@@ -132,17 +132,15 @@ npm install 40k-compactor
 
 **Example:**
 ```javascript
-import { detectFormat, parseGwAppV11, generateDiscordText, buildAbbreviationIndex } from '40k-compactor';
+import { parseList, generateDiscordText, buildAbbreviationIndex } from '40k-compactor';
 import fs from 'fs';
 
 // Load your list
 const listText = fs.readFileSync('mylist.txt', 'utf8');
-const lines = listText.split('\n');
 
-// Detect and Parse
-const format = detectFormat(lines);
-// Select parser based on format (simplified example)
-const parsedData = parseGwAppV11(lines); 
+// Detect the format and parse in one call.
+// format is e.g. 'GW_APP_V11', 'NR_TOURNAMENT', or 'UNKNOWN' (in which case parsedData is null)
+const { format, list: parsedData } = parseList(listText);
 
 // Build Abbreviations
 const abbrIndex = buildAbbreviationIndex(parsedData);
