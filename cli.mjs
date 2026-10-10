@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { detectFormat, parseV11List, parseGwAppV11, parseWarOrganV11, parseNRTournament, parseNRGW } from './modules/parsers.js';
+import { parseList } from './modules/parsers.js';
 import { generateDiscordText } from './modules/renderers.js';
 import { buildAbbreviationIndex } from './modules/abbreviations.js';
 
@@ -149,29 +149,17 @@ async function main() {
         console.warn('Warning: Failed to load skippable_wargear.json', e.message);
     }
 
-    // Detect Format
-    const lines = inputText.split(/\r?\n/);
-    const format = detectFormat(lines);
-    
-    const parser = {
-        V11_GENERIC: parseV11List,
-        GW_APP_V11: parseGwAppV11,
-        WAR_ORGAN_V11: parseWarOrganV11,
-        NR_TOURNAMENT: parseNRTournament,
-        NR_GW: parseNRGW
-    }[format];
-
-    if (!parser) {
-        console.error('Unsupported list format.');
+    // Detect format and parse
+    let parsedData;
+    try {
+        ({ list: parsedData } = parseList(inputText, skippableWargearMap));
+    } catch (e) {
+        console.error('Error parsing list:', e);
         process.exit(1);
     }
 
-    // Parse
-    let parsedData;
-    try {
-        parsedData = parser(lines, skippableWargearMap);
-    } catch (e) {
-        console.error('Error parsing list:', e);
+    if (!parsedData) {
+        console.error('Unsupported list format.');
         process.exit(1);
     }
 
