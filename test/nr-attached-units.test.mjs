@@ -115,3 +115,47 @@ test('NR_TOURNAMENT: "Attached to <Name>[N]" disambiguates multiple same-named l
     const standaloneExalted = data.units.filter(u => !u.isAttached && u.name === 'Exalted Eightbound');
     assert.strictEqual(standaloneExalted.length, 2);
 });
+
+// Newer New Recruit Tournament exports drop the "+++" header block entirely:
+// title/faction/detachment/battle size are plain lines instead, terminated by a
+// blank line before the unit list. Regression test for the header-less format
+// still populating metadata correctly and still merging "Leading X[N]" /
+// "Attached to X" backlinks the same way the "+++"-header format does.
+test('NR_TOURNAMENT: header-less export (no "+++" block) parses metadata and attachments', () => {
+    const lines = readSample('Test-WE4-NRTournament-HeaderlessFormat-English');
+    const data = parseNRTournament(lines, skippableWargear);
+
+    assert.strictEqual(data.metadata.title, 'PA WTF');
+    assert.strictEqual(data.metadata.faction, 'World Eaters');
+    assert.deepStrictEqual(data.metadata.detachments, ['Berzerker Warband', 'Vessels of Wrath']);
+    assert.deepStrictEqual(data.metadata.forceDispositions, ['Priority Assets']);
+    assert.strictEqual(data.metadata.pointsLimit, 2000);
+    assert.strictEqual(data.metadata.totalPoints, 2000);
+
+    const attachedUnits = data.units.filter(u => u.isAttached);
+    assert.strictEqual(attachedUnits.length, 3, 'Should merge exactly 3 leader+squad pairs');
+
+    const findByLeaderName = (name) => attachedUnits.filter(u => u.attachedParts[0].name === name);
+
+    const kharnMerge = findByLeaderName('Khârn the Betrayer')[0];
+    assert.ok(kharnMerge, 'Khârn should be merged with a squad');
+    assert.strictEqual(kharnMerge.points, 115 + 170);
+
+    const executionsMerge = findByLeaderName('Master of Executions')[0];
+    assert.ok(executionsMerge, 'Master of Executions should be merged with a squad');
+    assert.strictEqual(executionsMerge.points, 95 + 170);
+
+    // Ordinal [1] on "Attached to Slaughterbound[1]" must resolve to the 1st
+    // "Slaughterbound" in list order (Char4), not Char5 or Char6.
+    const slaughterboundMerges = findByLeaderName('Slaughterbound');
+    assert.strictEqual(slaughterboundMerges.length, 1);
+    assert.strictEqual(slaughterboundMerges[0].points, 120 + 130);
+    assert.strictEqual(slaughterboundMerges[0].attachedParts[1].name, 'Exalted Eightbound');
+
+    // Angron (no "Leading"/colon details at all) and the two unattached
+    // Slaughterbound characters stay standalone.
+    const angron = data.units.find(u => u.name === 'Angron');
+    assert.ok(angron && !angron.isAttached);
+    const standaloneSlaughterbound = data.units.filter(u => !u.isAttached && u.name === 'Slaughterbound');
+    assert.strictEqual(standaloneSlaughterbound.length, 2);
+});

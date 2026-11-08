@@ -46,6 +46,11 @@ const cases = [
     // Units section for GW-style) - same detection rules apply unchanged.
     ['Test-WE2-NRTournament-English', 'NR_TOURNAMENT'],
     ['Test-WE2-NRGW-English', 'NR_GW'],
+    // Newer New Recruit Tournament exports drop the "+++" header block entirely
+    // (title/faction/detachment/battle size become plain lines instead) - without
+    // a dedicated check this falls through to GW_APP_V11's "strike force ("
+    // substring heuristic.
+    ['Test-WE4-NRTournament-HeaderlessFormat-English', 'NR_TOURNAMENT'],
 ];
 
 for (const [file, expected] of cases) {

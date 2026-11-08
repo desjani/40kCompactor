@@ -519,6 +519,65 @@ export function parseNewRecruitHeader(lines) {
         if (i < lines.length && lines[i].trim().startsWith('+++')) {
             i++;
         }
+        return { metadata, nextIndex: i };
     }
+
+    // Newer New Recruit Tournament exports drop the "+++" header block entirely.
+    // In its place is a short run of plain lines -- title (with the army's total
+    // points), faction, detachment(s) (optionally stacked, "X and Y (N Detachment
+    // Points)"), force disposition, and battle size -- terminated by a blank line
+    // before the unit list begins. There's no WARLORD/ENHANCEMENT summary at all
+    // in this format; that data is only available inline in the body.
+    const titleMatch = i < lines.length ? lines[i].trim().match(/^(.*?)\s*\((\d+[\d,]*)\s*(?:pts|points|pt)\)$/i) : null;
+    if (!titleMatch) {
+        return { metadata, nextIndex: i };
+    }
+    metadata.title = titleMatch[1].trim();
+    metadata.armyName = titleMatch[1].trim();
+    const titlePoints = parseInt(titleMatch[2].replace(/,/g, ''), 10) || 0;
+    metadata.pointsTotal = titlePoints;
+    metadata.totalPoints = titlePoints;
+    i++;
+
+    while (i < lines.length && !lines[i].trim()) i++;
+    if (i < lines.length) {
+        metadata.faction = lines[i].trim();
+        i++;
+    }
+
+    let detachmentsSet = false;
+    let forceDispositionsSet = false;
+    while (i < lines.length && lines[i].trim()) {
+        const line = lines[i].trim();
+
+        const detachmentMatch = line.match(/^(.*?)\s*\((\d+[\d,]*)\s*Detachment\s*Points?\)$/i);
+        if (detachmentMatch) {
+            const detStr = detachmentMatch[1].trim();
+            metadata.detachment = detStr;
+            metadata.detachments = detStr.split(/\s+and\s+/i).map(d => d.trim()).filter(Boolean);
+            detachmentsSet = true;
+            i++;
+            continue;
+        }
+
+        const battleSizeMatch = line.match(/^(.*?)\s*\((\d+[\d,]*)\s*(?:pts|points|pt)\)$/i);
+        if (battleSizeMatch) {
+            metadata.pointsLimit = parseInt(battleSizeMatch[2].replace(/,/g, ''), 10) || 0;
+            i++;
+            continue;
+        }
+
+        if (!detachmentsSet) {
+            metadata.detachment = line;
+            metadata.detachments = [line];
+            detachmentsSet = true;
+        } else if (!forceDispositionsSet) {
+            metadata.forceDispositions = line.split(',').map(d => d.trim()).filter(Boolean);
+            forceDispositionsSet = true;
+        }
+        i++;
+    }
+
+    while (i < lines.length && !lines[i].trim()) i++;
     return { metadata, nextIndex: i };
 }

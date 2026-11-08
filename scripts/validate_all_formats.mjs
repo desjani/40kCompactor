@@ -31,6 +31,7 @@ const samples = [
   { file: 'samples/Test-WE-NRTournament-English', expect: 'NR_TOURNAMENT' },
   { file: 'samples/Test-WE2-NRGW-English', expect: 'NR_GW' },
   { file: 'samples/Test-WE2-NRTournament-English', expect: 'NR_TOURNAMENT' },
+  { file: 'samples/Test-WE4-NRTournament-HeaderlessFormat-English', expect: 'NR_TOURNAMENT' },
   { file: 'samples/Test-TAU-WARORGAN-English', expect: 'WAR_ORGAN_V11' },
   { file: 'samples/Test-WE-WARORGAN-English', expect: 'WAR_ORGAN_V11' }
 ];

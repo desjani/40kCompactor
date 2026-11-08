@@ -33,6 +33,20 @@ export function detectV11Format(lines) {
         return 'NR_GW';
     }
 
+    // Newer New Recruit Tournament exports drop the "+++" header block entirely,
+    // so they fall through to here. They're still unambiguously distinguishable
+    // from every other format by the body syntax unique to NR Tournament: an
+    // id-prefixed unit header ("Char1: 1x Angron (330 pts)"), the "Leading X[N]"
+    // forward hint, or the "Attached to X" backlink used to merge attached units.
+    const hasIdPrefixedUnit = lines.some(l =>
+        /^(?:Char|Infa|Unit)\d*:\s*(?:\d+x?\s+)?.+\(\d+[\d,]*\s*(?:pts|points|pt)\)/i.test(l.trim())
+    );
+    const hasAttachedToBacklink = lines.some(l => /^\s*Attached to\s+\S.*$/i.test(l));
+    const hasLeadingHint = lines.some(l => /^Leading\s+\S.*$/i.test(l.trim()));
+    if (hasIdPrefixedUnit || hasAttachedToBacklink || hasLeadingHint) {
+        return 'NR_TOURNAMENT';
+    }
+
     // Check if any line in the file indicates a GW App export
     const hasGwAppMarker = lines.some(l => 
         /^Export.*(?:App.*Version|Version.*App)/i.test(l) || 
