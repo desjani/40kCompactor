@@ -481,7 +481,8 @@ export function updateCharCounts(original, extended, compact, markdownPreview, d
     const formatLabelMap = {
         'GW_APP': 'GW Official App',
         'NR_TOURNAMENT': "New Recruit - Tournament",
-        'NR_GW': 'New Recruit - GW'
+        'NR_GW': 'New Recruit - GW',
+        'WARMIND_V11': 'Warmind'
     // 'LF': 'Listforge'
     };
 

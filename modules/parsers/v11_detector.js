@@ -47,8 +47,19 @@ export function detectV11Format(lines) {
         return 'NR_TOURNAMENT';
     }
 
+    // Check for a Warmind export. Its footer line ("Built with Warmind ·
+    // https://warmind.online") is unambiguous; fall back to the "Total: X / Y
+    // pts · A/B DP" summary line in case the footer gets trimmed off a paste.
+    const hasWarmindFooter = lines.some(l => /warmind/i.test(l));
+    const hasWarmindTotalLine = lines.some(l =>
+        /^Total:\s*\d+[\d,]*\s*\/\s*\d+[\d,]*\s*pts\s*·\s*\d+\s*\/\s*\d+\s*DP/i.test(l.trim())
+    );
+    if (hasWarmindFooter || hasWarmindTotalLine) {
+        return 'WARMIND_V11';
+    }
+
     // Check if any line in the file indicates a GW App export
-    const hasGwAppMarker = lines.some(l => 
+    const hasGwAppMarker = lines.some(l =>
         /^Export.*(?:App.*Version|Version.*App)/i.test(l) || 
         /Version.*D(?:onné|ata|aten|ato)/i.test(l)
     );

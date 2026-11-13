@@ -1,0 +1,66 @@
+Test
+──────────────────────────────
+Faction: World Eaters
+Detachment: Berzerker Warband, Vessels of Wrath
+Battle Size: Strike Force (2000 pts)
+Total: 2000 / 2000 pts · 3/3 DP · ✓ Legal
+Disposition: Priority Assets
+
+EPIC HERO
+Angron (330 pts) · Warlord
+   · Samni’arius and Spinegrinder
+
+Lord Invocatus (100 pts)
+   · Bolt Pistol, Bladed Horn, Coward's Bane
+
+CHARACTER
+Slaughterbound (90 pts)
+   · Lacerator and Daemonic Claw
+
+Slaughterbound (90 pts)
+   · Lacerator and Daemonic Claw
+
+BATTLELINE
+Master of Executions (95 pts)
+   · Bolt Pistol, Axe of Dismemberment
+   · Enhancement: Berzerker Glaive (+35 pts)
+   └ Leads: Khorne Berzerkers ×10 (170 pts)
+      · 7× Bolt Pistol, Icon of Khorne, 3× Plasma Pistol, 8× Chainblade, 2× Khornate Eviscerator
+
+Khârn the Betrayer (115 pts)
+   · Plasma Pistol, Gorechild
+   └ Leads: Khorne Berzerkers ×10 (170 pts)
+      · 7× Bolt Pistol, Icon of Khorne, 3× Plasma Pistol, 8× Chainblade, 2× Khornate Eviscerator
+
+INFANTRY
+Goremongers ×8 (70 pts)
+   · 8× Autopistol, Blood Harpoon, 7× Chainblade, 8× Close Combat Weapon
+
+Jakhals ×10 (65 pts)
+   · 9× Autopistol, Icon of Khorne, 8× Chainblades, Mauler Chainblade, Skullsmasher and Mangler
+
+Jakhals ×10 (65 pts)
+   · 9× Autopistol, Icon of Khorne, 8× Chainblades, Mauler Chainblade, Skullsmasher and Mangler
+
+Eightbound ×3 (125 pts)
+   · 3× Chainblades
+
+Eightbound ×3 (125 pts)
+   · 3× Chainblades
+
+Slaughterbound (110 pts)
+   · Lacerator and Daemonic Claw
+   · Enhancement: Battle-lust (+20 pts)
+   └ Leads: Exalted Eightbound ×3 (130 pts)
+      · 3× Chainblades
+
+DEDICATED TRANSPORT
+Chaos Rhino (75 pts)
+   · Additional Combi-Bolter, Combi-Bolter, Havoc Launcher, Armoured Tracks
+
+Chaos Rhino (75 pts)
+   · Additional Combi-Bolter, Combi-Bolter, Havoc Launcher, Armoured Tracks
+
+──────────────────────────────
+2000 / 2000 pts · 17 units · Strike Force
+Built with Warmind · https://warmind.online
