@@ -2,7 +2,8 @@
 # Script to automate Unraid container updates for 40kCompactor
 set -e
 
-SSH_HOST="METRON"
+# METRON's LAN IP: the "METRON" hostname refuses SSH from BISMUTH.
+SSH_HOST="192.168.68.54"
 SSH_USER="root"
 REMOTE_PATH="/mnt/user/appdata/40kCompactor"
 CONTAINER_NAME="40k-compactor-bot"
