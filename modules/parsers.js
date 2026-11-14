@@ -5,8 +5,9 @@ import { parseWarOrganV11 } from './parsers/war_organ_parser.js';
 import { parseNRTournament } from './parsers/nr_tournament_parser.js';
 import { parseNRGW } from './parsers/nr_gw_parser.js';
 import { parseWarmind } from './parsers/warmind_parser.js';
+import { parseIronbuilt } from './parsers/ironbuilt_parser.js';
 
-export { parseV11List, parseGwAppV11, parseWarOrganV11, parseNRTournament, parseNRGW, parseWarmind };
+export { parseV11List, parseGwAppV11, parseWarOrganV11, parseNRTournament, parseNRGW, parseWarmind, parseIronbuilt };
 
 export function detectFormat(lines) {
     return detectV11Format(lines);
@@ -18,7 +19,8 @@ const PARSERS_BY_FORMAT = {
     WAR_ORGAN_V11: parseWarOrganV11,
     NR_TOURNAMENT: parseNRTournament,
     NR_GW: parseNRGW,
-    WARMIND_V11: parseWarmind
+    WARMIND_V11: parseWarmind,
+    IRONBUILT_V11: parseIronbuilt
 };
 
 // Single entry point: detects the export format and runs the matching parser.

@@ -34,7 +34,8 @@ const samples = [
   { file: 'samples/Test-WE4-NRTournament-HeaderlessFormat-English', expect: 'NR_TOURNAMENT' },
   { file: 'samples/Test-TAU-WARORGAN-English', expect: 'WAR_ORGAN_V11' },
   { file: 'samples/Test-WE-WARORGAN-English', expect: 'WAR_ORGAN_V11' },
-  { file: 'samples/Warmind-Sample-WE.txt', expect: 'WARMIND_V11' }
+  { file: 'samples/Warmind-Sample-WE.txt', expect: 'WARMIND_V11' },
+  { file: 'samples/Ironbuilt-Sample-WE.txt', expect: 'IRONBUILT_V11' }
 ];
 
 const renderCombos = [
@@ -70,7 +71,8 @@ async function main() {
         NR_TOURNAMENT: parsers.parseNRTournament,
         NR_GW: parsers.parseNRGW,
         WAR_ORGAN_V11: parsers.parseWarOrganV11,
-        WARMIND_V11: parsers.parseWarmind
+        WARMIND_V11: parsers.parseWarmind,
+        IRONBUILT_V11: parsers.parseIronbuilt
       }[detected];
       if (!parser) throw new Error(`No parser found for format ${detected}`);
       data = parser(lines);

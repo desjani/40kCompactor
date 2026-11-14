@@ -13,7 +13,8 @@ const samples = [
     'NR-Tournament-Sample-Tau.txt',
     'NR-GW-Sample-WorldEaters.txt',
     'V11Sample.txt',
-    'Warmind-Sample-WE.txt'
+    'Warmind-Sample-WE.txt',
+    'Ironbuilt-Sample-WE.txt'
 ];
 
 for (const name of samples) {

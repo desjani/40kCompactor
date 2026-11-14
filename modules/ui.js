@@ -482,7 +482,8 @@ export function updateCharCounts(original, extended, compact, markdownPreview, d
         'GW_APP': 'GW Official App',
         'NR_TOURNAMENT': "New Recruit - Tournament",
         'NR_GW': 'New Recruit - GW',
-        'WARMIND_V11': 'Warmind'
+        'WARMIND_V11': 'Warmind',
+        'IRONBUILT_V11': 'Ironbuilt'
     // 'LF': 'Listforge'
     };
 

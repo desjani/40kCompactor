@@ -58,6 +58,16 @@ export function detectV11Format(lines) {
         return 'WARMIND_V11';
     }
 
+    // Check for an Ironbuilt export. Its share-link footer
+    // ("https://ironbuilt.app/?s=...") is unambiguous; fall back to its
+    // "+=====" header banner plus "── SECTION ───" headers if that's trimmed.
+    const hasIronbuiltLink = lines.some(l => /ironbuilt/i.test(l));
+    const hasIronbuiltBanner = firstNonEmptyIndex !== -1 && /^\+={5,}\s*$/.test(lines[firstNonEmptyIndex].trim());
+    const hasIronbuiltSection = lines.some(l => /^──\s+.+?\s+─{3,}\s*$/.test(l.trim()));
+    if (hasIronbuiltLink || (hasIronbuiltBanner && hasIronbuiltSection)) {
+        return 'IRONBUILT_V11';
+    }
+
     // Check if any line in the file indicates a GW App export
     const hasGwAppMarker = lines.some(l =>
         /^Export.*(?:App.*Version|Version.*App)/i.test(l) || 

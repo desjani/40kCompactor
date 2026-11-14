@@ -1,0 +1,95 @@
++==========================================
+Test — World Eaters
+Berzerker Warband (2DP) + Vessels of Wrath (1DP)
+Force Disposition: Purge the Foe
+2000 / 2000 pts · 17 units
++==========================================
+
+── UNATTACHED CHARACTERS ───────
+Angron [WARLORD] [330 pts]
+Weapons: ➤ Samni’arius and Spinegrinder - strike, ➤ Samni’arius and Spinegrinder - sweep
+
+Khârn the Betrayer [115 pts]
+Weapons: ➤ Plasma pistol - standard, ➤ Plasma pistol - supercharge, Gorechild
+
+Lord Invocatus [100 pts]
+Weapons: Bolt pistol, Coward's Bane, Bladed horn
+
+Master of Executions [95 pts]
+Enhancement: Berzerker Glaive (+35)
+Weapons: Bolt pistol, Axe of dismemberment
+
+Slaughterbound [110 pts]
+Enhancement: Battle-lust (+20)
+Weapons: Lacerator and daemonic claw
+
+Slaughterbound [90 pts]
+Weapons: Lacerator and daemonic claw
+
+Slaughterbound [90 pts]
+Weapons: Lacerator and daemonic claw
+
+── BATTLELINE ──────────────────
+Khorne Berzerkers [170 pts]
+1x Khorne Berzerker Champion
+5x Khorne Berzerker
+2x Khorne Berzerker w/ eviscerator and bolt pistol
+2x Khorne Berzerker w/ chainblade and plasma pistol
+Weapons: ➤ Plasma pistol - standard x3, ➤ Plasma pistol - supercharge x3, Bolt pistol x7, Chainblade x8, Khornate eviscerator x2
+Wargear: Icon of Khorne
+
+Khorne Berzerkers [170 pts]
+1x Khorne Berzerker Champion
+5x Khorne Berzerker
+2x Khorne Berzerker w/ eviscerator and bolt pistol
+2x Khorne Berzerker w/ chainblade and plasma pistol
+Weapons: ➤ Plasma pistol - standard x3, ➤ Plasma pistol - supercharge x3, Bolt pistol x7, Chainblade x8, Khornate eviscerator x2
+Wargear: Icon of Khorne
+
+── INFANTRY ────────────────────
+Eightbound [125 pts]
+1x Eightbound Champion
+2x Eightbound
+Weapons: Chainblades x3
+
+Eightbound [125 pts]
+1x Eightbound Champion
+2x Eightbound
+Weapons: Chainblades x3
+
+Exalted Eightbound [130 pts]
+1x Exalted Eightbound Champion
+2x Exalted Eightbound
+Weapons: Chainblades x3
+
+Goremongers [70 pts]
+1x Blood Herald
+6x Goremonger w/ chainblade
+1x Goremonger w/ blood harpoon
+Weapons: Autopistol x8, Blood harpoon, Chainblade x7, Close combat weapon x8
+
+Jakhals [65 pts]
+1x Jakhal Pack Leader
+7x Jakhal
+1x Jakhal w/ mauler chainblade
+1x Dishonoured w/ paired manglers
+Weapons: Autopistol x9, Chainblades x8, Mauler chainblade, Paired manglers
+Wargear: Icon of Khorne
+
+Jakhals [65 pts]
+1x Jakhal Pack Leader
+7x Jakhal
+1x Jakhal w/ mauler chainblade
+1x Dishonoured w/ paired manglers
+Weapons: Autopistol x9, Chainblades x8, Mauler chainblade, Paired manglers
+Wargear: Icon of Khorne
+
+── DEDICATED TRANSPORT ─────────
+Chaos Rhino [75 pts]
+Weapons: Combi-bolter x2, Havoc launcher, Armoured tracks
+
+Chaos Rhino [75 pts]
+Weapons: Combi-bolter x2, Havoc launcher, Armoured tracks
+
+Total: 2000 pts
+https://ironbuilt.app/?s=VUCiQRN9
