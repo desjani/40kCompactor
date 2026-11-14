@@ -30,6 +30,18 @@ import { isWargearSkippable } from '../utils.js';
 // "Weapons:" already holds unit-wide totals, so model lines only feed the
 // model count. A "➤" marks one profile of a multi-profile weapon; every
 // profile repeats the same count, so profiles collapse into one entry.
+//
+// Attached units sit under "── ATTACHED CHARACTERS ──" as groups:
+//
+//   ----Attached Unit A [285 pts]---------------------
+//   Khârn the Betrayer [115 pts]
+//   Weapons: ...
+//   ↳ Attached to:
+//
+//   Khorne Berzerkers [170 pts]
+//   ...
+//
+// Units before "↳ Attached to:" are leaders; the unit after it is the bodyguard.
 export function parseIronbuilt(lines, skippableWargearMap = {}) {
     const result = {
         edition: '11th',
@@ -52,6 +64,8 @@ export function parseIronbuilt(lines, skippableWargearMap = {}) {
     const isBanner = (l) => /^\+={5,}$/.test(l);
     const sectionRegex = /^──\s+(.+?)\s+─{3,}$/;
     const unitHeaderRegex = /^(.*?)\s*\[(\d[\d,]*)\s*pts\]$/i;
+    const attachedGroupRegex = /^-{2,}\s*Attached\s+Unit\b.*?\[(\d[\d,]*)\s*pts\]\s*-*$/i;
+    const attachedToRegex = /^↳\s*Attached\s+to\s*:?$/i;
     const toInt = (s) => parseInt(String(s).replace(/,/g, ''), 10) || 0;
 
     // 1. Header block between the two "+=====" banners
@@ -96,6 +110,7 @@ export function parseIronbuilt(lines, skippableWargearMap = {}) {
     // 2. Body
     const categoryMap = {
         'UNATTACHED CHARACTERS': 'Characters',
+        'ATTACHED CHARACTERS': 'Characters',
         'CHARACTERS': 'Characters',
         'CHARACTER': 'Characters',
         'EPIC HERO': 'Characters',
@@ -148,18 +163,56 @@ export function parseIronbuilt(lines, skippableWargearMap = {}) {
 
     let currentSection = 'Other Datasheets';
     let currentUnit = null;
+    // Open "Attached Unit" group: { points, leaders: [], bodyguards: [], afterAttachedTo }
+    let group = null;
+
+    const closeGroup = () => {
+        if (!group) return;
+        const parts = [
+            ...group.leaders.map(u => ({ ...u, role: 'Leader' })),
+            ...group.bodyguards.map(u => ({ ...u, role: 'Bodyguard' }))
+        ];
+        if (group.leaders.length > 0 && group.bodyguards.length > 0) {
+            result.units.push({
+                name: group.leaders[0].name,
+                points: group.points || parts.reduce((sum, p) => sum + p.points, 0),
+                category: 'Attached Units',
+                isAttached: true,
+                attachedParts: parts
+            });
+        } else {
+            result.units.push(...group.leaders, ...group.bodyguards);
+        }
+        group = null;
+    };
 
     for (; i < cleanLines.length; i++) {
         const line = cleanLines[i];
         if (!line || isBanner(line)) continue;
         if (/^Total\s*:\s*\d/i.test(line) || /^https?:\/\//i.test(line)) {
+            closeGroup();
             currentUnit = null;
             continue;
         }
 
         const sectionMatch = line.match(sectionRegex);
         if (sectionMatch) {
+            closeGroup();
             currentSection = toCanonicalCategory(sectionMatch[1]);
+            currentUnit = null;
+            continue;
+        }
+
+        const groupMatch = line.match(attachedGroupRegex);
+        if (groupMatch) {
+            closeGroup();
+            group = { points: toInt(groupMatch[1]), leaders: [], bodyguards: [], afterAttachedTo: false };
+            currentUnit = null;
+            continue;
+        }
+
+        if (attachedToRegex.test(line)) {
+            if (group) group.afterAttachedTo = true;
             currentUnit = null;
             continue;
         }
@@ -177,7 +230,11 @@ export function parseIronbuilt(lines, skippableWargearMap = {}) {
                 enhancements: [],
                 subunits: []
             };
-            result.units.push(currentUnit);
+            if (group) {
+                (group.afterAttachedTo ? group.bodyguards : group.leaders).push(currentUnit);
+            } else {
+                result.units.push(currentUnit);
+            }
             continue;
         }
 
@@ -202,6 +259,7 @@ export function parseIronbuilt(lines, skippableWargearMap = {}) {
             currentUnit.quantity = currentUnit.subunits.reduce((sum, s) => sum + s.quantity, 0);
         }
     }
+    closeGroup();
 
     return result;
 }

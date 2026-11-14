@@ -35,7 +35,8 @@ const samples = [
   { file: 'samples/Test-TAU-WARORGAN-English', expect: 'WAR_ORGAN_V11' },
   { file: 'samples/Test-WE-WARORGAN-English', expect: 'WAR_ORGAN_V11' },
   { file: 'samples/Warmind-Sample-WE.txt', expect: 'WARMIND_V11' },
-  { file: 'samples/Ironbuilt-Sample-WE.txt', expect: 'IRONBUILT_V11' }
+  { file: 'samples/Ironbuilt-Sample-WE.txt', expect: 'IRONBUILT_V11' },
+  { file: 'samples/Ironbuilt-Sample-WE-Attached.txt', expect: 'IRONBUILT_V11' }
 ];
 
 const renderCombos = [

@@ -86,6 +86,37 @@ test('Ironbuilt: model lines set the unit size, merging "w/ ..." loadout variant
     assert.deepStrictEqual(wargearOf(rhino), { 'Combi-bolter': 2, 'Havoc launcher': 1, 'Armoured tracks': 1 });
 });
 
+const ATTACHED_SAMPLE = 'Ironbuilt-Sample-WE-Attached.txt';
+const loadAttached = () => parseIronbuilt(readSample(ATTACHED_SAMPLE), skippableWargear);
+
+test('Ironbuilt: "Attached Unit" groups become leader + bodyguard units', () => {
+    const data = loadAttached();
+    assert.strictEqual(detectFormat(readSample(ATTACHED_SAMPLE)), 'IRONBUILT_V11');
+    assert.strictEqual(data.units.length, 14);
+    assert.strictEqual(data.units.reduce((sum, u) => sum + u.points, 0), 2000);
+
+    const attached = data.units.filter(u => u.isAttached);
+    assert.deepStrictEqual(attached.map(u => [u.name, u.points, u.attachedParts.map(p => `${p.role}:${p.name}`)]), [
+        ['Khârn the Betrayer', 285, ['Leader:Khârn the Betrayer', 'Bodyguard:Khorne Berzerkers']],
+        ['Master of Executions', 265, ['Leader:Master of Executions', 'Bodyguard:Khorne Berzerkers']],
+        ['Slaughterbound', 240, ['Leader:Slaughterbound', 'Bodyguard:Exalted Eightbound']]
+    ]);
+    assert.ok(attached.every(u => u.category === 'Attached Units'));
+
+    const [kharn, moe, slaughterbound] = attached;
+    assert.strictEqual(kharn.attachedParts[1].quantity, 10);
+    assert.deepStrictEqual(moe.attachedParts[0].enhancements, [{ name: 'Berzerker Glaive', points: 35 }]);
+    assert.deepStrictEqual(slaughterbound.attachedParts[0].enhancements, [{ name: 'Battle-lust', points: 20 }]);
+    assert.strictEqual(slaughterbound.attachedParts[1].quantity, 3);
+});
+
+test('Ironbuilt: attached units render with [L]/[B] markers', () => {
+    const out = generateOutput(loadAttached(), false, {}, true, skippableWargear, false);
+    assert.ok(out.plainText.includes('[L1] Khârn the Betrayer [115]'));
+    assert.ok(out.plainText.includes('[B1] 10 Khorne Berzerkers [170]'));
+    assert.ok(out.plainText.includes('[B3] 3 Exalted Eightbound [130]'));
+});
+
 test('Ironbuilt: renders with unit sizes and no footer leakage', () => {
     const out = generateOutput(load(), false, {}, true, skippableWargear, false);
     assert.ok(out.plainText.includes('[W] Angron'));

@@ -14,7 +14,8 @@ const samples = [
     'NR-GW-Sample-WorldEaters.txt',
     'V11Sample.txt',
     'Warmind-Sample-WE.txt',
-    'Ironbuilt-Sample-WE.txt'
+    'Ironbuilt-Sample-WE.txt',
+    'Ironbuilt-Sample-WE-Attached.txt'
 ];
 
 for (const name of samples) {
