@@ -73,15 +73,7 @@ function App() {
 
   const parsed = useMemo(() => {
     if (!text.trim()) return null
-    const lines = text.split(/\r?\n/)
-    const fmt = parsers.detectFormat(lines)
-    const parseFn = {
-      'V11_GENERIC': parsers.parseV11List,
-      'GW_APP_V11': parsers.parseGwAppV11,
-      'WAR_ORGAN_V11': parsers.parseWarOrganV11
-    }[fmt]
-    if (!parseFn) return null
-    try { return parseFn(lines, skippable as any) } catch { return null }
+    try { return parsers.parseList(text, skippable as any).list } catch { return null }
   }, [text])
 
   const abbr = useMemo(() => parsed ? buildAbbreviationIndex(parsed, customAbbrs) : null, [parsed, customAbbrs])
@@ -414,7 +406,7 @@ function App() {
                   // INGEST ARMY LIST
                 </label>
                 <textarea 
-                  placeholder="Paste your Warhammer 40k list here (GW App, War Organ)..." 
+                  placeholder="Paste your Warhammer 40k list here (Warhammer 40,000 App, New Recruit, Warmind, Ironbuilt)..."
                   value={text} 
                   onInput={(e: any) => setText(e.currentTarget.value)} 
                 />
