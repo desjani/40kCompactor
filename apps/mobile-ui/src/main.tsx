@@ -395,9 +395,6 @@ function App() {
           <strong style={{ color: '#22c55e', textShadow: '0 0 6px rgba(34,197,94,0.4)', letterSpacing: '1px' }}>40K COMPACTOR [COGITATOR V2.0]</strong>
           <span class="pill">MOBILE HUD</span>
         </div>
-        <div style={{ textAlign: 'center', background: '#11141a', padding: '6px', fontSize: '10px', marginTop: '6px', border: '1px solid #1f2833' }}>
-          <a href="../../../v10/apps/mobile-ui/dist/index.html" style={{ color: '#45f3ff', textDecoration: 'none', textShadow: '0 0 2px rgba(69,243,255,0.3)' }}>[ SWITCH TO V10 LEGACY MOBILE ]</a>
-        </div>
       </header>
 
       {/* Progress tracker */}
@@ -444,6 +441,10 @@ function App() {
               >
                 [ Proceed to Refine ]
               </button>
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: '32px', fontSize: '10px' }}>
+              <a href="../../../v10/apps/mobile-ui/dist/index.html" style={{ color: '#4f5e71' }}>10th Edition compactor (legacy)</a>
             </div>
           </div>
 
