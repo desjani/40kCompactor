@@ -2,7 +2,8 @@ import { parseList } from './parsers.js';
 import { generateOutput, generateDiscordText, resolveFactionColors } from './renderers.js';
 import { buildAbbreviationIndex } from './abbreviations.js';
 import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth, copyCardImageToClipboard } from './cardRenderer.js';
-import { initializeUI, enableParseButton, getInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getHideBracketsState, getMultilineHeaderState, getAbbreviateHeaderState, getAbbreviateUnitNamesState, getWargearShowModeState, getCustomAbbrs, setCopyPreviewButtonText } from './ui.js';
+import { getIronbuiltShareCode, fetchIronbuiltList } from './ironbuilt_link.js';
+import { initializeUI, enableParseButton, getInputText, setInputText, setUnabbreviatedOutput, setCompactedOutput, setDebugOutput, resetUI, updateCharCounts, copyTextToClipboard, setMarkdownPreviewOutput, getHideSubunitsState, setFactionColorDiagnostic, clearFactionColorDiagnostic, getCombineUnitsState, getNoBulletsState, getHidePointsState, getHideBracketsState, getMultilineHeaderState, getAbbreviateHeaderState, getAbbreviateUnitNamesState, getWargearShowModeState, getCustomAbbrs, setCopyPreviewButtonText } from './ui.js';
 
 let parsedData = null;
 let extendedPlainText = '';
@@ -187,9 +188,38 @@ function updateFactionDiagnostic() {
     }
 }
 
+let ironbuiltFetchCode = null;
+
+// A pasted IRONBUILT share link is swapped for the list it points to, then parsed.
+async function loadIronbuiltLink(code) {
+    ironbuiltFetchCode = code;
+    setUnabbreviatedOutput('<p style="color: var(--color-text-secondary);">Fetching list from IRONBUILT...</p>');
+    setCompactedOutput('');
+    setMarkdownPreviewOutput('');
+    try {
+        const listText = await fetchIronbuiltList(code);
+        if (ironbuiltFetchCode !== code || getIronbuiltShareCode(getInputText()) !== code) return;
+        setInputText(listText);
+        handleParse();
+    } catch (e) {
+        if (ironbuiltFetchCode !== code) return;
+        const div = document.createElement('div');
+        div.textContent = e.message || 'Could not fetch the list from IRONBUILT.';
+        setUnabbreviatedOutput(`<p style="color: var(--color-danger);">${div.innerHTML}</p>`);
+    } finally {
+        if (ironbuiltFetchCode === code) ironbuiltFetchCode = null;
+    }
+}
+
 function handleParse() {
     setDebugOutput('');
     const text = getInputText();
+    const ironbuiltCode = getIronbuiltShareCode(text);
+    if (ironbuiltCode) {
+        if (ironbuiltFetchCode !== ironbuiltCode) loadIronbuiltLink(ironbuiltCode);
+        return;
+    }
+    ironbuiltFetchCode = null;
     const { format, list: result } = parseList(text.split('\n'), skippableWargearMap);
     if (!result) {
         console.error("Unsupported list format.");

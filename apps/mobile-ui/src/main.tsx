@@ -17,6 +17,8 @@ import { generateOutput, generateDiscordText } from '../../../modules/renderers.
 import { buildAbbreviationIndex } from '../../../modules/abbreviations.js'
 // @ts-ignore
 import { downloadCardPng, generateCardPngDataUrl, estimateCardWidth, copyCardImageToClipboard } from '../../../modules/cardRenderer.js'
+// @ts-ignore
+import { getIronbuiltShareCode, fetchIronbuiltList } from '../../../modules/ironbuilt_link.js'
 import skippable from '../../../skippable_wargear.json'
 
 function useLocalStorage<T>(key: string, initial: T): [T, (v: T)=>void] {
@@ -71,8 +73,21 @@ function App() {
   const newAbbrNameRef = useRef<HTMLInputElement | null>(null)
   const newAbbrCodeRef = useRef<HTMLInputElement | null>(null)
 
+  // A pasted IRONBUILT share link is swapped for the list it points to.
+  const [linkStatus, setLinkStatus] = useState<{ loading: boolean, error: string }>({ loading: false, error: '' })
+  useEffect(() => {
+    const code = getIronbuiltShareCode(text)
+    if (!code) { setLinkStatus({ loading: false, error: '' }); return }
+    let active = true
+    setLinkStatus({ loading: true, error: '' })
+    fetchIronbuiltList(code)
+      .then((listText: string) => { if (active) { setLinkStatus({ loading: false, error: '' }); setText(listText) } })
+      .catch((e: any) => { if (active) setLinkStatus({ loading: false, error: e?.message || 'Could not fetch the list from IRONBUILT.' }) })
+    return () => { active = false }
+  }, [text])
+
   const parsed = useMemo(() => {
-    if (!text.trim()) return null
+    if (!text.trim() || getIronbuiltShareCode(text)) return null
     try { return parsers.parseList(text, skippable as any).list } catch { return null }
   }, [text])
 
@@ -406,14 +421,17 @@ function App() {
                   // INGEST ARMY LIST
                 </label>
                 <textarea 
-                  placeholder="Paste your Warhammer 40k list here (Warhammer 40,000 App, New Recruit, Warmind, Ironbuilt)..."
-                  value={text} 
-                  onInput={(e: any) => setText(e.currentTarget.value)} 
+                  placeholder="Paste your Warhammer 40k list or an IRONBUILT share link here (Warhammer 40,000 App, New Recruit, Warmind, IRONBUILT)..."
+                  value={text}
+                  onInput={(e: any) => setText(e.currentTarget.value)}
                 />
                 <div class="row" style={{ marginTop: '12px', justifyContent: 'space-between' }}>
-                  <span class="pill">{text.length} characters</span>
+                  <span class="pill">{linkStatus.loading ? 'Fetching list from IRONBUILT...' : `${text.length} characters`}</span>
                   <button class="btn" onClick={() => setText('')}>[ Clear ]</button>
                 </div>
+                {linkStatus.error && (
+                  <div style={{ marginTop: '8px', fontSize: '12px', color: '#ff8080' }}>{linkStatus.error}</div>
+                )}
               </div>
             </div>
 

@@ -9,6 +9,7 @@ import { Resvg } from '@resvg/resvg-js';
 
 // Import core modules from parent directory
 import { parseList } from '../modules/parsers.js';
+import { getIronbuiltShareCode, fetchIronbuiltList } from '../modules/ironbuilt_link.js';
 import { buildAbbreviationIndex } from '../modules/abbreviations.js';
 import { generateDiscordText, ansiPalette, colorNameToHex } from '../modules/renderers.js';
 import { generateCardHtml, estimateCardWidth } from '../modules/cardRenderer.js';
@@ -137,7 +138,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
                 const listInput = new TextInputBuilder()
                     .setCustomId('listInput')
-                    .setLabel("Paste list (4k limit - check fit)")
+                    .setLabel("Paste list or IRONBUILT link (4k limit)")
                     .setPlaceholder("If over the 4k limit, please use https://www.40kcompactor.com/ (which has no character limits)")
                     .setStyle(TextInputStyle.Paragraph)
                     .setRequired(true);
@@ -150,9 +151,22 @@ client.on(Events.InteractionCreate, async interaction => {
             }
         } else if (interaction.isModalSubmit()) {
         if (interaction.customId === 'compactModal') {
-            const listText = interaction.fields.getTextInputValue('listInput');
+            let listText = interaction.fields.getTextInputValue('listInput');
 
-            if (listText.length >= 4000) {
+            // An IRONBUILT share link is swapped for the list it points to. The
+            // fetch can outlast Discord's 3s reply window, so defer first.
+            const ironbuiltCode = getIronbuiltShareCode(listText);
+            if (ironbuiltCode) {
+                await interaction.deferReply({ ephemeral: true });
+                try {
+                    listText = await fetchIronbuiltList(ironbuiltCode);
+                } catch (e) {
+                    await interaction.editReply({ content: `⚠️ ${e.message || 'Could not fetch the list from IRONBUILT.'}` });
+                    return;
+                }
+            }
+
+            if (listText.length >= 4000 && !ironbuiltCode) {
                 await interaction.reply({
                     content: '⚠️ **Input Limit Reached**\nDiscord has a text input limit of 4000 characters. Your list is likely truncated.\n\nPlease use the website instead: https://www.40kcompactor.com/ (No character limits!)',
                     ephemeral: true
@@ -178,13 +192,15 @@ client.on(Events.InteractionCreate, async interaction => {
             const { content, components, files } = await generateResponse(listText, options);
 
             // Send ephemeral preview
-            const response = await interaction.reply({
-                content: content,
-                components: components,
-                files: files || [],
-                ephemeral: true,
-                fetchReply: true
-            });
+            const response = interaction.deferred
+                ? await interaction.editReply({ content, components, files: files || [] })
+                : await interaction.reply({
+                    content: content,
+                    components: components,
+                    files: files || [],
+                    ephemeral: true,
+                    fetchReply: true
+                });
 
             // Store session
             sessions.set(response.id, { text: listText, options });

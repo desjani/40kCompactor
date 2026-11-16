@@ -11,7 +11,7 @@ This tool supports the following formats:
 * War Organ (Flat & Indented)
 * New Recruit (NR-WTCCompact, NR-WTC, and NR-GW)
 * Warmind
-* Ironbuilt
+* IRONBUILT (list text, or paste a share link on its own)
 * Generic 11th Edition formats
 
 > [!NOTE]

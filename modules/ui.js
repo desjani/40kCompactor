@@ -413,6 +413,10 @@ export function getInputText() {
     return inputText ? inputText.value : '';
 }
 
+export function setInputText(text) {
+    if (inputText) inputText.value = text;
+}
+
 export function setUnabbreviatedOutput(html) {
     if (unabbreviatedOutput) {
         unabbreviatedOutput.innerHTML = html;
@@ -483,7 +487,7 @@ export function updateCharCounts(original, extended, compact, markdownPreview, d
         'NR_TOURNAMENT': "New Recruit - Tournament",
         'NR_GW': 'New Recruit - GW',
         'WARMIND_V11': 'Warmind',
-        'IRONBUILT_V11': 'Ironbuilt'
+        'IRONBUILT_V11': 'IRONBUILT'
     // 'LF': 'Listforge'
     };
 
